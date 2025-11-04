@@ -1,36 +1,6 @@
 import pandas as pd
 import numpy as np
-
-ratings = pd.read_csv("ratings.csv", nrows=10000)
-movies = pd.read_csv("movies.csv", nrows=10000)
-movies
-
-combine_m_r = pd.merge(ratings,movies, on='movieId')
-combine_m_r
-
-
-combine_m_r = combine_m_r.drop('timestamp',axis=1)
-combine_m_r
-
-combine_m_r = combine_m_r.dropna(axis=0,subset=['title'])
-combine_m_r
-
-movie_rc = (combine_m_r.
-groupby(by = ['title'])['rating'].
-count().
-reset_index().
-rename(columns= {'rating': 'totalRatingCount'})
-[['title', 'totalRatingCount']]
-)
-movie_rc
-
-rating_with_totRc = combine_m_r.merge(movie_rc, left_on='title', right_on='title', how='left')
-rating_with_totRc
-
-# Matrix Factorization
-
-movie_user_rating = rating_with_totRc.pivot(index='userId', columns='title', values='rating').fillna(0)
-movie_user_rating
+import os
 
 class MatrixFactorization:
     def __init__(self, R, k=20, alpha=0.01, lamda_=0.1, n_epochs=50):
@@ -63,7 +33,7 @@ class MatrixFactorization:
                         self.Q[i, :] += self.alpha * (error * self.P[u, :] - self.lambda_ * self.Q[i,:])
 
             loss = self.compute_loss()
-            print(f"Epoch {epoch+1}/{self.n_epochs}, Loss: {loss:.4f}")
+            # print(f"Epoch {epoch+1}/{self.n_epochs}, Loss: {loss:.4f}")
 
 
 
@@ -90,46 +60,80 @@ class MatrixFactorization:
         return loss
 
 
-R = movie_user_rating.values
-mf = MatrixFactorization(R, k = 20, alpha=0.01, lamda_=0.1, n_epochs=50)
-mf.train()
-mf.full_prediction()
 
-# Full predicted rating matrix
-predicted_ratings = mf.full_prediction()
+def load_and_prepare_matrix(ratings_file_path, movies_file_path, nrows_movies=None):
+    # Check if files exist before loading
+    if not os.path.exists(ratings_file_path):
+        raise FileNotFoundError(f"Ratings file not found: {ratings_file_path}")
+    if not os.path.exists(movies_file_path):
+        raise FileNotFoundError(f"Movies file not found: {movies_file_path}")
+    
+    # Load the files
+    ratings = pd.read_csv(ratings_file_path)
+    movies = pd.read_csv(movies_file_path, nrows=nrows_movies)
 
-#convert back to DataFram with  movie titels and user IDS
+    #Merge and Clean
+    combine_m_r = pd.merge(ratings,movies, on='movieId')
+    # drop timestamp and rows
+    combine_m_r = combine_m_r.drop('timestamp',axis=1)
+    combine_m_r = combine_m_r.dropna(axis=0,subset=['title'])
 
-predicted_ratings_df = pd.DataFrame(predicted_ratings,
-                                    index = movie_user_rating.index,
-                                    columns=movie_user_rating.columns
-                                    )
-predicted_ratings_df
+    # Pivot data into user-item rating matrix
+    movie_user_rating = combine_m_r.pivot(index='userId', columns='title', values='rating').fillna(0)
 
-#printing the movie list
-movie_titles = movie_user_rating.columns
-user_ids = movie_user_rating.index
+    return movie_user_rating
 
-u = 0
-user_ratings = predicted_ratings[u, :]
-#get movie indices sorted by predicted rating (highest first)
-recommended_idx = np.argsort(user_ratings)[:: -1]
 
-#map indices to moive titles
-recommended_movies = movie_titles[recommended_idx]
+def filter_empty_users_data(R, user_ids= None, movie_titles=None):
+    # keep users and movies with at least on rating
+    user_filter = R.sum(axis = 1) > 0
+    movie_filter = R.sum(axis = 0) > 0
 
-#get predicted ratings in order
-recommended_scores = user_ratings[recommended_idx]
+    R_filtered = R[user_filter, :][:, movie_filter]
 
-already_rated = movie_user_rating.iloc[u,:]>0
+    filtered_user_ids = user_ids[user_filter] if user_ids is not None else None
+    filtered_movie_titles = movie_titles[movie_filter] if movie_titles is not None else None
 
-recommended_idx = [i for i in recommended_idx if not already_rated[i]]
+    return R_filtered, filtered_user_ids, filtered_movie_titles
 
-top_n = 10
-recommended_idx_top = recommended_idx[:top_n]
 
-# Output in the same style as MMR
-print("Top movies from Matrix Factorization (ranked by predicted rating):")
-for rank, idx in enumerate(recommended_idx_top, start=1):
-    print(f"{rank}. {movie_titles[idx]} — Predicted rating: {user_ratings[idx]:.2f}")
+
+
+def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_ids, filtered_movie_titles, top_n=10):
+    # store all recomendations for all users
+    all_recomenndations = {}
+
+    for user_idx, user_id in enumerate(filtered_user_ids):
+        # Get all predicted movie ratings for user
+        user_ratings = predicted_ratings[user_idx, :]
+
+        # Boolean series of movie rating status
+        already_rated = R_filtered[user_idx, :]> 0
+
+        # Filter out already rated movies
+        user_ratings_filtered = np.where(already_rated, -np.inf, user_ratings)
+
+        # get indicies sorted descending 
+        sorted_indices = np.argsort(user_ratings_filtered)[::-1]
+
+        # Tak top N or fewer if not enough movies
+        top_indices = sorted_indices[:min(top_n, len(sorted_indices))]
+
+
+        # Map to movies titles and scors
+        top_movies = filtered_movie_titles[top_indices]
+        top_scores = user_ratings_filtered[top_indices]
+
+        #store a list of (movie, predicted rating)
+        all_recomenndations[user_id] = list(zip(top_movies, top_scores))
+
+        # MMR-style output for this user
+    #     print("--------------------------------------------------------------------")
+    #     print(f"Top {top_n} movies for User {user_id} (Matrix Factorization):")
+    #     for rank, (movie, score) in enumerate(zip(top_movies, top_scores), start=1):
+    #         print(f"{rank}. {movie} — Predicted rating: {score:.2f}")
+    # print("--------------------------------------------------------------------")
+
+    return all_recomenndations
+
 
