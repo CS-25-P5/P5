@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 
-chunksize = 10000
+chunksize = 50000
 test_size = 0.25
 
 
