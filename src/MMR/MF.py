@@ -96,7 +96,14 @@ def filter_empty_users_data(R, user_ids= None, movie_titles=None):
 
     return R_filtered, filtered_user_ids, filtered_movie_titles
 
+def save_mf_predictions(all_recommendations, output_path="mf_predictions.csv"):
+    rows = []
+    for user_id, recs in all_recommendations.items():
+        for movie, score in recs:
+            rows.append({"userId": user_id, "movie": movie, "mf_score":score})
 
+    df = pd.DataFrame(rows)
+    df.to_csv(output_path, index=False)
 
 
 def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_ids, filtered_movie_titles, top_n=10):

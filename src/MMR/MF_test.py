@@ -1,4 +1,4 @@
-from MF import MatrixFactorization, load_and_prepare_matrix, filter_empty_users_data, get_top_n_recommendations_MF
+from MF import MatrixFactorization, load_and_prepare_matrix, filter_empty_users_data, get_top_n_recommendations_MF, save_mf_predictions
 import os
 
 
@@ -28,5 +28,7 @@ predicted_ratings = mf.full_prediction()
 
 # Get top-N candidates for MMR
 all_recommendations = get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_ids, filtered_movie_titles, top_n=top_n)
+
+save_mf_predictions(all_recommendations, output_path="src/datasets/mf_test_predictions.csv")
 
 
