@@ -100,7 +100,7 @@ def save_mf_predictions(all_recommendations, output_path="mf_predictions.csv"):
     rows = []
     for user_id, recs in all_recommendations.items():
         for movie, score in recs:
-            rows.append({"userId": user_id, "movie": movie, "mf_score":score})
+            rows.append({"userId": user_id, "title": movie, "mf_score":score})
 
     df = pd.DataFrame(rows)
     df.to_csv(output_path, index=False)
