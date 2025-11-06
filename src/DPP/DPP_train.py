@@ -1,8 +1,22 @@
-from MMR.MF import MatrixFactorization, load_and_prepare_matrix, filter_empty_users_data, get_top_n_recommendations_MF, save_mf_predictions
+import os
+import sys
+
+# 🔧 Add this to make sure Python can find the 'MMR' module
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from MMR.MF import (
+    MatrixFactorization,
+    load_and_prepare_matrix,
+    filter_empty_users_data,
+    get_top_n_recommendations_MF,
+    save_mf_predictions,
+)
+
 from DPP import dpp_recommendations
 import os
 import pandas as pd
 import numpy as np
+
 
 # ============================================================
 # Parameters
