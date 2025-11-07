@@ -157,12 +157,12 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
         all_recomenndations[user_id] = list(zip(top_movies, top_scores))
 
         # MMR-style output for this user
-        print("--------------------------------------------------------------------")
-        print(f"Top {top_n} movies for User {user_id} (Matrix Factorization):")
-        for rank, (movie, score) in enumerate(zip(top_movies, top_scores), start=1):
-            genres = ",".join(genre_map.get(movie, []))
-            print(f"{rank}. {movie} — Predicted rating: {score:.2f} | Genres {genres}")
-    print("--------------------------------------------------------------------")
+    #     print("--------------------------------------------------------------------")
+    #     print(f"Top {top_n} movies for User {user_id} (Matrix Factorization):")
+    #     for rank, (movie, score) in enumerate(zip(top_movies, top_scores), start=1):
+    #         genres = ",".join(genre_map.get(movie, []))
+    #         print(f"{rank}. {movie} — Predicted rating: {score:.2f} | Genres {genres}")
+    # print("--------------------------------------------------------------------")
 
     return all_recomenndations
 
