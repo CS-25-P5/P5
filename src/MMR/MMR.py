@@ -1,11 +1,10 @@
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import os
-from MF import MatrixFactorization, load_and_prepare_matrix, filter_empty_users_data, get_top_n_recommendations_MF
 
-def mmr(user_id, predicted_ratings, movie_embeddings, user_history, lambda_param=0.7, top_k=10):
+
+def mmr(user_id, predicted_ratings, genre_map, movie_titles, user_history, lambda_param=0.7, top_k=10):
     relevance_scores = predicted_ratings[user_id, :]
-    similarity_matrix = cosine_similarity(movie_embeddings)
     selected_indices = []
     # Only include movies the user hasn't already seen
     remaining_indices = [i for i in range(len(relevance_scores)) if not user_history[i]]
@@ -14,7 +13,8 @@ def mmr(user_id, predicted_ratings, movie_embeddings, user_history, lambda_param
         mmr_scores = []
         for i in remaining_indices:
             if selected_indices:
-                diversity = max(similarity_matrix[i][j] for j in selected_indices)
+                diversity = max(jaccard_similiarity(genre_map[movie_titles[i]], genre_map[movie_titles[j]])
+                                for j in selected_indices)
             else:
                 diversity = 0.0
 
@@ -26,3 +26,42 @@ def mmr(user_id, predicted_ratings, movie_embeddings, user_history, lambda_param
         remaining_indices.remove(best_idx)
     return selected_indices
 
+
+
+# Diversification post-preocessing 
+
+def jaccard_similiarity(genres_i, genres_j):
+    #jaccard similiary between genres of two items
+    if not genres_i or not genres_j:
+        return 0
+    
+    return len(genres_i & genres_j) /len(genres_i | genres_j)
+   
+
+
+def process_mmr(user_id, user_idx, mmr_indices, movie_titles, genre_map, predicted_ratings, mmr_recommendations_list, top_n=10):
+    for rank, idx in enumerate(mmr_indices, start = 1):
+        movie = movie_titles[idx]
+        # hangle missing genres
+        movie_genres = genre_map.get(movie, set())
+        genres = ",".join(movie_genres)
+
+
+        mmr_recommendations_list.append({
+            'userId': user_id,
+            'rank': rank,
+            'title': movie,
+            'predictedRating': predicted_ratings[user_idx, idx],
+            'genres':genres
+
+        })
+    
+    # print("--------------------------------------------------")
+    # print(f"Top {top_n} diverse movie recommendations for user {user_id} (MMR) with predicted ratings:")
+    # for rank, idx in enumerate(mmr_indices, start=1):
+    #     movie = movie_titles[idx]
+    #     genres = ",".join(genre_map.get(movie, []))
+    #     rating = predicted_ratings[user_idx, idx]
+    #     print(f"{rank}. {movie} — Predicted rating: {rating:.2f} | genres : {genres}")
+
+    # print("--------------------------------------------------")

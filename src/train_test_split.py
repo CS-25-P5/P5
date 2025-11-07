@@ -4,7 +4,7 @@ import pandas as pd
 
 
 chunksize = 50000
-test_size = 0.25
+test_size = 0.20
 
 
 #load dataset
@@ -37,6 +37,5 @@ test_file_path = os.path.join(base_dir,"datasets", "ratings_test.csv" )
 train_df.to_csv(train_file_path, index=False)
 test_df.to_csv(test_file_path, index=False)
 
-
-
+print(f"Test and Train dataset genreated, with {chunksize} number of rows")
 

@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import os
 
+
+
+
 class MatrixFactorization:
     def __init__(self, R, k=20, alpha=0.01, lamda_=0.1, n_epochs=50):
         self.R = R
@@ -58,7 +61,7 @@ class MatrixFactorization:
         loss += self.lambda_ * (np.sum(self.P**2) + np.sum(self.Q**2) + np.sum(self.b_u**2) + np.sum(self.b_i**2))
 
         return loss
-
+    
 
 
 def load_and_prepare_matrix(ratings_file_path, movies_file_path, nrows_movies=None):
@@ -81,7 +84,21 @@ def load_and_prepare_matrix(ratings_file_path, movies_file_path, nrows_movies=No
     # Pivot data into user-item rating matrix
     movie_user_rating = combine_m_r.pivot(index='userId', columns='title', values='rating').fillna(0)
 
-    return movie_user_rating
+
+    #add genre attribute 
+    genre_map = {}
+    for _,row in movies.iterrows():
+        genres = row['genres']
+
+        if isinstance(genres, str):
+            genre_set = set(genres.split('|'))
+        else:
+            genre_set = set()
+        genre_map[row['title']] = genre_set
+
+
+
+    return movie_user_rating, genre_map
 
 
 def filter_empty_users_data(R, user_ids= None, movie_titles=None):
@@ -96,18 +113,23 @@ def filter_empty_users_data(R, user_ids= None, movie_titles=None):
 
     return R_filtered, filtered_user_ids, filtered_movie_titles
 
-def save_mf_predictions(all_recommendations, output_path="mf_predictions.csv"):
+def save_mf_predictions(all_recommendations, genre_map, output_path="mf_predictions.csv"):
     rows = []
     for user_id, recs in all_recommendations.items():
         for movie, score in recs:
-            rows.append({"userId": user_id, "title": movie, "mf_score":score})
+            rows.append({
+                "userId": user_id, 
+                "title": movie, 
+                "mf_score":score,
+                "genres": ",".join(genre_map.get(movie,[])) if genre_map else ""
+                })
 
     df = pd.DataFrame(rows)
     df.to_csv(output_path, index=False)
 
 
-def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_ids, filtered_movie_titles, top_n=10):
-    # store all recomendations for all users
+def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filtered_user_ids, filtered_movie_titles, top_n=10):
+        # store all recomendations for all users
     all_recomenndations = {}
 
     for user_idx, user_id in enumerate(filtered_user_ids):
@@ -135,12 +157,19 @@ def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_id
         all_recomenndations[user_id] = list(zip(top_movies, top_scores))
 
         # MMR-style output for this user
-    #     print("--------------------------------------------------------------------")
-    #     print(f"Top {top_n} movies for User {user_id} (Matrix Factorization):")
-    #     for rank, (movie, score) in enumerate(zip(top_movies, top_scores), start=1):
-    #         print(f"{rank}. {movie} — Predicted rating: {score:.2f}")
-    # print("--------------------------------------------------------------------")
+        print("--------------------------------------------------------------------")
+        print(f"Top {top_n} movies for User {user_id} (Matrix Factorization):")
+        for rank, (movie, score) in enumerate(zip(top_movies, top_scores), start=1):
+            genres = ",".join(genre_map.get(movie, []))
+            print(f"{rank}. {movie} — Predicted rating: {score:.2f} | Genres {genres}")
+    print("--------------------------------------------------------------------")
 
     return all_recomenndations
 
 
+
+
+
+
+
+    
