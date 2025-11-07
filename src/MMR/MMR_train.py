@@ -14,7 +14,7 @@ k = 20
 alpha = 0.01
 lamda_ = 0.1
 n_epochs = 50
-top_k = 50
+top_k = 20
 
 #load data
 base_dir = os.path.dirname(os.path.abspath(__file__))
