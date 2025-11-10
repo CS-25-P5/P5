@@ -85,7 +85,7 @@ def load_and_prepare_matrix(ratings_file_path, movies_file_path, nrows_movies=No
     movie_user_rating = combine_m_r.pivot(index='userId', columns='title', values='rating').fillna(0)
 
 
-    #add genre attribute 
+    #build genre map (title to set of genres )
     genre_map = {}
     for _,row in movies.iterrows():
         genres = row['genres']
@@ -97,8 +97,15 @@ def load_and_prepare_matrix(ratings_file_path, movies_file_path, nrows_movies=No
         genre_map[row['title']] = genre_set
 
 
+    # build all unique genre list
+    all_genres = set()
+    for genres in genre_map.values():
+        all_genres.update(genres)
+    all_genres = sorted(all_genres)
 
-    return movie_user_rating, genre_map
+
+
+    return movie_user_rating, genre_map, all_genres
 
 
 def filter_empty_users_data(R, user_ids= None, movie_titles=None):

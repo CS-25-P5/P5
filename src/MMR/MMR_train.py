@@ -1,5 +1,5 @@
 from MF import MatrixFactorization, load_and_prepare_matrix, filter_empty_users_data, get_top_n_recommendations_MF, save_mf_predictions
-from MMR import mmr, process_mmr
+from MMR import mmr, process_mmr, save_mmr_results
 import os
 import pandas as pd
 
@@ -21,7 +21,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 ratings_file_path = os.path.join(base_dir, "../datasets", "ratings_train.csv")
 movies_file_path = os.path.join(base_dir, "../datasets", "movies.csv")
 
-movie_user_rating, genre_map = load_and_prepare_matrix(ratings_file_path, movies_file_path, nrows_movies=chunksizeMovies)
+movie_user_rating, genre_map, all_genres = load_and_prepare_matrix(ratings_file_path, movies_file_path, nrows_movies=chunksizeMovies)
 
 R = movie_user_rating.values
 
@@ -59,19 +59,16 @@ for user_idx, user_id in enumerate(movie_user_rating.index):
         movie_titles = movie_titles,
         user_history = user_history,
         lambda_param =lambda_param,
-        top_k=top_k
+        top_k=top_k,
+        similarity_type="cosine", 
+        all_genres=all_genres
                     )
     
     process_mmr(user_id, user_idx, mmr_indices, movie_titles, genre_map, predicted_ratings, mmr_recommendations_list, top_n=top_n)
 
     
 
-
-mmr_df = pd.DataFrame(mmr_recommendations_list)
-
-#save to csv
-output_file_path = os.path.join(base_dir, "../datasets/mmr_data/mmr_train_recommendations.csv")
-mmr_df.to_csv(output_file_path, index=False)
+save_mmr_results(base_dir, mmr_recommendations_list, similarity_type="cosine")
 
 print("DONE with MMR :)")
 

@@ -15,7 +15,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 ratings_file_path = os.path.join(base_dir, "../datasets", "ratings_test.csv")
 movies_file_path = os.path.join(base_dir, "../datasets", "movies.csv")
 
-movie_user_rating, genre_map = load_and_prepare_matrix(ratings_file_path, movies_file_path, nrows_movies=chunksizeMovies)
+movie_user_rating, genre_map, all_genres = load_and_prepare_matrix(ratings_file_path, movies_file_path, nrows_movies=chunksizeMovies)
 
 R = movie_user_rating.values
 
