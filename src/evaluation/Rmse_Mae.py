@@ -1,25 +1,53 @@
-import os
 import pandas as pd
 import numpy as np
-from sklearn.metrics import mean_squared_error, mean_absolute_error
+from DataHandler import DataHandler
 
 
-#RMSE / MAE, measures how accuratly the ratings are predicted
-#single value but can plot per epoch to show convergence
-def evaluate_rmse_mae(model, test, movie_to_idx): #the model, the test data, and a dictionary of movie to idx
-    y_true = []
-    y_pred = []
+def calculate_accuracy_metrics(predictions_df, ground_truth_df):
+    # Merge dataframes
+    # Uses an inner merge because for MAE/RMSE, we only care about items where we have both a prediction and a true rating
+    merged_df = pd.merge(
+        predictions_df,
+        ground_truth_df,
+        on=["userId", "title"],
+        how="inner",
+        suffixes=('_pred', '_gt')
+    )
 
-    for row in test.itertuples(index=False):
-        user = int(row.userId)
-        movieId = int(row.movieId)
-        if movieId not in movie_to_idx: #skip loop iteration if movie not seen before
-            continue
-        i = movie_to_idx[movieId]
-        pred = model.mu + model.b_u[user] + model.b_i[i] + np.dot(model.P[user, :], model.Q[i, :])
-        y_true.append(float(row.rating))
-        y_pred.append(pred)
+    # 'rating_pred' is the 'rating' column from predictions_df
+    # 'rating_true' is the 'rating' column from ground_truth_df
+    diff = merged_df['rating_pred'] - merged_df['rating_gt']
 
-    rmse = np.sqrt(mean_squared_error(y_true, y_pred)) # calculate rmse
-    mae = mean_absolute_error(y_true, y_pred) #calculate mae
-    return rmse, mae
+    # Calculate MAE (Mean Absolute Error)
+    mae = diff.abs().mean()
+
+    # Calculate RMSE (Root Mean Square Error)
+    rmse = np.sqrt((diff ** 2).mean())
+
+    count = len(merged_df)
+
+    return mae, rmse, count
+
+
+# Initialize DataHandler
+data_handler = DataHandler()
+
+
+# Get the raw data
+all_predictions = data_handler.predictions
+ground_truth_data = data_handler.ground_truth
+
+# Calculate metrics
+print("MAE and RMSE")
+
+mae, rmse, count = calculate_accuracy_metrics(
+    all_predictions,
+    ground_truth_data
+)
+
+print("\nAccuracy Results")
+print(f"Calculated over {count} common ratings.")
+print(f"Mean Absolute Error (MAE):   {mae:.4f}")
+print(f"Root Mean Square Error (RMSE): {rmse:.4f}")
+
+print("MAE: On average, the model's rating prediction is off by ~{:.4f} stars.".format(mae))
