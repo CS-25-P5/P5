@@ -2,18 +2,13 @@ import pandas as pd
 from DataHandler import DataHandler
 
 # Coverage is a metric that measures how much of our item catalog is recommended by our system
+# https://www.analyticsvidhya.com/blog/2019/08/11-important-model-evaluation-error-metrics/
 def calculate_topK_item_coverage(predictions_df, catalog_df, k):
     #  Get the set of all unique items in the catalog
-    if 'title' not in catalog_df.columns:
-        raise ValueError("Catalog DataFrame must have a 'title' column.")
-
     catalog_items = set(catalog_df['title'].unique())
     total_catalog_size = len(catalog_items)
 
     # Get the set of all unique items in the Top-K recommendations
-    if not all(col in predictions_df.columns for col in ['userId', 'title', 'rating']):
-        raise ValueError("Predictions DataFrame must have 'userId', 'title', and 'rating' columns.")
-
     # Sort predictions by user and rating (descending)
     pred_sorted = predictions_df.sort_values(
         ["userId", "rating"],
@@ -52,6 +47,7 @@ def calculate_overall_coverage(predictions_df, catalog_df):
 
 # XXXXXXXXXXXXXXXXXXXX
 # Test
+
 # Define parameters
 k = 5  # Match the k from your other script
 

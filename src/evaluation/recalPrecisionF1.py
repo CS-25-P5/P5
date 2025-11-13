@@ -39,7 +39,6 @@ data_handler = DataHandler()
 # Standard Precision, Recall, and F1
 print("Standard Metrics")
 merged_full = data_handler.get_merged_data_for_standard_metrics(threshold)
-
 per_user_standard = merged_full.groupby("userId").apply(user_precision_recall_f1_standard)
 
 macro_precision = per_user_standard["precision"].mean()

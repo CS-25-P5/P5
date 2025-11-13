@@ -2,120 +2,101 @@ import pandas as pd
 import numpy as np
 from DataHandler import DataHandler
 
-#Doesnt work right
-def average_precision_at_k(top_k_recs, relevant_set):
-    # If the user has no relevant items, AP is not defined (or 0).
-    # We will filter these users out before calling this function.
-    if not relevant_set:
+
+def user_average_precision(df, threshold, relevant_counts):
+    user_id = df.name  # Get userId from groupby
+
+    # Filter to items the model actually predicted
+    df_predicted = df[df['was_predicted']].copy()
+
+    # Handle edge case: no predictions
+    if len(df_predicted) == 0:
         return 0.0
 
-    hits = 0
-    sum_of_precisions = 0.0
+    # Sort by predicted score descending (most confident first)
+    df_predicted = df_predicted.sort_values('predicted_score', ascending=False)
 
-    # Iterate through the top K recommendations
-    for i, rec_item in enumerate(top_k_recs):
-        k = i + 1  # Current rank (1-based)
+    # Add rank positions (1-indexed)
+    df_predicted['rank'] = range(1, len(df_predicted) + 1)
 
-        if rec_item in relevant_set:
-            hits += 1
-            precision_at_k = hits / k
-            sum_of_precisions += precision_at_k
+    # Create binary relevance scores (1 = relevant, 0 = not)
+    df_predicted['relevance'] = df_predicted['true_relevant'].astype(int)
 
-    # The denominator is the total number of relevant items in the ground truth
-    num_relevant = len(relevant_set)
+    # Calculate cumulative sum of relevant items found so far
+    df_predicted['cum_relevant'] = df_predicted['relevance'].cumsum()
 
-    if num_relevant == 0:
+    # Calculate Precision@K at each rank position
+    df_predicted['precision_at_k'] = df_predicted['cum_relevant'] / df_predicted['rank']
+
+    # Get Precision@K values only at positions where item is relevant
+    relevant_precisions = df_predicted[df_predicted['relevance'] == 1]['precision_at_k']
+
+    # Get total number of relevant items for this user from ground truth
+    total_relevant = relevant_counts.get(user_id, 0)
+
+    # Handle case: no relevant items in ground truth
+    if total_relevant == 0:
         return 0.0
 
-    return sum_of_precisions / num_relevant
+    # Average Precision = sum of precisions at relevant positions / total relevant items
+    # NOT the mean of precisions (that would ignore items we didn't find)
+    ap = relevant_precisions.sum() / total_relevant
+
+    return ap
 
 
-def calculate_map_at_k(predictions_df, ground_truth_df, k, threshold=4.0):
-    """
-    Calculates the Mean Average Precision (MAP) at K for all users.
-
-    Args:
-        predictions_df (pd.DataFrame): All predictions.
-        ground_truth_df (pd.DataFrame): All ground truth ratings.
-        k (int): The number of top items to consider.
-        threshold (float): The rating threshold to be considered "relevant".
-
-    Returns:
-        float: The MAP@K score.
-    """
-
-    # 1. Get the set of relevant items for *all users*
-    # We only calculate MAP for users who have at least one relevant item.
-    relevant_df = ground_truth_df[ground_truth_df['rating'] >= threshold]
-    relevant_sets = relevant_df.groupby('userId')['title'].apply(set)
-
-    if relevant_sets.empty:
-        print("Warning: No users have any relevant items at the given threshold.")
-        print("MAP@K is 0.")
-        return 0.0
-
-    # Create a DataFrame of users who are part of the MAP calculation
-    map_users_df = pd.DataFrame(relevant_sets).reset_index()
-
-    # 2. Get the Top-K recommendation lists for *all users*
-    pred_sorted = predictions_df.sort_values(
-        ["userId", "rating"],
-        ascending=[True, False]
-    )
-    top_k_df = pred_sorted.groupby("userId").head(k)
-    top_k_lists = top_k_df.groupby('userId')['title'].apply(list)
-    top_k_lists_df = pd.DataFrame(top_k_lists).reset_index()
-
-    # 3. Join the two DataFrames
-    # We use a 'left' join starting from the relevant users.
-    # This ensures we only evaluate users who have relevant items.
-    merged = pd.merge(map_users_df, top_k_lists_df, on='userId', how='left')
-
-    # Handle users who have relevant items but got no recommendations
-    # Their 'top_k_list' will be NaN. We replace it with an empty list.
-    merged['top_k_list'] = merged['top_k_list'].apply(
-        lambda x: x if isinstance(x, list) else []
-    )
-
-    # 4. Calculate AP for each user
-    merged['AP'] = merged.apply(
-        lambda row: average_precision_at_k(row['top_k_list'], row['title']),
-        axis=1
-    )
-
-    # 5. Calculate MAP (the mean of all AP scores)
-    map_score = merged['AP'].mean()
-
-    return map_score, merged
-
-#XXXXXXXXXXX
-#Test
-
-k = 5
+# XXXXXXXXXXXXXXXXX Test
+# Define parameters
 threshold = 4.0
 
 # Initialize DataHandler
-try:
-    data_handler = DataHandler()
-except FileNotFoundError as e:
-    print(f"Error loading data: {e}")
-    exit()
+data_handler = DataHandler()
 
-all_predictions = data_handler.predictions
-ground_truth_data = data_handler.ground_truth
+print("MAP (Mean Average Precision) Metrics")
+print("=" * 60)
 
-print(f"Calculating MAP@{k} (threshold={threshold})...")
+# Get merged data with standard metrics
+merged_full = data_handler.get_merged_data_for_standard_metrics(threshold)
 
-map_score, per_user_ap = calculate_map_at_k(
-    all_predictions,
-    ground_truth_data,
-    k,
-    threshold
+# Get the count of relevant items per user from ground truth
+relevant_counts = data_handler.get_relevant_counts_per_user(threshold)
+
+print("Relevant items per user in ground truth:")
+print(relevant_counts)
+print()
+
+# Calculate Average Precision per user
+per_user_ap = merged_full.groupby("userId").apply(
+    user_average_precision,
+    threshold=threshold,
+    relevant_counts=relevant_counts
 )
 
-print("\n--- Mean Average Precision (MAP) Results ---")
-print(f"Calculated over {len(per_user_ap)} users with at least one relevant item.")
-print(f"\nMAP@{k}: {map_score:.4f}")
+# MAP = mean of Average Precision across all users
+map_score = per_user_ap.mean()
 
-print("\n--- Example AP@K per user ---")
-print(per_user_ap.head())
+print(f"\nAverage Precision per user:")
+print(per_user_ap)
+print(f"\nMAP (Mean Average Precision): {map_score:.3f}")
+
+print(f"\n--- Interpretation ---")
+print(f"- MAP = 1.0: All relevant items ranked before any irrelevant items")
+print(f"- MAP = 0.0: No relevant items found in predictions")
+print(f"- Your model: MAP = {map_score:.3f} ({map_score:.1%} of perfect)")
+
+# Show detailed breakdown for each user
+print(f"\n--- Detailed Breakdown ---")
+for user_id in sorted(per_user_ap.index):
+    user_data = merged_full[merged_full['userId'] == user_id]
+    user_predicted = user_data[user_data['was_predicted']]
+
+    num_relevant_found = user_predicted['true_relevant'].sum()
+    num_relevant_total = relevant_counts.get(user_id, 0)
+    num_predictions = len(user_predicted)
+
+    print(f"User {user_id}:")
+    print(f"  - Total relevant items in ground truth: {num_relevant_total}")
+    print(f"  - Total predictions made: {num_predictions}")
+    print(f"  - Relevant items found: {num_relevant_found}")
+    print(f"  - AP: {per_user_ap[user_id]:.3f}")
+    print()

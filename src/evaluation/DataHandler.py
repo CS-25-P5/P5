@@ -54,14 +54,15 @@ class DataHandler:
             topk,
             self.ground_truth,
             on=["userId", "title"],
-            how="left"
+            how="left",
+            suffixes=('_pred', '_gt')  # FIX: Explicit suffixes for clarity
         )
 
         # Handle cases where predictions are not in the ground truth
-        merged_topk["rating_y"] = merged_topk["rating_y"].fillna(0)
+        merged_topk['rating_gt'] = merged_topk['rating_gt'].fillna(0)
 
         # For Precision@K, we only care if ground truth is relevant
-        merged_topk["true_relevant"] = merged_topk["rating_y"] >= threshold
+        merged_topk["true_relevant"] = merged_topk["rating_gt"] >= threshold
 
         return merged_topk
 
@@ -71,3 +72,28 @@ class DataHandler:
             ].groupby("userId")["title"].count()
 
         return relevant_counts
+
+
+# XXXXXXXXXXXXXXXXX Test
+
+# Initialize handler
+dh = DataHandler()
+
+# Sample data flows
+# rating_pred: Predicted rating (may contain NaN)
+# rating_gt: Ground truth rating (0 if missing)
+# predicted_score: Final prediction (0-filled)
+# was_predicted: Boolean flag
+
+
+print(" full outer merge (standard metrics)")
+merged_full = dh.get_merged_data_for_standard_metrics(threshold=4.0)
+print("Columns:", merged_full.columns.tolist())
+
+# rating_pred: Predicted rating (from predictions CSV)
+# rating_gt: Ground truth rating (0 if not in ground truth
+# true_relevant: Binary relevance flag
+
+print("\n\n TOP-K MERGE ")
+merged_topk = dh.get_topk_predictions(k=5, threshold=4.0)
+print("Columns:", merged_topk.columns.tolist())
