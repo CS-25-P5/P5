@@ -22,21 +22,28 @@ class MatrixFactorization:
         self.b_i = np.zeros(self.num_items)
         self.mu = np.mean(self.R[self.R>0])
 
+        # Precompute the indices of known ratings
+        known_ratings = np.array(np.where(self.R > 0)).T 
+
         for epoch in range(self.n_epochs):
-            for u in range(self.num_users):
-                for i in range(self.num_items):
-                    if self.R[u,i]> 0:
-                        prediction = self.predict_single(u,i)
-                        error = self.R[u,i] - prediction
+            np.random.shuffle(known_ratings)
+            for u,i in known_ratings:
+                prediction = self.predict_single(u,i)
+                error = self.R[u,i] - prediction
 
-                        #update parameter
-                        self.b_u[u] += self.alpha * (error - self.lambda_ * self.b_u[u])
-                        self.b_i[i] += self.alpha * (error - self.lambda_ * self.b_i[i])
-                        self.P[u, :] += self.alpha * (error * self.Q[i, :] - self.lambda_ * self.P[u,:])
-                        self.Q[i, :] += self.alpha * (error * self.P[u, :] - self.lambda_ * self.Q[i,:])
+                #update parameter
+                self.b_u[u] += self.alpha * (error - self.lambda_ * self.b_u[u])
+                self.b_i[i] += self.alpha * (error - self.lambda_ * self.b_i[i])
 
-            loss = self.compute_loss()
-            # print(f"Epoch {epoch+1}/{self.n_epochs}, Loss: {loss:.4f}")
+
+                Pu_old = self.P[u, :].copy()
+                Qi_old = self.Q[i, :].copy()
+
+                self.P[u, :] += self.alpha * (error * Qi_old - self.lambda_ * Pu_old)
+                self.Q[i, :] += self.alpha * (error * Pu_old - self.lambda_ * Qi_old)
+
+        loss = self.compute_loss()
+        print(f"Epoch {epoch+1}/{self.n_epochs}, Loss: {loss:.4f}")
 
 
 
@@ -108,17 +115,17 @@ def load_and_prepare_matrix(ratings_file_path, movies_file_path, nrows_movies=No
     return movie_user_rating, genre_map, all_genres
 
 
-def filter_empty_users_data(R, user_ids= None, movie_titles=None):
+def filter_empty_users_data(R, movie_titles=None):
     # keep users and movies with at least on rating
-    user_filter = R.sum(axis = 1) > 0
+    #user_filter = R.sum(axis = 1) > 0
+
     movie_filter = R.sum(axis = 0) > 0
 
-    R_filtered = R[user_filter, :][:, movie_filter]
+    R_filtered = R[:, movie_filter]
 
-    filtered_user_ids = user_ids[user_filter] if user_ids is not None else None
     filtered_movie_titles = movie_titles[movie_filter] if movie_titles is not None else None
 
-    return R_filtered, filtered_user_ids, filtered_movie_titles
+    return R_filtered, filtered_movie_titles
 
 def save_mf_predictions(all_recommendations, genre_map, output_path="mf_predictions.csv"):
     rows = []

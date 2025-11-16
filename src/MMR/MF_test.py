@@ -19,7 +19,7 @@ movie_user_rating, genre_map, all_genres = load_and_prepare_matrix(ratings_file_
 
 R = movie_user_rating.values
 
-R_filtered, filtered_user_ids, filtered_movie_titles = filter_empty_users_data(R, movie_user_rating.index, movie_user_rating.columns )
+R_filtered, filtered_movie_titles = filter_empty_users_data(R,movie_user_rating.columns )
 
 # Train the model
 mf = MatrixFactorization(R_filtered, k, alpha, lamda_ , n_epochs)
@@ -29,8 +29,8 @@ mf.train()
 predicted_ratings = mf.full_prediction()
 
 # Get top-N candidates for MMR
-all_recommendations = get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filtered_user_ids, filtered_movie_titles, top_n=top_n)
+all_recommendations = get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, movie_user_rating.index, filtered_movie_titles, top_n=top_n)
 
 save_mf_predictions(all_recommendations,genre_map, output_path="src/datasets/mmr_data/mf_test_predictions.csv")
 
-
+print("Finish MF test")
