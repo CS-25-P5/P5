@@ -49,38 +49,38 @@ def calculate_overall_coverage(predictions_df, catalog_df):
 # Test
 
 # Define parameters
-k = 5  # Match the k from your other script
-
-# Initialize DataHandler
-data_handler = DataHandler()
-
-# Get the raw data
-all_predictions = data_handler.predictions
-ground_truth_data = data_handler.ground_truth
-
-# Calculate coverage
-print(f"Calculating Item Coverage @ K={k}...")
-
-coverage_percent, num_recommended, num_catalog = calculate_topK_item_coverage(
-    all_predictions,
-    ground_truth_data,
-    k
-)
-
-print("\nTopK Coverage Results")
-print(f"Total items in catalog (from ground truth): {num_catalog}")
-print(f"Unique items in Top-{k} recommendations: {num_recommended}")
-print(f"Item Coverage @ {k}: {coverage_percent:.2f}%")
-
-# Calculate Overall Coverage
-overall_coverage_percent, num_predicted, num_catalog_overall = calculate_overall_coverage(
-    all_predictions,
-    ground_truth_data
-)
-print("")
-print("Overall Coverage Results")
-print(f"Total items in catalog (from ground truth): {num_catalog_overall}")
-print(f"Unique items with *any* prediction:        {num_predicted}")
-print(f"Overall Item Coverage:                      {overall_coverage_percent:.2f}%")
-
-
+# k = 5  # Match the k from your other script
+#
+# # Initialize DataHandler
+# data_handler = DataHandler()
+#
+# # Get the raw data
+# all_predictions = data_handler.predictions
+# ground_truth_data = data_handler.ground_truth
+#
+# # Calculate coverage
+# print(f"Calculating Item Coverage @ K={k}...")
+#
+# coverage_percent, num_recommended, num_catalog = calculate_topK_item_coverage(
+#     all_predictions,
+#     ground_truth_data,
+#     k
+# )
+#
+# print("\nTopK Coverage Results")
+# print(f"Total items in catalog (from ground truth): {num_catalog}")
+# print(f"Unique items in Top-{k} recommendations: {num_recommended}")
+# print(f"Item Coverage @ {k}: {coverage_percent:.2f}%")
+#
+# # Calculate Overall Coverage
+# overall_coverage_percent, num_predicted, num_catalog_overall = calculate_overall_coverage(
+#     all_predictions,
+#     ground_truth_data
+# )
+# print("")
+# print("Overall Coverage Results")
+# print(f"Total items in catalog (from ground truth): {num_catalog_overall}")
+# print(f"Unique items with *any* prediction:        {num_predicted}")
+# print(f"Overall Item Coverage:                      {overall_coverage_percent:.2f}%")
+#
+#

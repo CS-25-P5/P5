@@ -34,23 +34,23 @@ def calculate_accuracy_metrics(predictions_df, ground_truth_df):
 # XTest
 
 # Initialize DataHandler
-data_handler = DataHandler()
+#data_handler = DataHandler()
 
 # Get the raw data
-all_predictions = data_handler.predictions
-ground_truth_data = data_handler.ground_truth
+#all_predictions = data_handler.predictions
+#ground_truth_data = data_handler.ground_truth
 
 # Calculate metrics
-print("MAE and RMSE")
+#print("MAE and RMSE")
 
-mae, rmse, count = calculate_accuracy_metrics(
-    all_predictions,
-    ground_truth_data
-)
+#mae, rmse, count = calculate_accuracy_metrics(
+ #   all_predictions,
+  #  ground_truth_data
+#)
 
-print("\nAccuracy Results")
-print(f"Calculated over {count} common ratings.")
-print(f"Mean Absolute Error (MAE):   {mae:.4f}")
-print(f"Root Mean Square Error (RMSE): {rmse:.4f}")
+#print("\nAccuracy Results")
+#print(f"Calculated over {count} common ratings.")
+#print(f"Mean Absolute Error (MAE):   {mae:.4f}")
+#print(f"Root Mean Square Error (RMSE): {rmse:.4f}")
 
-print("MAE: On average, the model's rating prediction is off by ~{:.4f} stars.".format(mae))
+#print("MAE: On average, the model's rating prediction is off by ~{:.4f} stars.".format(mae))

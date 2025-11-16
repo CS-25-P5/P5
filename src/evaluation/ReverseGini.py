@@ -24,31 +24,31 @@ def calculate_gini_index(predictions_df: pd.DataFrame) -> float:
 # Test
 
 # Define parameters (k for context, though Gini is system-wide)
-k = 5
-
-# Initialize DataHandler
-data_handler = DataHandler()
-
-# Get all predictions
-all_predictions = data_handler.predictions
-
-# Calculate Gini Index
-print("Gini Index - System Diversity Metric")
-print("=" * 60)
-
-gini_score = calculate_gini_index(all_predictions)
-
-# Show most recommended items for context
-print(f"\nTop {min(10, len(all_predictions['title'].unique()))} Most Recommended Items:")
-item_counts = all_predictions['title'].value_counts().head(10)
-print(item_counts.to_string())
-
-print(f"\nCatalog Statistics:")
-print(f"- Total unique items in catalog: {len(all_predictions['title'].unique())}")
-print(f"- Total recommendations made: {len(all_predictions)}")
-
-print(f"\nGini Index Results:")
-print(f"- Gini Index: {gini_score:.4f}")
+# k = 5
+#
+# # Initialize DataHandler
+# data_handler = DataHandler()
+#
+# # Get all predictions
+# all_predictions = data_handler.predictions
+#
+# # Calculate Gini Index
+# print("Gini Index - System Diversity Metric")
+# print("=" * 60)
+#
+# gini_score = calculate_gini_index(all_predictions)
+#
+# # Show most recommended items for context
+# print(f"\nTop {min(10, len(all_predictions['title'].unique()))} Most Recommended Items:")
+# item_counts = all_predictions['title'].value_counts().head(10)
+# print(item_counts.to_string())
+#
+# print(f"\nCatalog Statistics:")
+# print(f"- Total unique items in catalog: {len(all_predictions['title'].unique())}")
+# print(f"- Total recommendations made: {len(all_predictions)}")
+#
+# print(f"\nGini Index Results:")
+# print(f"- Gini Index: {gini_score:.4f}")
 
 #print(f"\nInterpretation:")
 #print(f"- Range: 0.0 (perfect equality) to 1.0 (one item dominates)")

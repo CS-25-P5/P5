@@ -46,57 +46,40 @@ def user_average_precision(df, threshold, relevant_counts):
 
 
 # XXXXXXXXXXXXXXXXX Test
-# Define parameters
-threshold = 4.0
-
-# Initialize DataHandler
-data_handler = DataHandler()
-
-print("MAP (Mean Average Precision) Metrics")
-print("=" * 60)
-
-# Get merged data with standard metrics
-merged_full = data_handler.get_merged_data_for_standard_metrics(threshold)
-
-# Get the count of relevant items per user from ground truth
-relevant_counts = data_handler.get_relevant_counts_per_user(threshold)
-
-print("Relevant items per user in ground truth:")
-print(relevant_counts)
-print()
-
-# Calculate Average Precision per user
-per_user_ap = merged_full.groupby("userId").apply(
-    user_average_precision,
-    threshold=threshold,
-    relevant_counts=relevant_counts
-)
-
-# MAP = mean of Average Precision across all users
-map_score = per_user_ap.mean()
-
-print(f"\nAverage Precision per user:")
-print(per_user_ap)
-print(f"\nMAP (Mean Average Precision): {map_score:.3f}")
-
-print(f"\n--- Interpretation ---")
-print(f"- MAP = 1.0: All relevant items ranked before any irrelevant items")
-print(f"- MAP = 0.0: No relevant items found in predictions")
-print(f"- Your model: MAP = {map_score:.3f} ({map_score:.1%} of perfect)")
-
-# Show detailed breakdown for each user
-print(f"\n--- Detailed Breakdown ---")
-for user_id in sorted(per_user_ap.index):
-    user_data = merged_full[merged_full['userId'] == user_id]
-    user_predicted = user_data[user_data['was_predicted']]
-
-    num_relevant_found = user_predicted['true_relevant'].sum()
-    num_relevant_total = relevant_counts.get(user_id, 0)
-    num_predictions = len(user_predicted)
-
-    print(f"User {user_id}:")
-    print(f"  - Total relevant items in ground truth: {num_relevant_total}")
-    print(f"  - Total predictions made: {num_predictions}")
-    print(f"  - Relevant items found: {num_relevant_found}")
-    print(f"  - AP: {per_user_ap[user_id]:.3f}")
-    print()
+# # Define parameters
+# threshold = 4.0
+#
+# # Initialize DataHandler
+# data_handler = DataHandler()
+#
+# print("MAP (Mean Average Precision) Metrics")
+# print("=" * 60)
+#
+# # Get merged data with standard metrics
+# merged_full = data_handler.get_merged_data_for_standard_metrics(threshold)
+#
+# # Get the count of relevant items per user from ground truth
+# relevant_counts = data_handler.get_relevant_counts_per_user(threshold)
+#
+# print("Relevant items per user in ground truth:")
+# print(relevant_counts)
+# print()
+#
+# # Calculate Average Precision per user
+# per_user_ap = merged_full.groupby("userId").apply(
+#     user_average_precision,
+#     threshold=threshold,
+#     relevant_counts=relevant_counts
+# )
+#
+# # MAP = mean of Average Precision across all users
+# map_score = per_user_ap.mean()
+#
+# print(f"\nAverage Precision per user:")
+# print(per_user_ap)
+# print(f"\nMAP (Mean Average Precision): {map_score:.3f}")
+#
+# print(f"\n--- Interpretation ---")
+# print(f"- MAP = 1.0: All relevant items ranked before any irrelevant items")
+# print(f"- MAP = 0.0: No relevant items found in predictions")
+# print(f"- Your model: MAP = {map_score:.3f} ({map_score:.1%} of perfect)")

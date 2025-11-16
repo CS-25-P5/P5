@@ -3,13 +3,10 @@ import os
 
 
 class DataHandler:
-    def __init__(self, base_path=None):
-        if base_path is None:
-            base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-
-        self.base_path = base_path
-        self.ground_truth_path = os.path.join(base_path, "datasets", "ratings_test_titles2.csv")
-        self.predictions_path = os.path.join(base_path, "datasets/mmr_data", "test_predictions.csv")
+    def __init__(self, ground_truth_path, predictions_path):
+        # Store the provided paths
+        self.ground_truth_path = ground_truth_path
+        self.predictions_path = predictions_path
 
         # Load data
         self.ground_truth = pd.read_csv(self.ground_truth_path)
@@ -77,23 +74,24 @@ class DataHandler:
 # XXXXXXXXXXXXXXXXX Test
 
 # Initialize handler
-dh = DataHandler()
-
+dh = DataHandler(ground_truth_path=r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv",
+    predictions_path=r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\test_predictions.csv")
+#fix paths when you get back
 # Sample data flows
-# rating_pred: Predicted rating (may contain NaN)
+#rating_pred: Predicted rating (may contain NaN)
 # rating_gt: Ground truth rating (0 if missing)
-# predicted_score: Final prediction (0-filled)
-# was_predicted: Boolean flag
+#predicted_score: Final prediction (0-filled)
+#was_predicted: Boolean flag
 
-
-print(" full outer merge (standard metrics)")
-merged_full = dh.get_merged_data_for_standard_metrics(threshold=4.0)
-print("Columns:", merged_full.columns.tolist())
-
-# rating_pred: Predicted rating (from predictions CSV)
-# rating_gt: Ground truth rating (0 if not in ground truth
-# true_relevant: Binary relevance flag
-
-print("\n\n TOP-K MERGE ")
-merged_topk = dh.get_topk_predictions(k=5, threshold=4.0)
-print("Columns:", merged_topk.columns.tolist())
+#
+# print(" full outer merge (standard metrics)")
+# merged_full = dh.get_merged_data_for_standard_metrics(threshold=4.0)
+# print("Columns:", merged_full.columns.tolist())
+#
+# # rating_pred: Predicted rating (from predictions CSV)
+# # rating_gt: Ground truth rating (0 if not in ground truth
+# # true_relevant: Binary relevance flag
+#
+# print("\n\n TOP-K MERGE ")
+# merged_topk = dh.get_topk_predictions(k=5, threshold=4.0)
+# print("Columns:", merged_topk.columns.tolist())

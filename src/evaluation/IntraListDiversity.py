@@ -39,47 +39,47 @@ def user_intra_list_diversity(df, item_features_df, k):
 
 # XXXXXXXXXXXXXXXXX Test
 # Define parameters
-k = 5
-
-# Initialize DataHandler
-data_handler = DataHandler()
-
-# Get top-k predictions (sorted by rating)
-merged_topk = data_handler.get_topk_predictions(k, threshold=4.0)
-
-# CREATE ITEM FEATURE MATRIX
-# Production: Load from CSV with items as rows and binary feature columns
-# Example CSV: title,genre_SciFi,genre_Animation,genre_Drama,genre_Action
-item_features = pd.DataFrame({
-    'title': ['The Matrix', 'Toy Story', 'Inception', 'Joker', 'Interstellar'],
-    'Sci-Fi': [1, 0, 1, 0, 1],
-    'Animation': [0, 1, 0, 0, 0],
-    'Drama': [0, 0, 0, 1, 0],
-    'Action': [1, 0, 1, 0, 1],
-}).set_index('title')
-
-print(f"Intra-List Diversity@{k} Metrics")
-print("=" * 50)
-
-# Calculate ILD per user using groupby-apply
-per_user_ild = merged_topk.groupby("userId").apply(user_intra_list_diversity, item_features_df=item_features, k=k)
-
-# Clean NaN values (users with missing item features)
-per_user_ild = per_user_ild.dropna()
-
-# Macro-average across all users
-macro_ild = per_user_ild.mean()
-
-print(f"\nILD@{k} per user:")
-print(per_user_ild)
-print(f"\nMacro Intra-List Diversity@{k}: {macro_ild:.3f}")
-
-print(f"\nInterpretation:")
-print(f"- Range: 0.0 (no diversity) to 1.0 (maximum diversity)")
-print(f"- Low (<0.30): Items are very similar (e.g., all same genre)")
-print(f"- Medium (0.30-0.60): Moderate diversity")
-print(f"- High (>0.60): Items span different feature sets")
-print(f"- Your model: {macro_ild:.3f} ({macro_ild:.1%} diversity)")
+# k = 5
+#
+# # Initialize DataHandler
+# data_handler = DataHandler()
+#
+# # Get top-k predictions (sorted by rating)
+# merged_topk = data_handler.get_topk_predictions(k, threshold=4.0)
+#
+# # CREATE ITEM FEATURE MATRIX
+# # Production: Load from CSV with items as rows and binary feature columns
+# # Example CSV: title,genre_SciFi,genre_Animation,genre_Drama,genre_Action
+# item_features = pd.DataFrame({
+#     'title': ['The Matrix', 'Toy Story', 'Inception', 'Joker', 'Interstellar'],
+#     'Sci-Fi': [1, 0, 1, 0, 1],
+#     'Animation': [0, 1, 0, 0, 0],
+#     'Drama': [0, 0, 0, 1, 0],
+#     'Action': [1, 0, 1, 0, 1],
+# }).set_index('title')
+#
+# print(f"Intra-List Diversity@{k} Metrics")
+# print("=" * 50)
+#
+# # Calculate ILD per user using groupby-apply
+# per_user_ild = merged_topk.groupby("userId").apply(user_intra_list_diversity, item_features_df=item_features, k=k)
+#
+# # Clean NaN values (users with missing item features)
+# per_user_ild = per_user_ild.dropna()
+#
+# # Macro-average across all users
+# macro_ild = per_user_ild.mean()
+#
+# print(f"\nILD@{k} per user:")
+# print(per_user_ild)
+# print(f"\nMacro Intra-List Diversity@{k}: {macro_ild:.3f}")
+#
+# print(f"\nInterpretation:")
+# print(f"- Range: 0.0 (no diversity) to 1.0 (maximum diversity)")
+# print(f"- Low (<0.30): Items are very similar (e.g., all same genre)")
+# print(f"- Medium (0.30-0.60): Moderate diversity")
+# print(f"- High (>0.60): Items span different feature sets")
+# print(f"- Your model: {macro_ild:.3f} ({macro_ild:.1%} diversity)")
 
 
 # Simple category diversity alternative (no sklearn required)
