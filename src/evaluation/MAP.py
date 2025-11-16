@@ -1,45 +1,56 @@
-import pandas as pd
-import numpy as np
-from DataHandler import DataHandler
+# In MAP.py
+def user_average_precision(df, threshold, relevant_counts, k=None):
+    """
+    Calculate Average Precision with optional top-k cutoff.
 
-
-def user_average_precision(df, threshold, relevant_counts):
-    user_id = df.name  # Get userId from groupby
+    Parameters:
+    -----------
+    df : DataFrame
+        Data for a single user
+    threshold : float
+        Relevance threshold
+    relevant_counts : dict or Series
+        Total relevant items per user
+    k : int, optional
+        Top-k cutoff. If None, uses all predictions.
+    """
+    user_id = df.name
 
     # Filter to items the model actually predicted
     df_predicted = df[df['was_predicted']].copy()
 
-    # Handle edge case: no predictions
     if len(df_predicted) == 0:
         return 0.0
 
-    # Sort by predicted score descending (most confident first)
+    # Sort by predicted score descending
     df_predicted = df_predicted.sort_values('predicted_score', ascending=False)
+
+    # === ADD THIS: Limit to top k items ===
+    if k is not None:
+        df_predicted = df_predicted.head(k)
 
     # Add rank positions (1-indexed)
     df_predicted['rank'] = range(1, len(df_predicted) + 1)
 
-    # Create binary relevance scores (1 = relevant, 0 = not)
+    # Create binary relevance scores
     df_predicted['relevance'] = df_predicted['true_relevant'].astype(int)
 
-    # Calculate cumulative sum of relevant items found so far
+    # Calculate cumulative sum of relevant items
     df_predicted['cum_relevant'] = df_predicted['relevance'].cumsum()
 
-    # Calculate Precision@K at each rank position
+    # Calculate Precision@K at each rank
     df_predicted['precision_at_k'] = df_predicted['cum_relevant'] / df_predicted['rank']
 
-    # Get Precision@K values only at positions where item is relevant
+    # Get Precision@K values only at relevant positions
     relevant_precisions = df_predicted[df_predicted['relevance'] == 1]['precision_at_k']
 
-    # Get total number of relevant items for this user from ground truth
+    # Get total relevant items for this user
     total_relevant = relevant_counts.get(user_id, 0)
 
-    # Handle case: no relevant items in ground truth
     if total_relevant == 0:
         return 0.0
 
-    # Average Precision = sum of precisions at relevant positions / total relevant items
-    # NOT the mean of precisions (that would ignore items we didn't find)
+    # Average Precision
     ap = relevant_precisions.sum() / total_relevant
 
     return ap

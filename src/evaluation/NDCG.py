@@ -3,32 +3,64 @@ import numpy as np
 from DataHandler import DataHandler
 
 
+def user_ndcg(df, k, ground_truth_df=None):
+    """
+    Calculate NDCG@k for a single user's predictions.
 
-def user_ndcg(df, k):
-    # Take top-k predictions for this user
-    topk_df = df.head(k).copy()
+    Parameters:
+    -----------
+    df : DataFrame
+        User's predictions with columns: rating_pred, rating_true (or rating_gt)
+    k : int
+        Top-k cutoff
+    ground_truth_df : DataFrame, optional
+        Full ground truth for this user (needed for proper IDCG calculation)
 
-    # Relevance scores (binary: 0 or 1)
-    topk_df['relevance'] = topk_df['true_relevant'].astype(int)
+    Returns:
+    --------
+    float : NDCG@k score (0.0 to 1.0)
+    """
+    # Sort by predicted rating and take top-k
+    df_sorted = df.sort_values('rating_pred', ascending=False).head(k).copy()
 
-    # Calculate rank positions (1-indexed)
-    topk_df['rank'] = np.arange(1, len(topk_df) + 1)
+    # Determine which column has the actual ratings
+    if 'rating_true' in df_sorted.columns:
+        relevance_col = 'rating_true'
+    elif 'rating_gt' in df_sorted.columns:
+        relevance_col = 'rating_gt'
+    else:
+        raise ValueError("No rating column found. Expected 'rating_true' or 'rating_gt'")
 
-    # DCG: Discounted Cumulative Gain (relevance / log2(rank + 1))
-    topk_df['dcg'] = topk_df['relevance'] / np.log2(topk_df['rank'] + 1)
-    dcg = topk_df['dcg'].sum()
+    # Use actual rating values as relevance
+    df_sorted['relevance'] = df_sorted[relevance_col].fillna(0)
 
-    # IDCG: Ideal DCG (perfect ranking by true relevance)
-    ideal_df = df.sort_values('true_relevant', ascending=False).head(len(topk_df))
-    ideal_df['relevance'] = ideal_df['true_relevant'].astype(int)
-    ideal_df['rank'] = np.arange(1, len(ideal_df) + 1)
-    ideal_df['idcg'] = ideal_df['relevance'] / np.log2(ideal_df['rank'] + 1)
-    idcg = ideal_df['idcg'].sum()
+    # Calculate DCG: (2^relevance - 1) / log2(rank + 1)
+    df_sorted['rank'] = np.arange(1, len(df_sorted) + 1)
+    df_sorted['dcg'] = (2 ** df_sorted['relevance'] - 1) / np.log2(df_sorted['rank'] + 1)
+    dcg = df_sorted['dcg'].sum()
 
-    # Normalize to get NDCG (handle division by zero for users with no relevant items)
+    # Calculate IDCG using ALL ground truth items
+    if ground_truth_df is not None and len(ground_truth_df) > 0:
+        # Use full ground truth for ideal ranking
+        ideal_relevances = ground_truth_df.sort_values('rating', ascending=False).head(k)['rating'].values
+    else:
+        # Fallback: use predicted items only
+        ideal_relevances = df[relevance_col].fillna(0).sort_values(ascending=False).head(k).values
+
+    # Calculate IDCG
+    if len(ideal_relevances) > 0:
+        ideal_ranks = np.arange(1, len(ideal_relevances) + 1)
+        idcg = np.sum((2 ** ideal_relevances - 1) / np.log2(ideal_ranks + 1))
+    else:
+        idcg = 0.0
+
+    # Normalize to get NDCG
     ndcg = dcg / idcg if idcg > 0 else 0.0
 
     return ndcg
+
+
+
 
 
 # XXXXXXXXXXXXXXXXX

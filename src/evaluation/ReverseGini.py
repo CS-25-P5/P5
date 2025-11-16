@@ -18,7 +18,7 @@ def calculate_gini_index(predictions_df: pd.DataFrame) -> float:
     index = np.arange(1, n + 1)
     gini = np.sum((2 * index - n - 1) * item_counts.values) / (n * item_counts.sum())
 
-    return gini
+    return 1-gini
 
 # XXXXXXXXXXXXXXXXX
 # Test

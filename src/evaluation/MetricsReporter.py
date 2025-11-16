@@ -105,52 +105,33 @@ def save_metrics_table_as_file(metrics_dict, source_name="Model", filename="metr
     df_display.to_excel(excel_file)
     print(f"Excel saved: {excel_file}")
 
-
 def plot_individual_metric_charts(df_metrics, output_dir="metric_charts"):
-    """Create separate bar charts for each metric with proper vertical padding."""
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    n_sources = len(df_metrics.index)
-
     for metric in df_metrics.columns:
-        fig_width = max(6, n_sources * 1.5)
-        fig, ax = plt.subplots(figsize=(fig_width, 6))
-
-        bar_width = 0.4 if n_sources == 1 else 0.6
-
-        # Get metric values
-        values = df_metrics[metric].values
+        plt.figure(figsize=(8, 6))
 
         # Create bar chart
-        bars = ax.bar(df_metrics.index, values,
-                      width=bar_width, color=plt.cm.Set3(np.linspace(0, 1, n_sources)))
+        bars = plt.bar(df_metrics.index, df_metrics[metric],
+                       color=plt.cm.Set3(np.linspace(0, 1, len(df_metrics.index))))
 
         # Add value labels
         for bar in bars:
             height = bar.get_height()
             if not np.isnan(height):
-                ax.text(bar.get_x() + bar.get_width() / 2., height,
-                        f'{height:.3f}', ha='center', va='bottom')
+                plt.text(bar.get_x() + bar.get_width() / 2., height,
+                         f'{height:.3f}',
+                         ha='center', va='bottom')
 
-        # === ADD VERTICAL PADDING ===
-        max_value = np.nanmax(values) if not np.all(np.isnan(values)) else 1.0
-        padding = max(max_value * 0.15, 0.05)  # 15% padding or minimum 0.05
-        ax.set_ylim(top=max_value + padding)
-
-        if n_sources == 1:
-            ax.set_xlim(-0.5, 0.5)
-
-        ax.set_title(f'{metric} Comparison', fontsize=14, fontweight='bold')
-        ax.set_xlabel('Sources', fontsize=12)
-        ax.set_ylabel('Metric Value', fontsize=12)
-        ax.grid(axis='y', alpha=0.3)
-
-        if n_sources > 3:
-            plt.xticks(rotation=45, ha='right')
-
+        plt.title(f'{metric} Comparison', fontsize=14, fontweight='bold')
+        plt.xlabel('Sources', fontsize=12)
+        plt.ylabel('Metric Value', fontsize=12)
+        plt.xticks(rotation=45, ha='right')
+        plt.grid(axis='y', alpha=0.3)
         plt.tight_layout()
 
+        # Save individual chart
         filename = os.path.join(output_dir, f"{metric.replace(' ', '_')}_chart.png")
         plt.savefig(filename, dpi=300, bbox_inches='tight')
         plt.close()
@@ -167,7 +148,7 @@ def run_model_comparison(ground_truth_path, sources, threshold=4.0, k=5, item_fe
     print(f"Number of models to compare: {len(sources)}")
 
     for predictions_path, source_name in sources:
-        print(f"\n Processing '{source_name}'...")
+        print(f"\n📊 Processing '{source_name}'...")
         print(f"   Path: {predictions_path}")
 
         try:

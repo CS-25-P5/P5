@@ -29,7 +29,6 @@ def calculate_accuracy_metrics(predictions_df, ground_truth_df):
 
     return mae, rmse, count
 
-
 # XXXXXXX
 # XTest
 
