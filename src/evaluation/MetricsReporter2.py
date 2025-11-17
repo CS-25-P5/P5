@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from sklearn.metrics import mean_squared_error, mean_absolute_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error, roc_auc_score
 from rectools.metrics import (
     Precision, Recall, F1Beta, MAP, NDCG, MRR,
     IntraListDiversity, CatalogCoverage, calc_metrics
@@ -9,20 +9,20 @@ from rectools.metrics.distances import PairwiseHammingDistanceCalculator
 from DataHandler2 import DataHandler
 import matplotlib.pyplot as plt
 import os
-
+from rectools.metrics.auc import PartialAUC
 
 def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None):
     """Calculate all metrics using RecTools (aggregated values)"""
     results = {}
 
     # 1. RMSE & MAE (using FULL dataset)
-    print("📊 Calculating RMSE and MAE...")
+    print("Calculating RMSE and MAE")
     rmse, mae = _calculate_rating_metrics(data_handler)
     results["RMSE"] = rmse
     results["MAE"] = mae
 
     # 2. RecTools Metrics (using FILTERED relevant interactions)
-    print(f"📊 Calculating top-{k} RecTools metrics...")
+    print(f"Calculating top-{k} RecTools metrics")
 
     # Filter interactions to only include relevant items (rating >= threshold)
     relevant_interactions = data_handler.full_interactions[
@@ -31,6 +31,7 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None):
 
     # Create catalog of all items from ground truth
     catalog = data_handler.full_interactions['item_id'].unique()
+    catalog_size = len(catalog)
 
     # Create dictionary of metrics
     metrics = {
@@ -40,10 +41,11 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None):
         f'MAP@{k}': MAP(k=k),
         f'NDCG@{k}': NDCG(k=k),
         f'MRR@{k}': MRR(k=k),
+        f'PartialAUC@{k}': PartialAUC(k=k),  # NEW: RecTools Partial AUC
         f'CatalogCoverage@{k}': CatalogCoverage(k=k),
     }
 
-    # Calculate metrics - returns aggregated values (scalars)
+    # Calculate metrics
     metrics_values = calc_metrics(
         metrics=metrics,
         reco=data_handler.recommendations,
@@ -52,29 +54,31 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None):
         prev_interactions=None,
     )
 
-    # FIX: Directly assign values (they're already aggregated)
+    # Assign values
     results[f"Precision@{k}"] = metrics_values[f'Precision@{k}']
     results[f"Recall@{k}"] = metrics_values[f'Recall@{k}']
     results[f"F1@{k}"] = metrics_values[f'F1Beta@{k}']
     results[f"MAP@{k}"] = metrics_values[f'MAP@{k}']
     results[f"NDCG@{k}"] = metrics_values[f'NDCG@{k}']
     results[f"MRR@{k}"] = metrics_values[f'MRR@{k}']
-    results[f"Coverage@{k}"] = metrics_values[f'CatalogCoverage@{k}']
+    results[f"PartialAUC@{k}"] = metrics_values[f'PartialAUC@{k}']  # NEW
+    results[f"Coverage@{k}"] = metrics_values[f'CatalogCoverage@{k}'] / catalog_size
     results["Overall Coverage"] = results[f"Coverage@{k}"]
 
     # 3. ILD (Diversity)
     if item_features is not None and not item_features.empty:
-        print(f"📊 Calculating ILD@{k}...")
+        print(f"Calculating ILD@{k}")
         results[f"ILD@{k}"] = _calculate_ild(data_handler, item_features, k)
     else:
-        print("⚠️ Skipping ILD: No item features")
+        print("Skipping ILD: No item features")
         results[f"ILD@{k}"] = np.nan
 
     # 4. Reverse Gini (Popularity Bias)
-    print("📊 Calculating Reverse Gini...")
+    print("Calculating Reverse Gini")
     results['Reverse Gini'] = _calculate_reverse_gini(data_handler.recommendations)
 
     return results
+
 
 def _calculate_rating_metrics(data_handler):
     """Calculate RMSE and MAE using scikit-learn"""
@@ -94,7 +98,6 @@ def _calculate_rating_metrics(data_handler):
     )
     return rmse, mae
 
-
 def _calculate_ild(data_handler, item_features, k):
     """Calculate Intra-List Diversity with RecTools"""
     try:
@@ -111,7 +114,7 @@ def _calculate_ild(data_handler, item_features, k):
         )
         return ild_per_user.mean()
     except Exception as e:
-        print(f"⚠️ ILD calculation failed: {e}")
+        print(f"ILD calculation failed: {e}")
         return np.nan
 
 
@@ -127,14 +130,13 @@ def _calculate_reverse_gini(recommendations):
     return 1 - gini
 
 
-# === Keep all reporting/plotting functions unchanged ===
 def display_metrics_table(metrics_dict, source_name="Model", k=5):
     """Display metrics with clear separation"""
     overall_metrics = ["RMSE", "MAE", "Overall Coverage", "Reverse Gini"]
     topk_metrics = [
         f"Precision@{k}", f"Recall@{k}", f"F1@{k}",
         f"NDCG@{k}", f"MAP@{k}", f"MRR@{k}",
-        f"Coverage@{k}", f"ILD@{k}"
+        f"PartialAUC@{k}", f"Coverage@{k}", f"ILD@{k}"
     ]
     metric_order = overall_metrics + topk_metrics
 
@@ -142,31 +144,15 @@ def display_metrics_table(metrics_dict, source_name="Model", k=5):
     df = pd.DataFrame([ordered_results], index=[source_name])
     df_display = df.round(4)
 
-    print("\n" + "=" * 80)
-    print("RECOMMENDATION SYSTEM EVALUATION RESULTS (RecTools)")
-    print("=" * 80)
-    print("OVERALL METRICS (full dataset):")
-    for metric in overall_metrics:
-        if metric in df_display.columns:
-            print(f"  {metric:20s}: {df_display[metric].iloc[0]:10.4f}")
-
-    print(f"\nTOP-{k} METRICS (ranking evaluation):")
-    for metric in topk_metrics:
-        if metric in df_display.columns:
-            print(f"  {metric:20s}: {df_display[metric].iloc[0]:10.4f}")
-
-    print("=" * 80)
     print(df_display.to_string())
-    print("=" * 80)
 
     return df
 
 
 def save_metrics_table_as_file(metrics_df, filename="metrics_results"):
-    """Save to CSV and Excel"""
     metrics_df.to_csv(f"{filename}.csv")
     metrics_df.to_excel(f"{filename}.xlsx")
-    print(f"✓ Saved: {filename}.csv, {filename}.xlsx")
+    print(f"Saved: {filename}.csv, {filename}.xlsx")
 
 
 def plot_metrics_comparison(df_metrics, filename="metrics_comparison.png", show_plot=False):
@@ -207,14 +193,15 @@ def plot_individual_metric_charts(df_metrics, output_dir="metric_charts"):
 
     print(f"Individual metric charts saved in '{output_dir}' directory")
 
+
 def run_model_comparison(ground_truth_path, sources, threshold=4.0, k=5,
                          item_features=None, output_prefix="comparison"):
     all_results_df = pd.DataFrame()
 
-    print("RUNNING COMPARISON ACROSS MULTIPLE MODELS (RecTools)")
+    print("Metrics calculations (RecTools)")
 
     for predictions_path, source_name in sources:
-        print(f"\nProcessing '{source_name}'...")
+        print(f"\nProcessing '{source_name}'")
 
         try:
             data_handler = DataHandler(ground_truth_path, predictions_path)
@@ -230,12 +217,9 @@ def run_model_comparison(ground_truth_path, sources, threshold=4.0, k=5,
         return None
 
     save_metrics_table_as_file(all_results_df, f"{output_prefix}_results")
+    plot_individual_metric_charts(all_results_df, output_dir=f"{output_prefix}_individual_charts")
 
-
-    #plot_metrics_comparison(all_results_df, f"{output_prefix}_chart.png")
-    plot_individual_metric_charts(all_results_df, f"{output_prefix}_individual_charts")
-
-    print(f"\n Processed {len(all_results_df)} model(s) with k={k}")
+    print(f"\nProcessed {len(all_results_df)} model(s) with k={k}")
     return all_results_df
 
 
