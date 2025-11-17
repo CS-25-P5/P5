@@ -193,7 +193,6 @@ def plot_individual_metric_charts(df_metrics, output_dir="metric_charts"):
 
     print(f"Individual metric charts saved in '{output_dir}' directory")
 
-
 def run_model_comparison(ground_truth_path, sources, threshold=4.0, k=5,
                          item_features=None, output_prefix="comparison"):
     all_results_df = pd.DataFrame()
