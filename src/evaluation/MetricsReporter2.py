@@ -6,7 +6,7 @@ from rectools.metrics import (
     IntraListDiversity, CatalogCoverage, calc_metrics
 )
 from rectools.metrics.distances import PairwiseHammingDistanceCalculator
-from DataHandler2 import DataHandler
+from DataHandler2 import ProcessedData, load_and_process_data
 import matplotlib.pyplot as plt
 import os
 from rectools.metrics.auc import PartialAUC
@@ -203,8 +203,8 @@ def run_model_comparison(ground_truth_path, sources, threshold=4.0, k=5,
         print(f"\nProcessing '{source_name}'")
 
         try:
-            data_handler = DataHandler(ground_truth_path, predictions_path)
-            metrics = calculate_all_metrics(data_handler, threshold, k, item_features)
+            data = load_and_process_data(ground_truth_path, predictions_path)
+            metrics = calculate_all_metrics(data, threshold, k, item_features)
             source_df = display_metrics_table(metrics, source_name, k)
             all_results_df = pd.concat([all_results_df, source_df])
         except Exception as e:
