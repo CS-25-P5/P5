@@ -192,7 +192,7 @@ def run_model_comparison(ground_truth_path, sources, threshold=4.0, k=5, item_fe
 # Configuration
 threshold = 4.0
 k = 5
-ground_truth_path = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
+ground_truth_path = r"/datasets/ratings_test_titles2.csv"
 
 # Define models to compare: (predictions_path, display_name)
 sources = [

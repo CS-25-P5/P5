@@ -245,7 +245,7 @@ def run_model_comparison(ground_truth_path, sources, threshold=4.0, k=5,
 # === USAGE EXAMPLE ===
 if __name__ == "__main__":
     # Configuration
-    ground_truth_path = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
+    ground_truth_path = r"/datasets/ratings_test_titles2.csv"
 
     sources = [
         (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\test_predictions.csv", "MMR"),

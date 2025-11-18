@@ -74,8 +74,8 @@ class DataHandler:
 # XXXXXXXXXXXXXXXXX Test
 
 # Initialize handler
-dh = DataHandler(ground_truth_path=r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv",
-    predictions_path=r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\test_predictions.csv")
+dh = DataHandler(ground_truth_path=r"/datasets/ratings_test_titles2.csv",
+                 predictions_path=r"/datasets/mmr_data/test_predictions.csv")
 #fix paths when you get back
 # Sample data flows
 #rating_pred: Predicted rating (may contain NaN)
