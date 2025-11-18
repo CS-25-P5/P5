@@ -4,62 +4,144 @@ import numpy as np
 import os
 
 
-def mmr(user_id, predicted_ratings, genre_map, movie_titles, user_history, lambda_param=0.7, top_k=10, similarity_type="jaccard", all_genres=None):
-    relevance_scores = predicted_ratings[user_id, :]
-    selected_indices = []
-    # Only include movies the user hasn't already seen
-    remaining_indices = [i for i in range(len(relevance_scores)) if not user_history[i]]
+class MMR:
+    def __init__(self, movie_titles, genre_map, all_genres, predicted_ratings, similarity_type='jaccard', lambda_param=0.7):
+        self.movie_titles = movie_titles
+        self.genre_map = genre_map
+        self.all_genres = all_genres
+        self.predicted_ratings = predicted_ratings
+        self.similiarity_type = similarity_type
+        self.lambda_param = lambda_param
 
-    for _ in range(top_k):
-        mmr_scores = []
-        for i in remaining_indices:
-            if selected_indices:
-                if similarity_type == "jaccard":
-                    diversity = max(jaccard_similiarity(genre_map[movie_titles[i]], genre_map[movie_titles[j]])
-                                for j in selected_indices)
-                elif similarity_type == "cosine":
-                    diversity = max(cosine_similarity(
-                        genre_map[movie_titles[i]], 
-                        genre_map[movie_titles[j]], 
-                        all_genres
-                        )
-                        for j in selected_indices)
-                else:
-                    raise ValueError("Invalid similairty_type")
-            else:
-                diversity = 0.0
+        # Build genre vector
+        self.genre_vectors = self.build_genre_vectors()
 
-            mmr_score = lambda_param * relevance_scores[i] - (1 - lambda_param) * diversity
-            mmr_scores.append((i,mmr_score))
+        #Build similarity matrix
+        if similarity_type == 'jaccard':
+            self.sim_matrix = self.jaccard_matrix()
+        elif similarity_type == 'cosine':
+            self.sim_matrix = self.consine_matrix()
+        else:
+            raise ValueError("Invalid similarity type")
 
-        best_idx = max(mmr_scores, key=lambda x: x[1])[0]
-        selected_indices.append(best_idx)
-        remaining_indices.remove(best_idx)
-    return selected_indices
-
-
-
-# Diversification post-preocessing 
-
-def jaccard_similiarity(genres_i, genres_j):
-    #jaccard similiary between genres of two items
-    if not genres_i or not genres_j:
-        return 0
-    
-    return len(genres_i & genres_j) /len(genres_i | genres_j)
    
+    # create binary_matrix a 2d array (rows -> movies, col -> genres)
+    def build_genre_vectors(self):
+        # assign index to each genre
+        genre_index = {}
+        for idx, genre in enumerate(self.all_genres):
+            genre_index[genre] = idx
 
-def cosine_similarity(genres_i, genres_j, all_genres):
-    # convert genres to binary vectors
-    vec_i = np.array([1 if g in genres_i else 0 for g in all_genres])
-    vec_j = np.array([1 if g in genres_j else 0 for g in all_genres])
+        # create a 2-dimensional matrix (numpy array) filled with zeros
+        mat = np.zeros((len(self.movie_titles), len(self.all_genres)), dtype=np.float32)
 
-    # Handle case where both are zero vectors
-    if not np.any(vec_i) or not np.any(vec_j):
-        return 0.0
+        # fill matrix so it indicates which genres each movie belong to
+        for i, title in enumerate(self.movie_titles):
+            for g in self.genre_map[title]:
+                mat[i, genre_index[g]] = 1.0
+
+        return mat
     
-    # compute cosine similarity
-    return np.dot(vec_i, vec_j)/(np.linalg.norm(vec_i) * np.linalg.norm(vec_j) )
+        
+    def jaccard_matrix(self):
+        # Count how many genres each movie has
+        row_sums = self.genre_vectors.sum(axis=1, keepdims=True)
+
+        # counts how many genres two movies share
+        intersection = self.genre_vectors @ self.genre_vectors.T
+
+        # get the union
+        union = row_sums + row_sums.T - intersection
+        # 1e-12 prevents division by zero
+        return intersection/(union + 1e-12)
+    
+    def consine_matrix(self):
+        # calculate the norm
+        norms = np.linalg.norm(self.genre_vectors, axis=1, keepdims=True)
+        # calculate the denominator 
+        denom = norms * norms.T + 1e-12
+        return (self.genre_vectors @ self.genre_vectors.T) / denom
+    
+
+        
+    def mmr(self, user_id, user_history, top_k=10):
+        # predicted score for each item
+        relevance = self.predicted_ratings[user_id]
+        # items the user hasn't seen
+        remaining = np.where(~user_history)[0].copy()  #~user_history flips True/False
+        # store all indices of items chosen by MMR
+        selected = []
+
+        #Repeat up to top_k times or until no remaining items left.
+        for _ in range(min(top_k, len(remaining))):
+            # if no items are selected 
+            if len(selected) == 0:
+                mmr_scores = self.lambda_param * relevance[remaining]
+            else:
+                # get similarity bewteen remaning[i] and selected[j]
+                # np.idx_ builds a grid
+                diversity = self.sim_matrix[np.ix_(remaining, selected)].max(axis=1)
+                mmr_scores = self.lambda_param * relevance[remaining] - (1- self.lambda_param) * diversity
+
+            # select item with highest relvance/diversity score
+            best_idx = np.argmax(mmr_scores)
+
+            # get the actual index of item in datset
+            best_item = remaining[best_idx]
+
+            #add item to selected
+
+            selected.append(best_item)
+            # remove item just picked
+            remaining = np.delete(remaining, best_idx)
+
+        return selected
+
+
+def build_mmr_models(movie_titles, genre_map, all_genres, predicted_ratings, lambda_param):
+    mmr_cosine = MMR(
+        movie_titles=movie_titles,
+        genre_map=genre_map,
+        all_genres=all_genres,
+        predicted_ratings=predicted_ratings,
+        similarity_type="cosine",
+        lambda_param=lambda_param
+    )
+
+
+    mmr_jaccard = MMR(
+        movie_titles=movie_titles,
+        genre_map=genre_map,
+        all_genres=all_genres,
+        predicted_ratings=predicted_ratings,
+        similarity_type="jaccard",
+        lambda_param=lambda_param
+    )
+
+    return mmr_cosine, mmr_jaccard
+
+
+def get_recommendations_for_mmr(mmr_model, movie_user_rating, movie_titles, genre_map, 
+                                predicted_ratings, top_k, top_n, output_dir, similarity_type):
+    results = []
+
+    for user_idx, user_id in enumerate(movie_user_rating.index):
+        user_history = (movie_user_rating.iloc[user_idx, :] > 0).values
+
+        mmr_indices = mmr_model.mmr(
+            user_id = user_idx,
+            user_history = user_history,
+            top_k = top_k
+        )
+
+        process_mmr(
+            user_id, user_idx, mmr_indices, 
+            movie_titles, genre_map, predicted_ratings, 
+            results, top_n)
+        
+    # save result as csv
+    save_mmr_results(results, output_dir, similarity_type)
+    print(f"Done MMR for {similarity_type}")
 
 
 
@@ -91,17 +173,80 @@ def process_mmr(user_id, user_idx, mmr_indices, movie_titles, genre_map, predict
     # print("--------------------------------------------------")
 
 
-def save_mmr_results(base_dir, mmr_recommendations_list, similarity_type="jaccard"):
+def save_mmr_results(mmr_recommendations_list, output_dir, similarity_type="jaccard"):
     # create output dataframe
     mmr_df = pd.DataFrame(mmr_recommendations_list)
 
+    #Ensure directory exists
+    os.makedirs(output_dir,exist_ok=True)
+
+    #Build defalut filename
+    output_file_path = os.path.join(output_dir, f"mmr_train_{similarity_type}_recommendations.csv")
+
     #save to csv
-    output_file_path = os.path.join(base_dir, f"../datasets/mmr_data/mmr_train_{similarity_type}_recommendations.csv")
-
     mmr_df.to_csv(output_file_path, index=False)
-
-    
+ 
     print(f"MMR results saved: {output_file_path}")
 
 
+
+
+# def mmr(user_id, predicted_ratings, genre_map, movie_titles, user_history, lambda_param=0.7, top_k=10, similarity_type="jaccard", all_genres=None):
+#     relevance_scores = predicted_ratings[user_id, :]
+#     selected_indices = []
+#     # Only include movies the user hasn't already seen
+#     remaining_indices = [i for i in range(len(relevance_scores)) if not user_history[i]]
+
+#     for _ in range(top_k):
+#         mmr_scores = []
+#         for i in remaining_indices:
+#             if selected_indices:
+#                 if similarity_type == "jaccard":
+#                     diversity = max(jaccard_similiarity(genre_map[movie_titles[i]], genre_map[movie_titles[j]])
+#                                 for j in selected_indices)
+#                 elif similarity_type == "cosine":
+#                     diversity = max(cosine_similarity(
+#                         genre_map[movie_titles[i]], 
+#                         genre_map[movie_titles[j]], 
+#                         all_genres
+#                         )
+#                         for j in selected_indices)
+#                 else:
+#                     raise ValueError("Invalid similairty_type")
+#             else:
+#                 diversity = 0.0
+
+#             mmr_score = lambda_param * relevance_scores[i] - (1 - lambda_param) * diversity
+#             mmr_scores.append((i,mmr_score))
+
+#         best_idx = max(mmr_scores, key=lambda x: x[1])[0]
+#         selected_indices.append(best_idx)
+#         remaining_indices.remove(best_idx)
+#     return selected_indices
+
+
+
+# # Diversification post-preocessing 
+
+# def jaccard_similiarity(genres_i, genres_j):
+#     #jaccard similiary between genres of two items
+#     if not genres_i or not genres_j:
+#         return 0
     
+#     return len(genres_i & genres_j) /len(genres_i | genres_j)
+
+
+# def cosine_similarity(genres_i, genres_j, all_genres):
+#     # convert genres to binary vectors
+#     vec_i = np.array([1 if g in genres_i else 0 for g in all_genres])
+#     vec_j = np.array([1 if g in genres_j else 0 for g in all_genres])
+
+#     # Handle case where both are zero vectors
+#     if not np.any(vec_i) or not np.any(vec_j):
+#         return 0.0
+    
+#     # compute cosine similarity
+#     return np.dot(vec_i, vec_j)/(np.linalg.norm(vec_i) * np.linalg.norm(vec_j) )
+
+
+# Optimized version

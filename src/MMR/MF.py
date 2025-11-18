@@ -128,6 +128,9 @@ def filter_empty_users_data(R, movie_titles=None):
     return R_filtered, filtered_movie_titles
 
 def save_mf_predictions(all_recommendations, genre_map, output_path="mf_predictions.csv"):
+    # ensure parent directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
     rows = []
     for user_id, recs in all_recommendations.items():
         for movie, score in recs:
@@ -140,9 +143,10 @@ def save_mf_predictions(all_recommendations, genre_map, output_path="mf_predicti
 
     df = pd.DataFrame(rows)
     df.to_csv(output_path, index=False)
+    print(f"MF predictions saved: {output_path}")
 
 
-def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filtered_user_ids, filtered_movie_titles, top_n=10):
+def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filtered_user_ids, filtered_movie_titles, top_n=10, save_path=None ):
         # store all recomendations for all users
     all_recomenndations = {}
 
@@ -178,7 +182,8 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
     #         print(f"{rank}. {movie} — Predicted rating: {score:.2f} | Genres {genres}")
     # print("--------------------------------------------------------------------")
 
-    return all_recomenndations
+    save_mf_predictions(all_recomenndations, genre_map, save_path)
+    
 
 
 
