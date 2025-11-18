@@ -35,11 +35,11 @@ def load_and_process_data(ground_truth_path, predictions_path):
     recommendations = _prepare_recommendations(predictions)
 
     return ProcessedData(
-        ground_truth=ground_truth,
-        predictions=predictions,
-        interactions=interactions,
-        recommendations=recommendations,
-        full_interactions=interactions.copy()
+        ground_truth=ground_truth, # original GT
+        predictions=predictions, # Predictions
+        interactions=interactions, # GT filtered down to the 3 columns needed for metrics (UserId, ItemID, Weight)
+        recommendations=recommendations, # Predictions with a rank column
+        full_interactions=interactions.copy() #GT that shouldnt be touched
     )
 
 # Convert DataFrame to RecTools standard format
@@ -50,6 +50,7 @@ def _to_rectools_format(df, is_ground_truth):
         "title": "item_id"
     }
 
+    # might have to change a bit if models use different names
     rating_col = "rating" if is_ground_truth else ("rating_pred" if "rating_pred" in df.columns else "rating")
     if rating_col in df.columns:
         column_map[rating_col] = "weight"
@@ -72,5 +73,5 @@ def _prepare_interactions(df):
 def _prepare_recommendations(df):
     recos = df[["user_id", "item_id", "weight"]].copy()
     recos = recos.sort_values(["user_id", "weight"], ascending=[True, False])
-    recos["rank"] = recos.groupby("user_id").cumcount() + 1
+    recos["rank"] = recos.groupby("user_id").cumcount() + 1 # add rank column sorted by user Id and descending
     return recos

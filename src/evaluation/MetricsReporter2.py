@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from sklearn.metrics import mean_squared_error, mean_absolute_error, roc_auc_score
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 from rectools.metrics import (
     Precision, Recall, F1Beta, MAP, NDCG, MRR,
     IntraListDiversity, CatalogCoverage, calc_metrics
@@ -11,20 +11,20 @@ import matplotlib.pyplot as plt
 import os
 from rectools.metrics.auc import PartialAUC
 
+# Calculate most metrics using RecTools
 def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None):
-    """Calculate all metrics using RecTools (aggregated values)"""
     results = {}
 
-    # 1. RMSE & MAE (using FULL dataset)
+    # RMSE & MAE (prediction metrics)
     print("Calculating RMSE and MAE")
     rmse, mae = _calculate_rating_metrics(data_handler)
     results["RMSE"] = rmse
     results["MAE"] = mae
 
-    # 2. RecTools Metrics (using FILTERED relevant interactions)
-    print(f"Calculating top-{k} RecTools metrics")
+    # Top-K Metrics (using filtered relevant interactions)
+    print(f"Calculating top-{k} metrics")
 
-    # Filter interactions to only include relevant items (rating >= threshold)
+    # Filter interactions to only include relevant items (rating >= threshold), Necesarry for ranking metrics
     relevant_interactions = data_handler.full_interactions[
         data_handler.full_interactions['weight'].astype(float) >= threshold
         ].copy()
@@ -33,16 +33,16 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None):
     catalog = data_handler.full_interactions['item_id'].unique()
     catalog_size = len(catalog)
 
-    # Create dictionary of metrics
+    # Create dictionary of metrics to calculate and set their variables
     metrics = {
-        f'Precision@{k}': Precision(k=k),
-        f'Recall@{k}': Recall(k=k),
-        f'F1Beta@{k}': F1Beta(k=k, beta=1.0),
-        f'MAP@{k}': MAP(k=k),
-        f'NDCG@{k}': NDCG(k=k),
-        f'MRR@{k}': MRR(k=k),
-        f'PartialAUC@{k}': PartialAUC(k=k),  # NEW: RecTools Partial AUC
-        f'CatalogCoverage@{k}': CatalogCoverage(k=k),
+        f'Precision@{k}': Precision(k=k), # Proportion of recommended items that are relevant
+        f'Recall@{k}': Recall(k=k), # Proportion of items that where recommended
+        f'F1Beta@{k}': F1Beta(k=k, beta=1.0), # Harmonic mean of Precision and recall
+        f'MAP@{k}': MAP(k=k), #Considers ranking order of relevant items
+        f'NDCG@{k}': NDCG(k=k), # Rewards relevant items appea ring earlier in recommendations
+        f'MRR@{k}': MRR(k=k), #focuses on position of the first relevant item
+        f'PartialAUC@{k}': PartialAUC(k=k), # Area under curve for top-K items
+        f'CatalogCoverage@{k}': CatalogCoverage(k=k), #proportion of catalog items that appear in recommendations
     }
 
     # Calculate metrics
@@ -54,7 +54,7 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None):
         prev_interactions=None,
     )
 
-    # Assign values
+    # Store calculated metrics in results dictionary
     results[f"Precision@{k}"] = metrics_values[f'Precision@{k}']
     results[f"Recall@{k}"] = metrics_values[f'Recall@{k}']
     results[f"F1@{k}"] = metrics_values[f'F1Beta@{k}']
@@ -65,7 +65,7 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None):
     results[f"Coverage@{k}"] = metrics_values[f'CatalogCoverage@{k}'] / catalog_size
     results["Overall Coverage"] = results[f"Coverage@{k}"]
 
-    # 3. ILD (Diversity)
+    # intra list diversity (ILD)
     if item_features is not None and not item_features.empty:
         print(f"Calculating ILD@{k}")
         results[f"ILD@{k}"] = _calculate_ild(data_handler, item_features, k)
@@ -73,15 +73,15 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None):
         print("Skipping ILD: No item features")
         results[f"ILD@{k}"] = np.nan
 
-    # 4. Reverse Gini (Popularity Bias)
+    # Reverse Gini (Popularity Bias, is a small subset of items recommended all the time)
     print("Calculating Reverse Gini")
     results['Reverse Gini'] = _calculate_reverse_gini(data_handler.recommendations)
 
     return results
 
-
+# Calculate RMSE and MAE using scikit-learn
 def _calculate_rating_metrics(data_handler):
-    """Calculate RMSE and MAE using scikit-learn"""
+    #collect as a merged table
     merged = pd.merge(
         data_handler.predictions,
         data_handler.full_interactions,
@@ -98,8 +98,8 @@ def _calculate_rating_metrics(data_handler):
     )
     return rmse, mae
 
+#Calculate Intra-List Diversity with RecTools
 def _calculate_ild(data_handler, item_features, k):
-    """Calculate Intra-List Diversity with RecTools"""
     try:
         if 'title' in item_features.columns:
             item_features = item_features.set_index('title')
@@ -154,16 +154,13 @@ def save_metrics_table_as_file(metrics_df, filename="metrics_results"):
     metrics_df.to_excel(f"{filename}.xlsx")
     print(f"Saved: {filename}.csv, {filename}.xlsx")
 
-
-def plot_metrics_comparison(df_metrics, filename="metrics_comparison.png", show_plot=False):
-    """Create comparison bar chart"""
-    # ... (keep your existing implementation)
-
-
+#function for creating charts of calculated metrics
 def plot_individual_metric_charts(df_metrics, output_dir="metric_charts"):
+    # create charts folder if it doesnt exist
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
+    #loop making plots for each metric
     for metric in df_metrics.columns:
         plt.figure(figsize=(8, 6))
 
@@ -188,59 +185,52 @@ def plot_individual_metric_charts(df_metrics, output_dir="metric_charts"):
 
         # Save individual chart
         filename = os.path.join(output_dir, f"{metric.replace(' ', '_')}_chart.png")
-        plt.savefig(filename, dpi=300, bbox_inches='tight')
+        plt.savefig(filename, dpi=300, bbox_inches="tight")
         plt.close()
 
     print(f"Individual metric charts saved in '{output_dir}' directory")
 
+#function for running it all
 def run_model_comparison(ground_truth_path, sources, threshold=4.0, k=5,
                          item_features=None, output_prefix="comparison"):
     all_results_df = pd.DataFrame()
 
-    print("Metrics calculations (RecTools)")
+    print("Metrics calculations")
 
     for predictions_path, source_name in sources:
         print(f"\nProcessing '{source_name}'")
 
-        try:
-            data = load_and_process_data(ground_truth_path, predictions_path)
-            metrics = calculate_all_metrics(data, threshold, k, item_features)
-            source_df = display_metrics_table(metrics, source_name, k)
-            all_results_df = pd.concat([all_results_df, source_df])
-        except Exception as e:
-            print(f"Error: {e}")
-            continue
+        data = load_and_process_data(ground_truth_path, predictions_path) # from datahandler, load data
+        metrics = calculate_all_metrics(data, threshold, k, item_features) # calculate all metrics
+        source_df = display_metrics_table(metrics, source_name, k) # store results
+        all_results_df = pd.concat([all_results_df, source_df]) # relevant if more than one model is run
 
-    if all_results_df.empty:
-        print("\nNo models processed successfully!")
-        return None
+    save_metrics_table_as_file(all_results_df, f"{output_prefix}_results") # save as a file (excel and csv)
+    plot_individual_metric_charts(all_results_df, output_dir=f"{output_prefix}_individual_charts") # create plots
 
-    save_metrics_table_as_file(all_results_df, f"{output_prefix}_results")
-    plot_individual_metric_charts(all_results_df, output_dir=f"{output_prefix}_individual_charts")
-
-    print(f"\nProcessed {len(all_results_df)} model(s) with k={k}")
+    print(f"\nProcessed {len(all_results_df)} model(s) with k={k}") #output results
     return all_results_df
 
 
 if __name__ == "__main__":
     # Configuration
-    THRESHOLD = 4.0
-    K = 5
+    THRESHOLD = 4.0 # for the metrics that need to view things in a binary fashion
+    K = 5 # recommendations to look at
     GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
 
     # Models to compare
     MODELS = [
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\test_predictions.csv", "MMR"),
-        # Add more models as needed: (predictions_path, model_name)
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\test_predictions.csv", "Test"),
+        # Add more models: (predictions_path, model_name)
     ]
 
-    # Item features for ILD
+    # Item features for ILD (test)
     ITEM_FEATURES = pd.DataFrame({
-        'title': ['The Matrix', 'Toy Story', 'Inception', 'Joker', 'Interstellar'],
-        'Sci-Fi': [1, 0, 1, 0, 1],
-        'Animation': [0, 1, 0, 0, 0],
-        'Drama': [0, 0, 0, 1, 0],
-        'Action': [1, 0, 1, 0, 1],
+        "title": ["The Matrix", "Toy Story", "Inception", "Joker", "Interstellar"],
+        "Sci-Fi": [1, 0, 1, 0, 1],
+        "Animation": [0, 1, 0, 0, 0],
+        "Drama": [0, 0, 0, 1, 0],
+        "Action": [1, 0, 1, 0, 1],
     })
 
     # Run comparison
