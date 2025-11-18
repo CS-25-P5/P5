@@ -5,22 +5,33 @@ import os
 from MMR.MF import MatrixFactorization, load_and_prepare_matrix, filter_empty_users_data, get_top_n_recommendations_MF
 
 
-def build_dpp_kernel(relevance_scores, item_embeddings, epsilon=1e-8):
+def build_dpp_kernel(relevance_scores, genre_map, movie_titles, all_genres, similarity_type="cosine", epsilon=1e-8):
 
-    # Step 1: ensure numerical stability
+    # ensure numerical stability
     scores = np.array(relevance_scores, dtype=float)
     scores = scores - np.min(scores) + epsilon
     q = np.sqrt(scores)
 
-    # Step 2: normalize item embeddings
-    X = np.array(item_embeddings, dtype=float)
-    X = X / (np.linalg.norm(X, axis=1, keepdims=True) + epsilon)
+    # build feature matrix (genre binary vectors - d_i)
+    X = []
+    for title in movie_titles:
+        genres = genre_map.get(title, set())
+        X.append([1 if g in genres else 0 for g in all_genres])
+    X = np.array(X, dtype=float)
 
-    # Step 3: cosine similarity matrix
-    S = np.dot(X, X.T)
-    S = np.clip(S, -1.0, 1.0)
+    # compute similarity matrix (Sim(d_i,d_j))
+    if similarity_type == "cosine":
+        X = X / (np.linalg.norm(X, axis=1, keepdims=True) + epsilon)
+        S = np.dot(X, X.T)
+    elif similarity_type == "jaccard":
+        intersection = np.dot(X, X.T)
+        union = np.expand_dims(X.sum(axis=1), 1) + np.expand_dims(X.sum(axis=1), 0) - intersection
+        S = intersection / (union + epsilon)
+    else:
+        raise ValueError("Invalid similarity_type. Use 'cosine' or 'jaccard'.")
 
-    # Step 4: build kernel
+
+    # build kernel
     K = np.outer(q, q) * S
     K += np.eye(len(K)) * epsilon  # diagonal stability
     return K
@@ -57,19 +68,25 @@ def dpp_greedy_selection(K, candidate_indices, top_k):
     return selected
 
 
-def dpp_recommendations(user_id, predicted_ratings, movie_embeddings, user_history, top_k=10):
+def dpp_recommendations(user_id, predicted_ratings, movie_titles, genre_map, user_history, all_genres, top_k=10, similarity_type="cosine"):
 
     #Generate DPP-based diverse recommendations for a user.
-    # Step 1: get relevance scores for user
+    # get relevance scores for user
     relevance = predicted_ratings[user_id, :]
 
-    # Step 2: only include items the user has NOT seen
+    #only include items the user has NOT seen
     candidate_indices = [i for i in range(len(relevance)) if not user_history[i]]
 
-    # Step 3: build DPP kernel using all items (relevance + embeddings)
-    K = build_dpp_kernel(relevance, movie_embeddings)
+    #build DPP kernel using all items (relevance + embeddings)
+    K = build_dpp_kernel(
+        relevance_scores = relevance,
+        genre_map = genre_map,
+        movie_titles = movie_titles,
+        all_genres = all_genres,
+        similarity_type = similarity_type
+    )
 
-    # Step 4: select top_k diverse items only from unseen ones
+    # Select top_k diverse items
     selected_indices = dpp_greedy_selection(K, candidate_indices, top_k)
 
     return selected_indices
