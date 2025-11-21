@@ -46,14 +46,14 @@ def split_ratings_dataset(
 
 
 # Parameters 
-CHUNKSIZE = 50000
+CHUNKSIZE = 10000
 TEST_SIZE = 0.20
 
 
 #load dataset
 base_dir = os.path.dirname(os.path.abspath(__file__))
 input_csv = os.path.join(base_dir, "datasets", "ratings.csv")
-output_dir = os.path.join(base_dir, "datasets/mmr_data/movie")
+output_dir = os.path.join(base_dir, "datasets/mmr_data")
 
 split_ratings_dataset(
   input_csv=input_csv,

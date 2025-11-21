@@ -4,35 +4,19 @@ import os
 import pandas as pd
 
 
-# PARAMETER
-TOP_N = 10
-CHUNK_SIZE_MOVIES = 10000
-K = 20
-ALPHA = 0.01
-LAMDA_ = 0.1
-N_EPOCHS = 50
-TOP_K = 20
-LAMBDA_PARAM = 0.7
-DATASET_NAME = "movies"
 
-#load data
-base_dir = os.path.dirname(os.path.abspath(__file__))
-ratings_file_path = os.path.join(base_dir, "../datasets", "ratings_train.csv")
-movies_file_path = os.path.join(base_dir, "../datasets", "movies.csv")
-
-ouput_dir = os.path.join(base_dir,"../datasets/mmr_data", DATASET_NAME)
 
 
 def run_mmr_pipeline(
     ratings_path, movies_path, output_dir="results", 
-    top_n=10, top_k=20, chunksize_movies=10000,
+    top_n=10, top_k=20, chunksize=10000,
     k=20, alpha=0.01, lambda_=0.1, n_epochs=50, lambda_param=0.7):
 
     os.makedirs(output_dir, exist_ok=True)
 
     #load data
     movie_user_rating, genre_map, all_genres = load_and_prepare_matrix(
-        ratings_path, movies_path, chunksize_movies)
+        ratings_path, movies_path, chunksize)
     
     R = movie_user_rating.values
     R_filtered, filtered_movie_titles = filter_empty_users_data(R, movie_user_rating.columns )
@@ -81,13 +65,32 @@ def run_mmr_pipeline(
     print("Pipeline for MMR train finished successfully!")
 
 
+
+# PARAMETER
+TOP_N = 10
+CHUNK_SIZE = 10000
+K = 20
+ALPHA = 0.01
+LAMDA_ = 0.1
+N_EPOCHS = 50
+TOP_K = 20
+LAMBDA_PARAM = 0.7
+DATASET_NAME = "movies"
+
+#load data
+base_dir = os.path.dirname(os.path.abspath(__file__))
+ratings_file_path = os.path.join(base_dir, "../datasets/mmr_data", f"ratings_{CHUNK_SIZE}_train.csv")
+movies_file_path = os.path.join(base_dir, "../datasets", "movies.csv")
+
+ouput_dir = os.path.join(base_dir,"../datasets/mmr_data/movie")
+
 run_mmr_pipeline(
     ratings_path = ratings_file_path,
     movies_path = movies_file_path,
     output_dir = ouput_dir,
     top_n = TOP_N,
     top_k = TOP_K,
-    chunksize_movies= CHUNK_SIZE_MOVIES,
+    chunksize= CHUNK_SIZE,
     k = K,
     alpha = ALPHA,
     lambda_= LAMDA_,

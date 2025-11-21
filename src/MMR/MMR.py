@@ -4,6 +4,7 @@ import numpy as np
 import os
 
 
+
 class MMR:
     def __init__(self, movie_titles, genre_map, all_genres, predicted_ratings, similarity_type='jaccard', lambda_param=0.7):
         self.movie_titles = movie_titles
@@ -24,7 +25,7 @@ class MMR:
         else:
             raise ValueError("Invalid similarity type")
 
-   
+
     # create binary_matrix a 2d array (rows -> movies, col -> genres)
     def build_genre_vectors(self):
         # assign index to each genre
@@ -90,7 +91,6 @@ class MMR:
             best_item = remaining[best_idx]
 
             #add item to selected
-
             selected.append(best_item)
             # remove item just picked
             remaining = np.delete(remaining, best_idx)
@@ -145,18 +145,20 @@ def get_recommendations_for_mmr(mmr_model, movie_user_rating, movie_titles, genr
 
 
 
-def process_mmr(user_id, user_idx, mmr_indices, movie_titles, genre_map, predicted_ratings, mmr_recommendations_list, top_n=10):
-    for rank, idx in enumerate(mmr_indices, start = 1):
-        movie = movie_titles[idx]
-        # hangle missing genres
-        movie_genres = genre_map.get(movie, set())
-        genres = ",".join(movie_genres)
+def process_mmr(user_id, user_idx, mmr_indices, item_names, genre_map, predicted_ratings, mmr_recommendations_list, top_n=10):
+
+
+    for rank, idx in enumerate(mmr_indices[:top_n], start = 1):
+        item = item_names[idx]
+        # handle missing genres
+        item_genres = genre_map.get(item, set())
+        genres = ",".join(item_genres)
 
 
         mmr_recommendations_list.append({
             'userId': user_id,
             'rank': rank,
-            'title': movie,
+            'title': item,
             'predictedRating': predicted_ratings[user_idx, idx],
             'genres':genres
 

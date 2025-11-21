@@ -16,6 +16,7 @@ class MatrixFactorization:
 
     def train(self):
         #initialize latent factors and biases
+        # scale = 0.1 -> genreated valued will be close to 0, given matrix shape u x k and i xk
         self.P = np.random.normal(scale=0.1, size=(self.num_users,self.k))
         self.Q = np.random.normal(scale=0.1, size=(self.num_items,self.k))
         self.b_u = np.zeros(self.num_users)
@@ -25,11 +26,19 @@ class MatrixFactorization:
         # Precompute the indices of known ratings
         known_ratings = np.array(np.where(self.R > 0)).T 
 
+        loss_history = []
+
         for epoch in range(self.n_epochs):
             np.random.shuffle(known_ratings)
+            # Collect squraed error for this epoch
+            epoch_errors = []
             for u,i in known_ratings:
                 prediction = self.predict_single(u,i)
                 error = self.R[u,i] - prediction
+
+
+                #append squared error
+                epoch_errors.append(error ** 2)
 
                 #update parameter
                 self.b_u[u] += self.alpha * (error - self.lambda_ * self.b_u[u])
@@ -42,8 +51,14 @@ class MatrixFactorization:
                 self.P[u, :] += self.alpha * (error * Qi_old - self.lambda_ * Pu_old)
                 self.Q[i, :] += self.alpha * (error * Pu_old - self.lambda_ * Qi_old)
 
-        loss = self.compute_loss()
-        print(f"Epoch {epoch+1}/{self.n_epochs}, Loss: {loss:.4f}")
+
+            # compute average loss for the epoch
+            epoch_loss = np.mean(epoch_errors)
+            rmse = np.sqrt(epoch_loss)
+            loss_history.append(epoch_loss)
+
+            full_loss = self.compute_loss()
+            print(f"Epoch {epoch+1}/{self.n_epochs}, RMSE: {rmse:.4f}, Fullloss: {full_loss: .4f}")
 
 
 
@@ -58,9 +73,12 @@ class MatrixFactorization:
     def compute_loss(self):
         loss = 0
 
+        #iterate over all users and items
         for u in range(self.num_users):
             for i in range(self.num_items):
+                # check if rating exist
                 if self.R[u,i] > 0:
+                    # adds the squared error for each observed rating
                     loss += (self.R[u,i] - self.predict_single(u,i)) ** 2
 
 
@@ -71,37 +89,41 @@ class MatrixFactorization:
     
 
 
-def load_and_prepare_matrix(ratings_file_path, movies_file_path, nrows_movies=None):
+def load_and_prepare_matrix(ratings_file_path, item_file_path, 
+                            user_col="userId", item_col='itemId', rating_col='rating',
+                            title_col="title",category_col='genre', nrows_items=None):
     # Check if files exist before loading
     if not os.path.exists(ratings_file_path):
         raise FileNotFoundError(f"Ratings file not found: {ratings_file_path}")
-    if not os.path.exists(movies_file_path):
-        raise FileNotFoundError(f"Movies file not found: {movies_file_path}")
+    if not os.path.exists(item_file_path):
+        raise FileNotFoundError(f"Item file not found: {item_file_path}")
     
     # Load the files
     ratings = pd.read_csv(ratings_file_path)
-    movies = pd.read_csv(movies_file_path, nrows=nrows_movies)
+    items = pd.read_csv(item_file_path, nrows=nrows_items)
+    
 
     #Merge and Clean
-    combine_m_r = pd.merge(ratings,movies, on='movieId')
-    # drop timestamp and rows
-    combine_m_r = combine_m_r.drop('timestamp',axis=1)
-    combine_m_r = combine_m_r.dropna(axis=0,subset=['title'])
+    combine = pd.merge(ratings,items, left_on=item_col, right_on=item_col)
+    # drop timestamp and empty rows rows
+    combine = combine.drop('timestamp',axis=1)
+    combine = combine.dropna(axis=0,subset=[title_col])
 
     # Pivot data into user-item rating matrix
-    movie_user_rating = combine_m_r.pivot(index='userId', columns='title', values='rating').fillna(0)
+    user_item_matrix = combine.pivot(index=user_col, columns=title_col, values=rating_col).fillna(0)
 
 
     #build genre map (title to set of genres )
     genre_map = {}
-    for _,row in movies.iterrows():
-        genres = row['genres']
+    for _,row in items.iterrows():
+        genres = row[category_col]
+        title = row[title_col]
 
         if isinstance(genres, str):
             genre_set = set(genres.split('|'))
         else:
             genre_set = set()
-        genre_map[row['title']] = genre_set
+        genre_map[title] = genre_set
 
 
     # build all unique genre list
@@ -110,9 +132,7 @@ def load_and_prepare_matrix(ratings_file_path, movies_file_path, nrows_movies=No
         all_genres.update(genres)
     all_genres = sorted(all_genres)
 
-
-
-    return movie_user_rating, genre_map, all_genres
+    return user_item_matrix, genre_map, all_genres
 
 
 def filter_empty_users_data(R, movie_titles=None):
