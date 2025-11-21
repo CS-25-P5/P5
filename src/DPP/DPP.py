@@ -12,7 +12,7 @@ def build_dpp_kernel(relevance_scores, genre_map, movie_titles, all_genres, simi
     scores = scores - np.min(scores) + epsilon
     q = np.sqrt(scores)
 
-    # build feature matrix (genre binary vectors - d_i)
+    # build feature matrix (genre vectors - d_i)
     X = []
     for title in movie_titles:
         genres = genre_map.get(title, set())
@@ -90,3 +90,11 @@ def dpp_recommendations(user_id, predicted_ratings, movie_titles, genre_map, use
     selected_indices = dpp_greedy_selection(K, candidate_indices, top_k)
 
     return selected_indices
+
+def save_DPP(dpp_recommendations_list, base_dir, similarity_type = "cosine"):
+    dpp_df = pd.DataFrame(dpp_recommendations_list)
+    output_dir = os.path.join(base_dir, "../datasets/dpp_data")
+    os.makedirs(output_dir, exist_ok=True)
+    output_file_path = os.path.join(output_dir, f"dpp_train_{similarity_type}_recommendations.csv")
+    dpp_df.to_csv(output_file_path, index=False)
+    print("DONE with DPP :)")
