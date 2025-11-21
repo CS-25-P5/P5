@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import os
 
+
+
+
 class MatrixFactorization:
     def __init__(self, R, k=20, alpha=0.01, lamda_=0.1, n_epochs=50):
         self.R = R
@@ -13,27 +16,49 @@ class MatrixFactorization:
 
     def train(self):
         #initialize latent factors and biases
+        # scale = 0.1 -> genreated valued will be close to 0, given matrix shape u x k and i xk
         self.P = np.random.normal(scale=0.1, size=(self.num_users,self.k))
         self.Q = np.random.normal(scale=0.1, size=(self.num_items,self.k))
         self.b_u = np.zeros(self.num_users)
         self.b_i = np.zeros(self.num_items)
         self.mu = np.mean(self.R[self.R>0])
 
+        # Precompute the indices of known ratings
+        known_ratings = np.array(np.where(self.R > 0)).T 
+
+        loss_history = []
+
         for epoch in range(self.n_epochs):
-            for u in range(self.num_users):
-                for i in range(self.num_items):
-                    if self.R[u,i]> 0:
-                        prediction = self.predict_single(u,i)
-                        error = self.R[u,i] - prediction
+            np.random.shuffle(known_ratings)
+            # Collect squraed error for this epoch
+            epoch_errors = []
+            for u,i in known_ratings:
+                prediction = self.predict_single(u,i)
+                error = self.R[u,i] - prediction
 
-                        #update parameter
-                        self.b_u[u] += self.alpha * (error - self.lambda_ * self.b_u[u])
-                        self.b_i[i] += self.alpha * (error - self.lambda_ * self.b_i[i])
-                        self.P[u, :] += self.alpha * (error * self.Q[i, :] - self.lambda_ * self.P[u,:])
-                        self.Q[i, :] += self.alpha * (error * self.P[u, :] - self.lambda_ * self.Q[i,:])
 
-            loss = self.compute_loss()
-            # print(f"Epoch {epoch+1}/{self.n_epochs}, Loss: {loss:.4f}")
+                #append squared error
+                epoch_errors.append(error ** 2)
+
+                #update parameter
+                self.b_u[u] += self.alpha * (error - self.lambda_ * self.b_u[u])
+                self.b_i[i] += self.alpha * (error - self.lambda_ * self.b_i[i])
+
+
+                Pu_old = self.P[u, :].copy()
+                Qi_old = self.Q[i, :].copy()
+
+                self.P[u, :] += self.alpha * (error * Qi_old - self.lambda_ * Pu_old)
+                self.Q[i, :] += self.alpha * (error * Pu_old - self.lambda_ * Qi_old)
+
+
+            # compute average loss for the epoch
+            epoch_loss = np.mean(epoch_errors)
+            rmse = np.sqrt(epoch_loss)
+            loss_history.append(epoch_loss)
+
+            full_loss = self.compute_loss()
+            print(f"Epoch {epoch+1}/{self.n_epochs}, RMSE: {rmse:.4f}, Fullloss: {full_loss: .4f}")
 
 
 
@@ -48,9 +73,12 @@ class MatrixFactorization:
     def compute_loss(self):
         loss = 0
 
+        #iterate over all users and items
         for u in range(self.num_users):
             for i in range(self.num_items):
+                # check if rating exist
                 if self.R[u,i] > 0:
+                    # adds the squared error for each observed rating
                     loss += (self.R[u,i] - self.predict_single(u,i)) ** 2
 
 
@@ -58,56 +86,88 @@ class MatrixFactorization:
         loss += self.lambda_ * (np.sum(self.P**2) + np.sum(self.Q**2) + np.sum(self.b_u**2) + np.sum(self.b_i**2))
 
         return loss
+    
 
 
-
-def load_and_prepare_matrix(ratings_file_path, movies_file_path, nrows_movies=None):
+def load_and_prepare_matrix(ratings_file_path, item_file_path, 
+                            user_col="userId", item_col='itemId', rating_col='rating',
+                            title_col="title",category_col='genre', nrows_items=None):
     # Check if files exist before loading
     if not os.path.exists(ratings_file_path):
         raise FileNotFoundError(f"Ratings file not found: {ratings_file_path}")
-    if not os.path.exists(movies_file_path):
-        raise FileNotFoundError(f"Movies file not found: {movies_file_path}")
+    if not os.path.exists(item_file_path):
+        raise FileNotFoundError(f"Item file not found: {item_file_path}")
     
     # Load the files
     ratings = pd.read_csv(ratings_file_path)
-    movies = pd.read_csv(movies_file_path, nrows=nrows_movies)
+    items = pd.read_csv(item_file_path, nrows=nrows_items)
+    
 
     #Merge and Clean
-    combine_m_r = pd.merge(ratings,movies, on='movieId')
-    # drop timestamp and rows
-    combine_m_r = combine_m_r.drop('timestamp',axis=1)
-    combine_m_r = combine_m_r.dropna(axis=0,subset=['title'])
+    combine = pd.merge(ratings,items, left_on=item_col, right_on=item_col)
+    # drop timestamp and empty rows rows
+    combine = combine.drop('timestamp',axis=1)
+    combine = combine.dropna(axis=0,subset=[title_col])
 
     # Pivot data into user-item rating matrix
-    movie_user_rating = combine_m_r.pivot(index='userId', columns='title', values='rating').fillna(0)
-
-    return movie_user_rating
+    user_item_matrix = combine.pivot(index=user_col, columns=title_col, values=rating_col).fillna(0)
 
 
-def filter_empty_users_data(R, user_ids= None, movie_titles=None):
+    #build genre map (title to set of genres )
+    genre_map = {}
+    for _,row in items.iterrows():
+        genres = row[category_col]
+        title = row[title_col]
+
+        if isinstance(genres, str):
+            genre_set = set(genres.split('|'))
+        else:
+            genre_set = set()
+        genre_map[title] = genre_set
+
+
+    # build all unique genre list
+    all_genres = set()
+    for genres in genre_map.values():
+        all_genres.update(genres)
+    all_genres = sorted(all_genres)
+
+    return user_item_matrix, genre_map, all_genres
+
+
+def filter_empty_users_data(R, movie_titles=None):
     # keep users and movies with at least on rating
-    user_filter = R.sum(axis = 1) > 0
+    #user_filter = R.sum(axis = 1) > 0
+
     movie_filter = R.sum(axis = 0) > 0
 
-    R_filtered = R[user_filter, :][:, movie_filter]
+    R_filtered = R[:, movie_filter]
 
-    filtered_user_ids = user_ids[user_filter] if user_ids is not None else None
     filtered_movie_titles = movie_titles[movie_filter] if movie_titles is not None else None
 
-    return R_filtered, filtered_user_ids, filtered_movie_titles
+    return R_filtered, filtered_movie_titles
 
-def save_mf_predictions(all_recommendations, output_path="mf_predictions.csv"):
+def save_mf_predictions(all_recommendations, genre_map, output_path="mf_predictions.csv"):
+    # ensure parent directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
     rows = []
     for user_id, recs in all_recommendations.items():
         for movie, score in recs:
-            rows.append({"userId": user_id, "movieTitle": movie, "mf_score":score})
+            rows.append({
+                "userId": user_id, 
+                "title": movie, 
+                "mf_score":score,
+                "genres": ",".join(genre_map.get(movie,[])) if genre_map else ""
+                })
 
     df = pd.DataFrame(rows)
     df.to_csv(output_path, index=False)
+    print(f"MF predictions saved: {output_path}")
 
 
-def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_ids, filtered_movie_titles, top_n=10):
-    # store all recomendations for all users
+def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filtered_user_ids, filtered_movie_titles, top_n=10, save_path=None ):
+        # store all recomendations for all users
     all_recomenndations = {}
 
     for user_idx, user_id in enumerate(filtered_user_ids):
@@ -138,9 +198,17 @@ def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_id
     #     print("--------------------------------------------------------------------")
     #     print(f"Top {top_n} movies for User {user_id} (Matrix Factorization):")
     #     for rank, (movie, score) in enumerate(zip(top_movies, top_scores), start=1):
-    #         print(f"{rank}. {movie} — Predicted rating: {score:.2f}")
+    #         genres = ",".join(genre_map.get(movie, []))
+    #         print(f"{rank}. {movie} — Predicted rating: {score:.2f} | Genres {genres}")
     # print("--------------------------------------------------------------------")
 
-    return all_recomenndations
+    save_mf_predictions(all_recomenndations, genre_map, save_path)
+    
 
 
+
+
+
+
+
+    
