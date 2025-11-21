@@ -12,7 +12,7 @@ from MMR.MF import (
     save_mf_predictions,
 )
 
-from DPP import dpp_recommendations
+from DPP import dpp_recommendations, save_DPP
 import os
 import pandas as pd
 import numpy as np
@@ -21,7 +21,7 @@ import numpy as np
 # Parameters
 
 top_n = 10
-chunksizeMovies = 50000
+chunksizeMovies = 10000
 
 # Load data
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -81,7 +81,7 @@ dpp_recommendations_list = []
 for user_idx, user_id in enumerate(movie_user_rating.index):
     user_history = (movie_user_rating.iloc[user_idx, :] > 0).values
 
-    # 🆕 call the new DPP function using genres, not embeddings
+    # call the new DPP function using genres, not embeddings
     dpp_indices = dpp_recommendations(
         user_id=user_idx,
         predicted_ratings=predicted_ratings,
@@ -102,12 +102,10 @@ for user_idx, user_id in enumerate(movie_user_rating.index):
             'rank': rank,
             'movieTitle': title,
             'predictedRating': predicted_ratings[user_idx, idx],
-            'genres': genres  # 🆕 include genres for clarity
+            'genres': genres  #include genres for clarity
         })
 
 # Save results
-dpp_df = pd.DataFrame(dpp_recommendations_list)
-output_file_path = os.path.join(base_dir, "../datasets/dpp_train_recommendations.csv")
-dpp_df.to_csv(output_file_path, index=False)
 
-print("DONE with DPP :)")
+save_DPP(dpp_recommendations_list, base_dir,similarity_type= "cosine")
+

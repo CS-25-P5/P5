@@ -4,7 +4,7 @@ import os
 
 # parameter 
 top_n = 10
-chunksizeMovies = 50000
+chunksizeMovies = 10000
 
 #load data
 base_dir = os.path.dirname(os.path.abspath(__file__))
