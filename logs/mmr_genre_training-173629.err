@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/ceph/home/student.aau.dk/vo55zp/projects/MMR_genre/src/MMR/MMR_train.py", line 1, in <module>
+    from MF import MatrixFactorization, load_and_prepare_matrix, filter_empty_users_data, get_top_n_recommendations_MF, save_mf_predictions
+  File "/ceph/home/student.aau.dk/vo55zp/projects/MMR_genre/src/MMR/MF.py", line 1, in <module>
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
