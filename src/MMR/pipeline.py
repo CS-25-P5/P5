@@ -69,7 +69,7 @@ def run_mmr_pipeline(
             "LAMDA_": best_params["lambda_"],
             "N_EPOCHS": n_epochs,
             "DATASET_NAME": dataset,
-            "Data_Size":datasize,
+            "Data_Size": datasize,
         },
         train_rmse=train_rmse,
         val_rmse=val_rmse
@@ -84,7 +84,7 @@ def run_mmr_pipeline(
         save_path = os.path.join(output_dir,"mf_train_predictions.csv"))
 
     # get top 10 movies of MMR
-    movie_titles = item_user_rating_train.columns.tolist()
+    movie_titles = filtered_item_titles
 
  
 
