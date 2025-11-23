@@ -120,6 +120,10 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path,nrows_items=None):
     combine = combine.dropna(subset=['title'])
 
 
+    # Remove duplicates by averaging ratings per user-movie pair
+    combine = combine.groupby(['userId', 'title'], as_index=False).agg({'rating': 'mean'})
+
+
     # Pivot data into user-item rating matrix
     user_item_matrix = combine.pivot(index='userId', columns='title', values='rating').fillna(0)
 
