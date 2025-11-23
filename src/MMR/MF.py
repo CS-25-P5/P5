@@ -62,7 +62,7 @@ class MatrixFactorization:
             loss_history.append(epoch_loss)
 
             full_loss = self.compute_loss()
-            print(f"Epoch {epoch+1}/{self.n_epochs}, RMSE: {rmse:.4f}, Fullloss: {full_loss: .4f}")
+            #print(f"Epoch {epoch+1}/{self.n_epochs}, RMSE: {rmse:.4f}, Fullloss: {full_loss: .4f}")
 
         return rmse
 
@@ -263,7 +263,7 @@ def tune_mf( R_train, R_val,
                 #Compute RMSE correctly 
                 val_rmse = mf.compute_rmse(R_val,pred_val)
                 
-                print(f"Testing on k={k}, alpha={alpha}, lambda_={lambda_} -> RMSE={val_rmse:.4f}")
+                #print(f"Testing on k={k}, alpha={alpha}, lambda_={lambda_} -> RMSE={val_rmse:.4f}")
 
                 #Keep the best configuration
 
@@ -273,7 +273,7 @@ def tune_mf( R_train, R_val,
                         "k":k, 
                         "alpha": alpha, 
                         "lambda_": lambda_}
-                    print(f"New best params found using VAL RMSE: {best_params}, val_rmse={val_rmse:.4f}")
+                    #print(f"New best params found using VAL RMSE: {best_params}, val_rmse={val_rmse:.4f}")
 
     print(f"Best MF params: {best_params}, RMSE={best_rmse:.4f}")
     return best_params
