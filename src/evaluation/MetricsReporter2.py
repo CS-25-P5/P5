@@ -117,9 +117,8 @@ def _calculate_ild(data_handler, item_features, k):
         print(f"ILD calculation failed: {e}")
         return np.nan
 
-
+# Calculate Reverse Gini (1-gini)
 def _calculate_reverse_gini(recommendations):
-    """Calculate Reverse Gini (1 - Gini coefficient)"""
     item_counts = recommendations['item_id'].value_counts()
     if len(item_counts) < 2: return 1.0
 
@@ -130,8 +129,8 @@ def _calculate_reverse_gini(recommendations):
     return 1 - gini
 
 
+# Display metrics table
 def display_metrics_table(metrics_dict, source_name="Model", k=5):
-    """Display metrics with clear separation"""
     overall_metrics = ["RMSE", "MAE", "Overall Coverage", "Reverse Gini"]
     topk_metrics = [
         f"Precision@{k}", f"Recall@{k}", f"F1@{k}",

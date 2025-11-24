@@ -6,8 +6,8 @@ class ProcessedData:
         self.ground_truth = ground_truth # user ratings
         self.predictions = predictions # model predictions
         self.interactions = interactions # gt in a specific format for Rectools
-        self.recommendations = recommendations #
-        self.full_interactions = full_interactions
+        self.recommendations = recommendations #Predictions with rank column
+        self.full_interactions = full_interactions #no touchie gt
 
 # Load and transform data into RecTools format.
 def load_and_process_data(ground_truth_path, predictions_path):
