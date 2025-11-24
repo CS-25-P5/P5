@@ -46,7 +46,7 @@ def run_mf_pipeline(
 
 # PARAMETERS
 TOP_N = 10
-CHUNK_SIZE = 1000000
+CHUNK_SIZE = 100000
 
 K = 20
 ALPHA = 0.01
