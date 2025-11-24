@@ -125,6 +125,7 @@ CHUNKSIZE = 100000
 TEST_SIZE = 0.20
 
 
+
 #load dataset
 base_dir = os.path.dirname(os.path.abspath(__file__))
 # input_rating_csv = os.path.join(base_dir, "datasets/MovieLens", "ratings.csv")
