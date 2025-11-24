@@ -4,12 +4,16 @@ import pandas as pd
 
 
 
+
+
 def standardize_csv(
     input_csv: str,
     output_csv: str,
     col_mapping: dict = None,
     drop_columns: list = None,
-    nrows: int = None
+    nrows: int = None,
+    map_to_dense : bool = False
+
 ):
 
   df = pd.read_csv(input_csv, nrows=nrows)
@@ -32,6 +36,22 @@ def standardize_csv(
     for col in drop_columns:
       if col in df.columns:
         df.drop(columns=col, inplace=True)
+
+
+  # Map userId and itemId to consecutive dense IDS
+
+  if map_to_dense:
+    for col in ["userId", "itemId"]:
+      if col in df.columns:
+        #get the unique values for column
+        unique_ids = df[col].unique()
+
+        # Build a mapping from orginal ID to new dense index
+        id_to_idx = {original_id: idx for idx, original_id in enumerate(unique_ids)}
+
+        # Apply mapping to dataframe
+        df[col] = df[col].map(id_to_idx)
+
 
 
   # save standardized CSV
@@ -157,6 +177,7 @@ ratings_df = standardize_csv(
     output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
     col_mapping={"user_id": "userId", "book_id": "itemId", "rating": "rating"},
     nrows = CHUNKSIZE,
+    map_to_dense = True
 )
 
 
