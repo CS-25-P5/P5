@@ -75,18 +75,29 @@ def run_dpp_pipeline(
     )
 
     movie_titles = filtered_item_titles
+    filtered_movie_indices = range(predicted_ratings.shape[1])
+    item_user_rating_filtered = item_user_rating_train.iloc[:, filtered_movie_indices]
 
-    # Build DPP models
-    dpp_models = build_dpp_models(movie_titles, genre_map, all_genres, predicted_ratings, similarity_types)
+
+# Build DPP models
+
+    dpp_cosine, dpp_jaccard = build_dpp_models(movie_titles, genre_map, all_genres, predicted_ratings)
+
+
 
     # Run DPP recommendations
-    for sim_type, dpp_model in dpp_models.items():
-        get_recommendations_for_dpp(
-            dpp_model, R_filtered_train, item_user_rating_train, movie_titles,
-            genre_map, predicted_ratings, top_k, top_n,
-            output_dir, f"dpp_{sim_type}"
-        )
+    get_recommendations_for_dpp(
+        dpp_cosine, item_user_rating_filtered, movie_titles,
+        genre_map, predicted_ratings, top_k, top_n,
+        output_dir, "cosine"
+    )
 
+
+    get_recommendations_for_dpp(
+        dpp_jaccard, item_user_rating_filtered, movie_titles,
+        genre_map, predicted_ratings, top_k, top_n,
+        output_dir, "jaccard"
+    )
 
 
 
@@ -95,7 +106,7 @@ def run_dpp_pipeline(
 
 # PARAMETER
 TOP_N = 10
-CHUNK_SIZE = 1000
+CHUNK_SIZE = 100000
 K = 20
 ALPHA = 0.01
 LAMDA_ = 0.1

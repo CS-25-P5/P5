@@ -116,7 +116,7 @@ def run_mmr_pipeline(
     return best_params
 
 def run_mf_pipeline(
-        ratings_path, item_path, output_dir=None, top_n=10, chunksize=1000,
+        ratings_path, item_path, output_dir=None, top_n=10, chunksize=100000,
         k=20, alpha=0.01, lambda_=0.1, n_epochs=50
 ):
 
@@ -156,7 +156,7 @@ def run_mf_pipeline(
 if __name__ == "__main__":
     # PARAMETER
     TOP_N = 10
-    CHUNK_SIZE = 1000
+    CHUNK_SIZE = 100000
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1

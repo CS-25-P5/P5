@@ -48,7 +48,7 @@ class DPP:
     #Cosine similarity
     def cosine_matrix(self):
         norms = np.linalg.norm(self.feature_matrix, axis=1, keepdims=True)
-        denom = norms * norms.T + 1e-12
+        denom = norms @ norms.T + 1e-12
 
         return (self.feature_matrix @ self.feature_matrix.T) / denom
 
@@ -78,7 +78,7 @@ class DPP:
             for i in remaining:
                 if not selected:
                     val = K[i, i]
-                    _, logdet = np.linalg.slogdet(np.array([[val]]))
+                    sign, logdet = np.linalg.slogdet(np.array([[val]]))
                 else:
                     subset = selected + [i]
                     subK = K[np.ix_(subset, subset)]
@@ -97,6 +97,10 @@ class DPP:
     # DPP recommendations for a user
     def dpp(self, user_id, user_history, top_k=10):
 
+        # Ensure user_history matches predicted_ratings length
+        if len(user_history) > self.predicted_ratings.shape[1]:
+            user_history = user_history[:self.predicted_ratings.shape[1]]
+
         relevance = self.predicted_ratings[user_id, :]
         candidate_indices = np.where(~user_history)[0].copy()
 
@@ -112,7 +116,7 @@ def build_dpp_models(movie_titles, genre_map, all_features, predicted_ratings):
         feature_map=genre_map,
         all_features=all_features,
         predicted_ratings=predicted_ratings,
-        similarity_type="cosine"
+        similarity_type ="cosine"
     )
 
     dpp_jaccard = DPP(

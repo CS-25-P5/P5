@@ -50,7 +50,7 @@ def split_ratings_dataset(
 
 if __name__ == "__main__":
   # Parameters
-  CHUNKSIZE = 1000
+  CHUNKSIZE = 100000
   TEST_SIZE = 0.20
 
 
