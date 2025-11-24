@@ -26,7 +26,7 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None):
 
     # Filter interactions to only include relevant items (rating >= threshold), Necesarry for ranking metrics
     relevant_interactions = data_handler.full_interactions[
-        data_handler.full_interactions['weight'].astype(float) >= threshold
+        data_handler.full_interactions['weight'] >= threshold
         ].copy()
 
     # Create catalog of all items from ground truth
@@ -89,12 +89,12 @@ def _calculate_rating_metrics(data_handler):
         suffixes=('_pred', '_gt')
     )
     rmse = np.sqrt(mean_squared_error(
-        merged['weight_gt'].astype(float),
-        merged['weight_pred'].astype(float)
+        merged['weight_gt'],
+        merged['weight_pred']
     ))
     mae = mean_absolute_error(
-        merged['weight_gt'].astype(float),
-        merged['weight_pred'].astype(float)
+        merged['weight_gt'],
+        merged['weight_pred']
     )
     return rmse, mae
 
