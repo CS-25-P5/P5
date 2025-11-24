@@ -59,7 +59,7 @@ class MMR:
     def consine_matrix(self):
         # calculate the norm
         norms = np.linalg.norm(self.genre_vectors, axis=1, keepdims=True)
-        # calculate the denominator 
+        # calculate the denominator
         denom = norms * norms.T + 1e-12
         return (self.genre_vectors @ self.genre_vectors.T) / denom
 
@@ -75,7 +75,7 @@ class MMR:
 
         #Repeat up to top_k times or until no remaining items left.
         for _ in range(min(top_k, len(remaining))):
-            # if no items are selected 
+            # if no items are selected
             if len(selected) == 0:
                 mmr_scores = self.lambda_param * relevance[remaining]
             else:
