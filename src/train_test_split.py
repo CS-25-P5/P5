@@ -121,7 +121,7 @@ def split_ratings(
 
 
 # Parameters
-CHUNKSIZE = 100000
+CHUNKSIZE = 1000
 TEST_SIZE = 0.20
 
 
@@ -165,17 +165,17 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Prepare book dataset
 
-input_rating_csv = os.path.join(base_dir, "datasets/GoodReads", "ratings.csv")
-input_movies_csv = os.path.join(base_dir, "datasets/GoodReads", "books.csv")
+input_rating_csv = os.path.join(base_dir, "datasets/MovieLens", "ratings.csv")
+input_movies_csv = os.path.join(base_dir, "datasets/MovieLens", "movies.csv")
 
-output_dir = os.path.join(base_dir, "datasets/mmr_data")
-output_dir_rating = os.path.join(base_dir, "datasets/GoodReads")
+output_dir = os.path.join(base_dir, "datasets/dpp_data")
+output_dir_rating = os.path.join(base_dir, "datasets/MovieLens")
 
 
 ratings_df = standardize_csv(
   input_csv=input_rating_csv,
   output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
-  col_mapping={"user_id": "userId", "book_id": "itemId", "rating": "rating"},
+  col_mapping={"user_id": "userId", "movie_id": "itemId", "rating": "rating"},
   nrows = CHUNKSIZE,
   map_to_dense = True
 )
