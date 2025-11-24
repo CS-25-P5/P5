@@ -1,18 +1,20 @@
 import pandas as pd
 import numpy as np
-import os
+import os, csv
 
 
 
 
 class MatrixFactorization:
-    def __init__(self, R, k=20, alpha=0.01, lamda_=0.1, n_epochs=50):
+    def __init__(self, R, k=20, alpha=0.01, lamda_=0.1, n_epochs=50, random_state=42):
         self.R = R
         self.num_users, self.num_items = R.shape
         self.k = k
         self.alpha = alpha
         self.lambda_ = lamda_
         self.n_epochs = n_epochs
+        self.random_state = random_state
+        np.random.seed(self.random_state)
 
     def train(self):
         #initialize latent factors and biases
@@ -23,12 +25,14 @@ class MatrixFactorization:
         self.b_i = np.zeros(self.num_items)
         self.mu = np.mean(self.R[self.R>0])
 
+
         # Precompute the indices of known ratings
-        known_ratings = np.array(np.where(self.R > 0)).T 
+        known_ratings = np.array(np.where(self.R > 0)).T
 
         loss_history = []
 
         for epoch in range(self.n_epochs):
+            np.random.seed(self.random_state + epoch)
             np.random.shuffle(known_ratings)
             # Collect squraed error for this epoch
             epoch_errors = []
@@ -58,8 +62,9 @@ class MatrixFactorization:
             loss_history.append(epoch_loss)
 
             full_loss = self.compute_loss()
-            print(f"Epoch {epoch+1}/{self.n_epochs}, RMSE: {rmse:.4f}, Fullloss: {full_loss: .4f}")
+            #print(f"Epoch {epoch+1}/{self.n_epochs}, RMSE: {rmse:.4f}, Fullloss: {full_loss: .4f}")
 
+        return rmse
 
 
     def predict_single(self, u, i):
@@ -86,38 +91,54 @@ class MatrixFactorization:
         loss += self.lambda_ * (np.sum(self.P**2) + np.sum(self.Q**2) + np.sum(self.b_u**2) + np.sum(self.b_i**2))
 
         return loss
-    
 
 
-def load_and_prepare_matrix(ratings_file_path, item_file_path, 
-                            user_col="userId", item_col='itemId', rating_col='rating',
-                            title_col="title",category_col='genre', nrows_items=None):
+    def compute_rmse(self, R_eval, R_pred):
+        users, items = np.where(R_eval > 0)
+        squared_errors = (R_eval[users,items] - R_pred[users, items])**2
+        return np.sqrt(np.mean(squared_errors))
+
+
+
+
+def load_and_prepare_matrix(ratings_file_path, item_file_path,nrows_items=None):
     # Check if files exist before loading
     if not os.path.exists(ratings_file_path):
         raise FileNotFoundError(f"Ratings file not found: {ratings_file_path}")
     if not os.path.exists(item_file_path):
         raise FileNotFoundError(f"Item file not found: {item_file_path}")
-    
+
     # Load the files
     ratings = pd.read_csv(ratings_file_path)
     items = pd.read_csv(item_file_path, nrows=nrows_items)
-    
+
+    # Normalize column names
+    if "movieId" in ratings.columns:
+        ratings = ratings.rename(columns={"movieId": "itemId"})
+
+    if "movieId" in items.columns:
+        items = items.rename(columns={"movieId": "itemId"})
 
     #Merge and Clean
-    combine = pd.merge(ratings,items, left_on=item_col, right_on=item_col)
-    # drop timestamp and empty rows rows
-    combine = combine.drop('timestamp',axis=1)
-    combine = combine.dropna(axis=0,subset=[title_col])
+    combine = pd.merge(ratings,items, on='itemId')
+
+    # Drop rows without a title
+    combine = combine.dropna(subset=['title'])
+
+
+    # Remove duplicates by averaging ratings per user-movie pair
+    combine = combine.groupby(['userId', 'title'], as_index=False).agg({'rating': 'mean'})
+
 
     # Pivot data into user-item rating matrix
-    user_item_matrix = combine.pivot(index=user_col, columns=title_col, values=rating_col).fillna(0)
+    user_item_matrix = combine.pivot(index='userId', columns='title', values='rating').fillna(0)
 
 
     #build genre map (title to set of genres )
     genre_map = {}
     for _,row in items.iterrows():
-        genres = row[category_col]
-        title = row[title_col]
+        genres = row['genres']
+        title = row['title']
 
         if isinstance(genres, str):
             genre_set = set(genres.split('|'))
@@ -147,6 +168,26 @@ def filter_empty_users_data(R, movie_titles=None):
 
     return R_filtered, filtered_movie_titles
 
+
+def align_train_val_matrices(train_df, val_df):
+    # Find common movies
+    train_items = set(train_df.columns)
+    val_items = set(val_df.columns)
+    common_items = sorted(train_items & val_items)
+
+    if len(common_items) == 0:
+        raise ValueError("No overlapping itemIds  between train and validation")
+
+
+    # SUbset and reorder both matrices
+    train_aligned = train_df[common_items]
+    val_aligned = val_df[common_items]
+
+    return train_aligned, val_aligned
+
+
+
+
 def save_mf_predictions(all_recommendations, genre_map, output_path="mf_predictions.csv"):
     # ensure parent directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -155,11 +196,11 @@ def save_mf_predictions(all_recommendations, genre_map, output_path="mf_predicti
     for user_id, recs in all_recommendations.items():
         for movie, score in recs:
             rows.append({
-                "userId": user_id, 
-                "title": movie, 
+                "userId": user_id,
+                "title": movie,
                 "mf_score":score,
                 "genres": ",".join(genre_map.get(movie,[])) if genre_map else ""
-                })
+            })
 
     df = pd.DataFrame(rows)
     df.to_csv(output_path, index=False)
@@ -167,7 +208,7 @@ def save_mf_predictions(all_recommendations, genre_map, output_path="mf_predicti
 
 
 def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filtered_user_ids, filtered_movie_titles, top_n=10, save_path=None ):
-        # store all recomendations for all users
+    # store all recomendations for all users
     all_recomenndations = {}
 
     for user_idx, user_id in enumerate(filtered_user_ids):
@@ -180,7 +221,7 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
         # Filter out already rated movies
         user_ratings_filtered = np.where(already_rated, -np.inf, user_ratings)
 
-        # get indicies sorted descending 
+        # get indicies sorted descending
         sorted_indices = np.argsort(user_ratings_filtered)[::-1]
 
         # Tak top N or fewer if not enough movies
@@ -203,12 +244,75 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
     # print("--------------------------------------------------------------------")
 
     save_mf_predictions(all_recomenndations, genre_map, save_path)
-    
 
 
 
 
 
+def tune_mf( R_train, R_val,
+             n_epochs=50,
+             hyperparams_grid = {
+                 "k": [20, 40, 60],
+                 "alpha": [0.005, 0.01, 0.02],
+                 "lambda_": [0.05, 0.1, 0.2]
+             }
+             ):
+
+    best_rmse = float('inf')
+    best_params = None
+
+    for k in hyperparams_grid["k"]:
+        for alpha in hyperparams_grid["alpha"]:
+            for lambda_ in hyperparams_grid["lambda_"]:
+                mf = MatrixFactorization(R_train, k, alpha, lambda_, n_epochs)
+                mf.train()
+
+                # predict on validation set
+                pred_val = mf.full_prediction()
+
+                #Compute RMSE correctly
+                val_rmse = mf.compute_rmse(R_val,pred_val)
+
+                #print(f"Testing on k={k}, alpha={alpha}, lambda_={lambda_} -> RMSE={val_rmse:.4f}")
+
+                #Keep the best configuration
+
+                if val_rmse < best_rmse:
+                    best_rmse = val_rmse
+                    best_params = {
+                        "k":k,
+                        "alpha": alpha,
+                        "lambda_": lambda_}
+                    #print(f"New best params found using VAL RMSE: {best_params}, val_rmse={val_rmse:.4f}")
+
+    print(f"Best MF params: {best_params}, RMSE={best_rmse:.4f}")
+    return best_params
 
 
-    
+def train_mf_with_best_params(R_filtered, best_params, n_epochs=50):
+    mf = MatrixFactorization(R_filtered, best_params["k"],  best_params["alpha"], best_params["lambda_"], n_epochs)
+    train_rmse = mf.train()
+    predicted_ratings = mf.full_prediction()
+
+    return mf, predicted_ratings, train_rmse
+
+
+
+def log_mf_experiment(output_dir, params, train_rmse=None, val_rmse=None):
+    os.makedirs(output_dir, exist_ok=True)
+    log_file = os.path.join(output_dir, "mf_train_experiments_log.csv")
+
+    # add RMSE to params
+    params = params.copy()
+    params['train_rmse'] = train_rmse
+    params['val_rmse'] = val_rmse
+
+    # check if log file exists
+    file_exists = os.path.isfile(log_file)
+
+    # append to CSV
+    with open(log_file, 'a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=params.keys())
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow(params)

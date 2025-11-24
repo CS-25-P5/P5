@@ -20,6 +20,9 @@ def split_ratings_dataset(
   train_list = []
   test_list = []
 
+  DATASET_NAME = "movies"
+
+
   for user_id, group in df.groupby('userId'):
     train_ratings, test_ratings = train_test_split(group, test_size=test_size, random_state=random_state)
     train_list.append(train_ratings)
@@ -27,11 +30,11 @@ def split_ratings_dataset(
 
     # Combine splits
     train_df = pd.concat(train_list).reset_index(drop=True)
-    test_df = pd.concat(test_list).reset_index(drop=True)  
+    test_df = pd.concat(test_list).reset_index(drop=True)
 
     # Build output paths
-    train_file = os.path.join(output_dir, f"ratings_{chunksize}_train.csv")
-    test_file = os.path.join(output_dir, f"ratings_{chunksize}_test.csv")
+    train_file = os.path.join(output_dir, f"{DATASET_NAME}_ratings_{chunksize}_train.csv")
+    test_file = os.path.join(output_dir, f"{DATASET_NAME}_ratings_{chunksize}_test.csv")
 
     #save
     train_df.to_csv(train_file, index=False)
@@ -43,24 +46,25 @@ def split_ratings_dataset(
       f"Rows: {len(df)} (train={len(train_df)}, test={len(test_df)})\n"
       f"Saved to: {output_dir}"
   )
+  return train_file, test_file
+
+if __name__ == "__main__":
+  # Parameters
+  CHUNKSIZE = 1000
+  TEST_SIZE = 0.20
 
 
-# Parameters 
-CHUNKSIZE = 10000
-TEST_SIZE = 0.20
+  #load dataset
+  base_dir = os.path.dirname(os.path.abspath(__file__))
+  input_csv = os.path.join(base_dir, "datasets", "ratings.csv")
+  output_dir = os.path.join(base_dir, "datasets/dpp_data")
 
-
-#load dataset
-base_dir = os.path.dirname(os.path.abspath(__file__))
-input_csv = os.path.join(base_dir, "datasets", "ratings.csv")
-output_dir = os.path.join(base_dir, "datasets/mmr_data")
-
-split_ratings_dataset(
-  input_csv=input_csv,
-  output_dir=output_dir,
-  chunksize=CHUNKSIZE,
-  test_size= TEST_SIZE
-)
+  split_ratings_dataset(
+    input_csv=input_csv,
+    output_dir=output_dir,
+    chunksize=CHUNKSIZE,
+    test_size= TEST_SIZE
+  )
 
 
 
