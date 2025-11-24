@@ -55,7 +55,13 @@ def _to_rectools_format(df, is_ground_truth):
     if rating_col in df.columns:
         column_map[rating_col] = "weight"
 
-    return df.rename(columns=column_map)
+    df = df.rename(columns=column_map)
+
+    # force weight to float
+    if "weight" in df.columns:
+        df["weight"] = df["weight"].astype(float)
+
+    return df
 
 # Validate required columns exist
 def _validate_columns(gt, pred):
