@@ -14,6 +14,9 @@ def standardize_csv(
 
   df = pd.read_csv(input_csv, nrows=nrows)
 
+  # Strip whitespace from columns to avoid mismatches
+  df.columns = df.columns.str.strip()
+
   existing_mapping = {}
 
   # rename according to mapping
@@ -59,6 +62,9 @@ def split_ratings(
   val_list = []
 
   for user_id, group in ratings_df.groupby('userId'):
+    # need at least 3 ratings to split train/val/test
+    if len(group) < 3:
+      continue
 
     # split into train and test
     train_ratings, test_ratings = train_test_split(group, test_size=test_size, random_state=random_state)
@@ -95,26 +101,27 @@ def split_ratings(
 
 
 # Parameters
-CHUNKSIZE = 1000
+CHUNKSIZE = 100000
 TEST_SIZE = 0.20
 
 
 #load dataset
 base_dir = os.path.dirname(os.path.abspath(__file__))
-input_rating_csv = os.path.join(base_dir, "datasets/MovieLens", "ratings.csv")
-input_movies_csv = os.path.join(base_dir, "datasets/MovieLens", "movies.csv")
+# input_rating_csv = os.path.join(base_dir, "datasets/MovieLens", "ratings.csv")
+# input_movies_csv = os.path.join(base_dir, "datasets/MovieLens", "movies.csv")
 
-output_dir = os.path.join(base_dir, "datasets/mmr_data")
-output_dir_rating = os.path.join(base_dir, "datasets/MovieLens")
+# output_dir = os.path.join(base_dir, "datasets/mmr_data")
+# output_dir_rating = os.path.join(base_dir, "datasets/MovieLens")
 
 
-ratings_df = standardize_csv(
-    input_csv=input_rating_csv,
-    output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
-    col_mapping={"userId": "userId", "movieId": "itemId", "rating": "rating"},
-    drop_columns=["timestamp"],
-    nrows = CHUNKSIZE,
-)
+#Prepare MOVie dataset
+# ratings_df = standardize_csv(
+#     input_csv=input_rating_csv,
+#     output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
+#     col_mapping={"userId": "userId", "movieId": "itemId", "rating": "rating"},
+#     drop_columns=["timestamp"],
+#     nrows = CHUNKSIZE,
+# )
 
 
 # standardize_csv(
@@ -124,14 +131,55 @@ ratings_df = standardize_csv(
 # )
 
 
+# split_ratings(
+#     ratings_df,
+#     output_dir=output_dir,
+#     dataset_name="movies",
+#     test_size=0.2,
+#     val_size=0.2,
+#     chunksize = CHUNKSIZE,
+# )
+
+
+
+
+# Prepare book dataset
+
+input_rating_csv = os.path.join(base_dir, "datasets/GoodReads", "ratings.csv")
+input_movies_csv = os.path.join(base_dir, "datasets/GoodReads", "books.csv")
+
+output_dir = os.path.join(base_dir, "datasets/mmr_data")
+output_dir_rating = os.path.join(base_dir, "datasets/GoodReads")
+
+
+ratings_df = standardize_csv(
+    input_csv=input_rating_csv,
+    output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
+    col_mapping={"user_id": "userId", "book_id": "itemId", "rating": "rating"},
+    nrows = CHUNKSIZE,
+)
+
+
+# standardize_csv(
+#     input_csv=input_movies_csv,
+#     output_csv=os.path.join(output_dir_rating, f"books.csv"),
+#     col_mapping={"book_id": "itemId", "book_title": "title", "genres": "genres"},
+#     drop_columns=["title_ex","book_series", "book_authors", "book_score", "book_rating", 
+#                   "book_rating_obj","book_rating_count", "book_review_count", 
+#                   "book_desc", "tags", "FE_text", "book_desc_tags_FE", "ratings_1",
+#                   "ratings_2","ratings_3","ratings_4","ratings_5","book_edition",
+#                   "book_format","original_publication_year","language_code", "book_pages",
+#                   "book_pages_obj","books_count","books_count_obj","goodreads_book_id","book_isbn",
+#                   "isbn","isbn13","image_url_x","image_url_y","small_image_url"]
+# )
+
+
 split_ratings(
     ratings_df,
     output_dir=output_dir,
-    dataset_name="movies",
+    dataset_name="books",
     test_size=0.2,
     val_size=0.2,
     chunksize = CHUNKSIZE,
 )
-
-
 
