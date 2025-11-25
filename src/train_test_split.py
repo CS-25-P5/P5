@@ -3,6 +3,31 @@ import os
 import pandas as pd
 
 
+def split_dataset_by_attributes(
+    input_csv: str,
+    output_dir: str, 
+    item_name: str,
+    item_cols: list = None,
+    rating_cols: list = None,
+    nrows: int = None
+):
+  df = pd.read_csv(input_csv, nrows=nrows)
+  df.columns = df.columns.str.strip()
+  os.makedirs(output_dir, exist_ok=True)
+
+  if item_cols: 
+    items_df = df[item_cols].drop_duplicates()
+    items_file = os.path.join(output_dir, f"{item_name}.csv")
+    items_df.to_csv(items_file, index=False)
+    print(f"[INFO] Saved {len(items_df)} unique items to {items_file}")
+
+
+  if rating_cols:
+    ratings_df = df[rating_cols].copy()
+    ratings_file = os.path.join(output_dir, f"ratings_{nrows}_.csv")
+    ratings_df.to_csv(ratings_file, index=False)
+    print(f"[INFO] Saved {len(ratings_df)} ratings to {ratings_file}")
+
 
 
 
@@ -81,10 +106,37 @@ def split_ratings(
   test_list = []
   val_list = []
 
+  min_train_ratings = 1
+
+
   for user_id, group in ratings_df.groupby('userId'):
-    # need at least 3 ratings to split train/val/test
-    if len(group) < 3:
+    # Skip users with too few ratings
+    n_ratings = len(group)
+    if n_ratings < (min_train_ratings + 2):
       continue
+
+    #Shuffle user's ratings
+    group = group.sample(frac=1, random_state=random_state)
+
+    # Reserve minimum items for training
+    train_ratings = group.iloc[:min_train_ratings]
+    # The rest are saved in ramaining for test and validation
+    remaining = group.iloc[min_train_ratings:]  
+
+
+    if len(remaining) > 1:
+      test_count = max(1, int(test_size * len(remaining)))
+      val_count = max(1, int(val_size * len(remaining)))
+
+      test_ratings = remaining.iloc[:test_count]
+      val_ratings = remaining.iloc[test_count:test_count + val_count]
+      train_ratings = pd.concat([train_ratings, remaining.iloc[test_count + val_count:]])
+    else: # if only one rating left
+      train_ratings = pd.concat([train_ratings, remaining])
+      val_ratings = pd.DataFrame(columns=group.columns)
+      test_ratings = pd.DataFrame(columns=group.columns)
+
+    
 
     # split into train and test
     train_ratings, test_ratings = train_test_split(group, test_size=test_size, random_state=random_state)
@@ -121,7 +173,7 @@ def split_ratings(
 
 
 # Parameters
-CHUNKSIZE = 100000
+CHUNKSIZE = 50000
 TEST_SIZE = 0.20
 
 
@@ -134,7 +186,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 # output_dir_rating = os.path.join(base_dir, "datasets/MovieLens")
 
 
-#Prepare MOVie dataset
+# #Prepare MOVie dataset
 # ratings_df = standardize_csv(
 #     input_csv=input_rating_csv,
 #     output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
@@ -165,20 +217,20 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Prepare book dataset
 
-input_rating_csv = os.path.join(base_dir, "datasets/GoodReads", "ratings.csv")
-input_movies_csv = os.path.join(base_dir, "datasets/GoodReads", "books.csv")
+# input_rating_csv = os.path.join(base_dir, "datasets/GoodBooks", "ratings.csv")
+# input_movies_csv = os.path.join(base_dir, "datasets/GoodBooks", "books.csv")
 
-output_dir = os.path.join(base_dir, "datasets/mmr_data")
-output_dir_rating = os.path.join(base_dir, "datasets/GoodReads")
+# output_dir = os.path.join(base_dir, "datasets/mmr_data")
+# output_dir_rating = os.path.join(base_dir, "datasets/GoodBooks")
 
 
-ratings_df = standardize_csv(
-    input_csv=input_rating_csv,
-    output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
-    col_mapping={"user_id": "userId", "book_id": "itemId", "rating": "rating"},
-    nrows = CHUNKSIZE,
-    map_to_dense = True
-)
+# ratings_df = standardize_csv(
+#     input_csv=input_rating_csv,
+#     output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
+#     col_mapping={"user_id": "userId", "book_id": "itemId", "rating": "rating"},
+#     nrows = CHUNKSIZE,
+#     map_to_dense = True
+# )
 
 
 # standardize_csv(
@@ -195,12 +247,97 @@ ratings_df = standardize_csv(
 # )
 
 
-split_ratings(
-    ratings_df,
-    output_dir=output_dir,
-    dataset_name="books",
-    test_size=0.2,
-    val_size=0.2,
-    chunksize = CHUNKSIZE,
-)
+# split_ratings(
+#     ratings_df,
+#     output_dir=output_dir,
+#     dataset_name="books",
+#     test_size=0.2,
+#     val_size=0.2,
+#     chunksize = CHUNKSIZE,
+# )
 
+
+
+# Amazon products 
+
+# input_rating_csv = os.path.join(base_dir, "datasets/AmazonProducts", "ratings.csv")
+# input_products_csv = os.path.join(base_dir, "datasets/AmazonProducts", "amazon_products_org.csv")
+# input_categories_csv = os.path.join(base_dir, "datasets/AmazonProducts", "amazon_categories.csv")
+
+# output_dir = os.path.join(base_dir, "datasets/mmr_data")
+# output_dir_rating = os.path.join(base_dir, "datasets/AmazonProducts")
+
+
+
+
+
+
+# Load raw products to get original ASIN order
+# raw_products = pd.read_csv(input_products_csv)
+
+# Create dense mapping of ASIN → dense itemId
+# asin_list = raw_products["asin"].astype(str).tolist()
+# asin_to_dense = {asin: idx for idx, asin in enumerate(asin_list)}
+
+# products_df = standardize_csv(
+#     input_csv=input_products_csv,
+#     output_csv=os.path.join(output_dir_rating, "amazon_products.csv"),
+#     col_mapping={"asin": "itemId", "title": "title", "category_id": "id"},
+#     drop_columns={"imgUrl","productURL","stars","reviews","price","listPrice","isBestSeller","boughtInLastMonth"},
+# )
+
+# products_df['itemId'] = products_df['itemId'].map(asin_to_dense)
+
+
+# categories_df = standardize_csv(
+#     input_csv=input_categories_csv,
+#     output_csv=os.path.join(output_dir_rating, "amazon_categories.csv"),
+#     col_mapping={"category_name": "genres"},
+# )
+
+# merged_df = products_df.merge(
+#     categories_df,
+#     how="left",
+#     on="id"
+# )
+
+# merged_df = merged_df.drop(columns=["id"])
+# Save to CSV
+# merged_df.to_csv(os.path.join(output_dir_rating, "products.csv"), index=False)
+
+
+
+
+# ratings_df = standardize_csv(
+#     input_csv=input_rating_csv,
+#     output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
+#     col_mapping={"UserId": "userId", "ProductId": "itemId", "Score": "rating"},
+#     drop_columns=["Id","ProfileName","HelpfulnessNumerator","HelpfulnessDenominator","Time","Summary","Text"],
+#     nrows = CHUNKSIZE,
+# )
+
+# Map ratings itemId using product mapping
+# ratings_df['itemId'] = ratings_df['itemId'].str.strip()
+
+# ratings_df['itemId'] = ratings_df['itemId'].map(asin_to_dense)
+
+# ratings_df = ratings_df.dropna(subset=['itemId'])
+# ratings_df['itemId'] = ratings_df['itemId'].astype(int)
+
+# Map userId to dense integers
+# user_unique = ratings_df['userId'].unique()
+# user_to_dense = {u: i for i, u in enumerate(user_unique)}
+# ratings_df['userId'] = ratings_df['userId'].map(user_to_dense)
+
+# Save the mapped ratings to CSV
+# ratings_df.to_csv(os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"), index=False)
+
+
+# split_ratings(
+#     ratings_df,
+#     output_dir=output_dir,
+#     dataset_name="products",
+#     test_size=0.2,
+#     val_size=0.2,
+#     chunksize = CHUNKSIZE,
+# )
