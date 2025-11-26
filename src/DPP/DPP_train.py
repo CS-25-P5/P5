@@ -106,7 +106,7 @@ def run_dpp_pipeline(
 
 # PARAMETER
 TOP_N = 10
-CHUNK_SIZE = 1000
+CHUNK_SIZE = 500000
 K = 20
 ALPHA = 0.01
 LAMDA_ = 0.1
