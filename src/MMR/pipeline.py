@@ -84,7 +84,6 @@ def run_mmr_pipeline(
     # get top 10 movies of MMR
     movie_titles = filtered_item_titles
 
- 
 
     # Build MMR models
     mmr_cosine, mmr_jaccard = build_mmr_models(
