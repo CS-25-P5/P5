@@ -227,7 +227,6 @@ if __name__ == "__main__":
         lambda_param= LAMBDA_PARAM,
         dataset=DATASET_NAME,
         datasize=CHUNK_SIZE)
-    
 
     # Run MF pipeline for test dataset
     run_mf_pipeline(
