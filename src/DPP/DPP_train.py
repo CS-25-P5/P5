@@ -106,7 +106,7 @@ def run_dpp_pipeline(
 
 # PARAMETER
 TOP_N = 10
-CHUNK_SIZE = 100000
+CHUNK_SIZE = 1000
 K = 20
 ALPHA = 0.01
 LAMDA_ = 0.1
@@ -118,7 +118,7 @@ DATASET_NAME = "movies"
 #load data
 base_dir = os.path.dirname(os.path.abspath(__file__))
 ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{DATASET_NAME}_ratings_{CHUNK_SIZE}_train.csv")
-ratings_val_file = os.path.join(base_dir, "../datasets/mmr_data", f"{DATASET_NAME}_ratings_{CHUNK_SIZE}_val.csv")
+ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{DATASET_NAME}_ratings_{CHUNK_SIZE}_val.csv")
 movies_file_path = os.path.join(base_dir, "../datasets/MovieLens", "movies.csv")
 
 output_dir = os.path.join(base_dir, f"../datasets/dpp_data/{DATASET_NAME}")

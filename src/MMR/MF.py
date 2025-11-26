@@ -91,7 +91,6 @@ class MatrixFactorization:
         loss += self.lambda_ * (np.sum(self.P**2) + np.sum(self.Q**2) + np.sum(self.b_u**2) + np.sum(self.b_i**2))
 
         return loss
-<<<<<<< HEAD
 
 
     def compute_rmse(self, R_eval, R_pred):
@@ -101,17 +100,6 @@ class MatrixFactorization:
 
 
 
-=======
-
-
-    def compute_rmse(self, R_eval, R_pred):
-        users, items = np.where(R_eval > 0)
-        squared_errors = (R_eval[users,items] - R_pred[users, items])**2
-        return np.sqrt(np.mean(squared_errors))
-    
-
-
->>>>>>> refs/heads/MMR
 
 def load_and_prepare_matrix(ratings_file_path, item_file_path,nrows_items=None):
     # Check if files exist before loading
@@ -122,14 +110,14 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path,nrows_items=None):
 
     # Load the files
     ratings = pd.read_csv(ratings_file_path)
+
     items = pd.read_csv(item_file_path, nrows=nrows_items)
 
-    # Normalize column names
-    if "movieId" in ratings.columns:
-        ratings = ratings.rename(columns={"movieId": "itemId"})
-
-    if "movieId" in items.columns:
+    if "movieId" in items.columns and "itemId" not in items.columns:
         items = items.rename(columns={"movieId": "itemId"})
+
+    print("ITEMS COLUMNS:", items.columns)
+    print("RATINGS COLUMNS:", ratings.columns)
 
     #Merge and Clean
     combine = pd.merge(ratings,items, on='itemId')
@@ -189,11 +177,7 @@ def align_train_val_matrices(train_df, val_df):
 
     if len(common_items) == 0:
         raise ValueError("No overlapping itemIds  between train and validation")
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> refs/heads/MMR
 
     # SUbset and reorder both matrices
     train_aligned = train_df[common_items]
@@ -259,61 +243,11 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
     #         print(f"{rank}. {movie} — Predicted rating: {score:.2f} | Genres {genres}")
     # print("--------------------------------------------------------------------")
 
-    print(f"R_train shape: {R_train.shape}")
-    print(f"R_filtered_train shape: {R_filtered_train.shape}")
-    print(f"Number of filtered users: {len(filtered_user_ids)}")
-
     save_mf_predictions(all_recomenndations, genre_map, save_path)
 
 
 
 
-def tune_mf( R_train, R_val,
-        n_epochs=50,
-        hyperparams_grid = {
-        "k": [20, 40, 60], 
-        "alpha": [0.005, 0.01, 0.02],
-        "lambda_": [0.05, 0.1, 0.2]
-    }
-):
-
-    best_rmse = float('inf')
-    best_params = None
-
-    for k in hyperparams_grid["k"]:
-        for alpha in hyperparams_grid["alpha"]:
-            for lambda_ in hyperparams_grid["lambda_"]:
-                mf = MatrixFactorization(R_train, k, alpha, lambda_, n_epochs)
-                mf.train()
-
-                # predict on validation set
-                pred_val = mf.full_prediction()
-
-                #Compute RMSE correctly 
-                val_rmse = mf.compute_rmse(R_val,pred_val)
-                
-                #print(f"Testing on k={k}, alpha={alpha}, lambda_={lambda_} -> RMSE={val_rmse:.4f}")
-
-                #Keep the best configuration
-
-                if val_rmse < best_rmse:
-                    best_rmse = val_rmse
-                    best_params = {
-                        "k":k, 
-                        "alpha": alpha, 
-                        "lambda_": lambda_}
-                    #print(f"New best params found using VAL RMSE: {best_params}, val_rmse={val_rmse:.4f}")
-
-    print(f"Best MF params: {best_params}, RMSE={best_rmse:.4f}")
-    return best_params
-
-
-def train_mf_with_best_params(R_filtered, best_params, n_epochs=50):
-    mf = MatrixFactorization(R_filtered, best_params["k"],  best_params["alpha"], best_params["lambda_"], n_epochs)
-    train_rmse = mf.train()
-    predicted_ratings = mf.full_prediction()
-
-    return mf, predicted_ratings, train_rmse
 
 def tune_mf( R_train, R_val,
              n_epochs=50,
@@ -355,7 +289,6 @@ def tune_mf( R_train, R_val,
     return best_params
 
 
-<<<<<<< HEAD
 def train_mf_with_best_params(R_filtered, best_params, n_epochs=50):
     mf = MatrixFactorization(R_filtered, best_params["k"],  best_params["alpha"], best_params["lambda_"], n_epochs)
     train_rmse = mf.train()
@@ -365,8 +298,6 @@ def train_mf_with_best_params(R_filtered, best_params, n_epochs=50):
 
 
 
-=======
->>>>>>> refs/heads/MMR
 def log_mf_experiment(output_dir, params, train_rmse=None, val_rmse=None):
     os.makedirs(output_dir, exist_ok=True)
     log_file = os.path.join(output_dir, "mf_train_experiments_log.csv")
@@ -384,8 +315,4 @@ def log_mf_experiment(output_dir, params, train_rmse=None, val_rmse=None):
         writer = csv.DictWriter(f, fieldnames=params.keys())
         if not file_exists:
             writer.writeheader()
-<<<<<<< HEAD
         writer.writerow(params)
-=======
-        writer.writerow(params)
->>>>>>> refs/heads/MMR
