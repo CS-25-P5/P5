@@ -1,3 +1,4 @@
+import time
 import os
 import torch
 from torch import nn
@@ -14,10 +15,11 @@ import random
 from 0.5 - 5 (explicit feedback), and we will use a threshold for defining whether an item is positive or negative 
 (rating above 3 is positive).'''
 
+starttime = time.time()
 
 #STEP 1 - Redo the database - I need movies and ratings so that I can create triplets. 
 
-dataset = pandas.read_csv("data\\Movies_dataset\\ratings_small.csv")
+dataset = pandas.read_csv("data/Movies_dataset/ratings_small.csv")
 dataset = dataset[["userId", "movieId", "rating"]]
 
 train_df, test_df = train_test_split(dataset, test_size=0.2, random_state=42)
@@ -143,11 +145,11 @@ def bpr_loss(positive_score, negative_score):
 #Inst. model
 model = NNforBPR(number_users=numberofusers, number_items=numberofitems, emb_dim=64)
 optimizer = torch.optim.Adam(model.parameters(), lr = 0.001, weight_decay=1e-5)
-epochs = 100
+epochs =300
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def training_with_brp(model, dataloader, optimizer):
-    #NN goes much fast on GPUs according to doc. Moving tensor to device here.
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
+    #NN goes much fast on GPUs according to doc. Moving tensor to device here. 
     model.to(device)
     model.train()
 
@@ -185,8 +187,8 @@ with torch.no_grad(): #no gradient computation
     user_ix = dataset["userId"].map(user_to_index).values
     movie_ix = dataset["movieId"].map(movie_to_index).values
 
-    user_tensor = torch.tensor(user_ix, dtype=torch.long) #Make rows from columns for user and corresponding movies
-    movie_tensor = torch.tensor(movie_ix, dtype=torch.long)
+    user_tensor = torch.tensor(user_ix, dtype=torch.long).to(device) #Make rows from columns for user and corresponding movies
+    movie_tensor = torch.tensor(movie_ix, dtype=torch.long).to(device)
 
     user_em = model.user_emb(user_tensor) #Creating a 64 wentry row for each entry in the user_tensor
     movie_em = model.item_emb(movie_tensor)
@@ -198,6 +200,12 @@ with torch.no_grad(): #no gradient computation
 prediction_dataset = dataset.copy()
 prediction_dataset["rating"] = predict_score
 
-prediction_dataset.to_csv("data\\predictionNNwithBPR.csv", index = False)
+prediction_dataset.to_csv("data/predictionNNwithBPR300.csv", index = False)
 
 print(prediction_dataset.head(5).to_string())
+endtime =  time.time()
+print(f"\nTotal training time :  {starttime - endtime:.2f} seconds")
+
+if torch.cuda.is_available():
+	max_memory = torch.cuda.max_memory_allocated() / (1024*1024)
+	print(f"Max GPU allocated : {max_memory:.2f} MB")
