@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import os
 from rectools.metrics.auc import PartialAUC
 
-
 # Calculate most metrics using RecTools
 def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None, model_name="Unknown"):
     results = {}
@@ -67,8 +66,8 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None, 
         results[f"Coverage@{k}"] = metrics_values[f'CatalogCoverage@{k}'] / catalog_size
         results["Overall Coverage"] = results[f"Coverage@{k}"]
     except Exception as e:
-        print(f"⚠️  WARNING: Error calculating ranking metrics for {model_name}: {e}")
-        print("   Filling with NaN values and continuing...")
+        print(f"Warning: Error calculating ranking metrics for {model_name}: {e}")
+        print("Filling with NaN values and continuing...")
         results[f"Precision@{k}"] = np.nan
         results[f"Recall@{k}"] = np.nan
         results[f"F1@{k}"] = np.nan
@@ -107,22 +106,22 @@ def _calculate_rating_metrics(data_handler, model_name="Unknown"):
 
         # Check if merge produced any matches
         if merged.empty:
-            print(f"\n⚠️  WARNING for {model_name}: No matching user-item pairs found!")
+            print(f"\nWarning for {model_name}: No matching user-item pairs found!")
             print(
-                f"   Predictions have {len(data_handler.predictions)} rows, {data_handler.predictions['item_id'].nunique()} unique items")
+                f"Predictions have {len(data_handler.predictions)} rows, {data_handler.predictions['item_id'].nunique()} unique items")
             print(
-                f"   Ground truth has {len(data_handler.full_interactions)} rows, {data_handler.full_interactions['item_id'].nunique()} unique items")
-            print(f"   Debug - Sample predictions item_ids: {list(data_handler.predictions['item_id'].unique())[:5]}")
+                f"Ground truth has {len(data_handler.full_interactions)} rows, {data_handler.full_interactions['item_id'].nunique()} unique items")
+            print(f"Debug - Sample predictions item_ids: {list(data_handler.predictions['item_id'].unique())[:5]}")
             print(
-                f"   Debug - Sample ground truth item_ids: {list(data_handler.full_interactions['item_id'].unique())[:5]}")
-            print("   Returning NaN for RMSE/MAE and continuing...\n")
+                f"Debug - Sample ground truth item_ids: {list(data_handler.full_interactions['item_id'].unique())[:5]}")
+            print("Returning NaN for RMSE/MAE and continuing...\n")
             return np.nan, np.nan
 
         # Remove any rows with NaN values
         merged_clean = merged[['weight_gt', 'weight_pred']].dropna()
 
         if merged_clean.empty:
-            print(f"WARNING for {model_name}: After merge, no valid rating pairs found (all NaN).")
+            print(f"Warning for {model_name}: After merge, no valid rating pairs found (all NaN).")
             return np.nan, np.nan
 
         # Calculate metrics
@@ -139,7 +138,7 @@ def _calculate_rating_metrics(data_handler, model_name="Unknown"):
         return rmse, mae
 
     except Exception as e:
-        print(f"\n❌ ERROR in RMSE/MAE calculation for {model_name}: {e}")
+        print(f"\nError in RMSE/MAE calculation for {model_name}: {e}")
         print("   Returning NaN for RMSE and MAE to allow other metrics to continue.\n")
         return np.nan, np.nan
 
@@ -251,8 +250,8 @@ def run_model_comparison(ground_truth_path, sources, threshold=4.0, k=5,
         try:
             data = load_and_process_data(ground_truth_path, predictions_path)  # from datahandler, load data
         except Exception as e:
-            print(f"❌ ERROR loading data for {source_name}: {e}")
-            print("   Skipping this model...")
+            print(f"Error loading data for {source_name}: {e}")
+            print("Skipping this model")
             continue
 
         metrics = calculate_all_metrics(data, threshold, k, item_features, source_name)  # calculate all metrics
@@ -281,7 +280,7 @@ if __name__ == "__main__":
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\aligned_mmr_train_cosine_test_recommendations.csv", "mmr"),
         (
         r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\predictionNNwithBPR.csv",
-        "mmr")
+        "NN")
         # Add more models: (predictions_path, model_name)
     ]
 

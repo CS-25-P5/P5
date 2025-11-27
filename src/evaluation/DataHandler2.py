@@ -1,5 +1,16 @@
 import pandas as pd
 
+import warnings
+
+# Suppress the specific FutureWarning from RecTools
+warnings.filterwarnings(
+    "ignore",
+    category=FutureWarning,
+    message="Downcasting object dtype arrays.*"
+)
+
+# Or suppress ALL FutureWarnings from RecTools (broader)
+warnings.filterwarnings("ignore", module="rectools.*")
 
 # Container for recommendation data
 class ProcessedData:
@@ -10,12 +21,9 @@ class ProcessedData:
         self.recommendations = recommendations
         self.full_interactions = full_interactions
 
-
 # Load and transform data into RecTools format.
 def load_and_process_data(ground_truth_path, predictions_path):
-    print("\n" + "=" * 70)
-    print("STEP 1: Loading raw data")
-    print("=" * 70)
+    print("Loading raw data")
 
     # Load data
     gt = pd.read_csv(ground_truth_path)
@@ -25,9 +33,7 @@ def load_and_process_data(ground_truth_path, predictions_path):
     print(f"Predictions columns: {list(pred.columns)}")
 
     # Convert IDs to strings
-    print("\n" + "=" * 70)
-    print("STEP 2: Converting IDs to strings")
-    print("=" * 70)
+    print("Converting IDs to strings")
 
     # Support both itemId and title
     id_columns = ["userId", "itemId", "title"]
@@ -40,9 +46,7 @@ def load_and_process_data(ground_truth_path, predictions_path):
             print(f"Converted predictions['{col}'] to string")
 
     # Convert to RecTools format
-    print("\n" + "=" * 70)
-    print("STEP 3: Converting to RecTools format")
-    print("=" * 70)
+    print("Converting to RecTools format")
 
     ground_truth = _to_rectools_format(gt, is_ground_truth=True)
     predictions = _to_rectools_format(pred, is_ground_truth=False)
@@ -51,15 +55,11 @@ def load_and_process_data(ground_truth_path, predictions_path):
     print(f"Predictions columns after format: {list(predictions.columns)}")
 
     # Validate
-    print("\n" + "=" * 70)
-    print("STEP 4: Validating columns")
-    print("=" * 70)
+    print("Validating columns")
     _validate_columns(ground_truth, predictions)
 
     # Prepare structures
-    print("\n" + "=" * 70)
-    print("STEP 5: Preparing interaction structures")
-    print("=" * 70)
+    print("Preparing interaction structures")
 
     interactions = _prepare_interactions(ground_truth)
     recommendations = _prepare_recommendations(predictions)
@@ -89,11 +89,14 @@ def _to_rectools_format(df, is_ground_truth):
     if "itemId" in df.columns:
         column_map["itemId"] = "item_id"
         print(f"Found 'itemId' column, will map to 'item_id'")
+    elif "movieId" in df.columns:
+        column_map["movieId"] = "item_id"
+        print(f"Found 'movieId' column, will map to 'item_id'")
     elif "title" in df.columns:
         column_map["title"] = "item_id"
         print(f"Found 'title' column, will map to 'item_id'")
     else:
-        print("⚠️  WARNING: No item identifier column found (expected 'itemId' or 'title')")
+        print("Warning no item identifier column found (expected 'itemId', 'movieId', or 'title')")
 
     # Handle rating column
     if is_ground_truth:
@@ -110,7 +113,7 @@ def _to_rectools_format(df, is_ground_truth):
         print(f"Will map '{rating_col}' to 'weight'")
     else:
         print(
-            f"⚠️  WARNING: No rating column found. Tried: {possible_rating_cols if not is_ground_truth else ['rating']}")
+            f"No rating column found. Tried: {possible_rating_cols if not is_ground_truth else ['rating']}")
 
     print(f"\nColumn mapping: {column_map}")
     df = df.rename(columns=column_map)
@@ -134,12 +137,11 @@ def _validate_columns(gt, pred):
     for df, name in [(gt, "Ground Truth"), (pred, "Predictions")]:
         missing = [col for col in required if col not in df.columns]
         present = [col for col in required if col in df.columns]
-        print(f"  {name}: present={present}, missing={missing}")
+        print(f"{name}: present={present}, missing={missing}")
         if missing:
             raise ValueError(f"{name} missing columns: {missing}")
         else:
-            print(f"  ✓ {name} has all required columns")
-
+            print(f"{name} has all required columns")
 
 def _prepare_interactions(df):
     print(f"\nPreparing interactions - selecting columns: {['user_id', 'item_id', 'weight']}")
