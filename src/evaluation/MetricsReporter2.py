@@ -271,16 +271,17 @@ if __name__ == "__main__":
     THRESHOLD = 4.0  # for the metrics that need to view things in a binary fashion
     K = 5  # recommendations to look at
     # GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
-    GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movies_ratings_100000_test.csv")
+    # GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movies_ratings_100000_test.csv")
+    GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\ratings_small.csv")
 
     # Models to compare
     MODELS = [
         # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\test_predictions.csv", "Test"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\ALIGNED_mf_test_predictions.csv",
-         "mf"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\ALIGNED_mf_test_predictions.csv", "mf"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\aligned_mmr_train_cosine_test_recommendations.csv", "mmr"),
         (
-        r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\aligned_mmr_train_cosine_test_recommendations.csv",
-        "mmr"),
+        r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\predictionNNwithBPR.csv",
+        "mmr")
         # Add more models: (predictions_path, model_name)
     ]
 
