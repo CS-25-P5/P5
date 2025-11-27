@@ -143,15 +143,37 @@ def _validate_columns(gt, pred):
         else:
             print(f"{name} has all required columns")
 
+
 def _prepare_interactions(df):
     print(f"\nPreparing interactions - selecting columns: {['user_id', 'item_id', 'weight']}")
-    return df[["user_id", "item_id", "weight"]].copy()
+    interactions = df[["user_id", "item_id", "weight"]].copy()
+
+    # ✅ FIX: Force consistent dtypes
+    interactions["user_id"] = interactions["user_id"].astype(str)
+    interactions["item_id"] = interactions["item_id"].astype(str)
+    interactions["weight"] = interactions["weight"].astype(float)
+
+    print(f"Interaction dtypes:\n{interactions.dtypes}")
+    return interactions
 
 
 def _prepare_recommendations(df):
     print(f"\nPreparing recommendations - selecting columns: {['user_id', 'item_id', 'weight']}")
     recos = df[["user_id", "item_id", "weight"]].copy()
-    recos = recos.sort_values(["user_id", "weight"], ascending=[True, False])
-    recos["rank"] = recos.groupby("user_id").cumcount() + 1
-    print(f"Added 'rank' column to recommendations. Sample:\n{recos.head()}")
+
+    # ✅ FIX: Force consistent dtypes
+    recos["user_id"] = recos["user_id"].astype(str)
+    recos["item_id"] = recos["item_id"].astype(str)
+    recos["weight"] = recos["weight"].astype(float)
+
+    # If rank already exists, don't add it again
+    if "rank" not in recos.columns:
+        recos = recos.sort_values(["user_id", "weight"], ascending=[True, False])
+        recos["rank"] = recos.groupby("user_id").cumcount() + 1
+        print(f"Added 'rank' column to recommendations.")
+    else:
+        print(f"'rank' column already exists, using provided ranks.")
+
+    print(f"Recommendations dtypes:\n{recos.dtypes}")
+    print(f"Sample:\n{recos.head()}")
     return recos

@@ -153,9 +153,10 @@ def _calculate_ild(data_handler, item_features, k):
         distance_calc = PairwiseHammingDistanceCalculator(item_features)
         ild_metric = IntraListDiversity(k=k, distance_calculator=distance_calc)
 
+        # FIX: Remove 'catalog' parameter
         ild_per_user = ild_metric.calc_per_user(
             reco=data_handler.recommendations,
-            catalog=data_handler.full_interactions['item_id'].unique()
+            # catalog=data_handler.full_interactions['item_id'].unique()   REMOVE THIS LINE
         )
         return ild_per_user.mean()
     except Exception as e:
@@ -202,37 +203,45 @@ def save_metrics_table_as_file(metrics_df, filename="metrics_results"):
 
 # function for creating charts of calculated metrics
 def plot_individual_metric_charts(df_metrics, output_dir="metric_charts"):
-    # create charts folder if it doesnt exist
+    # Create charts folder if it doesn't exist
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # loop making plots for each metric
+    # Loop making plots for each metric
     for metric in df_metrics.columns:
-        plt.figure(figsize=(8, 6))
+        fig, ax = plt.subplots(figsize=(8, 6))  # Create figure and axes
 
         # Create bar chart
-        bars = plt.bar(df_metrics.index, df_metrics[metric],
-                       color=plt.cm.Set3(np.linspace(0, 1, len(df_metrics.index))))
+        bars = ax.bar(df_metrics.index, df_metrics[metric],
+                      color=plt.cm.Set3(np.linspace(0, 1, len(df_metrics.index))))
 
         # Add value labels
         for bar in bars:
             height = bar.get_height()
             if not np.isnan(height):
-                plt.text(bar.get_x() + bar.get_width() / 2., height,
-                         f'{height:.3f}',
-                         ha='center', va='bottom')
+                ax.text(bar.get_x() + bar.get_width() / 2., height,
+                        f'{height:.3f}',
+                        ha='center', va='bottom', fontsize=10)
 
-        plt.title(f'{metric} Comparison', fontsize=14, fontweight='bold')
-        plt.xlabel('Sources', fontsize=12)
-        plt.ylabel('Metric Value', fontsize=12)
-        plt.xticks(rotation=45, ha='right')
-        plt.grid(axis='y', alpha=0.3)
+        # ✅ FIX: Add 15% padding to top of y-axis
+        max_height = df_metrics[metric].max()
+        if not np.isnan(max_height):
+            ax.set_ylim(0, max_height * 1.15)  # 15% padding at top
+
+        ax.set_title(f'{metric} Comparison', fontsize=14, fontweight='bold')
+        ax.set_xlabel('Sources', fontsize=12)
+        ax.set_ylabel('Metric Value', fontsize=12)
+        ax.set_xticks(range(len(df_metrics.index)))
+        ax.set_xticklabels(df_metrics.index, rotation=45, ha='right')
+        ax.grid(axis='y', alpha=0.3)
+
+        # Adjust layout to prevent label cutoff
         plt.tight_layout()
 
         # Save individual chart
         filename = os.path.join(output_dir, f"{metric.replace(' ', '_')}_chart.png")
         plt.savefig(filename, dpi=300, bbox_inches="tight")
-        plt.close()
+        plt.close(fig)
 
     print(f"Individual metric charts saved in '{output_dir}' directory")
 
@@ -276,8 +285,8 @@ if __name__ == "__main__":
     # Models to compare
     MODELS = [
         # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\test_predictions.csv", "Test"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\ALIGNED_mf_test_predictions.csv", "mf"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\aligned_mmr_train_cosine_test_recommendations.csv", "mmr"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\ALIGNED_mf_test_predictions.csv", "mf"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\aligned_mmr_train_cosine_test_recommendations.csv", "mmr"),
         (
         r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\predictionNNwithBPR.csv",
         "NN")
