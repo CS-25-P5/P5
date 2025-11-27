@@ -9,8 +9,8 @@ import numpy as np
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
-df = pd.read_csv("src\backend\Datasets\MovieLens100kRatings.csv")
-
+df = pd.read_csv("P5\src\backend\Datasets\MovieLens100kRatings.csv")
+print(max(df['movieId'].values))
 
 class MLP_Model(nn.Module):
     def __init__(self, n_users, n_movies, embed_len=64, MLP_layers=[128, 64, 32, 16], dropout=0.3, out_features=1):
@@ -37,7 +37,6 @@ class MLP_Model(nn.Module):
         x = torch.cat([user_embed, movie_embed], dim=1)
         return self.fc(x)
     
-
 
 class MovielensDataset(Dataset):
     def __init__(self, df):
@@ -101,6 +100,27 @@ def evaluate_model(model, test_loader):
 
     return rmse, mae
 
+# get the K most relevant movies from a particular user
+def get_topK(model, df, user_id, k):
+
+    if (user_id not in df['userId'].values):
+        print("User ID could not be found")
+        return
+    
+    all_movies = torch.tensor(df['movieId'].unique(), dtype=torch.int).to(device)
+    user = torch.tensor(user_id, dtype=torch.int).repeat(all_movies.size(0)).to(device)
+
+    
+    model.eval()
+    with torch.no_grad():
+        predictions = model(user, all_movies).squeeze()
+
+    topk_values, topk_indices = torch.topk(predictions, k)
+    original_user_id = user_labels.inverse_transform([user_id])[0]
+    topk_movies = movie_labels.inverse_transform(all_movies[topk_indices])
+
+    return original_user_id, topk_movies, topk_values.cpu().numpy()
+
 # Preprocessing
 
 user_labels = LabelEncoder()
@@ -116,6 +136,12 @@ test_dataset = MovielensDataset(x_test)
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=128, shuffle=True)
 test_loader = DataLoader(dataset=test_dataset, batch_size=128, shuffle=False)
+
+userList = df['userId'].unique()
+list = df['movieId'].unique()
+
+movie_ids = df.movieId.values[:100]
+movie_ids  = np.sort(movie_ids)
 
 
 # Initiliaze MLP Model, Train, & Evaluate
@@ -136,4 +162,25 @@ train_model(mlp, train_loader, lr=0.01, weight_decay=1e-5, epochs=10)
 
 mlp_rmse, mlp_mae = evaluate_model(mlp, test_loader)
 
+
 print(f"\nMLP Results:\nRMSE = {mlp_rmse:.4f}, MAE = {mlp_mae:.4f}")
+
+
+# Create CSV file of each user and their predicted top K most relevant movies
+topk = 10
+
+user_preds = []
+for i in range(n_users):
+    user_id, movie_ids, movie_scores = get_topK(mlp, df, i, topk)
+
+    for k in range(len(movie_ids)):
+        user_preds.append({
+            "userId": user_id,
+            "movieId": movie_ids[k],
+            "predictedRating": movie_scores[k]
+        })
+
+topK_predictions = pd.DataFrame(user_preds)
+
+topK_predictions.to_csv("P5\src\backend\Datasets\topK_predictions.csv", index=False)
+
