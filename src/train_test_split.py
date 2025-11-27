@@ -173,171 +173,88 @@ def split_ratings(
 
 
 # Parameters
-CHUNKSIZE = 500000
+CHUNKSIZE = 100000
 TEST_SIZE = 0.20
 
 
 #load dataset
 base_dir = os.path.dirname(os.path.abspath(__file__))
-input_rating_csv = os.path.join(base_dir, "datasets/MovieLens", "ratings.csv")
-input_movies_csv = os.path.join(base_dir, "datasets/MovieLens", "movies.csv")
+# input_rating_csv = os.path.join(base_dir, "datasets/MovieLens", "ratings.csv")
+# input_movies_csv = os.path.join(base_dir, "datasets/MovieLens", "movies.csv")
 
-output_dir = os.path.join(base_dir, "datasets/dpp_data")
-output_dir_rating = os.path.join(base_dir, "datasets/MovieLens")
-
-
-#Prepare MOVie dataset
-ratings_df = standardize_csv(
-    input_csv=input_rating_csv,
-    output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
-    col_mapping={"userId": "userId", "movieId": "itemId", "rating": "rating"},
-    drop_columns=["timestamp"],
-    nrows = CHUNKSIZE,
-)
+# output_dir = os.path.join(base_dir, "datasets/dpp_data")
+# output_dir_rating = os.path.join(base_dir, "datasets/MovieLens")
 
 
-standardize_csv(
-    input_csv=input_movies_csv,
-     output_csv=os.path.join(output_dir_rating, f"movies.csv"),
-    col_mapping={"movieId": "itemId", "title": "title", "genres": "genres"},
-)
+# #Prepare MOVie dataset
+# ratings_df = standardize_csv(
+#     input_csv=input_rating_csv,
+#     output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
+#     col_mapping={"userId": "userId", "movieId": "itemId", "rating": "rating"},
+#     drop_columns=["timestamp"],
+#     nrows = CHUNKSIZE,
+# )
 
 
-split_ratings(
-    ratings_df,
-    output_dir=output_dir,
-    dataset_name="movies",
-    test_size=0.2,
-     val_size=0.2,
-    chunksize = CHUNKSIZE,
- )
+# standardize_csv(
+#     input_csv=input_movies_csv,
+#      output_csv=os.path.join(output_dir_rating, f"movies.csv"),
+#     col_mapping={"movieId": "itemId", "title": "title", "genres": "genres"},
+# )
+
+
+# split_ratings(
+#     ratings_df,
+#     output_dir=output_dir,
+#     dataset_name="movies",
+#     test_size=0.2,
+#      val_size=0.2,
+#     chunksize = CHUNKSIZE,
+#  )
 
 
 
 
 # Prepare book dataset
 
-# input_rating_csv = os.path.join(base_dir, "datasets/GoodBooks", "ratings.csv")
-# input_movies_csv = os.path.join(base_dir, "datasets/GoodBooks", "books.csv")
+input_rating_csv = os.path.join(base_dir, "datasets/GoodBooks", "ratings.csv")
+input_movies_csv = os.path.join(base_dir, "datasets/GoodBooks", "books.csv")
 
-# output_dir = os.path.join(base_dir, "datasets/mmr_data")
-# output_dir_rating = os.path.join(base_dir, "datasets/GoodBooks")
-
-
-# ratings_df = standardize_csv(
-#     input_csv=input_rating_csv,
-#     output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
-#     col_mapping={"user_id": "userId", "book_id": "itemId", "rating": "rating"},
-#     nrows = CHUNKSIZE,
-#     map_to_dense = True
-# )
+output_dir = os.path.join(base_dir, "datasets/dpp_data")
+output_dir_rating = os.path.join(base_dir, "datasets/GoodBooks")
 
 
-# standardize_csv(
-#     input_csv=input_movies_csv,
-#     output_csv=os.path.join(output_dir_rating, f"books.csv"),
-#     col_mapping={"book_id": "itemId", "book_title": "title", "genres": "genres"},
-#     drop_columns=["title_ex","book_series", "book_authors", "book_score", "book_rating",
-#                   "book_rating_obj","book_rating_count", "book_review_count",
-#                   "book_desc", "tags", "FE_text", "book_desc_tags_FE", "ratings_1",
-#                   "ratings_2","ratings_3","ratings_4","ratings_5","book_edition",
-#                   "book_format","original_publication_year","language_code", "book_pages",
-#                   "book_pages_obj","books_count","books_count_obj","goodreads_book_id","book_isbn",
-#                   "isbn","isbn13","image_url_x","image_url_y","small_image_url"]
-# )
+ratings_df = standardize_csv(
+    input_csv=input_rating_csv,
+    output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
+    col_mapping={"user_id": "userId", "book_id": "itemId", "rating": "rating"},
+    nrows = CHUNKSIZE,
+    map_to_dense = True
+)
 
 
-# split_ratings(
-#     ratings_df,
-#     output_dir=output_dir,
-#     dataset_name="books",
-#     test_size=0.2,
-#     val_size=0.2,
-#     chunksize = CHUNKSIZE,
-# )
+standardize_csv(
+    input_csv=input_movies_csv,
+    output_csv=os.path.join(output_dir_rating, f"books.csv"),
+    col_mapping={"book_id": "itemId", "book_title": "title", "genres": "genres"},
+    drop_columns=["title_ex","book_series", "book_authors", "book_score", "book_rating",
+                  "book_rating_obj","book_rating_count", "book_review_count",
+                  "book_desc", "tags", "FE_text", "book_desc_tags_FE", "ratings_1",
+                  "ratings_2","ratings_3","ratings_4","ratings_5","book_edition",
+                  "book_format","original_publication_year","language_code", "book_pages",
+                  "book_pages_obj","books_count","books_count_obj","goodreads_book_id","book_isbn",
+                  "isbn","isbn13","image_url_x","image_url_y","small_image_url"]
+)
 
 
-
-# Amazon products
-
-# input_rating_csv = os.path.join(base_dir, "datasets/AmazonProducts", "ratings.csv")
-# input_products_csv = os.path.join(base_dir, "datasets/AmazonProducts", "amazon_products_org.csv")
-# input_categories_csv = os.path.join(base_dir, "datasets/AmazonProducts", "amazon_categories.csv")
-
-# output_dir = os.path.join(base_dir, "datasets/mmr_data")
-# output_dir_rating = os.path.join(base_dir, "datasets/AmazonProducts")
+split_ratings(
+    ratings_df,
+    output_dir=output_dir,
+    dataset_name="books",
+    test_size=0.2,
+    val_size=0.2,
+    chunksize = CHUNKSIZE,
+)
 
 
 
-
-
-
-# Load raw products to get original ASIN order
-# raw_products = pd.read_csv(input_products_csv)
-
-# Create dense mapping of ASIN → dense itemId
-# asin_list = raw_products["asin"].astype(str).tolist()
-# asin_to_dense = {asin: idx for idx, asin in enumerate(asin_list)}
-
-# products_df = standardize_csv(
-#     input_csv=input_products_csv,
-#     output_csv=os.path.join(output_dir_rating, "amazon_products.csv"),
-#     col_mapping={"asin": "itemId", "title": "title", "category_id": "id"},
-#     drop_columns={"imgUrl","productURL","stars","reviews","price","listPrice","isBestSeller","boughtInLastMonth"},
-# )
-
-# products_df['itemId'] = products_df['itemId'].map(asin_to_dense)
-
-
-# categories_df = standardize_csv(
-#     input_csv=input_categories_csv,
-#     output_csv=os.path.join(output_dir_rating, "amazon_categories.csv"),
-#     col_mapping={"category_name": "genres"},
-# )
-
-# merged_df = products_df.merge(
-#     categories_df,
-#     how="left",
-#     on="id"
-# )
-
-# merged_df = merged_df.drop(columns=["id"])
-# Save to CSV
-# merged_df.to_csv(os.path.join(output_dir_rating, "products.csv"), index=False)
-
-
-
-
-# ratings_df = standardize_csv(
-#     input_csv=input_rating_csv,
-#     output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
-#     col_mapping={"UserId": "userId", "ProductId": "itemId", "Score": "rating"},
-#     drop_columns=["Id","ProfileName","HelpfulnessNumerator","HelpfulnessDenominator","Time","Summary","Text"],
-#     nrows = CHUNKSIZE,
-# )
-
-# Map ratings itemId using product mapping
-# ratings_df['itemId'] = ratings_df['itemId'].str.strip()
-
-# ratings_df['itemId'] = ratings_df['itemId'].map(asin_to_dense)
-
-# ratings_df = ratings_df.dropna(subset=['itemId'])
-# ratings_df['itemId'] = ratings_df['itemId'].astype(int)
-
-# Map userId to dense integers
-# user_unique = ratings_df['userId'].unique()
-# user_to_dense = {u: i for i, u in enumerate(user_unique)}
-# ratings_df['userId'] = ratings_df['userId'].map(user_to_dense)
-
-# Save the mapped ratings to CSV
-# ratings_df.to_csv(os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"), index=False)
-
-
-# split_ratings(
-#     ratings_df,
-#     output_dir=output_dir,
-#     dataset_name="products",
-#     test_size=0.2,
-#     val_size=0.2,
-#     chunksize = CHUNKSIZE,
-# )
