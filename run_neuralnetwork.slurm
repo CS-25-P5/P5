@@ -11,4 +11,15 @@ cd ~/ceph/home/student.aau.dk/nr38sp/P5
 
 source venv/bin/activate
 
-python -u src/backend/MLPwithBPR.py
+python -u src/backend/MLPwithBPR_a1.py
+python -u src/backend/MLPwithBPR_a2.py
+python -u src/backend/MLPwithBPR_a3.py
+python -u src/backend/MLPwithBPR_a4.py
+python -u src/backend/MLPwithBPR_b1.py
+python -u src/backend/MLPwithBPR_b2.py
+python -u src/backend/MLPwithBPR_b3.py
+python -u src/backend/MLPwithBPR_b4.py
+python -u src/backend/MLPwithBPR_c1.py
+python -u src/backend/MLPwithBPR_c2.py
+python -u src/backend/MLPwithBPR_c3.py
+python -u src/backend/MLPwithBPR_c4.py
