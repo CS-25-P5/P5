@@ -113,13 +113,13 @@ LAMDA_ = 0.1
 N_EPOCHS = 50
 TOP_K = 20
 LAMBDA_PARAM = 0.7
-DATASET_NAME = "books"
+DATASET_NAME = "movies"
 
 #load data
 base_dir = os.path.dirname(os.path.abspath(__file__))
 ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{DATASET_NAME}_ratings_{CHUNK_SIZE}_train.csv")
 ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{DATASET_NAME}_ratings_{CHUNK_SIZE}_val.csv")
-books_file_path = os.path.join(base_dir, "../datasets/GoodBooks", "books.csv")
+books_file_path = os.path.join(base_dir, "../datasets/MovieLens", "movies.csv")
 
 output_dir = os.path.join(base_dir, f"../datasets/dpp_data/{DATASET_NAME}")
 
