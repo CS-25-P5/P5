@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from rectools.metrics import (
-    Precision, Recall, F1Beta, MAP, NDCG, MRR,
+    Precision, Recall, F1Beta, MAP, NDCG, MRR, HitRate,
     IntraListDiversity, CatalogCoverage, calc_metrics
 )
 from rectools.metrics.distances import PairwiseHammingDistanceCalculator
@@ -43,6 +43,7 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None, 
         f'MRR@{k}': MRR(k=k),  # focuses on position of the first relevant item
         f'PartialAUC@{k}': PartialAUC(k=k),  # Area under curve for top-K items
         f'CatalogCoverage@{k}': CatalogCoverage(k=k),  # proportion of catalog items that appear in recommendations
+        f'HitRate@{k}': HitRate(k=k),
     }
 
     # Calculate metrics
@@ -56,6 +57,7 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None, 
         )
 
         # Store calculated metrics in results dictionary
+        results[f"HitRate@{k}"] = metrics_values[f'HitRate@{k}']
         results[f"Precision@{k}"] = metrics_values[f'Precision@{k}']
         results[f"Recall@{k}"] = metrics_values[f'Recall@{k}']
         results[f"F1@{k}"] = metrics_values[f'F1Beta@{k}']
@@ -67,7 +69,8 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None, 
         results["Overall Coverage"] = results[f"Coverage@{k}"]
     except Exception as e:
         print(f"Warning: Error calculating ranking metrics for {model_name}: {e}")
-        print("Filling with NaN values and continuing...")
+        print("Filling with NaN values and continuing")
+        results[f"HitRate@{k}"] = np.nan
         results[f"Precision@{k}"] = np.nan
         results[f"Recall@{k}"] = np.nan
         results[f"F1@{k}"] = np.nan
@@ -180,9 +183,16 @@ def _calculate_reverse_gini(recommendations):
 def display_metrics_table(metrics_dict, source_name="Model", k=5):
     overall_metrics = ["RMSE", "MAE", "Overall Coverage", "Reverse Gini"]
     topk_metrics = [
-        f"Precision@{k}", f"Recall@{k}", f"F1@{k}",
-        f"NDCG@{k}", f"MAP@{k}", f"MRR@{k}",
-        f"PartialAUC@{k}", f"Coverage@{k}", f"ILD@{k}"
+        f"HitRate@{k}",
+        f"Precision@{k}",
+        f"Recall@{k}",
+        f"F1@{k}",
+        f"NDCG@{k}",
+        f"MAP@{k}",
+        f"MRR@{k}",
+        f"PartialAUC@{k}",
+        f"Coverage@{k}",
+        f"ILD@{k}"
     ]
     metric_order = overall_metrics + topk_metrics
 
