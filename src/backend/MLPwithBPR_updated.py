@@ -253,13 +253,51 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 
+# STEP 9 - two helper function to calculate loss, and predict ratings in different datasets
+def evaluate_loss(model, dataloader, device):
+    "Compute BPR loss in dataloader for all 3"
+    model.eval()
+    total_loss = 0
+
+    with torch.no_grad():
+        for batch in dataloader:
+            users = batch["users"].to(device)
+            pos = batch["positive"].to(device)
+            neg = batch["negative"].to(device)
+            
+            positive_score, negative_score = model(users, pos, neg)
+            bpr_loss = bpr_loss(positive_score, negative_score)
+            total = total_loss + bpr_loss.item()
+
+    return total / len(dataloader)
 
 
+def predict_ratings(model, dataset, device):
+    "We will comåute the scores for user and movie pairs in train, val, test dataframe"
+    model.eval() #stop training, use the fixed wieghts
+    with torch.no_grad():
+        #map userID to index again
+        user_id = dataset["userId"].map(user_to_index).values
+        movie_id = dataset["movieId"].map(movie_to_index).values
+
+        #Make rows from columns for user and corresponding movies
+        user_tensor = torch.tensor(user_id, dtype=torch.long).to(device) 
+        movie_tensor = torch.tensor(movie_id, dtype=torch.long).to(device)
+
+        user_em = model.user_emb(user_tensor) #Creating a 64 wentry row for each entry in the user_tensor
+        movie_em = model.item_emb(movie_tensor)
+
+        interaction = user_em * movie_em 
+
+        scores = model.perceptron(interaction).squeeze(-1).cpu().numpy() 
+        #Take array by array and multiple userid vector with omvie, give one number for that calc.
+        #|pandas needs data on CPU and so does nupmy + convert pytorch tensor to numpy, so that pandas can put it into a dataframe
+
+    return scores
+        
 
 
-
-
-
+#STEP 10 - Train the model
 def training_with_brp(model, trainloader, validationloader, optimizer, stopearly, epochs, device):
     #NN goes much fast on GPUs according to doc. Moving tensor to device here. 
     model.to(device)
@@ -281,37 +319,21 @@ def training_with_brp(model, trainloader, validationloader, optimizer, stopearly
             loss_function.backward() #compute current/acutal grads of loss with all params
             optimizer.step() #update weights and apply changes with learning rate 0.01
             
-            total_training_loss = total_training_loss + loss_function.item() #How much loss over the total epoch
+            total_training_loss = total_training_loss + loss_function.item() #How much loss over epoch
         
         average_train_loss = total_training_loss/len(trainloader)
         
 
         #Validate the modell
-        model.eval() #Turn off dropout layers, and turn of gradient computations as well - just the trained weights need to be used to make predictions.
-        total_valid_loss = 0
+        average_validation_loss = evaluate_loss(model, validationloader, device)
 
-        with torch.no_grad(): #no gradient computation just apply the current weights from training
-            for batch in validationloader:
-                users = batch["user"].to(device)
-                pos = batch["positive"].to(device)
-                neg = batch["negative"].to(device)
-
-                positive_score, negative_score = model(users, pos, neg)
-                validation_loss = bpr_loss(positive_score=positive_score, negative_score=negative_score)
-                total_valid_loss = total_valid_loss + validation_loss.item()
-
-        average_val_loss = total_valid_loss / (len(validationloader))
-
-        print(f"Epoch {epoch}/{epochs} with average train loss: {average_train_loss:.4f} and average validation loss: {average_val_loss:.4f}")
+        print(f"Epoch {epoch}/{epochs} with average train loss: {average_train_loss:.4f} and average validation loss: {average_validation_loss:.4f}")
 
         #Stop early!
-        if stopearly.call(model, average_val_loss):
+        if stopearly.call(model, average_validation_loss):
             print(stopearly.status_update)
             break
-    print("The model has finished training!")
-
-
-
+    print("The model has now finished training!")
 
 
 #Call the early stop and train the model
@@ -324,87 +346,45 @@ training_with_brp(model = model, trainloader = train_bpr_dataloader,
                   device=device)
 
 
-########Run my preds on validation set!
+
+#STEP 11 - Create predictions for validation set
+
 def validate_bpr():
-    model.eval()
-    with torch.no_grad(): #no gradient computation but using the training weights on validation dataset
+    predicted_score = predict_ratings(model, validation_df, device)
 
-        #map userID to index again
-        user_ix = validation_df["userId"].map(user_to_index).values
-        movie_ix = validation_df["movieId"].map(movie_to_index).values
+    calculated_loss = evaluate_loss(model, validate_bpr_dataloader, device)
 
-        user_tensor = torch.tensor(user_ix, dtype=torch.long).to(device) #Make rows from columns for user and corresponding movies
-        movie_tensor = torch.tensor(movie_ix, dtype=torch.long).to(device)
-
-        user_em = model.user_emb(user_tensor) #Creating a 64 wentry row for each entry in the user_tensor
-        movie_em = model.item_emb(movie_tensor)
-        interaction = user_em * movie_em
-        predict_score = model.perceptron(interaction).squeeze(-1).cpu().numpy() 
-        #Take array by array and multiple userid vector with omvie, give one number for that calc.
-        #|pandas needs data on CPU and so does nupmy + convert pytorch tensor to numpy, so that pandas can put it into a dataframe
-
-    #Tildel prediction til validation datasæt
+    #Make a csv file
     prediction_val_dataset = validation_df.copy()
-    prediction_val_dataset["predicted_rating"] = predict_score
-
+    prediction_val_dataset["predicted_rating"] = predicted_score
     prediction_val_dataset.to_csv("data/Prediction_val/BPRnn_OneLayer_embed64_lr0001_optimizeradam.csv", index = False)
-    print(prediction_val_dataset.head(5).to_string())
-
 
     endtime =  time.time()
 
-    print(f"\nTotal training time :  {endtime - starttime:.2f} seconds")
+    print(f"\nTraining and validation time :  {endtime - starttime:.2f} seconds\n"
+          f"\nAverage loss for validation is : {calculated_loss}\n")
     
     if torch.cuda.is_available():
         max_memory = torch.cuda.max_memory_allocated() / (1024*1024)
-        print(f"Max GPU allocated : {max_memory:.2f} MB")
-
+        print(f"GPUS allocated for train and validate : {max_memory:.2f} MB")
 
 validate_BPR = validate_bpr()
-print(validate_bpr)
 
 
-#TEST the model
+#STEP 12 - test the model
 def test_bpr(model, testdataloader, device):
-    model.eval()
-    total_loss = 0
-
-    with torch.no_grad():
-        for batch in testdataloader:
-            users = batch["user"].to(device)
-            pos = batch["positive"].to(device)
-            neg = batch["negative"].to(device)
-
-            positive_score, negative_score = model(users, pos, neg)
-            test_loss = bpr_loss(positive_score=positive_score, negative_score=negative_score)
-            total_loss = total_loss + test_loss.item()
+    total_loss = evaluate_loss (model, testdataloader, device)
+    #predict stuff using the test_df 
+    test_predict_score = predict_ratings(model, test_df, device)
     
-    
- 
-        #map userID to index again
-        user_ix = test_df["userId"].map(user_to_index).values
-        movie_ix = test_df["movieId"].map(movie_to_index).values
-
-        user_tensor = torch.tensor(user_ix, dtype=torch.long).to(device) #Make rows from columns for user and corresponding movies
-        movie_tensor = torch.tensor(movie_ix, dtype=torch.long).to(device)
-
-        user_em = model.user_emb(user_tensor) #Creating a 64 wentry row for each entry in the user_tensor
-        movie_em = model.item_emb(movie_tensor)
-        interaction = user_em * movie_em
-        test_predict_score = model.perceptron(interaction).squeeze(-1).cpu().numpy() 
-        #Take array by array and multiple userid vector with omvie, give one number for that calc.
-        #|pandas needs data on CPU and so does nupmy + convert pytorch tensor to numpy, so that pandas can put it into a dataframe
-
     #Tildel prediction til test datasæt
     prediction_test_dataset = test_df.copy()
     prediction_test_dataset["test_predicted_rating"] = test_predict_score
 
     prediction_test_dataset.to_csv("data/Prediction_test/BPRnn_OneLayer_embed64_lr0001_optimizeradam.csv", index = False)
-    print(prediction_test_dataset.head(5).to_string())
+    return total_loss 
 
-    return total_loss / len(testdataloader)
-
-#TEST IT 
+#STEP 13 : TEST IT 
 
 test_loss = test_bpr(model, test_bpr_dataloader, device)
 print(f"Final test loss: {test_loss}")
