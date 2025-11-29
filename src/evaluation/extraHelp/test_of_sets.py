@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 test_path = os.path.join(base_path, "datasets", "ratings_test_titles.csv")
 mf_path = os.path.join(base_path, "datasets", "mf_test_predictions.csv")
 

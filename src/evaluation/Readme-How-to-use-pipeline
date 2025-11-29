@@ -1,0 +1,12 @@
+Standardiseret Evaluation til test af modeller:
+
+Noter:
+Burde virke nu, men har ikke testet ild på ordenligt datasæt endnu.
+
+Brug:
+Ændre stierne til ground truth og predictions i bunden af MetricsReporter2.py (MODELS og GROUND_TRUTH stier)
+Burde nu smide metrics ud når koden køres. (Brugte chatten til noget fejlfinding så der er en del beskeder
+jeg personligt fandt brugbare i terminalen til at sikre at det er det rigtige data der arbejdes med,
+men den gemmer også resultaterne i en csv og en excel fil hvis i ikke gider at skrolle igennem terminalen efter dem).
+
+Kan ændre top-K k værdi og treshold i slutningen af MetricsReporter2.py vis de skal ændres

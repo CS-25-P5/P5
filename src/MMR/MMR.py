@@ -1,7 +1,13 @@
+import rectools
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import numpy as np
+import csv
 import os
+from rectools.metrics import (
+    NDCG, IntraListDiversity
+)
+from rectools.metrics.distances import PairwiseHammingDistanceCalculator
 
 
 
@@ -98,27 +104,6 @@ class MMR:
         return selected
 
 
-def build_mmr_models(movie_titles, genre_map, all_genres, predicted_ratings, lambda_param):
-    mmr_cosine = MMR(
-        movie_titles=movie_titles,
-        genre_map=genre_map,
-        all_genres=all_genres,
-        predicted_ratings=predicted_ratings,
-        similarity_type="cosine",
-        lambda_param=lambda_param
-    )
-
-
-    mmr_jaccard = MMR(
-        movie_titles=movie_titles,
-        genre_map=genre_map,
-        all_genres=all_genres,
-        predicted_ratings=predicted_ratings,
-        similarity_type="jaccard",
-        lambda_param=lambda_param
-    )
-
-    return mmr_cosine, mmr_jaccard
 
 
 def get_recommendations_for_mmr(mmr_model,R_filtered , item_user_rating, item_titles, genre_map, 
@@ -192,5 +177,165 @@ def save_mmr_results(mmr_recommendations_list, output_dir, similarity_type="jacc
 
 
 
+def tune_mmr_lambda(
+        mmr_builder,
+        predicted_ratings,
+        R_filtered,
+        test_data,
+        item_titles,
+        k_eval=10,
+        relevance_weight = 0.6,
+        diversity_weight = 0.4
+        ):
+    
+    lambda_grid = [0.0, 0.25, 0.5, 0.75, 1.0]
+    best_lambda = None
+    best_score = -np.inf
+
+   
+    # builds mmr model to extract gnere vectors
+    sample_mmr = mmr_builder(lambda_grid[0])
+    genre_matrix = sample_mmr.genre_vectors
 
 
+    # Build DataFrame for rectools distnace calculation
+    genre_df = pd.DataFrame(
+        genre_matrix,
+        index = item_titles,
+        columns=sample_mmr.all_genres
+    )
+
+    # Create Hamming distance calculator for ILD
+    distance_calc = PairwiseHammingDistanceCalculator(genre_df)
+
+    # Define metrices
+    ndcg_metrix = NDCG(k=k_eval)
+    ild_metric = IntraListDiversity(k=k_eval, distance_calculator=distance_calc)
+
+
+    # Loop over cnadidata lambda values
+    for lam in lambda_grid:
+        print(f"Testing lamda = {lam}")
+        #Build new MMR model for each lambda
+        mmr_model = mmr_builder(lam)
+
+        # Generate recomenndations
+        user_recs = {}
+
+
+        # genreate top-k recommendation for each user
+        for user_idx in range(predicted_ratings.shape[0]):
+            user_history = (R_filtered[user_idx, :] > 0)
+            recs = mmr_model.mmr(user_idx, user_history, top_k =k_eval)
+            user_recs[user_idx ] = recs
+
+        # Convert to Rectools input format
+        recs_recods = []
+        for user, items, in user_recs.items():
+            for rank, item in enumerate(item, start=1):
+                recs_recods.append((user,item,rank))
+        
+        recs_df = pd.DataFrame(recs_recods, columns=["user", "item", "rank"])
+
+        # compute NDCG
+        ndcg_val = ndcg_metrix.calc_per_user(
+            reco=recs_df.rename(columns={"user": "user_id", "item": "item_id", "rank": "score"}),
+            interactions=test_data
+        )
+        # takes mean over all users - overall relevnace score
+        ndcg_val = ndcg_val.mean()
+
+
+        #compute ILD - overall diverisity score
+        ild_val = ild_metric.calc_per_user(reco=recs_df.rename(columns={"user": "user_id", "item": "item_id", "rank": "score"})).mean()
+
+        # compute score base on metrics with weights
+        score = relevance_weight * ndcg_val + diversity_weight * ild_val
+
+
+
+        if score > best_score:
+            best_score = score
+            best_lambda = lam
+
+    print(f"Best lambda: {best_lambda} with score {best_score:.4f}")
+    return best_lambda
+            
+
+
+def mmr_builder_factory(
+        item_titles, 
+        genre_map, 
+        all_genres, 
+        predicted_ratings, 
+        similarity_type="cosine"):
+    
+
+    def builder(lambda_param):
+        return MMR(
+            item_titles = item_titles,
+            genre_map=genre_map,
+            all_genres=all_genres,
+            predicted_ratings=predicted_ratings,
+            similarity_type=similarity_type,
+            lambda_param=lambda_param
+            
+            )
+    return builder
+   
+        
+
+def build_mmr_models(movie_titles, genre_map, all_genres, predicted_ratings, lambda_param):
+    mmr_cosine = MMR(
+        movie_titles=movie_titles,
+        genre_map=genre_map,
+        all_genres=all_genres,
+        predicted_ratings=predicted_ratings,
+        similarity_type="cosine",
+        lambda_param=lambda_param
+    )
+
+
+    mmr_jaccard = MMR(
+        movie_titles=movie_titles,
+        genre_map=genre_map,
+        all_genres=all_genres,
+        predicted_ratings=predicted_ratings,
+        similarity_type="jaccard",
+        lambda_param=lambda_param
+    )
+
+    return mmr_cosine, mmr_jaccard
+
+def log_mmr_experiement(
+        out_dir, params, 
+        best_lambda, 
+        best_score,
+        dataset_name,
+        similarity_type,
+        relevance_weight,
+        diversity_weight):
+    
+    os.makedirs(out_dir, exist_ok=True)
+    log_file = os.path.join(out_dir,"mmr_tuning_log.csv")
+
+    # Prepare row to log
+    row = {
+        "Dataset": dataset_name,
+        "Similarity_Type": similarity_type,
+        "Best_Lambda": best_lambda,
+        "Best_score": best_score,
+    }
+    row.update(params)
+
+    #Cheeck if file exists
+    file_exists = os.path.isfile(log_file)
+
+    #Write to Csv
+    with open(log_file, mode='a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=row.keys())
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow(row)
+    
+    print(f"Logged MMR experiment to {log_file}")

@@ -20,7 +20,7 @@ def run_mmr_pipeline(
     item_user_rating_val, genre_map, all_genres = load_and_prepare_matrix( 
     ratings_val_path, item_path, nrows_items=chunksize)
 
-    train_aligned, val_aligned= align_train_val_matrices(item_user_rating_train, item_user_rating_val )
+    train_aligned, val_aligned = align_train_val_matrices(item_user_rating_train, item_user_rating_val )
 
     #Convert to numpy arrays
     R_train = train_aligned.values
