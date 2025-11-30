@@ -210,7 +210,7 @@ def bpr_loss(positive_score, negative_score):
 
 #STEP 8 - Add early stopping
 class EarlyStop:
-    def __init__(self, patience = 5, min_delta = 0.1, restore_best_weight = True):
+    def __init__(self, patience = 5, min_delta = 0.0001, restore_best_weight = True):
         self.patience = patience #How many unchanged epochs we tolerate
         self.min_delta = min_delta #minimum improvement
         self.restore_best_weight = restore_best_weight #load back the best model weights before we stop the nr of epochs
@@ -337,7 +337,7 @@ def training_with_brp(model, trainloader, validationloader, optimizer, stopearly
 
 
 #Call the early stop and train the model
-early_stop = EarlyStop(patience = 5, min_delta = 0, restore_best_weight = True)
+early_stop = EarlyStop(patience = 5, min_delta = 0.0001, restore_best_weight = True)
 training_with_brp(model = model, trainloader = train_bpr_dataloader, 
                   validationloader=validate_bpr_dataloader, 
                   optimizer=optimizer, 
@@ -356,8 +356,8 @@ def validate_bpr():
 
     #Make a csv file
     prediction_val_dataset = validation_df.copy()
-    prediction_val_dataset["predicted_rating"] = predicted_score
-    prediction_val_dataset.to_csv("data/Prediction_val/BPRnn_TWOLayers_embed32_lr0003_optimizeradam.csv", index = False)
+    prediction_val_dataset["val_predicted_rating"] = predicted_score
+    prediction_val_dataset.to_csv("data//Predictions_val//BPRnn_TWOLayers_embed32_lr0003_optimizeradam.csv", index = False)
 
     endtime =  time.time()
 
@@ -381,7 +381,7 @@ def test_bpr(model, testdataloader, device):
     prediction_test_dataset = test_df.copy()
     prediction_test_dataset["test_predicted_rating"] = test_predict_score
 
-    prediction_test_dataset.to_csv("data/Prediction_test/BPRnn_TWOLayers_embed32_lr0003_optimizeradam.csv", index = False)
+    prediction_test_dataset.to_csv("data//Predictions_test//BPRnn_TWOLayers_embed32_lr0003_optimizeradam.csv", index = False)
     return total_loss 
 
 #STEP 13 : TEST IT 
