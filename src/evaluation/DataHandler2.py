@@ -23,40 +23,40 @@ def load_and_process_data(ground_truth_path, predictions_path):
     gt = pd.read_csv(ground_truth_path)
     pred = pd.read_csv(predictions_path)
 
-    #print(f"\nGround truth columns: {list(gt.columns)}")
-    #print(f"Predictions columns: {list(pred.columns)}")
+    print(f"\nGround truth columns: {list(gt.columns)}")
+    print(f"Predictions columns: {list(pred.columns)}")
 
     # Convert IDs to strings
     id_columns = ["userId", "itemId", "title"]
     for col in id_columns:
         if col in gt.columns:
             gt[col] = gt[col].astype(str)
-            # print(f"Converted ground_truth['{col}'] to string")
+            print(f"Converted ground_truth['{col}'] to string")
         if col in pred.columns:
             pred[col] = pred[col].astype(str)
-            # print(f"Converted predictions['{col}'] to string")
+            print(f"Converted predictions['{col}'] to string")
 
     # Convert to RecTools format
-    #print("Converting to RecTools format")
+    print("Converting to RecTools format")
 
     ground_truth = _to_rectools_format(gt, is_ground_truth=True)
     predictions = _to_rectools_format(pred, is_ground_truth=False)
 
-    #print(f"Ground truth columns after format: {list(ground_truth.columns)}")
-    #print(f"Predictions columns after format: {list(predictions.columns)}")
+    print(f"Ground truth columns after format: {list(ground_truth.columns)}")
+    print(f"Predictions columns after format: {list(predictions.columns)}")
 
     #Validate
-    #print("Validating columns")
+    print("Validating columns")
     _validate_columns(ground_truth, predictions)
 
     #Prepare structures
-    #print("Preparing interaction structures")
+    print("Preparing interaction structures")
 
     interactions = _prepare_interactions(ground_truth)
     recommendations = _prepare_recommendations(predictions)
 
-    #print(f"Interactions columns: {list(interactions.columns)}")
-    #print(f"Recommendations columns: {list(recommendations.columns)}")
+    print(f"Interactions columns: {list(interactions.columns)}")
+    print(f"Recommendations columns: {list(recommendations.columns)}")
 
     return ProcessedData(
         ground_truth=ground_truth,

@@ -13,7 +13,8 @@ from rectools.metrics.auc import PartialAUC
 from datetime import datetime
 
 # Calculate most metrics using RecTools
-def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None, model_name="Unknown"):
+def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None,
+                         model_name="Unknown", calculate_ild=True):
     results = {}
 
     # RMSE & MAE (prediction metrics) - with error handling
@@ -83,11 +84,14 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None, 
         results["Overall Coverage"] = np.nan
 
     # intra list diversity (ILD)
-    if item_features is not None and not item_features.empty:
+    if calculate_ild and item_features is not None and not item_features.empty:
         print(f"Calculating ILD@{k} for {model_name}")
         results[f"ILD@{k}"] = _calculate_ild(data_handler, item_features, k)
     else:
-        print(f"Skipping ILD for {model_name}: No item features")
+        if calculate_ild:
+            print(f"Skipping ILD for {model_name}: No item features")
+        else:
+            print(f"Skipping ILD for {model_name}: Disabled by user")
         results[f"ILD@{k}"] = np.nan
 
     # Reverse Gini (Popularity Bias)
@@ -265,7 +269,8 @@ def plot_individual_metric_charts(df_metrics, output_dir="metric_charts"):
 
 # function for running it all
 def run_model_comparison(ground_truth_path, sources, threshold=4.0, k=5,
-                         item_features=None, output_prefix="comparison"):
+                         item_features=None, output_prefix="comparison",
+                         calculate_ild=True):  # Add parameter
     all_results_df = pd.DataFrame()
 
     print("Metrics calculations")
@@ -280,9 +285,12 @@ def run_model_comparison(ground_truth_path, sources, threshold=4.0, k=5,
             print("Skipping this model")
             continue
 
-        metrics = calculate_all_metrics(data, threshold, k, item_features, source_name)
+        # Pass the calculate_ild parameter
+        metrics = calculate_all_metrics(data, threshold, k, item_features,
+                                       source_name, calculate_ild)
         source_df = display_metrics_table(metrics, source_name, k)
         all_results_df = pd.concat([all_results_df, source_df])
+
 
     # Generate timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -320,6 +328,9 @@ if __name__ == "__main__":
     THRESHOLD = 4.0  # for the metrics that need to view things in a binary fashion
     K = 5  # recommendations to look at
 
+    # SET THIS TO False TO SKIP ILD AND GENRE LOADING
+    CALCULATE_ILD = False  # Change to False to skip ILD entirely
+
     #Test1
     #GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
 
@@ -344,24 +355,34 @@ if __name__ == "__main__":
         #NN
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\predictionNNwithBPR.csv", "NN"),
 
-        #DPP
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\ALIGNED_dpp_train_jaccard_recommendations_movies.csv", "dpp_jaccard"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\ALIGNED_dpp_train_cosine_recommendations_movies.csv", "dpp_cosine"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\ALIGNED_mf_train_predictions.csv", "MF"),
+        #DPP - movies
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\ALIGNED_dpp_train_jaccard_recommendations_movies.csv", "dpp_jaccard"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\ALIGNED_dpp_train_cosine_recommendations_movies.csv", "dpp_cosine"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\ALIGNED_mf_train_predictions_movies.csv", "MF"),
         # Add more models: (predictions_path, model_name)
+
+        # DPP - books
+
     ]
 
-    # Load item features from your actual movies file
-    ITEM_FEATURES = load_item_features(
-        r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
-    )
+    # Conditionally load item features (this is the slow part)
+    if CALCULATE_ILD:
+        print("Loading item features for ILD calculation...")
+        ITEM_FEATURES = load_item_features(
+            r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+        )
+    else:
+        print("Skipping item feature loading (ILD disabled)")
+        ITEM_FEATURES = None
 
     # Run comparison
+    # Run comparison without ILD
     results = run_model_comparison(
         ground_truth_path=GROUND_TRUTH,
         sources=MODELS,
         threshold=THRESHOLD,
         k=K,
-        item_features=ITEM_FEATURES,
-        output_prefix=f"top{K}_comparison"
+        item_features=ITEM_FEATURES,  # Can still provide features, but they won't be used
+        output_prefix=f"top{K}_comparison",
+        calculate_ild=False  # Skip ILD calculation
     )
