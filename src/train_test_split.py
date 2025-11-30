@@ -192,8 +192,8 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 input_rating_csv = os.path.join(base_dir, "datasets/MovieLens", "ratings.csv")
 input_movies_csv = os.path.join(base_dir, "datasets/MovieLens", "movies.csv")
 
-# ratings.to_csv(input_rating_csv, index=False)
-# movies.to_csv(input_movies_csv, index=False)
+ratings.to_csv(input_rating_csv, index=False)
+movies.to_csv(input_movies_csv, index=False)
 
 
 
