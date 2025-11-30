@@ -258,7 +258,7 @@ def evaluate_loss(model, dataloader, device):
     "Compute BPR loss in dataloader for all 3"
     model.eval()
     total_loss = 0
-
+    
     with torch.no_grad():
         for batch in dataloader:
             users = batch["user"].to(device)
@@ -266,8 +266,8 @@ def evaluate_loss(model, dataloader, device):
             neg = batch["negative"].to(device)
             
             positive_score, negative_score = model(users, pos, neg)
-            bpr_loss = bpr_loss(positive_score, negative_score)
-            total = total_loss + bpr_loss.item()
+            loss = bpr_loss(positive_score, negative_score)
+            total = total_loss + loss.item()
 
     return total / len(dataloader)
 
