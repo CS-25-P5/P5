@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=8					#CPu core for loading data and process
 #SBATCH --output=logs/%x-%j.out 				#%x is the jobe name, and %j is the ID of the job
 
-cd ~/ceph/home/student.aau.dk/nr38sp/P5
+cd /ceph/home/student.aau.dk/nr38sp/P5
 
 source venv/bin/activate
 
