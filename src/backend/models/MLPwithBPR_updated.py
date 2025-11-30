@@ -15,7 +15,6 @@ import random
 
 '''BPR is suited for datasets with implicit feedback. Currently we have a Movielens database with ratings from 0.5 - 5 (explicit feedback), and we will use a threshold for defining whether an item is positive or negative (rating above 3 is positive).'''
 
-starttime = time.time() 
 
 #STEP 1 - Redo the database - I need movies and ratings so that I can create triplets. 
 
@@ -92,6 +91,10 @@ test_user_negative_item = (
 )
 
 
+
+
+
+
 #STEP 5 - Pytorch dataset, where i = positive and j = negative. Pytorch needs specific dataset, cant work with pandas
 class BPRdataset(Dataset):
     def __init__(self, user_pos_item, user_neg_item, num_item):
@@ -130,6 +133,9 @@ class BPRdataset(Dataset):
         }
     
 
+
+
+
 #STEP 5.1 minibatches for reading the data
 train_bpr_dataset = BPRdataset(
     user_pos_item = training_user_positive_item, 
@@ -156,6 +162,7 @@ test_bpr_dataset = BPRdataset(
     num_item = numberofitems)
 
 test_bpr_dataloader = DataLoader(test_bpr_dataset, batch_size = 50, shuffle = False)
+
 
 
 #STEP 6 - NN model
@@ -202,15 +209,20 @@ class NNforBPR(nn.Module):
         #A number for each user, movie pair determining how much the user likes this movie. OBS. This is not rating.
 
 
+
+
 # STEP 7 - BPR loss function
 def bpr_loss(positive_score, negative_score):
     result = -torch.sum(torch.log(torch.sigmoid(positive_score-negative_score) + 1e-8))
     return result
 
 
+
+
+
 #STEP 8 - Add early stopping
 class EarlyStop:
-    def __init__(self, patience = 5, min_delta = 0.1, restore_best_weight = True):
+    def __init__(self, patience = 5, min_delta = 1e-5, restore_best_weight = True):
         self.patience = patience #How many unchanged epochs we tolerate
         self.min_delta = min_delta #minimum improvement
         self.restore_best_weight = restore_best_weight #load back the best model weights before we stop the nr of epochs
@@ -253,6 +265,18 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 # STEP 9 - two helper function to calculate loss, and predict ratings in different datasets
 def evaluate_loss(model, dataloader, device):
     "Compute BPR loss in dataloader for all 3"
@@ -270,6 +294,8 @@ def evaluate_loss(model, dataloader, device):
             total = total_loss + loss.item()
 
     return total / len(dataloader)
+
+
 
 
 def predict_ratings(model, dataset, device):
@@ -297,6 +323,7 @@ def predict_ratings(model, dataset, device):
         
 
 
+
 #STEP 10 - Train the model
 def training_with_brp(model, trainloader, validationloader, optimizer, stopearly, epochs, device):
     #NN goes much fast on GPUs according to doc. Moving tensor to device here. 
@@ -320,14 +347,18 @@ def training_with_brp(model, trainloader, validationloader, optimizer, stopearly
             optimizer.step() #update weights and apply changes with learning rate 0.01
             
             total_training_loss = total_training_loss + loss_function.item() #How much loss over epoch
-        
+    
         average_train_loss = total_training_loss/len(trainloader)
         
 
         #Validate the modell
         average_validation_loss = evaluate_loss(model, validationloader, device)
 
-        print(f"Epoch {epoch}/{epochs} with average train loss: {average_train_loss:.4f} and average validation loss: {average_validation_loss:.4f}")
+        print(f"Epoch {epoch}/{epochs} : "
+              f"Sum of batch train losses for one epoch {total_training_loss:.4f} |" 
+              f"Avg training loss per batch for one epoch {average_train_loss:.4f} |" 
+              f"Avg validation loss per batch for one epoch: {average_validation_loss:.4f}"
+              )
 
         #Stop early!
         if stopearly.call(model, average_validation_loss):
@@ -337,7 +368,8 @@ def training_with_brp(model, trainloader, validationloader, optimizer, stopearly
 
 
 #Call the early stop and train the model
-early_stop = EarlyStop(patience = 5, min_delta = 0, restore_best_weight = True)
+start_time = time.time() #We start timer here
+early_stop = EarlyStop(patience = 5, min_delta = 1e-5, restore_best_weight = True)
 training_with_brp(model = model, trainloader = train_bpr_dataloader, 
                   validationloader=validate_bpr_dataloader, 
                   optimizer=optimizer, 
@@ -345,31 +377,42 @@ training_with_brp(model = model, trainloader = train_bpr_dataloader,
                   epochs = 3000, 
                   device=device)
 
-
-
 #STEP 11 - Create predictions for validation set
 
 def validate_bpr():
+    #Get preds in val dataset
     predicted_score = predict_ratings(model, validation_df, device)
+    #Avr val loss pr batch
+    average_val_loss_per_batch = evaluate_loss(model, validate_bpr_dataloader, device)
 
-    calculated_loss = evaluate_loss(model, validate_bpr_dataloader, device)
+
+    #MEasure how much time this whole thing takes
+
+    end_time = time.time()
+    elapsed_sec = end_time - start_time
+
+    #Try to get max GPU usage for entire program
+    if torch.cuda.is_available():
+        max_memory = torch.cuda.max_memory_allocated() / (1024*1024)
+    else:
+        max_memory = None
 
     #Make a csv file
     prediction_val_dataset = validation_df.copy()
-    prediction_val_dataset["predicted_rating"] = predicted_score
-    prediction_val_dataset.to_csv("data/Prediction_val/BPRnn_OneLayer_embed64_lr0001_optimizeradam.csv", index = False)
-
-    endtime =  time.time()
-
-    print(f"\nTraining and validation time :  {endtime - starttime:.2f} seconds\n"
-          f"\nAverage loss for validation is : {calculated_loss}\n")
+    prediction_val_dataset["val_predicted_rating"] = predicted_score
+    prediction_val_dataset.to_csv("data/Predictions_val/BPRnn_OneLayer_embed64_lr0001_optimizeradam.csv", index = False)
     
-    if torch.cuda.is_available():
-        max_memory = torch.cuda.max_memory_allocated() / (1024*1024)
-        print(f"GPUS allocated for train and validate : {max_memory:.2f} MB")
+    #Add 2-3 lines about time and GPU usage:
+    with open("data/Predictions_val/BPRnn_OneLayer_embed64_lr0001_optimizeradam.csv", "a") as file:
+        file.write("\n")
+        file.write(f"# Time spent on training and validation :  {elapsed_sec:.3f} seconds\n")
+        file.write(f"# Average validation loss per batch : {average_val_loss_per_batch:.4f}\n")
+        if max_memory is not None: 
+            file.write(f"# Maximum GPU allocated for the entire program : {max_memory:.2f} MB")
+        else:
+            file.write("# GPU not available for the program")
 
-validate_BPR = validate_bpr()
-
+validate_bpr()
 
 #STEP 12 - test the model
 def test_bpr(model, testdataloader, device):
@@ -381,7 +424,7 @@ def test_bpr(model, testdataloader, device):
     prediction_test_dataset = test_df.copy()
     prediction_test_dataset["test_predicted_rating"] = test_predict_score
 
-    prediction_test_dataset.to_csv("data/Prediction_test/BPRnn_OneLayer_embed64_lr0001_optimizeradam.csv", index = False)
+    prediction_test_dataset.to_csv("data/Predictions_test/BPRnn_OneLayer_embed64_lr0001_optimizeradam.csv", index = False)
     return total_loss 
 
 #STEP 13 : TEST IT 
