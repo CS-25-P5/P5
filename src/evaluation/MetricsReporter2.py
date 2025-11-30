@@ -25,12 +25,12 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None, 
     print(f"Calculating top-{k} metrics for {model_name}")
 
     # Filter interactions to only include relevant items (rating >= threshold), Necesarry for ranking metrics
-    relevant_interactions = data_handler.full_interactions[
-        data_handler.full_interactions['weight'] >= threshold
+    relevant_interactions = data_handler.interactions[
+        data_handler.interactions['weight'] >= threshold
         ].copy()
 
     # Create catalog of all items from ground truth
-    catalog = data_handler.full_interactions['item_id'].unique()
+    catalog = data_handler.interactions['item_id'].unique()
     catalog_size = len(catalog)
 
     # Create dictionary of metrics to calculate and set their variables
@@ -43,7 +43,7 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None, 
         f'MRR@{k}': MRR(k=k),  # focuses on position of the first relevant item
         f'PartialAUC@{k}': PartialAUC(k=k),  # Area under curve for top-K items
         f'CatalogCoverage@{k}': CatalogCoverage(k=k),  # proportion of catalog items that appear in recommendations
-        f'HitRate@{k}': HitRate(k=k),
+        f'HitRate@{k}': HitRate(k=k), #proportion of users with at least 1 match
     }
 
     # Calculate metrics
@@ -95,30 +95,16 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None, 
 
     return results
 
-
 # Calculate RMSE and MAE using scikit-learn - with error handling
 def _calculate_rating_metrics(data_handler, model_name="Unknown"):
     try:
         # Merge predictions with ground truth
         merged = pd.merge(
             data_handler.predictions,
-            data_handler.full_interactions,
+            data_handler.interactions,
             on=['user_id', 'item_id'],
             suffixes=('_pred', '_gt')
         )
-
-        # Check if merge produced any matches
-        if merged.empty:
-            print(f"\nWarning for {model_name}: No matching user-item pairs found!")
-            print(
-                f"Predictions have {len(data_handler.predictions)} rows, {data_handler.predictions['item_id'].nunique()} unique items")
-            print(
-                f"Ground truth has {len(data_handler.full_interactions)} rows, {data_handler.full_interactions['item_id'].nunique()} unique items")
-            print(f"Debug - Sample predictions item_ids: {list(data_handler.predictions['item_id'].unique())[:5]}")
-            print(
-                f"Debug - Sample ground truth item_ids: {list(data_handler.full_interactions['item_id'].unique())[:5]}")
-            print("Returning NaN for RMSE/MAE and continuing...\n")
-            return np.nan, np.nan
 
         # Remove any rows with NaN values
         merged_clean = merged[['weight_gt', 'weight_pred']].dropna()
@@ -136,8 +122,6 @@ def _calculate_rating_metrics(data_handler, model_name="Unknown"):
             merged_clean['weight_gt'],
             merged_clean['weight_pred']
         )
-
-        print(f"{model_name} - RMSE: {rmse:.4f}, MAE: {mae:.4f}")
         return rmse, mae
 
     except Exception as e:
@@ -159,7 +143,6 @@ def _calculate_ild(data_handler, item_features, k):
         # FIX: Remove 'catalog' parameter
         ild_per_user = ild_metric.calc_per_user(
             reco=data_handler.recommendations,
-            # catalog=data_handler.full_interactions['item_id'].unique()   REMOVE THIS LINE
         )
         return ild_per_user.mean()
     except Exception as e:
