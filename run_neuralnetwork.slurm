@@ -1,6 +1,8 @@
 #!/bin/bash
 
 #SBATCH --job-name=movies_neural_network_with_BPR		#Name of the job
+#SBATCH  --partition=l4						#GPU partition
+#SBATCH --gres=gpu:1						#Ask for one GPU
 
 #SBATCH --time=01:00:00						#Max amount for training is 1 hour
 #SBATCH --mem=32G						#Amount of RAM allocated
