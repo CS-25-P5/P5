@@ -9,13 +9,13 @@ import numpy as np
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
-df = pd.read_csv("P5\src\backend\Datasets\MovieLens100kRatings.csv")
+df = pd.read_csv("P5\src\\backend\Datasets\MovieLens100kRatings.csv")
 print(max(df['movieId'].values))
 
 class MLP_Model(nn.Module):
-    def __init__(self, n_users, n_movies, embed_len=64, MLP_layers=[128, 64, 32, 16], dropout=0.3, out_features=1):
+    def __init__(self, n_users, n_movies, embed_len=64, MLP_layers=[128, 64, 32, 16], dropout=0.2, out_features=1):
         super().__init__()
-
+    
         self.user_embeds = nn.Embedding(n_users, embed_len)
         self.movie_embeds = nn.Embedding(n_movies, embed_len)
 
@@ -51,15 +51,24 @@ class MovielensDataset(Dataset):
         return self.users[item], self.movies[item], self.ratings[item]
 
 
-def train_model(model, train_loader, lr=0.01, weight_decay=1e-5, epochs=15):
+def train_model(model, train_loader, val_loader, lr=0.01, weight_decay=1e-5, epochs=100, patience=5):
     model.to(device)  
     
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     criterion = nn.MSELoss()
 
-    for epoch_i in range(epochs):
-        total_loss = 0
+    # For early stopper
+    counter = 0
+    best_loss = float('inf')
 
+    train_results = []
+
+
+    for epoch_i in range(epochs):
+        model.train()
+        train_loss = 0
+        
+        # Training the model
         for users, movies, ratings in train_loader:
             users = users.to(device)
             movies = movies.to(device)
@@ -72,11 +81,50 @@ def train_model(model, train_loader, lr=0.01, weight_decay=1e-5, epochs=15):
             loss.backward()
             optimizer.step()
 
-            total_loss += loss.item() * len(ratings)
+            train_loss += loss.item() * len(ratings)
 
-        print(f"Epoch {epoch_i + 1}/{epochs} | Train Loss: {total_loss / len(train_loader.dataset):.4f}")
+        train_loss = train_loss / len(train_loader.dataset)
 
-    return model
+        # Validation & early stopping
+        with torch.no_grad():
+            model.eval()
+            val_loss = 0   
+
+            for users, movies, ratings in val_loader:
+                users = users.to(device)
+                movies = movies.to(device)
+                ratings = ratings.to(device).unsqueeze(1)
+
+                preds = model(users, movies)
+                loss = criterion(preds, ratings)
+
+                val_loss += loss.item() * len(ratings)
+
+            val_loss = val_loss / len(val_loader.dataset)
+
+            if (val_loss < best_loss):
+                best_loss = val_loss
+                counter = 0
+                best_model_state = model.state_dict()
+            else:
+                counter += 1
+         
+
+        print(f"Epoch {epoch_i + 1}/{epochs} | Train Loss: {train_loss:.4f} | Validation Loss: {val_loss:.4f}")
+
+        train_results.append({
+            "trainLoss": train_loss,
+            "valLoss": val_loss
+        })
+                 
+        if (counter >= patience):
+            print(f"Early stopping triggered at epoch: {epoch_i}")
+            print(f"Best validation loss: {best_loss:.4f}")
+            break
+
+
+    model.load_state_dict(best_model_state)
+    return train_results
 
 
 def evaluate_model(model, test_loader):
@@ -100,24 +148,23 @@ def evaluate_model(model, test_loader):
 
     return rmse, mae
 
-# get the K most relevant movies from a particular user
+# Get the K most relevant movies from a particular user
 def get_topK(model, df, user_id, k):
 
     if (user_id not in df['userId'].values):
         print("User ID could not be found")
         return
     
-    all_movies = torch.tensor(df['movieId'].unique(), dtype=torch.int).to(device)
-    user = torch.tensor(user_id, dtype=torch.int).repeat(all_movies.size(0)).to(device)
+    all_movies = torch.tensor(df['movieId'].unique(), dtype=torch.long).to(device)
+    user = torch.tensor(user_id, dtype=torch.long).repeat(all_movies.size(0)).to(device)
 
-    
     model.eval()
     with torch.no_grad():
         predictions = model(user, all_movies).squeeze()
 
     topk_values, topk_indices = torch.topk(predictions, k)
     original_user_id = user_labels.inverse_transform([user_id])[0]
-    topk_movies = movie_labels.inverse_transform(all_movies[topk_indices])
+    topk_movies = movie_labels.inverse_transform(all_movies[topk_indices].cpu().numpy())
 
     return original_user_id, topk_movies, topk_values.cpu().numpy()
 
@@ -130,12 +177,15 @@ df.userId = user_labels.fit_transform(df.userId.values)
 df.movieId = movie_labels.fit_transform(df.movieId.values)
 
 x_train, x_test = train_test_split(df, test_size=0.2, random_state=26, stratify=df.rating.values)
+x_train, x_valid = train_test_split(x_train, test_size=0.1, random_state=26, stratify=x_train.rating.values)
 
 train_dataset = MovielensDataset(x_train)
-test_dataset = MovielensDataset(x_test)
+valid_dataset = MovielensDataset(x_valid)
+test_dataset  = MovielensDataset(x_test)
 
-train_loader = DataLoader(dataset=train_dataset, batch_size=128, shuffle=True)
-test_loader = DataLoader(dataset=test_dataset, batch_size=128, shuffle=False)
+train_loader = DataLoader(dataset=train_dataset, batch_size=512, shuffle=True)
+valid_loader = DataLoader(dataset=valid_dataset, batch_size=512, shuffle=False)
+test_loader  = DataLoader(dataset=test_dataset,  batch_size=512, shuffle=False)
 
 userList = df['userId'].unique()
 list = df['movieId'].unique()
@@ -153,12 +203,17 @@ mlp = MLP_Model(
     n_users,
     n_movies,
     embed_len=64,
-    MLP_layers=[128, 64, 32, 16],
-    dropout=0.4 
+    MLP_layers=[256, 128, 64, 32],
+    dropout=0.1,
 ).to(device)
 
+train_results = []
 
-train_model(mlp, train_loader, lr=0.01, weight_decay=1e-5, epochs=10)
+train_results = train_model(mlp, train_loader, valid_loader, lr=0.001, weight_decay=1e-5, epochs=100, patience=5)
+
+results_df = pd.DataFrame(train_results)
+results_df.to_csv("mlp_4_64_0.001.csv", index=False, float_format="%.4f")
+
 
 mlp_rmse, mlp_mae = evaluate_model(mlp, test_loader)
 
@@ -167,7 +222,7 @@ print(f"\nMLP Results:\nRMSE = {mlp_rmse:.4f}, MAE = {mlp_mae:.4f}")
 
 
 # Create CSV file of each user and their predicted top K most relevant movies
-topk = 10
+topk = n_movies
 
 user_preds = []
 for i in range(n_users):
@@ -181,6 +236,4 @@ for i in range(n_users):
         })
 
 topK_predictions = pd.DataFrame(user_preds)
-
-topK_predictions.to_csv("P5\src\backend\Datasets\topK_predictions.csv", index=False)
-
+topK_predictions.to_csv("mlp_predictions.csv", index=False)
