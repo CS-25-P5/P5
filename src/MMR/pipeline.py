@@ -5,14 +5,12 @@ import os
 import pandas as pd
 import time
 import datetime
-import random
 import csv
-import string
 
-def generate_run_id(length=4):
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    random_suffix = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
-    run_id = f"{timestamp}_{random_suffix}"
+
+def generate_run_id():
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    run_id = f"{timestamp}"
     return run_id
 
 
@@ -41,7 +39,6 @@ def run_train_pipeline(
     item_path, 
     output_dir=None, 
     dataset=None, 
-    datasize=None,
     top_n=10, 
     top_k=20, 
     chunksize=10000, 
@@ -104,7 +101,7 @@ def run_train_pipeline(
         genre_map, predicted_ratings, R_filtered_train, 
         item_user_rating_train.index, filtered_item_titles, 
         top_n=top_n, 
-        save_path = os.path.join(output_dir,"mf_train_predictions.csv"))
+        save_path = os.path.join(output_dir,f"{run_id}/mf_train_{chunksize}_predictions.csv"))
 
     predicted_ratings = np.array(predicted_ratings) 
 
@@ -176,7 +173,7 @@ def run_train_pipeline(
                     predicted_ratings = predicted_ratings, 
                     genre_map = genre_map, 
                     top_n = top_n, 
-                    output_file_path = os.path.join(output_dir,"mmr_train_cosine_predictions.csv"))
+                    output_file_path = os.path.join(output_dir,f"{run_id}/mmr_train_{chunksize}_cosine_predictions.csv"))
     
 
     process_save_mmr(all_recs = all_recs_jaccard, 
@@ -185,7 +182,7 @@ def run_train_pipeline(
                     predicted_ratings = predicted_ratings, 
                     genre_map = genre_map, 
                     top_n = top_n, 
-                    output_file_path = os.path.join(output_dir,"mmr_train_jaccard_predictions.csv"))
+                    output_file_path = os.path.join(output_dir,f"{run_id}/mmr_train_{chunksize}_jaccard_predictions.csv"))
     
 
     
@@ -197,7 +194,7 @@ def run_train_pipeline(
         params = {
             "Run_id": run_id,
             "Dataset_name": dataset,
-            "Datasize": datasize,
+            "Datasize": chunksize,
             "K": best_params["k"],
             "Alpha": best_params["alpha"],
             "Lambda": best_params["lambda_"],
@@ -214,7 +211,7 @@ def run_train_pipeline(
         file_name="mmr_train_experiment_log.csv",
         params={ "Run_id": run_id,
                 "Dataset_name": dataset,
-                "Datasize": datasize,
+                "Datasize": chunksize,
                 "Top_k": top_k,
                 "Similarity_type": "cosine",
                 "Relevance_weight": relevance_weight, 
@@ -230,7 +227,7 @@ def run_train_pipeline(
         file_name="mmr_train_experiment_log.csv",
         params={ "Run_id": run_id,
                 "Dataset_name": dataset,
-                "Datasize": datasize,
+                "Datasize": chunksize,
                 "Top_k": top_k,
                 "Similarity_type": "jaccard",
                 "Relevance_weight": relevance_weight, 
@@ -252,7 +249,6 @@ def run_test_pipeline(
     item_path, 
     output_dir=None, 
     dataset=None, 
-    datasize=None,
     top_n=10, 
     chunksize=10000,
     k=20, 
@@ -290,7 +286,7 @@ def run_test_pipeline(
 
 
     # Get top-N candidates for MMR
-    save_path = os.path.join(output_dir, f"mf_test_predictions.csv")
+    save_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
     get_top_n_recommendations_MF(
         genre_map, predicted_ratings, R_filtered, 
         item_user_rating.index, filtered_item_titles, 
@@ -351,7 +347,7 @@ def run_test_pipeline(
                     predicted_ratings = predicted_ratings, 
                     genre_map = genre_map, 
                     top_n = top_n, 
-                    output_file_path = os.path.join(output_dir,"mmr_test_cosine_predictions.csv"))
+                    output_file_path = os.path.join(output_dir,f"{run_id}/mmr_test_{chunksize}_cosine_predictions.csv"))
     
 
     process_save_mmr(all_recs = all_recs_jaccard, 
@@ -360,18 +356,18 @@ def run_test_pipeline(
                     predicted_ratings = predicted_ratings, 
                     genre_map = genre_map, 
                     top_n = top_n, 
-                    output_file_path = os.path.join(output_dir,"mmr_test_jaccard_predictions.csv"))
+                    output_file_path = os.path.join(output_dir,f"{run_id}/mmr_test_{chunksize}_jaccard_predictions.csv"))
     
 
 
-     #LOG MF DATA
+    #LOG MF DATA
     log_experiment(
         output_dir = output_dir,
         file_name="mf_test_experiment_log.csv",
         params = {
             "Run_id": run_id,
             "Dataset_name": dataset,
-            "Datasize": datasize,
+            "Datasize": chunksize,
             "Benchmark_time": time_mf
 
         },
@@ -383,7 +379,7 @@ def run_test_pipeline(
         file_name="mmr_test_experiment_log.csv",
         params={ "Run_id": run_id,
                 "Dataset_name": dataset,
-                "Datasize": datasize,
+                "Datasize": chunksize,
                 "Benchmark_time": time_cos
                 }
 
@@ -395,7 +391,7 @@ def run_test_pipeline(
         file_name="mmr_test_experiment_log.csv",
         params={ "Run_id": run_id,
                 "Dataset_name": dataset,
-                "Datasize": datasize,
+                "Datasize": chunksize,
                 "Benchmark_time": time_jac
                 }
     )
@@ -410,15 +406,15 @@ def run_test_pipeline(
 if __name__ == "__main__":
     # PARAMETER
     TOP_N = 10
-    CHUNK_SIZE = 10000
+    CHUNK_SIZE = 100000
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1
     N_EPOCHS = 50
     TOP_K = 20
     LAMBDA_PARAM = 0.7
-    RELEVANCE_WEIGHT = 0.7
-    DIVERSITY_WEIGHT = 0.3
+    RELEVANCE_WEIGHT = 0.6
+    DIVERSITY_WEIGHT = 0.4
     RANDOM_STATE = 42
 
 
@@ -448,7 +444,6 @@ if __name__ == "__main__":
         relevance_weight=RELEVANCE_WEIGHT,
         diversity_weight=DIVERSITY_WEIGHT,
         dataset=dataset_movie,
-        datasize=CHUNK_SIZE,
         random_state=RANDOM_STATE)
     
 
@@ -459,7 +454,6 @@ if __name__ == "__main__":
         item_path=item_file_path,
         output_dir=output_dir,
         dataset=dataset_movie, 
-        datasize=CHUNK_SIZE,
         top_n=TOP_N,
         top_k=TOP_K, 
         chunksize=CHUNK_SIZE,
@@ -474,44 +468,55 @@ if __name__ == "__main__":
 
 
 
-   
- 
 
 
+    #load data
+    dataset_books = "books"
+    folder_books = "GoodBooks"
+    ratings_train_file= os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_train.csv")
+    ratings_val_file = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_val.csv")
+    ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_test.csv")
+    item_file_path = os.path.join(base_dir, f"../datasets/{folder_books}", f"{dataset_books}.csv")
 
-    # #load data
-    # dataset_books = "books"
-    # folder_books = "GoodBooks"
-    # ratings_train_file= os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_train.csv")
-    # ratings_val_file = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_val.csv")
-    # ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_test.csv")
-    # item_file_path = os.path.join(base_dir, f"../datasets/{folder_books}", f"{dataset_books}.csv")
+    output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_books}")
 
-    # output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_books}")
 
-    # best_params = run_mmr_pipeline(
-    #     ratings_train_path = ratings_train_file,
-    #     ratings_val_path= ratings_val_file,
-    #     item_path = item_file_path,
-    #     output_dir = output_dir,
-    #     top_n = TOP_N,
-    #     top_k = TOP_K,
-    #     chunksize= CHUNK_SIZE,
-    #     n_epochs= N_EPOCHS,
-    #     relevance_weight=0.6,
-    #     diversity_weight=0.4,
-    #     dataset=dataset_books,
-    #     datasize=CHUNK_SIZE)
+    run_book_id = generate_run_id()
 
-    # # Run MF pipeline for test dataset
-    # run_mf_pipeline(
-    #     ratings_path=ratings_test_path,
-    #     item_path=item_file_path,
-    #     output_dir=output_dir,
-    #     top_n=TOP_N,
-    #     chunksize=CHUNK_SIZE,
-    #     k=best_params["k"],
-    #     alpha=best_params["alpha"],
-    #     lambda_=best_params["lambda_"],
-    #     n_epochs=N_EPOCHS
-    # )
+    best_params,best_lambda_cosine, best_lambda_jaccard = run_train_pipeline(
+        run_id = run_book_id,
+        ratings_train_path = ratings_train_file,
+        ratings_val_path= ratings_val_file,
+        item_path = item_file_path,
+        output_dir = output_dir,
+        top_n = TOP_N,
+        top_k = TOP_K,
+        chunksize= CHUNK_SIZE,
+        n_epochs= N_EPOCHS,
+        relevance_weight=0.6,
+        diversity_weight=0.4,
+        dataset=dataset_books,
+        random_state=RANDOM_STATE)
+    
+
+        
+
+    # Run MF pipeline for test dataset
+    run_test_pipeline(
+        run_id = run_book_id,
+        ratings_path=ratings_test_path,
+        item_path=item_file_path,
+        output_dir=output_dir,
+        dataset=dataset_books,
+        top_n=TOP_N,
+        top_k=TOP_K,
+        k=best_params["k"],
+        alpha=best_params["alpha"],
+        lambda_=best_params["lambda_"],
+        n_epochs=N_EPOCHS,
+        chunksize=CHUNK_SIZE,
+        random_state = RANDOM_STATE,
+        best_lambda_cosine = best_lambda_cosine,
+        best_lambda_jaccard = best_lambda_jaccard
+    )
+

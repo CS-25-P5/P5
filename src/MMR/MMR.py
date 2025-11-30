@@ -279,8 +279,8 @@ def tune_mmr_lambda(
         ndcg_norm = (ndcg_vals[i] - ndcg_min) / (ndcg_max - ndcg_min + 1e-8)
         ild_norm = (ild_vals[i] - ild_min) / (ild_max - ild_min + 1e-8)
         score = relevance_weight * ndcg_norm + diversity_weight * ild_norm
-        print(f"Lambda: {lam}, NDGC_raw: {ndcg_vals[i]:.4f}, ILD_raw: {ild_vals[i]:.4f}, "
-            f"NDGC_norm: {ndcg_norm:.4f}, ILD_norm: {ild_norm:.4f}, Score: {score:.4f}")
+        # print(f"Lambda: {lam}, NDGC_raw: {ndcg_vals[i]:.4f}, ILD_raw: {ild_vals[i]:.4f}, "
+        #     f"NDGC_norm: {ndcg_norm:.4f}, ILD_norm: {ild_norm:.4f}, Score: {score:.4f}")
         if score > best_score:
             best_score = score
             best_lambda = lam
