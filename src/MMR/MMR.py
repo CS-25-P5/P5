@@ -12,8 +12,8 @@ from rectools.metrics.distances import PairwiseHammingDistanceCalculator
 
 
 class MMR:
-    def __init__(self, movie_titles, genre_map, all_genres, predicted_ratings, similarity_type='jaccard', lambda_param=0.7):
-        self.movie_titles = movie_titles
+    def __init__(self, item_titles, genre_map, all_genres, predicted_ratings, similarity_type='jaccard', lambda_param=0.7):
+        self.item_titles = item_titles
         self.genre_map = genre_map
         self.all_genres = all_genres
         self.predicted_ratings = predicted_ratings
@@ -40,11 +40,13 @@ class MMR:
             genre_index[genre] = idx
 
         # create a 2-dimensional matrix (numpy array) filled with zeros
-        mat = np.zeros((len(self.movie_titles), len(self.all_genres)), dtype=np.float32)
+        mat = np.zeros((len(self.item_titles), len(self.all_genres)), dtype=np.float32)
 
         # fill matrix so it indicates which genres each movie belong to
-        for i, title in enumerate(self.movie_titles):
-            for g in self.genre_map[title]:
+        for i, title in enumerate(self.item_titles):
+            # fallback to empty set if title missing or empty in genre_map
+            genres = self.genre_map.get(title, set())
+            for g in genres:
                 mat[i, genre_index[g]] = 1.0
 
         return mat
@@ -104,29 +106,28 @@ class MMR:
         return selected
 
 
-
-
-def get_recommendations_for_mmr(mmr_model,R_filtered , item_user_rating, item_titles, genre_map, 
-                                predicted_ratings, top_k, top_n, output_dir, similarity_type):
-    results = []
-
-    for user_idx, user_id in enumerate(item_user_rating.index):
+def run_mmr(mmr_model, R_filtered, top_k):
+    all_recs = []
+    for user_idx in range(R_filtered.shape[0]):
         user_history = (R_filtered[user_idx, :] > 0)
+        rec_indices = mmr_model.mmr(user_idx, user_history, top_k)
+        all_recs.append(rec_indices)
+    
+    return all_recs
 
-        mmr_indices = mmr_model.mmr(
-            user_id = user_idx,
-            user_history = user_history,
-            top_k = top_k
-        )
-
+def process_save_mmr(all_recs, item_user_rating, item_titles, predicted_ratings, genre_map, top_n, output_file_path):
+    results = []
+    for user_idx, rec_indices in enumerate(all_recs):
+        user_id = item_user_rating.index[user_idx]
         process_mmr(
-            user_id, user_idx, mmr_indices, 
+            user_id, user_idx, rec_indices, 
             item_titles, genre_map, predicted_ratings, 
             results, top_n)
-        
+
     # save result as csv
-    save_mmr_results(results, output_dir, similarity_type)
-    print(f"Done MMR for {similarity_type}")
+    save_mmr_results(results, output_file_path)
+    print(f"Done MMR for {output_file_path}")
+
 
 
 
@@ -160,15 +161,9 @@ def process_mmr(user_id, user_idx, mmr_indices, item_names, genre_map, predicted
     # print("--------------------------------------------------")
 
 
-def save_mmr_results(mmr_recommendations_list, output_dir, similarity_type="jaccard"):
+def save_mmr_results(mmr_recommendations_list, output_file_path):
     # create output dataframe
     mmr_df = pd.DataFrame(mmr_recommendations_list)
-
-    #Ensure directory exists
-    os.makedirs(output_dir,exist_ok=True)
-
-    #Build defalut filename
-    output_file_path = os.path.join(output_dir, f"mmr_train_{similarity_type}_recommendations.csv")
 
     #save to csv
     mmr_df.to_csv(output_file_path, index=False)
@@ -181,14 +176,14 @@ def tune_mmr_lambda(
         mmr_builder,
         predicted_ratings,
         R_filtered,
-        test_data,
+        val_data,
         item_titles,
         k_eval=10,
         relevance_weight = 0.6,
         diversity_weight = 0.4
         ):
     
-    lambda_grid = [0.0, 0.25, 0.5, 0.75, 1.0]
+    lambda_grid = np.linspace(0, 1, 21)
     best_lambda = None
     best_score = -np.inf
 
@@ -205,13 +200,31 @@ def tune_mmr_lambda(
         columns=sample_mmr.all_genres
     )
 
+    # Replace NaN with 0 in genre matrix
+    genre_df = genre_df.fillna(0)
+
+    # Ensure matrix is int (0/1)
+    genre_df = genre_df.astype(int)
+
     # Create Hamming distance calculator for ILD
     distance_calc = PairwiseHammingDistanceCalculator(genre_df)
 
     # Define metrices
-    ndcg_metrix = NDCG(k=k_eval)
+    ndcg_metric = NDCG(k=k_eval)
     ild_metric = IntraListDiversity(k=k_eval, distance_calculator=distance_calc)
 
+    # Convert validation data to Rectools format using titles
+    val_array = val_data.values
+    rows, cols = np.where(val_array > 0)
+    interactions_df = pd.DataFrame({
+        "user_id": rows,
+        "item_id": [item_titles[c] for c in cols],  # map column indices to titles
+        "rating": val_array[rows, cols]
+    })
+
+    # Store raw NDGC and ILD for normalization
+    ndcg_vals = []
+    ild_vals = []
 
     # Loop over cnadidata lambda values
     for lam in lambda_grid:
@@ -222,44 +235,60 @@ def tune_mmr_lambda(
         # Generate recomenndations
         user_recs = {}
 
-
         # genreate top-k recommendation for each user
         for user_idx in range(predicted_ratings.shape[0]):
             user_history = (R_filtered[user_idx, :] > 0)
-            recs = mmr_model.mmr(user_idx, user_history, top_k =k_eval)
-            user_recs[user_idx ] = recs
+            rec_indices = mmr_model.mmr(user_idx, user_history, top_k =k_eval)
+            
+            # Convert MF column indices to item titles
+            recs = [item_titles[i] for i in rec_indices]
+            user_recs[user_idx] = recs
 
         # Convert to Rectools input format
         recs_recods = []
         for user, items, in user_recs.items():
-            for rank, item in enumerate(item, start=1):
+            for rank, item in enumerate(items, start=1):
                 recs_recods.append((user,item,rank))
-        
+
+        # COnvert recomemndation rectools format
         recs_df = pd.DataFrame(recs_recods, columns=["user", "item", "rank"])
 
+
         # compute NDCG
-        ndcg_val = ndcg_metrix.calc_per_user(
-            reco=recs_df.rename(columns={"user": "user_id", "item": "item_id", "rank": "score"}),
-            interactions=test_data
+        ndcg_val = ndcg_metric.calc_per_user(
+            reco=recs_df.rename(columns={"user": "user_id", "item": "item_id", "rank": "rank"}),
+            interactions=interactions_df
         )
         # takes mean over all users - overall relevnace score
         ndcg_val = ndcg_val.mean()
 
-
+     
         #compute ILD - overall diverisity score
-        ild_val = ild_metric.calc_per_user(reco=recs_df.rename(columns={"user": "user_id", "item": "item_id", "rank": "score"})).mean()
+        ild_val = ild_metric.calc_per_user(
+            reco=recs_df.rename(columns={"user": "user_id", "item": "item_id", "rank": "rank"})).mean()
 
-        # compute score base on metrics with weights
-        score = relevance_weight * ndcg_val + diversity_weight * ild_val
+        ndcg_vals.append(ndcg_val)
+        ild_vals.append(ild_val)
 
 
+    # Normalize metrics (0-1 scaling)
+    ndcg_min, ndcg_max = min(ndcg_vals), max(ndcg_vals)
+    ild_min, ild_max = min(ild_vals), max(ild_vals)
 
+    for i, lam in enumerate(lambda_grid):
+        ndcg_norm = (ndcg_vals[i] - ndcg_min) / (ndcg_max - ndcg_min + 1e-8)
+        ild_norm = (ild_vals[i] - ild_min) / (ild_max - ild_min + 1e-8)
+        score = relevance_weight * ndcg_norm + diversity_weight * ild_norm
+        print(f"Lambda: {lam}, NDGC_raw: {ndcg_vals[i]:.4f}, ILD_raw: {ild_vals[i]:.4f}, "
+            f"NDGC_norm: {ndcg_norm:.4f}, ILD_norm: {ild_norm:.4f}, Score: {score:.4f}")
         if score > best_score:
             best_score = score
             best_lambda = lam
 
+
     print(f"Best lambda: {best_lambda} with score {best_score:.4f}")
-    return best_lambda
+
+    return best_lambda, best_score
             
 
 
@@ -285,57 +314,4 @@ def mmr_builder_factory(
    
         
 
-def build_mmr_models(movie_titles, genre_map, all_genres, predicted_ratings, lambda_param):
-    mmr_cosine = MMR(
-        movie_titles=movie_titles,
-        genre_map=genre_map,
-        all_genres=all_genres,
-        predicted_ratings=predicted_ratings,
-        similarity_type="cosine",
-        lambda_param=lambda_param
-    )
 
-
-    mmr_jaccard = MMR(
-        movie_titles=movie_titles,
-        genre_map=genre_map,
-        all_genres=all_genres,
-        predicted_ratings=predicted_ratings,
-        similarity_type="jaccard",
-        lambda_param=lambda_param
-    )
-
-    return mmr_cosine, mmr_jaccard
-
-def log_mmr_experiement(
-        out_dir, params, 
-        best_lambda, 
-        best_score,
-        dataset_name,
-        similarity_type,
-        relevance_weight,
-        diversity_weight):
-    
-    os.makedirs(out_dir, exist_ok=True)
-    log_file = os.path.join(out_dir,"mmr_tuning_log.csv")
-
-    # Prepare row to log
-    row = {
-        "Dataset": dataset_name,
-        "Similarity_Type": similarity_type,
-        "Best_Lambda": best_lambda,
-        "Best_score": best_score,
-    }
-    row.update(params)
-
-    #Cheeck if file exists
-    file_exists = os.path.isfile(log_file)
-
-    #Write to Csv
-    with open(log_file, mode='a', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=row.keys())
-        if not file_exists:
-            writer.writeheader()
-        writer.writerow(row)
-    
-    print(f"Logged MMR experiment to {log_file}")

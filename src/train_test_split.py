@@ -173,44 +173,44 @@ def split_ratings(
 
 
 # Parameters
-CHUNKSIZE = 50000
+CHUNKSIZE = 10000
 TEST_SIZE = 0.20
 
 
 #load dataset
 base_dir = os.path.dirname(os.path.abspath(__file__))
-# input_rating_csv = os.path.join(base_dir, "datasets/MovieLens", "ratings.csv")
-# input_movies_csv = os.path.join(base_dir, "datasets/MovieLens", "movies.csv")
+input_rating_csv = os.path.join(base_dir, "datasets/MovieLens", "ratings.csv")
+input_movies_csv = os.path.join(base_dir, "datasets/MovieLens", "movies.csv")
 
-# output_dir = os.path.join(base_dir, "datasets/mmr_data")
-# output_dir_rating = os.path.join(base_dir, "datasets/MovieLens")
-
-
-# #Prepare MOVie dataset
-# ratings_df = standardize_csv(
-#     input_csv=input_rating_csv,
-#     output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
-#     col_mapping={"userId": "userId", "movieId": "itemId", "rating": "rating"},
-#     drop_columns=["timestamp"],
-#     nrows = CHUNKSIZE,
-# )
+output_dir = os.path.join(base_dir, "datasets/mmr_data")
+output_dir_rating = os.path.join(base_dir, "datasets/MovieLens")
 
 
-# standardize_csv(
-#     input_csv=input_movies_csv,
-#     output_csv=os.path.join(output_dir_rating, f"movies.csv"),
-#     col_mapping={"movieId": "itemId", "title": "title", "genres": "genres"},
-# )
+#Prepare MOVie dataset
+ratings_df = standardize_csv(
+    input_csv=input_rating_csv,
+    output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
+    col_mapping={"userId": "userId", "movieId": "itemId", "rating": "rating"},
+    drop_columns=["timestamp"],
+    nrows = CHUNKSIZE,
+)
 
 
-# split_ratings(
-#     ratings_df,
-#     output_dir=output_dir,
-#     dataset_name="movies",
-#     test_size=0.2,
-#     val_size=0.2,
-#     chunksize = CHUNKSIZE,
-# )
+standardize_csv(
+    input_csv=input_movies_csv,
+    output_csv=os.path.join(output_dir_rating, f"movies.csv"),
+    col_mapping={"movieId": "itemId", "title": "title", "genres": "genres"},
+)
+
+
+split_ratings(
+    ratings_df,
+    output_dir=output_dir,
+    dataset_name="movies",
+    test_size=0.2,
+    val_size=0.2,
+    chunksize = CHUNKSIZE,
+)
 
 
 

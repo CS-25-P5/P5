@@ -64,7 +64,7 @@ class MatrixFactorization:
             full_loss = self.compute_loss()
             #print(f"Epoch {epoch+1}/{self.n_epochs}, RMSE: {rmse:.4f}, Fullloss: {full_loss: .4f}")
 
-        return rmse
+        return rmse, self.random_state
 
 
     def predict_single(self, u, i):
@@ -150,7 +150,7 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path,nrows_items=None):
     return user_item_matrix, genre_map, all_genres
 
 
-def filter_empty_users_data(R, movie_titles=None):
+def filter_empty_users_data(R, item_titles=None):
     # keep users and movies with at least on rating
     #user_filter = R.sum(axis = 1) > 0
 
@@ -158,7 +158,7 @@ def filter_empty_users_data(R, movie_titles=None):
 
     R_filtered = R[:, movie_filter]
 
-    filtered_movie_titles = movie_titles[movie_filter] if movie_titles is not None else None
+    filtered_movie_titles = item_titles[movie_filter] if item_titles is not None else None
 
     return R_filtered, filtered_movie_titles
 
@@ -188,12 +188,12 @@ def save_mf_predictions(all_recommendations, genre_map, output_path="mf_predicti
 
     rows = []
     for user_id, recs in all_recommendations.items():
-        for movie, score in recs:
+        for item, score in recs:
             rows.append({
                 "userId": user_id, 
-                "title": movie, 
+                "title": item, 
                 "mf_score":score,
-                "genres": ",".join(genre_map.get(movie,[])) if genre_map else ""
+                "genres": ",".join(genre_map.get(item,[])) if genre_map else ""
                 })
 
     df = pd.DataFrame(rows)
@@ -201,7 +201,7 @@ def save_mf_predictions(all_recommendations, genre_map, output_path="mf_predicti
     print(f"MF predictions saved: {output_path}")
 
 
-def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filtered_user_ids, filtered_movie_titles, top_n=10, save_path=None ):
+def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filtered_user_ids, filtered_item_titles, top_n=10, save_path=None ):
         # store all recomendations for all users
     all_recomenndations = {}
 
@@ -223,11 +223,11 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
 
 
         # Map to movies titles and scors
-        top_movies = filtered_movie_titles[top_indices]
+        top_items = filtered_item_titles[top_indices]
         top_scores = user_ratings_filtered[top_indices]
 
         #store a list of (movie, predicted rating)
-        all_recomenndations[user_id] = list(zip(top_movies, top_scores))
+        all_recomenndations[user_id] = list(zip(top_items, top_scores))
 
         # MMR-style output for this user
     #     print("--------------------------------------------------------------------")
@@ -283,30 +283,13 @@ def tune_mf( R_train, R_val,
     return best_params
 
 
-def train_mf_with_best_params(R_filtered, best_params, n_epochs=50):
-    mf = MatrixFactorization(R_filtered, best_params["k"],  best_params["alpha"], best_params["lambda_"], n_epochs)
-    train_rmse = mf.train()
+def train_mf_with_best_params(R_filtered, best_params, n_epochs=50,  random_state= 42):
+    mf= MatrixFactorization(R_filtered, best_params["k"],  best_params["alpha"], best_params["lambda_"], n_epochs, random_state)
+    train_rmse, random_state = mf.train()
     predicted_ratings = mf.full_prediction()
 
-    return mf, predicted_ratings, train_rmse
+    return mf, predicted_ratings, train_rmse, random_state
 
 
 
-def log_mf_experiment(output_dir, params, train_rmse=None, val_rmse=None):
-    os.makedirs(output_dir, exist_ok=True)
-    log_file = os.path.join(output_dir, "mf_train_experiments_log.csv")
 
-    # add RMSE to params
-    params = params.copy()
-    params['train_rmse'] = train_rmse
-    params['val_rmse'] = val_rmse
-
-    # check if log file exists
-    file_exists = os.path.isfile(log_file)
-
-    # append to CSV
-    with open(log_file, 'a', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=params.keys())
-        if not file_exists:
-            writer.writeheader()
-        writer.writerow(params)
