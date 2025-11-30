@@ -336,10 +336,15 @@ if __name__ == "__main__":
 
     #MF
     #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movies_ratings_100000_test.csv")
+
     #NN
     #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\ratings_small.csv")
-    #DPP
-    GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies_ratings_100000_test_gt.csv")
+
+    #DPP - movies
+    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\movies_ratings_100000_test_gt.csv")
+
+    #DPP - books
+    GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\books_ratings_100000_test_gt.csv")
 
     # Models to compare
     MODELS = [
@@ -356,13 +361,17 @@ if __name__ == "__main__":
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\predictionNNwithBPR.csv", "NN"),
 
         #DPP - movies
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\ALIGNED_dpp_train_jaccard_recommendations_movies.csv", "dpp_jaccard"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\ALIGNED_dpp_train_cosine_recommendations_movies.csv", "dpp_cosine"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\ALIGNED_mf_train_predictions_movies.csv", "MF"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\ALIGNED_dpp_train_jaccard_recommendations_movies.csv", "dpp_jaccard"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\ALIGNED_dpp_train_cosine_recommendations_movies.csv", "dpp_cosine"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\mf_train_predictions.csv", "MF"),
         # Add more models: (predictions_path, model_name)
 
         # DPP - books
-
+        (
+        r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\ALIGNED_dpp_train_jaccard_recommendations_movies.csv","dpp_jaccard"),
+        (
+        r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\ALIGNED_dpp_train_cosine_recommendations_movies.csv","dpp_cosine"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\mf_train_predictions.csv", "MF"),
     ]
 
     # Conditionally load item features (this is the slow part)
