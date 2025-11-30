@@ -10,6 +10,7 @@ from DataHandler2 import ProcessedData, load_and_process_data
 import matplotlib.pyplot as plt
 import os
 from rectools.metrics.auc import PartialAUC
+from datetime import datetime
 
 # Calculate most metrics using RecTools
 def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None, model_name="Unknown"):
@@ -133,20 +134,43 @@ def _calculate_rating_metrics(data_handler, model_name="Unknown"):
 # Calculate Intra-List Diversity with RecTools
 def _calculate_ild(data_handler, item_features, k):
     try:
-        if 'title' in item_features.columns:
-            item_features = item_features.set_index('title')
-        item_features.index.name = 'item_id'
+        # Ensure matching index types
+        recommendations = data_handler.recommendations.copy()
+        recommendations['item_id'] = recommendations['item_id'].astype(str)
 
-        distance_calc = PairwiseHammingDistanceCalculator(item_features)
+        # Filter to items that exist in feature matrix
+        available_items = list(set(recommendations['item_id'].unique()) &
+                               set(item_features.index.astype(str)))
+
+        if not available_items:
+            print("Warning: No item feature overlap")
+            return np.nan
+
+        filtered_features = item_features.loc[available_items]
+
+        # Calculate distances (raw)
+        distance_calc = PairwiseHammingDistanceCalculator(filtered_features)
         ild_metric = IntraListDiversity(k=k, distance_calculator=distance_calc)
+        ild_per_user = ild_metric.calc_per_user(reco=recommendations)
 
-        # FIX: Remove 'catalog' parameter
-        ild_per_user = ild_metric.calc_per_user(
-            reco=data_handler.recommendations,
-        )
-        return ild_per_user.mean()
+        # Normalize to 0-1 range
+        max_possible_distance = item_features.shape[1]  # Number of genre features
+        normalized_ild = ild_per_user.mean() / max_possible_distance
+
+        print(f"Raw ILD: {ild_per_user.mean():.3f}, Normalized ILD: {normalized_ild:.3f}")
+        return normalized_ild
+
     except Exception as e:
         print(f"ILD calculation failed: {e}")
+        return np.nan
+
+    except Exception as e:
+        print(f"\nILD calculation failed with error: {e}")
+        print(f"Recommendations columns: {list(data_handler.recommendations.columns)}")
+        print(f"Recommendations dtypes:\n{data_handler.recommendations.dtypes}")
+        print(f"Recommendations sample:\n{data_handler.recommendations.head()}")
+        print(f"Item features shape: {item_features.shape}")
+        print(f"Item features index sample: {list(item_features.index)[:5]}")
         return np.nan
 
 
@@ -250,50 +274,86 @@ def run_model_comparison(ground_truth_path, sources, threshold=4.0, k=5,
         print(f"\nProcessing '{source_name}'")
 
         try:
-            data = load_and_process_data(ground_truth_path, predictions_path)  # from datahandler, load data
+            data = load_and_process_data(ground_truth_path, predictions_path)
         except Exception as e:
             print(f"Error loading data for {source_name}: {e}")
             print("Skipping this model")
             continue
 
-        metrics = calculate_all_metrics(data, threshold, k, item_features, source_name)  # calculate all metrics
-        source_df = display_metrics_table(metrics, source_name, k)  # store results
-        all_results_df = pd.concat([all_results_df, source_df])  # relevant if more than one model is run
+        metrics = calculate_all_metrics(data, threshold, k, item_features, source_name)
+        source_df = display_metrics_table(metrics, source_name, k)
+        all_results_df = pd.concat([all_results_df, source_df])
 
-    save_metrics_table_as_file(all_results_df, f"{output_prefix}_results")  # save as a file (excel and csv)
-    plot_individual_metric_charts(all_results_df, output_dir=f"{output_prefix}_individual_charts")  # create plots
+    # Generate timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    print(f"\nProcessed {len(all_results_df)} model(s) with k={k}")  # output results
+    # Add timestamp to output filenames
+    save_metrics_table_as_file(all_results_df, f"{output_prefix}_results_{timestamp}")
+    plot_individual_metric_charts(all_results_df, output_dir=f"{output_prefix}_individual_charts_{timestamp}")
+
+    print(f"\nProcessed {len(all_results_df)} model(s) with k={k}")
     return all_results_df
 
+#Load movies file and create binary genre features for ILD calculation.
+def load_item_features(movies_path):
+
+    # Load movies data
+    print("starting loading")
+    movies = pd.read_csv(movies_path)
+    movies['itemId'] = movies['itemId'].astype(str)
+
+    # Split pipe-separated genres and get all unique genres
+    movies['genres_list'] = movies['genres'].str.split('|')
+    all_genres = sorted(set([g for genres in movies['genres_list'] for g in genres]))
+
+    # Create binary feature matrix
+    item_features = pd.DataFrame(0, index=movies['itemId'], columns=all_genres)
+    item_features.index.name = 'item_id'
+
+    for idx, row in movies.iterrows():
+        item_features.loc[row['itemId'], row['genres_list']] = 1
+
+    return item_features
 
 if __name__ == "__main__":
     # Configuration
     THRESHOLD = 4.0  # for the metrics that need to view things in a binary fashion
     K = 5  # recommendations to look at
-    # GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
-    # GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movies_ratings_100000_test.csv")
-    GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\ratings_small.csv")
+
+    #Test1
+    #GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
+
+    #MF
+    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movies_ratings_100000_test.csv")
+    #NN
+    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\ratings_small.csv")
+    #DPP
+    GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies_ratings_100000_test_gt.csv")
 
     # Models to compare
     MODELS = [
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\test_predictions.csv", "Test"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\ALIGNED_mf_test_predictions.csv", "mf"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\aligned_mmr_train_cosine_test_recommendations.csv", "mmr"),
-        (
-        r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\predictionNNwithBPR.csv",
-        "NN")
+        #test1
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\test_predictions.csv", "Test"),
+
+        #mf
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\ALIGNED_mf_test_predictions.csv", "mf"),
+
+        #MMR
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\aligned_mmr_train_cosine_test_recommendations.csv", "mmr"),
+
+        #NN
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\predictionNNwithBPR.csv", "NN"),
+
+        #DPP
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\ALIGNED_dpp_train_jaccard_recommendations_movies.csv", "dpp_jaccard"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\ALIGNED_dpp_train_cosine_recommendations_movies.csv", "dpp_cosine"),
         # Add more models: (predictions_path, model_name)
     ]
 
-    # Item features for ILD (test)
-    ITEM_FEATURES = pd.DataFrame({
-        "title": ["The Matrix", "Toy Story", "Inception", "Joker", "Interstellar"],
-        "Sci-Fi": [1, 0, 1, 0, 1],
-        "Animation": [0, 1, 0, 0, 0],
-        "Drama": [0, 0, 0, 1, 0],
-        "Action": [1, 0, 1, 0, 1],
-    })
+    # Load item features from your actual movies file
+    ITEM_FEATURES = load_item_features(
+        r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+    )
 
     # Run comparison
     results = run_model_comparison(
@@ -302,5 +362,5 @@ if __name__ == "__main__":
         threshold=THRESHOLD,
         k=K,
         item_features=ITEM_FEATURES,
-        output_prefix=f"rectools_top{K}_comparison"
+        output_prefix=f"top{K}_comparison"
     )

@@ -37,20 +37,20 @@ def load_and_process_data(ground_truth_path, predictions_path):
             # print(f"Converted predictions['{col}'] to string")
 
     # Convert to RecTools format
-    # print("Converting to RecTools format")
+    #print("Converting to RecTools format")
 
     ground_truth = _to_rectools_format(gt, is_ground_truth=True)
     predictions = _to_rectools_format(pred, is_ground_truth=False)
 
-    # print(f"Ground truth columns after format: {list(ground_truth.columns)}")
-    # print(f"Predictions columns after format: {list(predictions.columns)}")
+    #print(f"Ground truth columns after format: {list(ground_truth.columns)}")
+    #print(f"Predictions columns after format: {list(predictions.columns)}")
 
-    # Validate
-    # print("Validating columns")
+    #Validate
+    #print("Validating columns")
     _validate_columns(ground_truth, predictions)
 
-    # Prepare structures
-    # print("Preparing interaction structures")
+    #Prepare structures
+    #print("Preparing interaction structures")
 
     interactions = _prepare_interactions(ground_truth)
     recommendations = _prepare_recommendations(predictions)
@@ -69,52 +69,40 @@ def load_and_process_data(ground_truth_path, predictions_path):
 # Convert DataFrame to RecTools standard format
 def _to_rectools_format(df, is_ground_truth):
     df = df.copy()
-    original_columns = list(df.columns)
 
     column_map = {
         "userId": "user_id",
     }
 
-    # Map item identifier to item_id (handle both itemId and title)
+    # Map item identifier to item_id
     if "itemId" in df.columns:
         column_map["itemId"] = "item_id"
-        # print(f"Found 'itemId' column, will map to 'item_id'")
     elif "movieId" in df.columns:
         column_map["movieId"] = "item_id"
-        # print(f"Found 'movieId' column, will map to 'item_id'")
     elif "title" in df.columns:
         column_map["title"] = "item_id"
-        # print(f"Found 'title' column, will map to 'item_id'")
-    else:
-        print("Warning no item identifier column found (expected 'itemId', 'movieId', or 'title')")
 
     # Handle rating column
     if is_ground_truth:
         rating_col = "rating"
-        # print(f"Ground truth: looking for rating column 'rating'")
     else:
-        # For predictions, try multiple possible rating column names
         possible_rating_cols = ["rating_pred", "predictedRating", "prediction", "predicted_rating", "rating","mf_score"]
         rating_col = next((col for col in possible_rating_cols if col in df.columns), None)
-        # print(f"Predictions: looking for rating column. Found: {rating_col}")
 
     if rating_col and rating_col in df.columns:
         column_map[rating_col] = "weight"
-        # print(f"Will map '{rating_col}' to 'weight'")
-    else:
-        print(
-           f"No rating column found. Tried: {possible_rating_cols if not is_ground_truth else ['rating']}")
 
-    # print(f"\nColumn mapping: {column_map}")
     df = df.rename(columns=column_map)
 
-    new_columns = list(df.columns)
-    # print(f"Renamed columns: {original_columns} → {new_columns}")
+    # Force convert ID columns to string after renaming
+    if "item_id" in df.columns:
+        df["item_id"] = df["item_id"].astype(str)
+    if "user_id" in df.columns:
+        df["user_id"] = df["user_id"].astype(str)
 
-    # force weight to float
+    # Force weight to float
     if "weight" in df.columns:
         df["weight"] = df["weight"].astype(float)
-        # print("Converted 'weight' column to float")
 
     return df
 
@@ -123,19 +111,19 @@ def _to_rectools_format(df, is_ground_truth):
 def _validate_columns(gt, pred):
     required = ["user_id", "item_id", "weight"]
 
-    # print("\nValidating required columns:")
+    #print("\nValidating required columns:")
     for df, name in [(gt, "Ground Truth"), (pred, "Predictions")]:
         missing = [col for col in required if col not in df.columns]
         present = [col for col in required if col in df.columns]
-        # print(f"{name}: present={present}, missing={missing}")
+        #print(f"{name}: present={present}, missing={missing}")
         if missing:
             raise ValueError(f"{name} missing columns: {missing}")
         #else:
-         #   print(f"{name} has all required columns")
+            #print(f"{name} has all required columns")
 
 
 def _prepare_interactions(df):
-    # print(f"\nPreparing interactions - selecting columns: {['user_id', 'item_id', 'weight']}")
+    #print(f"\nPreparing interactions - selecting columns: {['user_id', 'item_id', 'weight']}")
     interactions = df[["user_id", "item_id", "weight"]].copy()
 
     #Force consistent dtypes
@@ -143,7 +131,7 @@ def _prepare_interactions(df):
     interactions["item_id"] = interactions["item_id"].astype(str)
     interactions["weight"] = interactions["weight"].astype(float)
 
-    # print(f"Interaction dtypes:\n{interactions.dtypes}")
+    #print(f"Interaction dtypes:\n{interactions.dtypes}")
     return interactions
 
 
@@ -160,9 +148,9 @@ def _prepare_recommendations(df):
     if "rank" not in recos.columns:
         recos = recos.sort_values(["user_id", "weight"], ascending=[True, False])
         recos["rank"] = recos.groupby("user_id").cumcount() + 1
-        # print(f"Added 'rank' column to recommendations.")
-    else:
-        print(f"'rank' column already exists, using provided ranks.")
+        #print(f"Added 'rank' column to recommendations.")
+    #else:
+        #print(f"'rank' column already exists, using provided ranks.")
 
     #print(f"Recommendations dtypes:\n{recos.dtypes}")
     #print(f"Sample:\n{recos.head()}")
