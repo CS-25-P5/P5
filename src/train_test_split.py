@@ -211,6 +211,10 @@ ratings_df = standardize_csv(
     drop_columns=["timestamp"],
     nrows = CHUNKSIZE,
 )
+# Reload the CSV to ensure standardized column names
+ratings_df = pd.read_csv(os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"))
+ratings_df.columns = ratings_df.columns.str.strip()
+print("Columns after strip:", ratings_df.columns)
 
 
 standardize_csv(
@@ -231,7 +235,6 @@ split_ratings(
 
 
 
-
 # Prepare book dataset
 
 input_rating_csv = os.path.join(base_dir, "datasets/GoodBooks", "ratings.csv")
@@ -248,6 +251,11 @@ ratings_df = standardize_csv(
     nrows = CHUNKSIZE,
     map_to_dense = True
 )
+
+# Reload the CSV to ensure standardized column names
+ratings_df = pd.read_csv(os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"))
+ratings_df.columns = ratings_df.columns.str.strip()
+print("Columns after strip:", ratings_df.columns)
 
 
 standardize_csv(
