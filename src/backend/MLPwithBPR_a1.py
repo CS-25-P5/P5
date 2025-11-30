@@ -261,7 +261,7 @@ def evaluate_loss(model, dataloader, device):
 
     with torch.no_grad():
         for batch in dataloader:
-            users = batch["users"].to(device)
+            users = batch["user"].to(device)
             pos = batch["positive"].to(device)
             neg = batch["negative"].to(device)
             
