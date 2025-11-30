@@ -89,7 +89,7 @@ def align_predictions_with_mapping(predictions_path, mapping_path, output_path=N
 
 if __name__ == "__main__":
     # === CONFIGURE THESE PATHS ===
-    MAPPING_FILE = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
-    PREDICTIONS_FILE = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\mf_train_predictions_books.csv"
+    MAPPING_FILE = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+    PREDICTIONS_FILE = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\dpp_train_cosine_recommendations_books.csv"
 
     align_predictions_with_mapping(PREDICTIONS_FILE, MAPPING_FILE)

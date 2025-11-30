@@ -367,11 +367,9 @@ if __name__ == "__main__":
         # Add more models: (predictions_path, model_name)
 
         # DPP - books
-        (
-        r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\ALIGNED_dpp_train_jaccard_recommendations_movies.csv","dpp_jaccard"),
-        (
-        r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\ALIGNED_dpp_train_cosine_recommendations_movies.csv","dpp_cosine"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\mf_train_predictions.csv", "MF"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_dpp_train_jaccard_recommendations_books.csv","dpp_jaccard"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_dpp_train_cosine_recommendations_books.csv","dpp_cosine"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_mf_train_predictions_books.csv", "MF"),
     ]
 
     # Conditionally load item features (this is the slow part)
