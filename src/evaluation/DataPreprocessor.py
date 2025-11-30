@@ -116,7 +116,7 @@ def align_predictions_with_mapping(predictions_path, mapping_path, output_path=N
 if __name__ == "__main__":
     # === CONFIGURE THESE FULL PATHS ===
     MAPPING_FILE = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
-    PREDICTIONS_FILE = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\mmr_train_cosine_test_recommendations.csv"
+    PREDICTIONS_FILE = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\ALIGNED_mf_train_predictions.csv"
 
     # Run the alignment
     try:

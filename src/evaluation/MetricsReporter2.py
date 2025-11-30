@@ -347,6 +347,7 @@ if __name__ == "__main__":
         #DPP
         (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\ALIGNED_dpp_train_jaccard_recommendations_movies.csv", "dpp_jaccard"),
         (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\ALIGNED_dpp_train_cosine_recommendations_movies.csv", "dpp_cosine"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\ALIGNED_mf_train_predictions.csv", "MF"),
         # Add more models: (predictions_path, model_name)
     ]
 
