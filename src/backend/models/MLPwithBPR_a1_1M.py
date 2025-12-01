@@ -25,6 +25,10 @@ dataset = dataset[["userId", "movieId", "rating"]]
 train_df, temporary_df = train_test_split(dataset, test_size=0.2, random_state=42) 
 validation_df, test_df = train_test_split(temporary_df, test_size=0.5, random_state=42)
 
+test_df.to_csv("data/Predictions_test_1M_movies(MLPwithBPR)/GROUNDTRUTH_1M_TEST.csv", index = False)
+validation_df.to_csv("data/Predictions_val_1M_movies(MLPwithBPR)/GROUNDTRUTH_1M_VAL.csv", index = False)
+
+
 #STEP 1.2 : Split dataset into likes and dislakes (ratings of 3 and below are negative). Do for train, val, test df
 
 positive_training_df = train_df[train_df["rating"] > 3].copy()  #Train 
@@ -422,3 +426,4 @@ def test_bpr(model, testdataloader, device):
 
 #STEP 13 : TEST IT 
 test_bpr(model, test_bpr_dataloader, device)
+

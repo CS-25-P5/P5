@@ -141,7 +141,7 @@ train_bpr_dataset = BPRdataset(
     user_neg_item = training_user_negative_item, 
     num_item = numberofitems)
 
-train_bpr_dataloader = DataLoader(train_bpr_dataset, batch_size = 50, shuffle = True)
+train_bpr_dataloader = DataLoader(train_bpr_dataset, batch_size = 512, shuffle = True)
 
 
 
@@ -150,7 +150,7 @@ validate_bpr_dataset = BPRdataset(
     user_neg_item = validation_user_negative_item, 
     num_item = numberofitems)
 
-validate_bpr_dataloader = DataLoader(validate_bpr_dataset, batch_size = 50, shuffle = False)
+validate_bpr_dataloader = DataLoader(validate_bpr_dataset, batch_size = 512, shuffle = False)
 
 
 
@@ -160,7 +160,7 @@ test_bpr_dataset = BPRdataset(
     user_neg_item = test_user_negative_item, 
     num_item = numberofitems)
 
-test_bpr_dataloader = DataLoader(test_bpr_dataset, batch_size = 50, shuffle = False)
+test_bpr_dataloader = DataLoader(test_bpr_dataset, batch_size = 512, shuffle = False)
 
 
 
