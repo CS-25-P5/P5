@@ -4,8 +4,16 @@ from MMR import MMR, mmr_builder_factory, tune_mmr_lambda, run_mmr, process_save
 import os
 import pandas as pd
 import time
+import tracemalloc
 import datetime
 import csv
+
+# process = psutil.Process(os.getpid())
+
+# def get_memory_mb():
+#     mem = process.memory_info().rss  # in bytes
+#     mem_mb = max(mem / (1024 ** 2), 0)  # convert to MB, ensure non-negative
+#     return mem_mb
 
 
 def generate_run_id():
@@ -85,10 +93,17 @@ def run_train_pipeline(
     
     # TRAIN MF
     # Tune MF parameters 
+    tracemalloc.start()
+    start_time_mf = time.time()
     best_params = tune_mf(
         R_train=R_filtered_train, 
         R_val = R_filtered_val, 
         n_epochs=n_epochs)
+    end_time_mf = time.time()
+    time_mf = end_time_mf - start_time_mf
+    mem_mf = tracemalloc.get_traced_memory()[1] / 1024**2
+    tracemalloc.stop()
+
 
     # Train MF with best hyperparameters
     mf, predicted_ratings, train_rmse, random_state = train_mf_with_best_params(R_filtered_train, best_params, n_epochs=n_epochs, random_state = random_state)
@@ -115,6 +130,8 @@ def run_train_pipeline(
         similarity_type="cosine"
     )
 
+    tracemalloc.start()
+    start_time_cos = time.time()
     best_lambda_cosine, best_score_cosine = tune_mmr_lambda(
         mmr_builder = builder_cosine,
         predicted_ratings = predicted_ratings,
@@ -125,8 +142,14 @@ def run_train_pipeline(
         relevance_weight=relevance_weight,
         diversity_weight=diversity_weight
     )
+    end_time_cos = time.time()
+    time_cos = end_time_cos - start_time_cos
+    mem_cos = tracemalloc.get_traced_memory()[1] / 1024**2
+    tracemalloc.end()
+
 
     # Repeat for jaccard similarity
+ 
     builder_jaccard = mmr_builder_factory(
         item_titles=filtered_item_titles,
         genre_map=genre_map,
@@ -135,6 +158,8 @@ def run_train_pipeline(
         similarity_type="jaccard"
     )
 
+    tracemalloc.start()
+    start_time_jac = time.time()
     best_lambda_jaccard, best_score_jaccard = tune_mmr_lambda(
         mmr_builder=builder_jaccard,
         predicted_ratings=predicted_ratings,
@@ -145,6 +170,10 @@ def run_train_pipeline(
         relevance_weight=relevance_weight,
         diversity_weight=diversity_weight
     )
+    end_time_jac = time.time()
+    time_jac = end_time_jac - start_time_jac
+    mem_jac = tracemalloc.get_traced_memory()[1] / 1024**2
+    tracemalloc.start()
 
 
     # Build Final MMR models with best lambda
@@ -201,7 +230,9 @@ def run_train_pipeline(
             "N_epochs": n_epochs,
             "Random_state": random_state,
             "Train_rmse": train_rmse,
-            "Val_rmse": val_rmse
+            "Val_rmse": val_rmse,
+            "Benchmark_time": time_mf,
+            "Max_Memory_MB": mem_mf
         },
     )
 
@@ -217,7 +248,10 @@ def run_train_pipeline(
                 "Relevance_weight": relevance_weight, 
                 "Diveristy_weight": diversity_weight,
                 "Best_lambda": best_lambda_cosine,
-                "Best_score": best_score_cosine}
+                "Best_score": best_score_cosine,
+                "Benchmark_time": time_cos,
+                "Max_Memory_MB": mem_cos},
+                
 
     )
 
@@ -233,7 +267,9 @@ def run_train_pipeline(
                 "Relevance_weight": relevance_weight, 
                 "Diveristy_weight": diversity_weight,
                 "Best_lambda": best_lambda_jaccard,
-                "Best_score": best_score_jaccard}
+                "Best_score": best_score_jaccard,
+                "Benchmark_time": time_jac,
+                "Max_Memory_MB": mem_jac}
     )
     
 
@@ -274,15 +310,19 @@ def run_test_pipeline(
 
 
     # Train the model
+    tracemalloc.start()
     start_time_mf = time.time()
     mf = MatrixFactorization(R_filtered, k, alpha, lambda_ , n_epochs, random_state)
     mf.train()
+    
 
     # Full predicted rating matrix
     predicted_ratings = mf.full_prediction()
     end_time_mf = time.time()
 
     time_mf = end_time_mf - start_time_mf
+    mem_mf = tracemalloc.get_traced_memory()[1] / 1024**2
+    tracemalloc.end()
 
 
     # Get top-N candidates for MMR
@@ -320,6 +360,7 @@ def run_test_pipeline(
 
 
     # Run MMR
+    tracemalloc.start()
     start_time_cos = time.time()
     all_recs_cosine = run_mmr(
         mmr_model = mmr_cosine, 
@@ -328,8 +369,10 @@ def run_test_pipeline(
     end_time_cos = time.time()
 
     time_cos = end_time_cos - start_time_cos
+    mem_cos = tracemalloc.get_traced_memory()[1] / 1024**2
+    tracemalloc.end()
     
-
+    tracemalloc.start()
     start_time_jac = time.time()
     all_recs_jaccard = run_mmr(
         mmr_model = mmr_jaccard, 
@@ -338,6 +381,8 @@ def run_test_pipeline(
     end_time_jac = time.time()
 
     time_jac = end_time_jac - start_time_jac
+    mem_jac = tracemalloc.get_traced_memory()[1] / 1024**2
+    tracemalloc.end()
     
 
     # Process and Save MMR result
@@ -368,7 +413,8 @@ def run_test_pipeline(
             "Run_id": run_id,
             "Dataset_name": dataset,
             "Datasize": chunksize,
-            "Benchmark_time": time_mf
+            "Benchmark_time": time_mf,
+            "Max_Memory_MB": mem_mf
 
         },
     )
@@ -381,7 +427,8 @@ def run_test_pipeline(
                 "Dataset_name": dataset,
                 "Datasize": chunksize,
                 "Similarity_type": "cosine",
-                "Benchmark_time": time_cos
+                "Benchmark_time": time_cos,
+                "Max_Memory_MB": mem_cos
                 }
 
     )
@@ -394,7 +441,8 @@ def run_test_pipeline(
                 "Dataset_name": dataset,
                 "Datasize": chunksize,
                 "Similarity_type": "jaccard",
-                "Benchmark_time": time_jac
+                "Benchmark_time": time_jac,
+                "Max_Memory_MB": mem_jac
                 }
     )
 
@@ -408,7 +456,7 @@ def run_test_pipeline(
 if __name__ == "__main__":
     # PARAMETER
     TOP_N = 10
-    CHUNK_SIZE = 100000
+    CHUNK_SIZE = 10000
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1

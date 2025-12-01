@@ -185,7 +185,6 @@ def tune_mmr_lambda(
     best_lambda = None
     best_score = -np.inf
 
-   
     # builds mmr model to extract gnere vectors
     sample_mmr = mmr_builder(lambda_grid[0])
     genre_matrix = sample_mmr.genre_vectors
@@ -226,7 +225,6 @@ def tune_mmr_lambda(
 
     # Loop over cnadidata lambda values
     for lam in lambda_grid:
-        print(f"Testing lamda = {lam}")
         #Build new MMR model for each lambda
         mmr_model = mmr_builder(lam)
 
