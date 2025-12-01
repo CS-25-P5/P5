@@ -1,4 +1,5 @@
 import os
+import csv, glob
 import pandas as pandas
 import numpy as np
 
@@ -75,3 +76,16 @@ final_dataset = final_dataset[["userId", "movieId", "rating", "tmdbId", "budget"
 
 #SAVE the dataset
 #final_dataset.to_csv("data\\input_dataset_for_NN.csv", index=False)
+
+
+
+###################### Converting million dataset
+
+input = "data/Movies_dataset1M/ratings.dat"
+
+new_data = pandas.read_csv(input, sep = "::", engine = "python", names = ["userId", "movieId", "rating", "timestamp"], encoding="latin-1",)
+output_file = input.replace(".dat", "1M.csv")
+new_data.to_csv(output_file, index = False)
+
+
+print(f"Converted.")
