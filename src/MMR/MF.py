@@ -111,7 +111,12 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path,nrows_items=None):
     # Load the files
     ratings = pd.read_csv(ratings_file_path)
     items = pd.read_csv(item_file_path, nrows=nrows_items)
-    
+
+
+    # Ensure 'itemId' columns are the same type
+    ratings['itemId'] = ratings['itemId'].astype(int)
+    items['itemId'] = items['itemId'].astype(int)
+        
 
     #Merge and Clean
     combine = pd.merge(ratings,items, on='itemId')
