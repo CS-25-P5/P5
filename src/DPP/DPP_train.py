@@ -1,5 +1,7 @@
+import csv
 import os
 import sys
+from datetime import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -19,7 +21,21 @@ import os
 import pandas as pd
 import numpy as np
 
+def log_experiment(output_dir, file_name, params):
+    os.makedirs(output_dir, exist_ok=True)
+    log_file = os.path.join(output_dir,file_name)
 
+    #Cheeck if file exists
+    file_exists = os.path.isfile(log_file)
+
+    #Write to Csv
+    with open(log_file, mode='a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=params.keys())
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow(params)
+
+    print(f"Logged experiment to {log_file}")
 
 
 def run_dpp_pipeline(
@@ -101,7 +117,96 @@ def run_dpp_pipeline(
 
 
 
-    return best_params
+    return (
+        best_params,
+        predicted_ratings,
+        dpp_cosine,
+        dpp_jaccard,
+        filtered_item_titles
+    )
+
+
+# Test pipeline:
+
+
+def run_dpp_test_pipeline(
+        ratings_test_path,
+        item_path,
+        mf_predicted_ratings,
+        filtered_item_titles,
+        dpp_cosine,
+        dpp_jaccard,
+        output_dir=None,
+        dataset= None,
+        datasize=None,
+        top_n=10,
+        top_k=20,
+        chunksize=10000,
+        similarity_types=["cosine", "jaccard"]
+):
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    # 1. Load TEST matrix
+    item_user_rating_test, genre_map, all_genres = load_and_prepare_matrix(
+        ratings_test_path, item_path, nrows_items=chunksize
+    )
+    R_test = item_user_rating_test.values
+
+    train_item_indices_in_test = [
+        item_user_rating_test.columns.get_loc(item)
+        for item in filtered_item_titles
+        if item in item_user_rating_test.columns
+    ]
+    R_filtered_test = R_test[:, train_item_indices_in_test]
+    item_user_rating_filtered = item_user_rating_test.iloc[:, train_item_indices_in_test]
+
+
+    #  Load predicted ratings from TRAIN
+    predicted_ratings = mf_predicted_ratings
+
+
+
+    # 4. Build DPP models (same as TRAIN)
+    dpp_cosine, dpp_jaccard = build_dpp_models(
+        filtered_item_titles,
+        genre_map,
+        all_genres,
+        predicted_ratings
+    )
+
+    # 5. Run DPP recommendations
+    if "cosine" in similarity_types:
+        get_recommendations_for_dpp(
+            dpp_cosine,
+            item_user_rating_filtered,
+            filtered_item_titles,
+            genre_map,
+            predicted_ratings,
+            top_k,
+            top_n,
+            output_dir,
+            "cosine_test"
+        )
+
+    if "jaccard" in similarity_types:
+        get_recommendations_for_dpp(
+            dpp_jaccard,
+            item_user_rating_filtered,
+            filtered_item_titles,
+            genre_map,
+            predicted_ratings,
+            top_k,
+            top_n,
+            output_dir,
+            "jaccard_test"
+        )
+
+    print("✓ DPP TEST pipeline completed successfully.")
+
+
+
+
 
 
 # PARAMETER
@@ -113,17 +218,20 @@ LAMDA_ = 0.1
 N_EPOCHS = 50
 TOP_K = 20
 LAMBDA_PARAM = 0.7
-DATASET_NAME = "movies"
+DATASET_NAME = "books"
 
 #load data
 base_dir = os.path.dirname(os.path.abspath(__file__))
 ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{DATASET_NAME}_ratings_{CHUNK_SIZE}_train.csv")
 ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{DATASET_NAME}_ratings_{CHUNK_SIZE}_val.csv")
-books_file_path = os.path.join(base_dir, "../datasets/MovieLens", "movies.csv")
+ratings_test_file = os.path.join(base_dir, "../datasets/dpp_data", f"{DATASET_NAME}_ratings_{CHUNK_SIZE}_test.csv")
+
+books_file_path = os.path.join(base_dir, "../datasets/GoodBooks", "books.csv")
 
 output_dir = os.path.join(base_dir, f"../datasets/dpp_data/{DATASET_NAME}")
+output_dir_test = os.path.join(base_dir, f"../datasets/dpp_data/{DATASET_NAME}/test")
 
-best_params = run_dpp_pipeline(
+best_params, predicted_ratings, dpp_cosine, dpp_jaccard, filtered_item_titles = run_dpp_pipeline(
     ratings_train_path = ratings_train_file,
     ratings_val_path= ratings_val_file,
     item_path = books_file_path,
@@ -136,6 +244,20 @@ best_params = run_dpp_pipeline(
     datasize=CHUNK_SIZE)
 
 
+run_dpp_test_pipeline(
+    ratings_test_path = ratings_test_file,
+    item_path = books_file_path,
+    mf_predicted_ratings = predicted_ratings,
+    filtered_item_titles = filtered_item_titles,
+    dpp_cosine = dpp_cosine,
+    dpp_jaccard = dpp_jaccard,
+    output_dir = output_dir_test,
+    dataset = DATASET_NAME,
+    datasize = CHUNK_SIZE,
+    top_n = TOP_N,
+    top_k = TOP_K,
+    chunksize = CHUNK_SIZE
+)
 
 
 

@@ -71,26 +71,53 @@ class DPP:
         selected = []
         remaining = list(candidate_indices)
 
+        # Initialize storage for incremental Cholesky updates
+        L = np.zeros((0, 0))  # Cholesky factor of selected set
+
         for _ in range(min(top_k, len(remaining))):
+            best_gain = -np.inf
             best_idx = None
-            best_logdet = -np.inf
 
             for i in remaining:
-                if not selected:
-                    val = K[i, i]
-                    sign, logdet = np.linalg.slogdet(np.array([[val]]))
-                else:
-                    subset = selected + [i]
-                    subK = K[np.ix_(subset, subset)]
-                    sign, logdet = np.linalg.slogdet(subK)
-                if sign > 0 and logdet > best_logdet:
-                    best_logdet = logdet
-                    best_idx = i
+                if len(selected) == 0:
+                    # First element: log det(K_ii)
+                    gain = np.log(K[i, i] + 1e-12)
 
-            if best_idx is None:
-                best_idx = remaining[0]
-            selected.append(best_idx)
-            remaining.remove(best_idx)
+            else:
+                k_iS = K[i, selected]
+
+                # Solve L y = k_iS
+                y = np.linalg.solve(L, k_iS)
+
+                # marginal gain: log(K_ii - yᵀ y)
+                residual = K[i, i] - np.dot(y, y)
+
+                # numerical safety
+                if residual <= 1e-12:
+                    gain = -np.inf
+                else:
+                    gain = np.log(residual)
+
+            if gain > best_gain:
+                best_gain = gain
+                best_idx = i
+
+
+        # Update Cholesky factor L with new item
+        if len(selected) == 0:
+            L = np.array([[np.sqrt(K[best_idx, best_idx])]])
+        else:
+            k_iS = K[best_idx, selected]
+            y = np.linalg.solve(L, k_iS)
+            diag = np.sqrt(max(K[best_idx, best_idx] - np.dot(y, y), 1e-12))
+
+            # Expand L
+            L = np.block([
+                [L, np.zeros((L.shape[0], 1))],
+                [y, np.array([[diag]])]
+            ])
+        selected.append(best_idx)
+        remaining.remove(best_idx)
 
         return selected
 
