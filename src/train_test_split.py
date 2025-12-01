@@ -211,10 +211,7 @@ ratings_df = standardize_csv(
     drop_columns=["timestamp"],
     nrows = CHUNKSIZE,
 )
-# Reload the CSV to ensure standardized column names
-ratings_df = pd.read_csv(os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"))
-ratings_df.columns = ratings_df.columns.str.strip()
-print("Columns after strip:", ratings_df.columns)
+
 
 
 standardize_csv(
@@ -252,10 +249,7 @@ ratings_df = standardize_csv(
     map_to_dense = True
 )
 
-# Reload the CSV to ensure standardized column names
-ratings_df = pd.read_csv(os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"))
-ratings_df.columns = ratings_df.columns.str.strip()
-print("Columns after strip:", ratings_df.columns)
+
 
 
 standardize_csv(

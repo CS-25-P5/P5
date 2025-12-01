@@ -380,6 +380,7 @@ def run_test_pipeline(
         params={ "Run_id": run_id,
                 "Dataset_name": dataset,
                 "Datasize": chunksize,
+                "Similarity_type": "cosinus",
                 "Benchmark_time": time_cos
                 }
 
@@ -392,6 +393,7 @@ def run_test_pipeline(
         params={ "Run_id": run_id,
                 "Dataset_name": dataset,
                 "Datasize": chunksize,
+                "Similarity_type": "jaccard",
                 "Benchmark_time": time_jac
                 }
     )
