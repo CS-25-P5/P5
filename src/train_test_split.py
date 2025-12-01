@@ -82,68 +82,66 @@ def split_ratings(
     random_state: int = 42,
     chunksize: int = None,
 ):
-  np.random.seed(random_state)
-  os.makedirs(output_dir, exist_ok=True)
+    np.random.seed(random_state)
+    os.makedirs(output_dir, exist_ok=True)
 
-  # Split for each user
-  train_list = []
-  test_list = []
-  val_list = []
-
-  min_train_ratings = 1
+    # Split for each user
+    train_list = []
+    test_list = []
+    val_list = []
 
 
-  for user_id, user_ratings in ratings_df.groupby('userId'):
-    #Ensure enough ratings
-    if len(user_ratings) < 3:
-        continue  #skip users with very few ratings
-    
-    # shuffle
-    user_ratings = user_ratings.sample(frac=1, random_state=random_state)
+    for user_id, user_ratings in ratings_df.groupby('userId'):
+        #Ensure enough ratings
+        if len(user_ratings) < 3:
+            continue  #skip users with very few ratings
+        
+        # shuffle
+        user_ratings = user_ratings.sample(frac=1, random_state=random_state)
 
-    n = len(user_ratings)
-    n_test = max(1, int(n * test_size))
-    n_val  = max(1, int(n * val_size))
+        n = len(user_ratings)
+        n_test = max(1, int(n * test_size))
+        n_val  = max(1, int(n * val_size))
 
 
-    # slices
-    test = user_ratings.iloc[:n_test]
-    val  = user_ratings.iloc[n_test:n_test + n_val]
-    train = user_ratings.iloc[n_test + n_val:]
+        # slices
+        test = user_ratings.iloc[:n_test]
+        val  = user_ratings.iloc[n_test:n_test + n_val]
+        train = user_ratings.iloc[n_test + n_val:]
 
-    # ensure train has at least 1 rating
-    if len(train) < 1:
-        # move 1 item from val into train
-        train = pd.concat([train, val.iloc[:1]])
-        val = val.iloc[1:]
+        # ensure train has at least 1 rating
+        if len(train) < 1:
+            # move 1 item from val into train
+            train = pd.concat([train, val.iloc[:1]])
+            val = val.iloc[1:]
 
 
 
-    train_list.append(train)
-    val_list.append(val)
-    test_list.append(test)
+        train_list.append(train)
+        val_list.append(val)
+        test_list.append(test)
 
-  # Final dataframes
-  train_df = pd.concat(train_list).reset_index(drop=True)
-  val_df = pd.concat(val_list).reset_index(drop=True)
-  test_df = pd.concat(test_list).reset_index(drop=True)
+    # Final dataframes
+    train_df = pd.concat(train_list).reset_index(drop=True)
+    val_df = pd.concat(val_list).reset_index(drop=True)
+    test_df = pd.concat(test_list).reset_index(drop=True)
 
-  # Build output paths
-  train_file = os.path.join(output_dir, f"{dataset_name}_ratings_{chunksize}_train.csv")
-  val_file = os.path.join(output_dir, f"{dataset_name}_ratings_{chunksize}_val.csv")
-  test_file = os.path.join(output_dir, f"{dataset_name}_ratings_{chunksize}_test.csv")
+    # Build output paths
+    train_file = os.path.join(output_dir, f"{dataset_name}_ratings_{chunksize}_train.csv")
+    val_file = os.path.join(output_dir, f"{dataset_name}_ratings_{chunksize}_val.csv")
+    test_file = os.path.join(output_dir, f"{dataset_name}_ratings_{chunksize}_test.csv")
 
-  #save
-  train_df.to_csv(train_file, index=False)
-  val_df.to_csv(val_file, index=False)
-  test_df.to_csv(test_file, index=False)
+    #save
+    train_df.to_csv(train_file, index=False)
+    val_df.to_csv(val_file, index=False)
+    test_df.to_csv(test_file, index=False)
 
 
-  print(
-      f"Train/Test dataset generated.\n"
-      f"Rows: {len(ratings_df)} (train={len(train_df)},val={len(val_df)}, test={len(test_df)})\n"
-      f"Saved to: {output_dir}"
-  )
+    print(
+        f"Train/Test dataset generated.\n"
+        f"Rows: {len(ratings_df)} (train={len(train_df)},val={len(val_df)}, test={len(test_df)})\n"
+        f"Saved to: {output_dir}"
+    )
 
 
 
@@ -193,8 +191,8 @@ split_ratings(
     ratings_df,
     output_dir=output_dir,
     dataset_name="movies",
-    test_size=0.2,
-    val_size=0.2,
+    test_size=0.1,
+    val_size=0.1,
     chunksize = CHUNKSIZE,
 )
 
@@ -238,8 +236,8 @@ split_ratings(
     ratings_df,
     output_dir=output_dir,
     dataset_name="books",
-    test_size=0.2,
-    val_size=0.2,
+    test_size=0.1,
+    val_size=0.1,
     chunksize = CHUNKSIZE,
 )
 
