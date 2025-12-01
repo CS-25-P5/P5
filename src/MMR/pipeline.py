@@ -8,13 +8,6 @@ import tracemalloc
 import datetime
 import csv
 
-# process = psutil.Process(os.getpid())
-
-# def get_memory_mb():
-#     mem = process.memory_info().rss  # in bytes
-#     mem_mb = max(mem / (1024 ** 2), 0)  # convert to MB, ensure non-negative
-#     return mem_mb
-
 
 def generate_run_id():
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -145,7 +138,7 @@ def run_train_pipeline(
     end_time_cos = time.time()
     time_cos = end_time_cos - start_time_cos
     mem_cos = tracemalloc.get_traced_memory()[1] / 1024**2
-    tracemalloc.end()
+    tracemalloc.stop()
 
 
     # Repeat for jaccard similarity
@@ -322,7 +315,7 @@ def run_test_pipeline(
 
     time_mf = end_time_mf - start_time_mf
     mem_mf = tracemalloc.get_traced_memory()[1] / 1024**2
-    tracemalloc.end()
+    tracemalloc.stop()
 
 
     # Get top-N candidates for MMR
@@ -370,7 +363,7 @@ def run_test_pipeline(
 
     time_cos = end_time_cos - start_time_cos
     mem_cos = tracemalloc.get_traced_memory()[1] / 1024**2
-    tracemalloc.end()
+    tracemalloc.stop()
     
     tracemalloc.start()
     start_time_jac = time.time()
@@ -382,7 +375,7 @@ def run_test_pipeline(
 
     time_jac = end_time_jac - start_time_jac
     mem_jac = tracemalloc.get_traced_memory()[1] / 1024**2
-    tracemalloc.end()
+    tracemalloc.stop()
     
 
     # Process and Save MMR result
@@ -456,7 +449,7 @@ def run_test_pipeline(
 if __name__ == "__main__":
     # PARAMETER
     TOP_N = 10
-    CHUNK_SIZE = 10000
+    CHUNK_SIZE = 100000
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1
