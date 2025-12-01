@@ -325,8 +325,8 @@ def load_item_features(movies_path):
 
 if __name__ == "__main__":
     # Configuration
-    THRESHOLD = 4.0  # for the metrics that need to view things in a binary fashion
-    K = 5  # recommendations to look at
+    THRESHOLD = 3.5  # for the metrics that need to view things in a binary fashion
+    K = 10  # recommendations to look at
 
     # SET THIS TO False TO SKIP ILD AND GENRE LOADING
     CALCULATE_ILD = False  # Change to False to skip ILD entirely
@@ -367,8 +367,8 @@ if __name__ == "__main__":
         # Add more models: (predictions_path, model_name)
 
         # DPP - books
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_dpp_train_jaccard_recommendations_books.csv","dpp_jaccard"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_dpp_train_cosine_recommendations_books.csv","dpp_cosine"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_dpp_train_jaccard_recommendations.csv","dpp_jaccard"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_dpp_train_cosine_recommendations.csv","dpp_cosine"),
         (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_mf_train_predictions_books.csv", "MF"),
     ]
 
