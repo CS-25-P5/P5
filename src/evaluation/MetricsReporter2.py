@@ -440,11 +440,3 @@ if __name__ == "__main__":
         output_prefix=f"top{K}_comparison",
         calculate_ild=False  # Skip ILD calculation
     )
-    train_df = pd.read_csv('path/to/train.csv')  # Your actual training file
-    test_df = pd.read_csv(GROUND_TRUTH)
-
-    train_items = set(train_df['movieId'].unique())
-    test_items = set(test_df['movieId'].unique())
-
-    leakage = len(test_items & train_items) / len(test_items)
-    print(f"Test items in training set: {leakage:.1%}")
