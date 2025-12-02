@@ -5,11 +5,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
+import time
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
-df = pd.read_csv("src\\backend\\Datasets\\ratings_small.csv")
+df = pd.read_csv("src/backend/Datasets/ratings_small.csv")
 print(max(df['movieId'].values))
 
 class MLP_Model(nn.Module):
@@ -259,26 +260,33 @@ results = {}
 for name, model in models.items():
     params = train_params[name]
     print(f"Training {name}...")
+    start = time.time()
     results[name] = train_model(
         model,
         train_loader,
         valid_loader,
         lr=params["lr"],
         weight_decay=params["wd"],
-        epochs=5,
+        epochs=500,
         patience=5
     )
+    end = time.time()
+    training_time = end - start
 
-    # save training result CSV
-    df = pd.DataFrame(results[name])
-    df.to_csv(f"src\\backend\\results\\MLP\\ml100k\\loss_results\\{name}", index=False, float_format="%.4f")
+
+    # save training result
+    with open(f"src/backend/results/MLP/ml100k/loss_results/{name}.txt", "w") as f:
+        for r in results[name]:
+            row = f"trainLoss: {r['trainLoss']:.4f}, valLoss: {r['valLoss']:.4f}\n"
+            f.write(row)
+        f.write(f"Training time: {training_time:.2f} seconds\n")
 
     # save predictions
-    preds_to_csv(model, x_test, f"src\\backend\\results\\MLP\\ml100k\\predictions\\{name}.csv")
+    preds_to_csv(model, x_test, f"src/backend/results/MLP/ml100k/predictions/{name}.csv")
 
 test_gt = x_test.copy()
 test_gt["userId"]  = user_labels.inverse_transform(test_gt["userId"])
 test_gt["movieId"] = movie_labels.inverse_transform(test_gt["movieId"])
-test_gt.to_csv("src\\backend\\results\\MLP\\ml100k\\predictions\\ground_truth", index=False)
+test_gt.to_csv("src/backend/results/MLP/ml100k/predictions/ground_truth", index=False)
 
 
