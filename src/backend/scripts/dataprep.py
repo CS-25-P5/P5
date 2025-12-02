@@ -2,8 +2,8 @@ import os
 import csv, glob
 import pandas as pandas
 import numpy as np
-
-############################################################################# SETTING UP THE DATABASE AND PREPOCESSING
+'''
+############################################################################# SETTING UP THE DATABASE AND PREPOCESSING - 100 K movies
 #STEP 1: reading the credits and movies file
 
 movie_data = pandas.read_csv("data\\Movies_dataset\\movies_metadata.csv", low_memory = False) #rows in the data are weird, so low_memo tries to read whole file before deiciding on datatype 
@@ -75,17 +75,43 @@ final_dataset = final_dataset[["userId", "movieId", "rating", "tmdbId", "budget"
 #print(final_dataset.head(5).to_string())
 
 #SAVE the dataset
-#final_dataset.to_csv("data\\input_dataset_for_NN.csv", index=False)
+#final_dataset.to_csv("data\\input_data_til_MLP_genres_100K", index=False)
 
 
+'''
 
-###################### Converting million dataset
+############################################################################# SETTING UP THE DATABASE AND PREPOCESSING - 1M movies
 
-input = "data/Movies_dataset1M/ratings.dat"
 
-new_data = pandas.read_csv(input, sep = "::", engine = "python", names = ["userId", "movieId", "rating", "timestamp"], encoding="latin-1",)
-output_file = input.replace(".dat", "1M.csv")
+#Convert dat to csv
+
+'''
+input1 = "data/Movies_dataset_1M/ratings.dat"
+input2 = "data/Movies_dataset_1M/movies.dat"
+input3 = "data/Movies_dataset_1M/users.dat"
+
+new_data = pandas.read_csv(input2, sep = "::", engine = "python", names = ["movieId", "title", "genres"], encoding="latin-1",)
+output_file = input2.replace(".dat", "1M.csv")
 new_data.to_csv(output_file, index = False)
+'''
+
+#Create one file with userId as foreign.k.
+
+movie_rating_1M = pandas.read_csv("data/Movies_dataset_1M/ratings1M.csv")
+movie_metadata_1M = pandas.read_csv("data/Movies_dataset_1M/movies1M.csv")
 
 
-print(f"Converted.")
+wished_movie_data_columns_1M = ["userId", "movieId", "rating"]
+new_movies_1M = movie_rating_1M[wished_movie_data_columns_1M].copy()
+
+
+new_merged_dataset_1M = new_movies_1M.merge(
+    movie_metadata_1M[["movieId", "genres"]],
+    on="movieId",
+    how="left" 
+)
+
+#SAVE the dataset
+new_merged_dataset_1M.to_csv("data/input_data_til_MLP_genres_1M.csv", index=False)
+
+############################################################################# SETTING UP THE DATABASE AND PREPOCESSING - 5M books
