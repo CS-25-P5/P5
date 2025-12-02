@@ -338,7 +338,8 @@ if __name__ == "__main__":
 
     #NN
     #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\ratings_small.csv")
-    GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\GROUNDTRUTH_TEST.csv") # data from diana
+    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\GROUNDTRUTH_TEST.csv") # data from diana
+    GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\MMR_evaluation\movies_ratings_100000_test.csv")
 
     #DPP - movies
     #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\movies_ratings_100000_test_gt.csv")
@@ -371,20 +372,25 @@ if __name__ == "__main__":
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_dpp_train_cosine_recommendations.csv","dpp_cosine"),
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_mf_train_predictions_books.csv", "MF"),
 
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr0001_optimizeradam.csv", "One-32-0001"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr00003_optimizeradam.csv","One-32-00003"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr0001_optimizeradam.csv","One-64-0001"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr00003_optimizeradam.csv","One-64-00003"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr0001_optimizeradam.csv","Two-32-0001"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr00003_optimizeradam.csv","Two-32-00003"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr0001_optimizeradam.csv","Two-64-0001"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr00003_optimizeradam.csv","Two-64-00003"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr0001_optimizeradam.csv","Three-32-0001"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr00003_optimizeradam.csv","Three-32-00003"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr0001_optimizeradam.csv","Three-64-0001"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr00003_optimizeradam.csv","Three-64-00003"),
-    ]
+        #diana data
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr0001_optimizeradam.csv", "One-32-0001"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr00003_optimizeradam.csv","One-32-00003"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr0001_optimizeradam.csv","One-64-0001"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr00003_optimizeradam.csv","One-64-00003"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr0001_optimizeradam.csv","Two-32-0001"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr00003_optimizeradam.csv","Two-32-00003"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr0001_optimizeradam.csv","Two-64-0001"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr00003_optimizeradam.csv","Two-64-00003"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr0001_optimizeradam.csv","Three-32-0001"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr00003_optimizeradam.csv","Three-32-00003"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr0001_optimizeradam.csv","Three-64-0001"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr00003_optimizeradam.csv","Three-64-00003"),
 
+        #MMR nyeste
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\MMR_evaluation\mf_test_100000_predictions.csv", "MMR_MF"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\MMR_evaluation\mmr_test_100000_cosine_predictions", "MMR_Cosine"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\MMR_evaluation\mmr_test_100000_jaccard_predictions.csv", "MMR_Jaccard"),
+    ]
 
     # Conditionally load item features (this is the slow part)
     if CALCULATE_ILD:
