@@ -9,7 +9,7 @@ import numpy as np
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
-df = pd.read_csv("P5\src\\backend\Datasets\MovieLens100kRatings.csv")
+df = pd.read_csv("src\\backend\\Datasets\\ratings_small.csv")
 print(max(df['movieId'].values))
 
 class MLP_Model(nn.Module):
@@ -149,24 +149,48 @@ def evaluate_model(model, test_loader):
     return rmse, mae
 
 # Get the K most relevant movies from a particular user
-def get_topK(model, df, user_id, k):
-
+def get_topK(model, user_id, df, k=1, gt_only=True):          
+ 
     if (user_id not in df['userId'].values):
         print("User ID could not be found")
         return
     
-    all_movies = torch.tensor(df['movieId'].unique(), dtype=torch.long).to(device)
+    # Setting gt_only to true only predicts the items the user has interacted with. Otherwise all movies from the dataset are predicted for the user.
+    if (gt_only):           
+        all_movies = df[df['userId'] == user_id]['movieId'].values
+        all_movies = torch.tensor(all_movies, dtype=torch.long).to(device)
+        k = len(all_movies)
+    else: 
+        all_movies = torch.tensor(df['movieId'].unique(), dtype=torch.long).to(device)
+
     user = torch.tensor(user_id, dtype=torch.long).repeat(all_movies.size(0)).to(device)
 
     model.eval()
     with torch.no_grad():
         predictions = model(user, all_movies).squeeze()
-
+    
     topk_values, topk_indices = torch.topk(predictions, k)
     original_user_id = user_labels.inverse_transform([user_id])[0]
-    topk_movies = movie_labels.inverse_transform(all_movies[topk_indices].cpu().numpy())
+    topk_movies = movie_labels.inverse_transform(all_movies[topk_indices].cpu().numpy().reshape(-1))
+    
+    return original_user_id, topk_movies, topk_values.cpu().numpy().reshape(-1)
 
-    return original_user_id, topk_movies, topk_values.cpu().numpy()
+def preds_to_csv(model, test_set, csv_fn):
+    user_preds = []
+    test_user_ids = test_set['userId'].unique()
+
+    for user in test_user_ids:
+        user_id, movie_ids, movie_scores = get_topK(model, user, x_test)
+
+        for k in range(len(movie_ids)):
+            user_preds.append({
+                "userId": user_id,
+                "movieId": movie_ids[k],
+                "predictedRating": movie_scores[k]
+            })
+
+    topK_predictions = pd.DataFrame(user_preds)
+    topK_predictions.to_csv(csv_fn, index=False)
 
 # Preprocessing
 
@@ -176,8 +200,8 @@ movie_labels = LabelEncoder()
 df.userId = user_labels.fit_transform(df.userId.values)
 df.movieId = movie_labels.fit_transform(df.movieId.values)
 
-x_train, x_test = train_test_split(df, test_size=0.2, random_state=26, stratify=df.rating.values)
-x_train, x_valid = train_test_split(x_train, test_size=0.1, random_state=26, stratify=x_train.rating.values)
+x_train, x_temp = train_test_split(df, test_size=0.2, random_state=42, stratify=df.rating.values)
+x_test, x_valid = train_test_split(x_temp, test_size=0.5, random_state=42, stratify=x_temp.rating.values)
 
 train_dataset = MovielensDataset(x_train)
 valid_dataset = MovielensDataset(x_valid)
@@ -199,41 +223,62 @@ movie_ids  = np.sort(movie_ids)
 n_users = df['userId'].nunique()
 n_movies = df['movieId'].nunique()
 
-mlp = MLP_Model(
-    n_users,
-    n_movies,
-    embed_len=64,
-    MLP_layers=[256, 128, 64, 32],
-    dropout=0.1,
-).to(device)
+models = {
+    "mlp_a1": MLP_Model(n_users, n_movies, embed_len=64, MLP_layers=[64], dropout=0.1).to(device),
+    "mlp_a2": MLP_Model(n_users, n_movies, embed_len=32, MLP_layers=[64], dropout=0.1).to(device),
+    "mlp_a3": MLP_Model(n_users, n_movies, embed_len=64, MLP_layers=[64], dropout=0.1).to(device),
+    "mlp_a4": MLP_Model(n_users, n_movies, embed_len=32, MLP_layers=[64], dropout=0.1).to(device),
+    "mlp_b1": MLP_Model(n_users, n_movies, embed_len=64, MLP_layers=[128, 64], dropout=0.1).to(device),
+    "mlp_b2": MLP_Model(n_users, n_movies, embed_len=32, MLP_layers=[128, 64], dropout=0.1).to(device),
+    "mlp_b3": MLP_Model(n_users, n_movies, embed_len=64, MLP_layers=[128, 64], dropout=0.1).to(device),
+    "mlp_b4": MLP_Model(n_users, n_movies, embed_len=32, MLP_layers=[128, 64], dropout=0.1).to(device),
+    "mlp_c1": MLP_Model(n_users, n_movies, embed_len=64, MLP_layers=[128, 64, 32], dropout=0.1).to(device),
+    "mlp_c2": MLP_Model(n_users, n_movies, embed_len=32, MLP_layers=[128, 64, 32], dropout=0.1).to(device),
+    "mlp_c3": MLP_Model(n_users, n_movies, embed_len=64, MLP_layers=[128, 64, 32], dropout=0.1).to(device),
+    "mlp_c4": MLP_Model(n_users, n_movies, embed_len=32, MLP_layers=[128, 64, 32], dropout=0.1).to(device),   
+}
 
-train_results = []
+train_params = {
+    "mlp_a1": {"lr": 0.001, "wd": 1e-5},
+    "mlp_a2": {"lr": 0.001, "wd": 1e-5},
+    "mlp_a3": {"lr": 0.0003, "wd": 1e-5},
+    "mlp_a4": {"lr": 0.0003, "wd": 1e-5},
+    "mlp_b1": {"lr": 0.001, "wd": 1e-5},
+    "mlp_b2": {"lr": 0.001, "wd": 1e-5},
+    "mlp_b3": {"lr": 0.0003, "wd": 1e-5},
+    "mlp_b4": {"lr": 0.0003, "wd": 1e-5},
+    "mlp_c1": {"lr": 0.001, "wd": 1e-5},
+    "mlp_c2": {"lr": 0.001, "wd": 1e-5},
+    "mlp_c3": {"lr": 0.0003, "wd": 1e-5},
+    "mlp_c4": {"lr": 0.0003, "wd": 1e-5},
+}
 
-train_results = train_model(mlp, train_loader, valid_loader, lr=0.001, weight_decay=1e-5, epochs=100, patience=5)
+results = {}
 
-results_df = pd.DataFrame(train_results)
-results_df.to_csv("mlp_4_64_0.001.csv", index=False, float_format="%.4f")
+# train models
+for name, model in models.items():
+    params = train_params[name]
+    print(f"Training {name}...")
+    results[name] = train_model(
+        model,
+        train_loader,
+        valid_loader,
+        lr=params["lr"],
+        weight_decay=params["wd"],
+        epochs=5,
+        patience=5
+    )
+
+    # save training result CSV
+    df = pd.DataFrame(results[name])
+    df.to_csv(f"src\\backend\\results\\MLP\\ml100k\\loss_results\\{name}", index=False, float_format="%.4f")
+
+    # save predictions
+    preds_to_csv(model, x_test, f"src\\backend\\results\\MLP\\ml100k\\predictions\\{name}.csv")
+
+test_gt = x_test.copy()
+test_gt["userId"]  = user_labels.inverse_transform(test_gt["userId"])
+test_gt["movieId"] = movie_labels.inverse_transform(test_gt["movieId"])
+test_gt.to_csv("src\\backend\\results\\MLP\\ml100k\\predictions\\ground_truth", index=False)
 
 
-mlp_rmse, mlp_mae = evaluate_model(mlp, test_loader)
-
-
-print(f"\nMLP Results:\nRMSE = {mlp_rmse:.4f}, MAE = {mlp_mae:.4f}")
-
-
-# Create CSV file of each user and their predicted top K most relevant movies
-topk = n_movies
-
-user_preds = []
-for i in range(n_users):
-    user_id, movie_ids, movie_scores = get_topK(mlp, df, i, topk)
-
-    for k in range(len(movie_ids)):
-        user_preds.append({
-            "userId": user_id,
-            "movieId": movie_ids[k],
-            "predictedRating": movie_scores[k]
-        })
-
-topK_predictions = pd.DataFrame(user_preds)
-topK_predictions.to_csv("mlp_predictions.csv", index=False)
