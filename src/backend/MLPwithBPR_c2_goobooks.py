@@ -13,17 +13,21 @@ import numpy as np
 import random
 
 
-'''BPR is suited for datasets with implicit feedback. Currently we have a Movielens database with ratings from 0.5 - 5 (explicit feedback), and we will use a threshold for defining whether an item is positive or negative (rating above 3 is positive).'''
+'''BPR is suited for datasets with implicit feedback. Currently we have a Movielens database with ratings 
+from 1 - 5 (explicit feedback), and we will use a threshold for defining whether an item is 
+positive or negative (rating above 3 is positive).'''
 
-#STEP 1 - Redo the database - I need movies and ratings so that I can create triplets. 
+#STEP 1 - Redo the database - I need books and ratings so that I can create triplets. 
 
-dataset = pandas.read_csv("data/Movies_dataset_1M/ratings1M.csv") 
-dataset = dataset[["userId", "movieId", "rating"]] 
+dataset = pandas.read_csv("data/Goodbooks_dataset_5M/ratings.csv") 
+
+dataset = dataset[["user_id", "book_id", "rating"]] 
 
 #STEP 1.1. : Split into train 80%, validation 10%, test 10% 
 
 train_df, temporary_df = train_test_split(dataset, test_size=0.2, random_state=42) 
 validation_df, test_df = train_test_split(temporary_df, test_size=0.5, random_state=42)
+
 
 #STEP 1.2 : Split dataset into likes and dislakes (ratings of 3 and below are negative). Do for train, val, test df
 
@@ -36,41 +40,42 @@ negative_validation_df = validation_df[validation_df["rating"] <= 3].copy()
 positive_test_df = test_df[test_df["rating"] > 3].copy() #Test
 negative_test_df = test_df[test_df["rating"] <= 3].copy()
 
-#STEP 2 - Mapping user and movie to 0 .. n-1. Nn.Embeddings is a lookuptable that needs indices. # Current dataset for userId goes 1, 55, 105, 255, 6023.. We turn this into the amount of users # Pytorch is not working with raw IDs, so we map each userId and movieId to a common new index 
+#STEP 2 - Mapping user and movie to 0 .. n-1. Nn.Embeddings is a lookuptable that needs indices. # Current dataset for user_id goes 1, 55, 105, 255, 6023.. We turn this into the amount of users # Pytorch is not working with raw IDs, so we map each user_id and book_id to a common new index 
 
-unique_users = dataset["userId"].unique() 
-unique_movies = dataset["movieId"].unique() 
+unique_users = dataset["user_id"].unique() 
+unique_books = dataset["book_id"].unique() 
 user_to_index = {u: i for i,u in enumerate(unique_users)} 
-movie_to_index = {m:i for i,m in enumerate(unique_movies)} 
+book_to_index = {m:i for i,m in enumerate(unique_books)} 
 
 numberofusers = len(user_to_index) 
-numberofitems = len(movie_to_index)
+numberofitems = len(book_to_index)
 
 
-#STEP 3 :Add the indicies for both positive and negatives in all 3 datasets, so that all use small numbers instead of userId=545 likes movieId=8000 => userwithindex=0 likes movie with index 10. 
+#STEP 3 :Add the indicies for both positive and negatives in all 3 datasets, 
+# so that all use small numbers instead of user_id=545 likes bookId=8000 => userwithindex=0 likes movie with index 10. 
 
 
-positive_training_df["user_index"] = positive_training_df["userId"].map(user_to_index) #For train 
-positive_training_df["positem_index"] = positive_training_df["movieId"].map(movie_to_index) 
-negative_training_df["user_index"] = negative_training_df["userId"].map(user_to_index) 
-negative_training_df["negitem_index"] = negative_training_df["movieId"].map(movie_to_index)
+positive_training_df["user_index"] = positive_training_df["user_id"].map(user_to_index) #For train 
+positive_training_df["positem_index"] = positive_training_df["book_id"].map(book_to_index) 
+negative_training_df["user_index"] = negative_training_df["user_id"].map(user_to_index) 
+negative_training_df["negitem_index"] = negative_training_df["book_id"].map(book_to_index)
 
 
-positive_validation_df["user_index"] = positive_validation_df["userId"].map(user_to_index) #For validation
-positive_validation_df["positem_index"] = positive_validation_df["movieId"].map(movie_to_index) 
-negative_validation_df["user_index"] = negative_validation_df["userId"].map(user_to_index) 
-negative_validation_df["negitem_index"] = negative_validation_df["movieId"].map(movie_to_index) 
+positive_validation_df["user_index"] = positive_validation_df["user_id"].map(user_to_index) #For validation
+positive_validation_df["positem_index"] = positive_validation_df["book_id"].map(book_to_index) 
+negative_validation_df["user_index"] = negative_validation_df["user_id"].map(user_to_index) 
+negative_validation_df["negitem_index"] = negative_validation_df["book_id"].map(book_to_index) 
 
-positive_test_df["user_index"] = positive_test_df["userId"].map(user_to_index) #For test
-positive_test_df["positem_index"] = positive_test_df["movieId"].map(movie_to_index)
-negative_test_df["user_index"] = negative_test_df["userId"].map(user_to_index)
-negative_test_df["negitem_index"] = negative_test_df["movieId"].map(movie_to_index)
+positive_test_df["user_index"] = positive_test_df["user_id"].map(user_to_index) #For test
+positive_test_df["positem_index"] = positive_test_df["book_id"].map(book_to_index)
+negative_test_df["user_index"] = negative_test_df["user_id"].map(user_to_index)
+negative_test_df["negitem_index"] = negative_test_df["book_id"].map(book_to_index)
 
 
 # STEP 4 - Build the model triplets : 
-# #We group all the positive items #rows by user, and for each user we collect the set of movies they liked
-#We will get training_user_positiveitem[userindex] = {movie1, movie2, movie 3 ... } 
-#We will get training_user_negativeitem[userindex] = [movie4, movie5, movie 10 ... ] 
+# #We group all the positive items #rows by user, and for each user we collect the set of books they liked
+#We will get training_user_positiveitem[userindex] = {book1, book2, book3 ... } 
+#We will get training_user_negativeitem[userindex] = [book4, book5, book10 ... ] 
 
 training_user_positive_item = ( 
     positive_training_df.groupby("user_index")["positem_index"].apply(set).to_dict()) 
@@ -88,9 +93,6 @@ test_user_positive_item = (
 test_user_negative_item = (
     negative_test_df.groupby("user_index")["negitem_index"].apply(list).to_dict()
 )
-
-
-
 
 
 
@@ -112,13 +114,13 @@ class BPRdataset(Dataset):
         #How many positive samples we have (for all users with all pos items)
         user, positem = self.user_positive_pair[index] 
         
-        #Does the given user has negative movies? so user1 : [movie2, movie15] (we get a list), user15 : [] (we get none)
+        #Does the given user has negative books? so user1 : [book1, book2] (we get a list), user15 : [] (we get none)
         negative_candidate = self.user_neg_items.get(user) 
         
-        #Choose a random sample from the <=3 rated movies from the list and if we dont have explicit negatives for a given user (user rated all 3 < , then pick a random movie and make sure its not in the positives)
+        #Choose a random sample from the <=3 rated books from the list and if we dont have explicit negatives for a given user (user rated all 3 < , then pick a random movie and make sure its not in the positives)
         if negative_candidate: 
             negitem = random.choice(list(negative_candidate))
-        else: #If user has empty list for non liked movies
+        else: #If user has empty list for non liked books
             while True:
                 negitem = random.randint(0, self.number_of_items - 1) #Pick a random movie from whole movie collection
                 if negitem not in self.user_pos_items[user]: #Make sure its not in users_liked set, adn stop if candidate! 
@@ -166,7 +168,7 @@ test_bpr_dataloader = DataLoader(test_bpr_dataset, batch_size = 512, shuffle = F
 
 #STEP 6 - NN model
 class NNforBPR(nn.Module):
-    def __init__(self, number_users, number_items, emb_dim = 32, hidden_layers = None, output = 1):
+    def __init__(self, number_users, number_items, emb_dim = 64, hidden_layers = None, output = 1):
         super(NNforBPR, self).__init__() 
 
         if hidden_layers is None: #if NN is linear and no hidden layers
@@ -258,8 +260,8 @@ class EarlyStop:
 
 
 #Instantiating the network with model, optimizer with lr and wd, device
-model = NNforBPR(number_users=numberofusers, number_items=numberofitems, emb_dim = 32, hidden_layers=[128, 64, 32])
-optimizer = torch.optim.Adam(model.parameters(), lr = 0.0003, weight_decay=1e-5)
+model = NNforBPR(number_users=numberofusers, number_items=numberofitems, emb_dim=32, hidden_layers=[128, 64, 32])
+optimizer = torch.optim.Adam(model.parameters(), lr = 0.001, weight_decay=1e-5)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -286,21 +288,21 @@ def evaluate_loss(model, dataloader, device):
 
 
 def predict_ratings(model, dataset, device):
-    "We will comåute the scores for user and movie pairs in train, val, test dataframe"
+    "We will comåute the scores for user and book pairs in train, val, test dataframe"
     model.eval() #stop training, use the fixed wieghts
     with torch.no_grad():
         #map userID to index again
-        user_id = dataset["userId"].map(user_to_index).values
-        movie_id = dataset["movieId"].map(movie_to_index).values
+        user_id = dataset["user_id"].map(user_to_index).values
+        book_id = dataset["book_id"].map(book_to_index).values
 
         #Make rows from columns for user and corresponding movies
         user_tensor = torch.tensor(user_id, dtype=torch.long).to(device) 
-        movie_tensor = torch.tensor(movie_id, dtype=torch.long).to(device)
+        book_tensor = torch.tensor(book_id, dtype=torch.long).to(device)
 
         user_em = model.user_emb(user_tensor) #Creating a 64 wentry row for each entry in the user_tensor
-        movie_em = model.item_emb(movie_tensor)
+        book_em = model.item_emb(book_tensor)
 
-        interaction = user_em * movie_em 
+        interaction = user_em * book_em 
 
         scores = model.perceptron(interaction).squeeze(-1).cpu().numpy() 
         #Take array by array and multiple userid vector with omvie, give one number for that calc.
@@ -391,10 +393,10 @@ def validate_bpr():
     #Make a csv file
     prediction_val_dataset = validation_df.copy()
     prediction_val_dataset["val_predicted_rating"] = predicted_score
-    prediction_val_dataset.to_csv("data/Predictions_val_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_optimizeradam1M.csv", index = False)
+    prediction_val_dataset.to_csv("data/Predictions_val_5M_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_optimizeradam_5M.csv", index = False)
     
     #Add 2-3 lines about time and GPU usage:
-    with open("data/Predictions_val_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_optimizeradam1M.csv", "a") as file:
+    with open("data/Predictions_val_5M_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_optimizeradam_5M.csv", "a") as file:
         file.write("\n")
         file.write(f"# Time spent on training and validation :  {elapsed_sec:.3f} seconds\n")
         file.write(f"# Average validation loss per batch for one epoch : {average_val_loss_per_batch:.4f}\n")
@@ -402,6 +404,7 @@ def validate_bpr():
             file.write(f"# Maximum GPU allocated for the entire program : {max_memory:.2f} MB")
         else:
             file.write("# GPU not available for the program")
+
 
 validate_bpr()
 
@@ -414,11 +417,12 @@ def test_bpr(model, testdataloader, device):
     #Tildel prediction til test datasæt
     prediction_test_dataset = test_df.copy()
     prediction_test_dataset["test_predicted_rating"] = test_predict_score
-    prediction_test_dataset.to_csv("data/Predictions_test_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_optimizeradam1M.csv", index = False)
+    prediction_test_dataset.to_csv("data/Predictions_test_5M_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_optimizeradam_5M.csv", index = False)
 
-    with open("data/Predictions_test_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_optimizeradam1M.csv", "a") as file:
+    with open("data/Predictions_test_5M_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_optimizeradam_5M.csv", "a") as file:
         file.write("\n")
         file.write(f"# Average testing loss per batch for one epoch: {average_test_loss_per_batch:.4f}\n")
 
 #STEP 13 : TEST IT 
 test_bpr(model, test_bpr_dataloader, device)
+

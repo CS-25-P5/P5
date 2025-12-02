@@ -1,3 +1,4 @@
+
 import time
 import os
 import torch
@@ -258,8 +259,8 @@ class EarlyStop:
 
 
 #Instantiating the network with model, optimizer with lr and wd, device
-model = NNforBPR(number_users=numberofusers, number_items=numberofitems, emb_dim=32, hidden_layers=[64])
-optimizer = torch.optim.Adam(model.parameters(), lr = 0.001, weight_decay=1e-5)
+model = NNforBPR(number_users=numberofusers, number_items=numberofitems, emb_dim = 32, hidden_layers=[64])
+optimizer = torch.optim.Adam(model.parameters(), lr = 0.0003, weight_decay=1e-5)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -391,10 +392,10 @@ def validate_bpr():
     #Make a csv file
     prediction_val_dataset = validation_df.copy()
     prediction_val_dataset["val_predicted_rating"] = predicted_score
-    prediction_val_dataset.to_csv("data/Predictions_val_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_optimizeradam1M.csv", index = False)
+    prediction_val_dataset.to_csv("data/Predictions_val_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_optimizeradam1M.csv", index = False)
     
     #Add 2-3 lines about time and GPU usage:
-    with open("data/Predictions_val_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_optimizeradam1M.csv", "a") as file:
+    with open("data/Predictions_val_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_optimizeradam1M.csv", "a") as file:
         file.write("\n")
         file.write(f"# Time spent on training and validation :  {elapsed_sec:.3f} seconds\n")
         file.write(f"# Average validation loss per batch for one epoch : {average_val_loss_per_batch:.4f}\n")
@@ -414,9 +415,9 @@ def test_bpr(model, testdataloader, device):
     #Tildel prediction til test datasæt
     prediction_test_dataset = test_df.copy()
     prediction_test_dataset["test_predicted_rating"] = test_predict_score
-    prediction_test_dataset.to_csv("data/Predictions_test_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_optimizeradam1M.csv", index = False)
+    prediction_test_dataset.to_csv("data/Predictions_test_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_optimizeradam1M.csv", index = False)
 
-    with open("data/Predictions_test_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_optimizeradam1M.csv", "a") as file:
+    with open("data/Predictions_test_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_optimizeradam1M.csv", "a") as file:
         file.write("\n")
         file.write(f"# Average testing loss per batch for one epoch: {average_test_loss_per_batch:.4f}\n")
 

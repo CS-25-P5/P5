@@ -19,15 +19,17 @@ source venv/bin/activate
 
 
 
-python -u src/backend/MLPwithBPR_a1.py
-python -u src/backend/MLPwithBPR_a2.py
-python -u src/backend/MLPwithBPR_a3.py
-python -u src/backend/MLPwithBPR_a4.py
-python -u src/backend/MLPwithBPR_b1.py
-python -u src/backend/MLPwithBPR_b2.py
-python -u src/backend/MLPwithBPR_b3.py
-python -u src/backend/MLPwithBPR_b4.py
-python -u src/backend/MLPwithBPR_c1.py
-python -u src/backend/MLPwithBPR_c2.py
-python -u src/backend/MLPwithBPR_c3.py
-python -u src/backend/MLPwithBPR_c4.py
+python -u src/backend/MLPwithBPR_a1_goobooks.py
+python -u src/backend/MLPwithBPR_a2_goobooks.py
+python -u src/backend/MLPwithBPR_a3_goobooks.py
+python -u src/backend/MLPwithBPR_a4_goobooks.py
+python -u src/backend/MLPwithBPR_b1_goobooks.py
+python -u src/backend/MLPwithBPR_b2_goobooks.py
+python -u src/backend/MLPwithBPR_b3_goobooks.py
+python -u src/backend/MLPwithBPR_b4_goobooks.py
+python -u src/backend/MLPwithBPR_c1_goobooks.py
+python -u src/backend/MLPwithBPR_c2_goobooks.py
+python -u src/backend/MLPwithBPR_c3_goobooks.py
+python -u src/backend/MLPwithBPR_c4_goobooks.py
+
+

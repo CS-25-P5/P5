@@ -13,7 +13,9 @@ import numpy as np
 import random
 
 
-'''BPR is suited for datasets with implicit feedback. Currently we have a Movielens database with ratings from 0.5 - 5 (explicit feedback), and we will use a threshold for defining whether an item is positive or negative (rating above 3 is positive).'''
+'''BPR is suited for datasets with implicit feedback. Currently we have a Movielens database with ratings 
+from 1 - 5 (explicit feedback), and we will use a threshold for defining whether an item is 
+positive or negative (rating above 3 is positive).'''
 
 #STEP 1 - Redo the database - I need movies and ratings so that I can create triplets. 
 
