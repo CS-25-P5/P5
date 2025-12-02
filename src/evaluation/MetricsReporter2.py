@@ -215,7 +215,6 @@ def display_metrics_table(metrics_dict, source_name="Model", k=5):
 
     return df
 
-
 def save_metrics_table_as_file(metrics_df, filename="metrics_results"):
     metrics_df.to_csv(f"{filename}.csv")
     metrics_df.to_excel(f"{filename}.xlsx")
@@ -325,8 +324,8 @@ def load_item_features(movies_path):
 
 if __name__ == "__main__":
     # Configuration
-    THRESHOLD = 3.5  # for the metrics that need to view things in a binary fashion
-    K = 10  # recommendations to look at
+    THRESHOLD = 4  # for the metrics that need to view things in a binary fashion
+    K = 5  # recommendations to look at
 
     # SET THIS TO False TO SKIP ILD AND GENRE LOADING
     CALCULATE_ILD = False  # Change to False to skip ILD entirely
@@ -339,12 +338,13 @@ if __name__ == "__main__":
 
     #NN
     #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\ratings_small.csv")
+    GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\GROUNDTRUTH_TEST.csv") # data from diana
 
     #DPP - movies
     #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\movies_ratings_100000_test_gt.csv")
 
     #DPP - books
-    GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\books_ratings_100000_test_gt.csv")
+    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\books_ratings_100000_test_gt.csv")
 
     # Models to compare
     MODELS = [
@@ -367,10 +367,24 @@ if __name__ == "__main__":
         # Add more models: (predictions_path, model_name)
 
         # DPP - books
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_dpp_train_jaccard_recommendations.csv","dpp_jaccard"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_dpp_train_cosine_recommendations.csv","dpp_cosine"),
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_mf_train_predictions_books.csv", "MF"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_dpp_train_jaccard_recommendations.csv","dpp_jaccard"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_dpp_train_cosine_recommendations.csv","dpp_cosine"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_mf_train_predictions_books.csv", "MF"),
+
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr0001_optimizeradam.csv", "One-32-0001"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr00003_optimizeradam.csv","One-32-00003"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr0001_optimizeradam.csv","One-64-0001"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr00003_optimizeradam.csv","One-64-00003"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr0001_optimizeradam.csv","Two-32-0001"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr00003_optimizeradam.csv","Two-32-00003"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr0001_optimizeradam.csv","Two-64-0001"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr00003_optimizeradam.csv","Two-64-00003"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr0001_optimizeradam.csv","Three-32-0001"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr00003_optimizeradam.csv","Three-32-00003"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr0001_optimizeradam.csv","Three-64-0001"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr00003_optimizeradam.csv","Three-64-00003"),
     ]
+
 
     # Conditionally load item features (this is the slow part)
     if CALCULATE_ILD:
@@ -381,9 +395,42 @@ if __name__ == "__main__":
     else:
         print("Skipping item feature loading (ILD disabled)")
         ITEM_FEATURES = None
-
     # Run comparison
     # Run comparison without ILD
+
+    # 🔍 DEBUG: Check ground truth distribution
+    gt_check = pd.read_csv(GROUND_TRUTH)
+    print(f"\n{'=' * 60}")
+    print("GROUND TRUTH DIAGNOSTIC")
+    print(f"{'=' * 60}")
+    print(f"Total rows: {len(gt_check)}")
+    print(f"Unique users: {gt_check['userId'].nunique()}")
+    print(f"Unique items: {gt_check['movieId'].nunique()}")
+    print(f"Rating distribution:\n{gt_check['rating'].value_counts().sort_index()}")
+    print(f"% ratings ≥ {THRESHOLD}: {(gt_check['rating'] >= THRESHOLD).mean():.1%}")
+
+    # If this is >70%, your threshold is too low
+    if (gt_check['rating'] >= THRESHOLD).mean() > 0.7:
+        print("⚠️ WARNING: More than 70% of ratings are above threshold!")
+        print("  This makes HitRate artificially high. Try threshold=4.0 or 4.5")
+
+    # 🔍 DEBUG: Check one prediction file raw
+    sample_pred = pd.read_csv(MODELS[0][0])
+    print(f"\n{'=' * 60}")
+    print("RAW PREDICTIONS DIAGNOSTIC")
+    print(f"{'=' * 60}")
+    print(f"Columns: {list(sample_pred.columns)}")
+    print(f"First 5 rows:\n{sample_pred.head()}")
+
+    # Check if predictions are sorted by rating (true) vs test_predicted_rating (predicted)
+    if 'test_predicted_rating' in sample_pred.columns:
+        correlation = sample_pred['rating'].corr(sample_pred['test_predicted_rating'])
+        print(f"Correlation between true rating and predicted rating: {correlation:.3f}")
+        if correlation > 0.95:
+            print("✓ Predictions are well-correlated with true ratings")
+        elif correlation < 0.3:
+            print("⚠️ WARNING: Low correlation - predictions may be random")
+
     results = run_model_comparison(
         ground_truth_path=GROUND_TRUTH,
         sources=MODELS,
@@ -393,3 +440,11 @@ if __name__ == "__main__":
         output_prefix=f"top{K}_comparison",
         calculate_ild=False  # Skip ILD calculation
     )
+    train_df = pd.read_csv('path/to/train.csv')  # Your actual training file
+    test_df = pd.read_csv(GROUND_TRUTH)
+
+    train_items = set(train_df['movieId'].unique())
+    test_items = set(test_df['movieId'].unique())
+
+    leakage = len(test_items & train_items) / len(test_items)
+    print(f"Test items in training set: {leakage:.1%}")
