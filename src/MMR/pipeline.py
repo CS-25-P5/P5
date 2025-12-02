@@ -462,52 +462,52 @@ if __name__ == "__main__":
 
 
     #load data
-    dataset_movie = "movies"
-    folder_movie = "MovieLens"
+    # dataset_movie = "movies"
+    # folder_movie = "MovieLens"
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    ratings_train_file= os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_train.csv")
-    ratings_val_file = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_val.csv")
-    ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
-    item_file_path = os.path.join(base_dir, f"../datasets/{folder_movie}", f"{dataset_movie}.csv")
+    # ratings_train_file= os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_train.csv")
+    # ratings_val_file = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_val.csv")
+    # ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
+    # item_file_path = os.path.join(base_dir, f"../datasets/{folder_movie}", f"{dataset_movie}.csv")
 
-    output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_movie}")
+    # output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_movie}")
 
-    run_movie_id = generate_run_id()
+    # run_movie_id = generate_run_id()
 
-    best_params, best_lambda_cosine, best_lambda_jaccard = run_train_pipeline(
-        run_id = run_movie_id,
-        ratings_train_path = ratings_train_file,
-        ratings_val_path= ratings_val_file,
-        item_path = item_file_path,
-        output_dir = output_dir,
-        top_n = TOP_N,
-        top_k = TOP_K,
-        chunksize= CHUNK_SIZE,
-        n_epochs= N_EPOCHS,
-        relevance_weight=RELEVANCE_WEIGHT,
-        diversity_weight=DIVERSITY_WEIGHT,
-        dataset=dataset_movie,
-        random_state=RANDOM_STATE)
+    # best_params, best_lambda_cosine, best_lambda_jaccard = run_train_pipeline(
+    #     run_id = run_movie_id,
+    #     ratings_train_path = ratings_train_file,
+    #     ratings_val_path= ratings_val_file,
+    #     item_path = item_file_path,
+    #     output_dir = output_dir,
+    #     top_n = TOP_N,
+    #     top_k = TOP_K,
+    #     chunksize= CHUNK_SIZE,
+    #     n_epochs= N_EPOCHS,
+    #     relevance_weight=RELEVANCE_WEIGHT,
+    #     diversity_weight=DIVERSITY_WEIGHT,
+    #     dataset=dataset_movie,
+    #     random_state=RANDOM_STATE)
     
 
     # Run MF pipeline for test dataset
-    run_test_pipeline(
-        run_id = run_movie_id,
-        ratings_path=ratings_test_path,
-        item_path=item_file_path,
-        output_dir=output_dir,
-        dataset=dataset_movie, 
-        top_n=TOP_N,
-        top_k=TOP_K, 
-        chunksize=CHUNK_SIZE,
-        k=best_params["k"],
-        alpha=best_params["alpha"],
-        lambda_=best_params["lambda_"],
-        n_epochs=N_EPOCHS,
-        random_state = RANDOM_STATE,
-        best_lambda_cosine = best_lambda_cosine,
-        best_lambda_jaccard = best_lambda_jaccard
-    )
+    # run_test_pipeline(
+    #     run_id = run_movie_id,
+    #     ratings_path=ratings_test_path,
+    #     item_path=item_file_path,
+    #     output_dir=output_dir,
+    #     dataset=dataset_movie, 
+    #     top_n=TOP_N,
+    #     top_k=TOP_K, 
+    #     chunksize=CHUNK_SIZE,
+    #     k=best_params["k"],
+    #     alpha=best_params["alpha"],
+    #     lambda_=best_params["lambda_"],
+    #     n_epochs=N_EPOCHS,
+    #     random_state = RANDOM_STATE,
+    #     best_lambda_cosine = best_lambda_cosine,
+    #     best_lambda_jaccard = best_lambda_jaccard
+    # )
 
 
 
