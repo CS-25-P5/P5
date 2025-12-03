@@ -182,7 +182,7 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, movie_titles, genr
 
 def save_DPP(dpp_recommendations_list, base_dir, similarity_type = "cosine"):
     dpp_df = pd.DataFrame(dpp_recommendations_list)
-    output_dir = os.path.join(base_dir, "../datasets/dpp_data")
+    output_dir = base_dir
     os.makedirs(output_dir, exist_ok=True)
     output_file_path = os.path.join(output_dir, f"dpp_train_{similarity_type}_recommendations.csv")
     dpp_df.to_csv(output_file_path, index=False)
