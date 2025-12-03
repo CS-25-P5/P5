@@ -108,6 +108,7 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path,nrows_items=None):
     if not os.path.exists(item_file_path):
         raise FileNotFoundError(f"Item file not found: {item_file_path}")
     
+
     # Load the files
     ratings = pd.read_csv(ratings_file_path)
     items = pd.read_csv(item_file_path, nrows=nrows_items)
@@ -132,9 +133,13 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path,nrows_items=None):
 
     #build genre map (title to set of genres )
     genre_map = {}
+    title_to_id = {}
     for _,row in items.iterrows():
         genres = row['genres']
         title = row['title']
+        item_id = row['itemId']
+
+        title_to_id[title] = item_id
 
         if isinstance(genres, str):
             genre_set = set(genres.split('|'))
@@ -149,7 +154,7 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path,nrows_items=None):
         all_genres.update(genres)
     all_genres = sorted(all_genres)
 
-    return user_item_matrix, genre_map, all_genres
+    return user_item_matrix, genre_map, all_genres,title_to_id
 
 
 def filter_empty_users_data(R, item_titles=None):
@@ -184,18 +189,19 @@ def align_train_val_matrices(train_df, val_df):
 
 
 
-def save_mf_predictions(all_recommendations, genre_map, output_path="mf_predictions.csv"):
+def save_mf_predictions(all_recommendations, genre_map, title_to_id, output_path="mf_predictions.csv"):
     # ensure parent directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     rows = []
     for user_id, recs in all_recommendations.items():
-        for item, score in recs:
+        for title, score in recs:
             rows.append({
                 "userId": user_id, 
-                "title": item, 
+                "itemId": title_to_id.get(title,""),
+                "title": title, 
                 "mf_score":score,
-                "genres": ",".join(genre_map.get(item,[])) if genre_map else ""
+                "genres": ",".join(genre_map.get(title,[])) if genre_map else ""
                 })
 
     df = pd.DataFrame(rows)
@@ -203,7 +209,7 @@ def save_mf_predictions(all_recommendations, genre_map, output_path="mf_predicti
     print(f"MF predictions saved: {output_path}")
 
 
-def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filtered_user_ids, filtered_item_titles, top_n=10, save_path=None ):
+def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filtered_user_ids, filtered_item_titles,  title_to_id, top_n=10, save_path=None ):
         # store all recomendations for all users
     all_recomenndations = {}
 
@@ -239,7 +245,7 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
     #         print(f"{rank}. {movie} — Predicted rating: {score:.2f} | Genres {genres}")
     # print("--------------------------------------------------------------------")
 
-    save_mf_predictions(all_recomenndations, genre_map, save_path)
+    save_mf_predictions(all_recomenndations, genre_map, title_to_id, save_path)
     
 
 
@@ -291,7 +297,3 @@ def train_mf_with_best_params(R_filtered, best_params, n_epochs=50,  random_stat
     predicted_ratings = mf.full_prediction()
 
     return mf, predicted_ratings, train_rmse, random_state
-
-
-
-

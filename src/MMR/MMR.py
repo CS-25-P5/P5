@@ -113,14 +113,14 @@ def run_mmr(mmr_model, R_filtered, top_k):
     
     return all_recs
 
-def process_save_mmr(all_recs, item_user_rating, item_titles, predicted_ratings, genre_map, top_n, output_file_path):
+def process_save_mmr(all_recs, item_user_rating, item_titles, predicted_ratings, genre_map,title_to_id, top_n, output_file_path):
     results = []
     for user_idx, rec_indices in enumerate(all_recs):
         user_id = item_user_rating.index[user_idx]
         process_mmr(
             user_id, user_idx, rec_indices, 
             item_titles, genre_map, predicted_ratings, 
-            results, top_n)
+            results, title_to_id, top_n)
 
     # save result as csv
     save_mmr_results(results, output_file_path)
@@ -129,20 +129,21 @@ def process_save_mmr(all_recs, item_user_rating, item_titles, predicted_ratings,
 
 
 
-def process_mmr(user_id, user_idx, mmr_indices, item_names, genre_map, predicted_ratings, mmr_recommendations_list, top_n=10):
+def process_mmr(user_id, user_idx, mmr_indices, item_names, genre_map, predicted_ratings, mmr_recommendations_list, title_to_id, top_n=10):
 
 
     for rank, idx in enumerate(mmr_indices[:top_n], start = 1):
-        item = item_names[idx]
+        title = item_names[idx]
         # handle missing genres
-        item_genres = genre_map.get(item, set())
+        item_genres = genre_map.get(title, set())
         genres = ",".join(item_genres)
 
 
         mmr_recommendations_list.append({
             'userId': user_id,
             'rank': rank,
-            'title': item,
+            'itemId': title_to_id.get(title, "") ,
+            'title': title,
             'predictedRating': predicted_ratings[user_idx, idx],
             'genres':genres
 
@@ -307,7 +308,5 @@ def mmr_builder_factory(
             
             )
     return builder
-   
+
         
-
-
