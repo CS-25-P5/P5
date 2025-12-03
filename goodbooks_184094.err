@@ -1,0 +1,7 @@
+/var/spool/slurm/job184094/slurm_script: line 18: ~P5/venv/bin/activate: No such file or directory
+Traceback (most recent call last):
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_train.py", line 277, in <module>
+    run_book_id = generate_run_id()
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_train.py", line 26, in generate_run_id
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+AttributeError: type object 'datetime.datetime' has no attribute 'datetime'
