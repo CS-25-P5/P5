@@ -6,12 +6,13 @@ from sklearn.preprocessing import LabelEncoder
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
 import time
+from itertools import product
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
-df = pd.read_csv("src/backend/Datasets/ratings1M.csv")
-print(max(df['movieId'].values))
+df = pd.read_csv("src/backend/Datasets/goodbooks_100k_.csv")
+print(max(df['itemId'].values))
 
 class MLP_Model(nn.Module):
     def __init__(self, n_users, n_movies, embed_len=64, MLP_layers=[128, 64, 32, 16], dropout=0.2, out_features=1):
@@ -42,7 +43,7 @@ class MLP_Model(nn.Module):
 class MovielensDataset(Dataset):
     def __init__(self, df):
         self.users = torch.tensor(df['userId'].values, dtype=torch.long)
-        self.movies = torch.tensor(df['movieId'].values, dtype=torch.long)
+        self.movies = torch.tensor(df['itemId'].values, dtype=torch.long)
         self.ratings = torch.tensor(df['rating'].values, dtype=torch.float)
   
     def __len__(self):
@@ -158,11 +159,11 @@ def get_topK(model, user_id, df, k=1, gt_only=True):
     
     # Setting gt_only to true only predicts the items the user has interacted with. Otherwise all movies from the dataset are predicted for the user.
     if (gt_only):           
-        all_movies = df[df['userId'] == user_id]['movieId'].values
+        all_movies = df[df['userId'] == user_id]['itemId'].values
         all_movies = torch.tensor(all_movies, dtype=torch.long).to(device)
         k = len(all_movies)
     else: 
-        all_movies = torch.tensor(df['movieId'].unique(), dtype=torch.long).to(device)
+        all_movies = torch.tensor(df['itemId'].unique(), dtype=torch.long).to(device)
 
     user = torch.tensor(user_id, dtype=torch.long).repeat(all_movies.size(0)).to(device)
 
@@ -176,6 +177,7 @@ def get_topK(model, user_id, df, k=1, gt_only=True):
     
     return original_user_id, topk_movies, topk_values.cpu().numpy().reshape(-1)
 
+# Saves all predictions of the model to a csv file
 def preds_to_csv(model, test_set, csv_fn):
     user_preds = []
     test_user_ids = test_set['userId'].unique()
@@ -186,12 +188,67 @@ def preds_to_csv(model, test_set, csv_fn):
         for k in range(len(movie_ids)):
             user_preds.append({
                 "userId": user_id,
-                "movieId": movie_ids[k],
+                "itemId": movie_ids[k],
                 "predictedRating": movie_scores[k]
             })
 
     topK_predictions = pd.DataFrame(user_preds)
     topK_predictions.to_csv(csv_fn, index=False)
+
+def grid_search(h_params, file_paths, epochs, patience):
+    
+    cartesian_prod = product(*h_params.values())
+
+    # Combinations will be stored in a list of dictionaries
+    all_combs = []
+
+    for values in cartesian_prod:
+        pairs = zip(h_params.keys(), values)
+        all_combs.append(dict(pairs))
+
+    all_combs = sorted(all_combs, key=lambda x: x['batch_size'])
+
+    # Creates dataloaders for all batch sizes specified in h_params
+    train_loaders = {bs: DataLoader(dataset=train_dataset, batch_size=bs, shuffle=True) for bs in h_params["batch_size"]}
+    valid_loaders = {bs: DataLoader(dataset=valid_dataset, batch_size=bs, shuffle=False) for bs in h_params["batch_size"]}
+    test_loaders = {bs: DataLoader(dataset=test_dataset, batch_size=bs, shuffle=False) for bs in h_params["batch_size"]}
+    print(all_combs)
+    print(len(all_combs))
+
+    # Trains models with all combinations of hyperparameters & saves train/val loss & prediction results to two separate files
+    for params in all_combs:
+
+        print(f"Training model with hyperparameters: {params}")
+        
+        train_loader = train_loaders[params["batch_size"]]
+        valid_loader = valid_loaders[params["batch_size"]]
+        test_loader = test_loaders[params["batch_size"]]
+        
+        model = MLP_Model(n_users, n_movies, embed_len=params["embed_len"], MLP_layers=params["layers"], dropout=0.1).to(device)
+        start = time.time()
+        
+        results = train_model(
+            model,
+            train_loader,
+            valid_loader,
+            lr=params["lr"],
+            weight_decay=params["wd"],
+            epochs=epochs,
+            patience=patience
+        )
+        end = time.time()
+        training_time = end - start
+    
+        # Save loss & validation results
+        with open(f"{file_paths[0]}_{len(params["layers"])}layers_embed{params["embed_len"]}_lr{params["lr"]}_batch{params["batch_size"]}.txt", "w") as f:
+            f.write("trainingLoss, validationLoss\n")
+            for r in results:
+                row = f"{r['trainLoss']:.4f}, {r['valLoss']:.4f}\n"
+                f.write(row)
+            f.write(f"Training time: {training_time:.2f} seconds\n")
+
+        # Save predictions
+        preds_to_csv(model, x_test, f"{file_paths[1]}_{len(params["layers"])}layers_embed{params["embed_len"]}_lr{params["lr"]}_batch{params["batch_size"]}.csv")
 
 # Preprocessing
 
@@ -199,7 +256,7 @@ user_labels = LabelEncoder()
 movie_labels = LabelEncoder()
 
 df.userId = user_labels.fit_transform(df.userId.values)
-df.movieId = movie_labels.fit_transform(df.movieId.values)
+df.movieId = movie_labels.fit_transform(df.itemId.values)
 
 x_train, x_temp = train_test_split(df, test_size=0.2, random_state=42, stratify=df.rating.values)
 x_test, x_valid = train_test_split(x_temp, test_size=0.5, random_state=42, stratify=x_temp.rating.values)
@@ -208,85 +265,34 @@ train_dataset = MovielensDataset(x_train)
 valid_dataset = MovielensDataset(x_valid)
 test_dataset  = MovielensDataset(x_test)
 
-train_loader = DataLoader(dataset=train_dataset, batch_size=512, shuffle=True)
-valid_loader = DataLoader(dataset=valid_dataset, batch_size=512, shuffle=False)
-test_loader  = DataLoader(dataset=test_dataset,  batch_size=512, shuffle=False)
+
 
 userList = df['userId'].unique()
-list = df['movieId'].unique()
+list = df['itemId'].unique()
 
-movie_ids = df.movieId.values[:100]
+movie_ids = df.itemId.values[:100]
 movie_ids  = np.sort(movie_ids)
 
 
-# Initiliaze MLP Model, Train, & Evaluate
+# Initialise MLP models & train
 
 n_users = df['userId'].nunique()
-n_movies = df['movieId'].nunique()
+n_movies = df['itemId'].nunique()
 
-models = {
-    "mlp_a1": MLP_Model(n_users, n_movies, embed_len=64, MLP_layers=[64], dropout=0.1).to(device),
-    "mlp_a2": MLP_Model(n_users, n_movies, embed_len=32, MLP_layers=[64], dropout=0.1).to(device),
-    "mlp_a3": MLP_Model(n_users, n_movies, embed_len=64, MLP_layers=[64], dropout=0.1).to(device),
-    "mlp_a4": MLP_Model(n_users, n_movies, embed_len=32, MLP_layers=[64], dropout=0.1).to(device),
-    "mlp_b1": MLP_Model(n_users, n_movies, embed_len=64, MLP_layers=[128, 64], dropout=0.1).to(device),
-    "mlp_b2": MLP_Model(n_users, n_movies, embed_len=32, MLP_layers=[128, 64], dropout=0.1).to(device),
-    "mlp_b3": MLP_Model(n_users, n_movies, embed_len=64, MLP_layers=[128, 64], dropout=0.1).to(device),
-    "mlp_b4": MLP_Model(n_users, n_movies, embed_len=32, MLP_layers=[128, 64], dropout=0.1).to(device),
-    "mlp_c1": MLP_Model(n_users, n_movies, embed_len=64, MLP_layers=[128, 64, 32], dropout=0.1).to(device),
-    "mlp_c2": MLP_Model(n_users, n_movies, embed_len=32, MLP_layers=[128, 64, 32], dropout=0.1).to(device),
-    "mlp_c3": MLP_Model(n_users, n_movies, embed_len=64, MLP_layers=[128, 64, 32], dropout=0.1).to(device),
-    "mlp_c4": MLP_Model(n_users, n_movies, embed_len=32, MLP_layers=[128, 64, 32], dropout=0.1).to(device),   
+h_params = {
+    "lr": [0.001, 0.0003],
+    "embed_len": [32, 64], 
+    "layers": [[32], [64, 32], [128, 64, 32]], 
+    "batch_size": [64, 128],
+    "wd": [1e-5]
 }
+epochs = 500
+patience = 5
+file_paths = ["src/backend/results/MLP/gb100k/loss_results/MLP", "src/backend/results/MLP/gb100k/predictions/MLP"]
+grid_search(h_params, file_paths, epochs, patience)
 
-train_params = {
-    "mlp_a1": {"lr": 0.001, "wd": 1e-5},
-    "mlp_a2": {"lr": 0.001, "wd": 1e-5},
-    "mlp_a3": {"lr": 0.0003, "wd": 1e-5},
-    "mlp_a4": {"lr": 0.0003, "wd": 1e-5},
-    "mlp_b1": {"lr": 0.001, "wd": 1e-5},
-    "mlp_b2": {"lr": 0.001, "wd": 1e-5},
-    "mlp_b3": {"lr": 0.0003, "wd": 1e-5},
-    "mlp_b4": {"lr": 0.0003, "wd": 1e-5},
-    "mlp_c1": {"lr": 0.001, "wd": 1e-5},
-    "mlp_c2": {"lr": 0.001, "wd": 1e-5},
-    "mlp_c3": {"lr": 0.0003, "wd": 1e-5},
-    "mlp_c4": {"lr": 0.0003, "wd": 1e-5},
-}
-
-results = {}
-
-# train models
-for name, model in models.items():
-    params = train_params[name]
-    print(f"Training {name}...")
-    start = time.time()
-    results[name] = train_model(
-        model,
-        train_loader,
-        valid_loader,
-        lr=params["lr"],
-        weight_decay=params["wd"],
-        epochs=500,
-        patience=5
-    )
-    end = time.time()
-    training_time = end - start
-
-
-    # save training result
-    with open(f"src/backend/results/MLP/ml1m/loss_results/{name}.txt", "w") as f:
-        for r in results[name]:
-            row = f"trainLoss: {r['trainLoss']:.4f}, valLoss: {r['valLoss']:.4f}\n"
-            f.write(row)
-        f.write(f"Training time: {training_time:.2f} seconds\n")
-
-    # save predictions
-    preds_to_csv(model, x_test, f"src/backend/results/MLP/ml1m/predictions/{name}.csv")
-
+# Save groundtruths to csv file
 test_gt = x_test.copy()
 test_gt["userId"]  = user_labels.inverse_transform(test_gt["userId"])
-test_gt["movieId"] = movie_labels.inverse_transform(test_gt["movieId"])
-test_gt.to_csv("src/backend/results/MLP/ml1m/predictions/ground_truth", index=False)
-
-
+test_gt["itemId"] = movie_labels.inverse_transform(test_gt["itemId"])
+test_gt.to_csv("src/backend/results/MLP/gb100k/predictions/ground_truth", index=False)
