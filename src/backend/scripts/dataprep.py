@@ -1,7 +1,19 @@
+
+import time
 import os
-import csv, glob
+import torch
+from torch import nn
+import copy
+
+from torch.utils.data import DataLoader, Dataset
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 import pandas as pandas
+import torch.nn.functional as F
 import numpy as np
+import random
+
+
 '''
 ############################################################################# SETTING UP THE DATABASE AND PREPOCESSING - 100 K movies
 #STEP 1: reading the credits and movies file
@@ -96,7 +108,7 @@ new_data.to_csv(output_file, index = False)
 '''
 
 #Create one file with userId as foreign.k.
-
+'''
 movie_rating_1M = pandas.read_csv("data/Movies_dataset_1M/ratings1M.csv")
 movie_metadata_1M = pandas.read_csv("data/Movies_dataset_1M/movies1M.csv")
 
@@ -113,5 +125,34 @@ new_merged_dataset_1M = new_movies_1M.merge(
 
 #SAVE the dataset
 new_merged_dataset_1M.to_csv("data/input_data_til_MLP_genres_1M.csv", index=False)
+'''
+############################################################################# SAVE GOUNDTRUTH
 
-############################################################################# SETTING UP THE DATABASE AND PREPOCESSING - 5M books
+
+def getgroundtruth(input, savingplacetest, savingplaceval):
+     
+    dataset = pandas.read_csv(input) 
+    
+    train_df, temporary_df = train_test_split(dataset, test_size=0.2, random_state=42) 
+    validation_df, test_df = train_test_split(temporary_df, test_size=0.5, random_state=42)
+    validation_groundtruth = validation_df.to_csv(savingplaceval + "/VAL_GROUNDTRUTH.csv", index = False)
+    test_groundtruth = test_df.to_csv(savingplacetest + "/TEST_GROUNDTRUTH.csv", index = False)
+
+
+in1 = "data/Input_movies_dataset_100K/ratings_100K.csv"
+savingplacetest1 = "data/Output_Predictions_test_100K_movies(MLPwithBPR)"
+savingplaceval1 = "data/Output_Predictions_val_100K_movies(MLPwithBPR)"
+
+
+in2 = "data/Input_movies_dataset_1M/ratings_1M.csv"
+savingplacetest2 = "data/Output_Predictions_test_1M_movies(MLPwithBPR)"
+savingplaceval2 = "data/Output_Predictions_val_1M_movies(MLPwithBPR)"
+
+in3 = "data/Input_goodbooks_dataset_100K/ratings_100K.csv"
+savingplacetest3 = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)"
+savingplaceval3 = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)"
+
+getgroundtruth(in1, savingplacetest1, savingplaceval1)
+getgroundtruth(in2, savingplacetest2, savingplaceval2)
+getgroundtruth(in3, savingplacetest3, savingplaceval3)
+    

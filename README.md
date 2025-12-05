@@ -36,8 +36,51 @@ The authors of this project would like to ###emphasize### that the collection of
 5) Neural network with extra attribute "genres"  (loss function: MSE, optimizer: Adams)
 
 
+When running the three neural networks the parameters were tuned in the following way:
+
+A) In this category all 8 files have the following in common:
+- one hidden layer consisting of 32 neurons | optimizer = adam | weight decay = 1e-5 
+Things the authors finetune/change to be able to see the difference in the output files:
+- embedding length for vectors identifying the users and items | the learning rate | and the batchsize for loading the dataset
+
+a.1) embedding length for ID vectors 64, learning rate: 0.001, batch_64
+
+a.2 ) embedding length for ID vectors 32, learning rate: 0.001, batch_64
+
+a.3 ) embedding length for ID vectors 64, learning rate: 0.0003, batch_64
+
+a.4) embedding length for ID vectors 32, learning rate: 0.0003, batch_64
+
+a.5) embedding length for ID vectors 64, learning rate: 0.001, batch_128
+
+a.6 ) embedding length for ID vectors 32, learning rate: 0.001, obatch_128
+
+a.7 ) embedding length for ID vectors 64, learning rate: 0.0003, batch_128
+
+a.8) embedding length for ID vectors 32, learning rate: 0.0003,  batch_128
+
+
+B) In this category all 8 files have the following in common:
+Two hidden layers consisting of 64 neurons => 32 neurons | optimizer = adam | weight decay = 1e-5 
+
+Things the authors finetune/change to be able to see the difference in the output files: see previously mentioned category A from line 46 to 60.
+
+
+C) In this category all 8 files have the following in common:
+Three hidden layers consisting of 128 neurons => 64 neurons => 32 neurons | optimizer = adam | weight decay = 1e-5 
+
+Things the authors finetune/change to be able to see the difference in the output files: see previously mentioned category A from line 46 to 60.
+
 # Validation and testing
 The following methods will test the validity of the results.
+
+- Root Mean Squared Error (RMSE) 
+- Mean Absolute Error (MAE) 
+- Precision@k
+- Recall@k
+- NDCG@k
+- MAP and AUC for matrix factorization algorithms to measure relevance
+- Intra list diversity, coverage and inverse gini to measure diversity
 
 
 # Important commands
