@@ -402,7 +402,7 @@ def run_program(optim,
 
         #Make a csv file
         prediction_val_dataset = validation_df.copy()
-        prediction_val_dataset["val_predicted_rating"] = predicted_score
+        prediction_val_dataset["val_score"] = predicted_score
         prediction_val_dataset.to_csv(prediction_val_save, index = False)
         
         #Add 2-3 lines about time and GPU usage:
@@ -425,7 +425,7 @@ def run_program(optim,
         
         #Tildel prediction til test datasæt
         prediction_test_dataset = test_df.copy()
-        prediction_test_dataset["test_predicted_rating"] = test_predict_score
+        prediction_test_dataset["test_score"] = test_predict_score
         prediction_test_dataset.to_csv(prediction_test_save, index = False)
 
         with open(prediction_test_save, "a") as file:
