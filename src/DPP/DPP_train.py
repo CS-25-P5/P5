@@ -11,8 +11,10 @@ from MMR.MF import (
     load_and_prepare_matrix,
     filter_empty_users_data,
     get_top_n_recommendations_MF,
-tune_mf, train_mf_with_best_params, log_mf_experiment, align_train_val_matrices
+tune_mf, train_mf_with_best_params,  align_train_val_matrices
 )
+
+
 
 from DPP import (
     DPP, build_dpp_models, get_recommendations_for_dpp, save_DPP
@@ -26,6 +28,7 @@ def generate_run_id():
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     run_id = f"{timestamp}"
     return run_id
+
 
 def log_experiment(output_dir, file_name, params):
     os.makedirs(output_dir, exist_ok=True)
@@ -45,7 +48,7 @@ def log_experiment(output_dir, file_name, params):
 
 
 def run_dpp_pipeline(
-        ratings_train_path, ratings_val_path, item_path, output_dir=None, dataset=None, datasize=None,
+        ratings_train_path, ratings_val_path, item_path, output_dir, dataset=None, datasize=None,
         top_n=10, top_k=20, chunksize = 10000 , n_epochs=50, similarity_types = ["cosine", "jaccard"]
 ):
 
@@ -74,7 +77,7 @@ def run_dpp_pipeline(
     val_rmse = mf.compute_rmse(R_filtered_val, predicted_ratings)
 
     # Log experiment
-    log_mf_experiment(
+    log_experiment(
         output_dir,
         {
             "K": best_params["k"],
@@ -139,7 +142,7 @@ def run_dpp_test_pipeline(
         run_id,
         ratings_path,
         item_path,
-        output_dir=None,
+        output_dir,
         dataset=None,
         top_n=10,
         chunksize=10000,
@@ -167,7 +170,7 @@ def run_dpp_test_pipeline(
 
     mf = MatrixFactorization(
         R_filtered,
-        k,                  # FIX: correct MF latent dimension
+        k,
         alpha,
         lambda_,
         n_epochs,
