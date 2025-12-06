@@ -69,7 +69,6 @@ df["genres_vector"] =  df["genres_list"].apply(genre_to_vec)
 
 #Building the feature vector for numercial features + genres + eventually production companies and keywords
 
-
 def final_feature_vec(row):
     numeric_vector = row[numerical_columns].values.astype(float) #5 entry points #We iterate over values here
     genre_vector = row["genres_vector"].astype(float) #20 genres

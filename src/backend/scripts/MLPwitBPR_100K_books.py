@@ -443,8 +443,8 @@ a1 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed64_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed64_lr0001_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed64_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed64_lr0001_batch64.csv")
     
 a2 = run_program( 
                 optim = torch.optim.Adam,
@@ -453,8 +453,8 @@ a2 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_batch64.csv")
     
 
 
@@ -465,8 +465,8 @@ a3 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed64_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed64_lr00003_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed64_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed64_lr00003_batch64.csv")
     
 a4 = run_program( 
                 optim = torch.optim.Adam,
@@ -475,8 +475,8 @@ a4 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_batch64.csv")
     
 
 a5 = run_program(
@@ -486,8 +486,8 @@ a5 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed64_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed64_lr0001_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed64_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed64_lr0001_batch128.csv")
 
 
 a6 = run_program(
@@ -497,8 +497,8 @@ a6 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_batch128.csv")
 
 
 
@@ -510,8 +510,8 @@ a7 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed64_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed64_lr00003_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed64_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed64_lr00003_batch128.csv")
 
 
 
@@ -523,8 +523,8 @@ a8 =  run_program(
                 hiddenlayers = [32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_batch128.csv")
 
 
 
@@ -544,8 +544,8 @@ b1 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr0001_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr0001_batch64.csv")
     
 b2 = run_program( 
                 optim = torch.optim.Adam,
@@ -554,8 +554,8 @@ b2 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr0001_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr0001_batch64.csv")
     
 
 
@@ -566,8 +566,8 @@ b3 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr00003_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr00003_batch64.csv")
     
 b4 = run_program( 
                 optim = torch.optim.Adam,
@@ -576,8 +576,8 @@ b4 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr00003_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr00003_batch64.csv")
     
 
 b5 = run_program(
@@ -587,8 +587,8 @@ b5 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr0001_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr0001_batch128.csv")
 
 
 b6 = run_program(
@@ -598,8 +598,8 @@ b6 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr0001_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr0001_batch128.csv")
 
 
 
@@ -611,8 +611,8 @@ b7 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr00003_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr00003_batch128.csv")
 
 
 
@@ -624,8 +624,8 @@ b8 =  run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr00003_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr00003_batch128.csv")
 
 
 
@@ -661,8 +661,8 @@ c1 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr0001_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr0001_batch64.csv")
     
 c2 = run_program( 
                 optim = torch.optim.Adam,
@@ -671,8 +671,8 @@ c2 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_batch64.csv")
     
 
 
@@ -683,8 +683,8 @@ c3 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr00003_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr00003_batch64.csv")
     
 c4 = run_program( 
                 optim = torch.optim.Adam,
@@ -693,8 +693,8 @@ c4 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch64.csv")
     
 
 c5 = run_program(
@@ -704,8 +704,8 @@ c5 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr0001_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr0001_batch128.csv")
 
 
 c6 = run_program(
@@ -715,8 +715,8 @@ c6 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_batch128.csv")
 
 
 
@@ -728,8 +728,8 @@ c7 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr00003_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr00003_batch128.csv")
 
 
 
@@ -741,5 +741,5 @@ c8 =  run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_books(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch128.csv",
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch128.csv",
                 prediction_test_save = "data/Output_Predictions_test_100K_mbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch128.csv")
