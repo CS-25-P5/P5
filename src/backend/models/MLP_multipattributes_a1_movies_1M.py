@@ -13,9 +13,9 @@ import ast
 
 ### STEP 1 - load the data and set up the NN
 
-df = pandas.read_csv("data\\input_dataset_for_NN.csv")
+df = pandas.read_csv("data/input_data_til_MLP_genres_1M.csv")
 
-df = df[["userId", "movieId", "rating", "budget", "popularity", "runtime", "vote_average", "vote_count", "original_language", "genres"]].copy() #missing "keywords"  and ""production_companies"
+df = df[["userId","movieId","rating","genres"]].copy()
 
 
 #Replace missing numerical values in the numerical columns with 0 and standartize features so that they are on similar ranges

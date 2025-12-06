@@ -152,7 +152,11 @@ in3 = "data/Input_goodbooks_dataset_100K/ratings_100K.csv"
 savingplacetest3 = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)"
 savingplaceval3 = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)"
 
+
 getgroundtruth(in1, savingplacetest1, savingplaceval1)
 getgroundtruth(in2, savingplacetest2, savingplaceval2)
 getgroundtruth(in3, savingplacetest3, savingplaceval3)
-    
+
+getgroundtruth(in1, "data/Output_Predictions_test_100K_movies(MLPwithGenres)", "data/Output_Predictions_val_100K_movies(MLPwithGenres)" )
+getgroundtruth(in2, "data/Output_Predictions_test_1M_movies(MLPwithGenres)", "data/Output_Predictions_val_1M_movies(MLPwithGenres)")
+getgroundtruth(in3, "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)", "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)")
