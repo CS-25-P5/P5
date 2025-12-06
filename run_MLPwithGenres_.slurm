@@ -17,6 +17,6 @@ mkdir -p logs
 source venv/bin/activate
 
 #python -u src/backend/scripts/MLPwithgenres_1M_movies.py
-python -u src/backend/sscripts/MLPwithgenres_100K_movies.py
+python -u src/backend/scripts/MLP_multipattributes_movies_100K.py
 #python -u src/backend/scripts/scripts/MLPwithgenres_100K_books.py
 
