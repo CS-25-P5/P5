@@ -219,14 +219,14 @@ def run_program(optim,
             total_loss = 0
 
             with torch.no_grad():
-                for batch in dataloader:
-                    users = batch["users"].to(device)
-                    movies = batch["movies"].to(device)
-                    genres = batch["genres"].to(device)
-                    rating = batch["rating"].to(device)
+                for users, movies, genres, ratings in dataloader:
+                    users = users.to(device)
+                    movies = movies.to(device)
+                    genres = genres.to(device)
+                    ratings = ratings.to(device)
 
                     prediction = model(users, movies, genres)
-                    loss = criterion(prediction, rating)
+                    loss = criterion(prediction, ratings)
                     total_loss = total_loss + loss.item()
 
             return total_loss / len(dataloader)
@@ -240,12 +240,11 @@ def run_program(optim,
         with torch.no_grad():
 
             #Make rows from columns for user and corresponding movies
-            user_tensor = torch.tensor(dataset["users"], dtype=torch.long).to(device) 
-            movies_tensor = torch.tensor(dataset["movies"], dtype=torch.long).to(device) 
-            genre_tensor = user_tensor = torch.tensor(np.stack(dataset["united_genre_vector"]), dtype=torch.long).to(device) 
+            user_tensor = torch.tensor(dataset["user_index"].values, dtype=torch.long).to(device) 
+            movies_tensor = torch.tensor(dataset["movie_index"].values, dtype=torch.long).to(device) 
+            genre_tensor = user_tensor = torch.tensor(np.stack(dataset["united_genre_vector"].values), dtype=torch.float).to(device) 
 
-            predictions = model(user_tensor, movies_tensor, genre_tensor)
-            predictions = predictions.cpu().numpy()
+            predictions = model(user_tensor, movies_tensor, genre_tensor).cpu().numpy()
         return  predictions
             
 
@@ -263,10 +262,10 @@ def run_program(optim,
             for users, movies, genres, ratings in trainloader:
                 users = users.to(device)
                 movies = movies.to(device)
-                feature = genres.to(device)
+                genres = genres.to(device)
                 ratings = ratings.to(device)
 
-                prediction = model(users, movies, feature)
+                prediction = model(users, movies, genres)
                 loss = criterion(prediction, ratings)
 
                 optimizer.zero_grad() #Delete old gradients from prev. batch
@@ -277,7 +276,6 @@ def run_program(optim,
         
             average_train_loss = total_training_loss/len(trainloader)
             
-
             #Validate the modell
             average_validation_loss = evaluate_loss(model, validationloader, device)
 
@@ -369,3 +367,312 @@ def run_program(optim,
     test(model, test_loader, device)
 
 
+
+
+a1 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 64,
+                hiddenlayers = [32],
+                learningrate = 0.001,
+                embedding_length = 64,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed64_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed64_lr0001_batch64.csv")
+    
+a2 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 64,
+                hiddenlayers = [32],
+                learningrate = 0.001,
+                embedding_length = 32,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed32_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed32_lr0001_batch64.csv")
+    
+
+
+a3 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 64,
+                hiddenlayers = [32],
+                learningrate = 0.0003,
+                embedding_length = 64,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed64_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed64_lr00003_batch64.csv")
+    
+a4 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 64,
+                hiddenlayers = [32],
+                learningrate = 0.0003,
+                embedding_length = 32,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed32_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed32_lr00003_batch64.csv")
+    
+
+a5 = run_program(
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 128,
+                hiddenlayers = [32],
+                learningrate = 0.001,
+                embedding_length = 64,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed64_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed64_lr0001_batch128.csv")
+
+
+a6 = run_program(
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 128,
+                hiddenlayers = [32],
+                learningrate = 0.001,
+                embedding_length = 32,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed32_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed32_lr0001_batch128.csv")
+
+
+
+
+a7 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 128,
+                hiddenlayers = [32],
+                learningrate = 0.0003,
+                embedding_length = 64,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed64_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed64_lr00003_batch128.csv")
+
+
+
+
+a8 =  run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 128,
+                hiddenlayers = [32],
+                learningrate = 0.0003,
+                embedding_length = 32,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed32_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_OneLayer_embed32_lr00003_batch128.csv")
+
+
+
+
+
+
+
+
+
+
+
+
+b1 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 64,
+                hiddenlayers = [64, 32],
+                learningrate = 0.001,
+                embedding_length = 64,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed64_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed64_lr0001_batch64.csv")
+    
+b2 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 64,
+                hiddenlayers = [64, 32],
+                learningrate = 0.001,
+                embedding_length = 32,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed32_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed32_lr0001_batch64.csv")
+    
+
+
+b3 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 64,
+                hiddenlayers = [64, 32],
+                learningrate = 0.0003,
+                embedding_length = 64,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed64_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed64_lr00003_batch64.csv")
+    
+b4 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 64,
+                hiddenlayers = [64, 32],
+                learningrate = 0.0003,
+                embedding_length = 32,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed32_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed32_lr00003_batch64.csv")
+    
+
+b5 = run_program(
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 128,
+                hiddenlayers = [64, 32],
+                learningrate = 0.001,
+                embedding_length = 64,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed64_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed64_lr0001_batch128.csv")
+
+
+b6 = run_program(
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 128,
+                hiddenlayers = [64, 32],
+                learningrate = 0.001,
+                embedding_length = 32,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed32_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed32_lr0001_batch128.csv")
+
+
+
+
+b7 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 128,
+                hiddenlayers = [64, 32],
+                learningrate = 0.0003,
+                embedding_length = 64,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed64_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed64_lr00003_batch128.csv")
+
+
+
+
+b8 =  run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 128,
+                hiddenlayers = [64, 32],
+                learningrate = 0.0003,
+                embedding_length = 32,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed32_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_TwoLayers_embed32_lr00003_batch128.csv")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+c1 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 64,
+                hiddenlayers = [128, 64, 32],
+                learningrate = 0.001,
+                embedding_length = 64,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed64_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed64_lr0001_batch64.csv")
+    
+c2 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 64,
+                hiddenlayers = [128, 64, 32],
+                learningrate = 0.001,
+                embedding_length = 32,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed32_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed32_lr0001_batch64.csv")
+    
+
+
+c3 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 64,
+                hiddenlayers = [128, 64, 32],
+                learningrate = 0.0003,
+                embedding_length = 64,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed64_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed64_lr00003_batch64.csv")
+    
+c4 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 64,
+                hiddenlayers = [128, 64, 32],
+                learningrate = 0.0003,
+                embedding_length = 32,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed32_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed32_lr00003_batch64.csv")
+    
+
+c5 = run_program(
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 128,
+                hiddenlayers = [128, 64, 32],
+                learningrate = 0.001,
+                embedding_length = 64,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed64_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed64_lr0001_batch128.csv")
+
+
+c6 = run_program(
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 128,
+                hiddenlayers = [128, 64, 32],
+                learningrate = 0.001,
+                embedding_length = 32,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed32_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed32_lr0001_batch128.csv")
+
+
+
+
+c7 = run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 128,
+                hiddenlayers = [128, 64, 32],
+                learningrate = 0.0003,
+                embedding_length = 64,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed64_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed64_lr00003_batch128.csv")
+
+
+
+
+c8 =  run_program( 
+                optim = torch.optim.Adam,
+                weightdecay = 1e-5,
+                batchsize = 128,
+                hiddenlayers = [128, 64, 32],
+                learningrate = 0.0003,
+                embedding_length = 32,
+                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed32_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/BPRnn_ThreeLayers_embed32_lr00003_batch128.csv")
