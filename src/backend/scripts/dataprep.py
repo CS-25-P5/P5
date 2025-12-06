@@ -128,6 +128,7 @@ new_merged_dataset_1M.to_csv("data/input_data_til_MLP_genres_1M.csv", index=Fals
 '''
 ############################################################################# SAVE GOUNDTRUTH
 
+'''
 
 def getgroundtruth(input, savingplacetest, savingplaceval):
      
@@ -160,3 +161,24 @@ getgroundtruth(in3, savingplacetest3, savingplaceval3)
 getgroundtruth(in1, "data/Output_Predictions_test_100K_movies(MLPwithGenres)", "data/Output_Predictions_val_100K_movies(MLPwithGenres)" )
 getgroundtruth(in2, "data/Output_Predictions_test_1M_movies(MLPwithGenres)", "data/Output_Predictions_val_1M_movies(MLPwithGenres)")
 getgroundtruth(in3, "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)", "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)")
+
+'''
+
+############################################################################# SETTING UP THE DATABASE AND PREPOCESSING - 100K GOOdbooks
+
+
+#Create one file with userId, itemId, rating, genres
+
+'''
+books_100K = pandas.read_csv("data/Input_goodbooks_dataset_100K/ratings_100K.csv")
+books_genres = pandas.read_csv("data/Input_goodbooks_dataset_100K/books.csv")
+
+new_merged_dataset_100K = books_100K.merge(
+    books_genres[["itemId", "genres"]],
+    on="itemId",
+    how="left" 
+)
+
+#SAVE the dataset
+new_merged_dataset_100K.to_csv("data/input_data_til_MLP_genres_100K_books.csv", index=False)
+'''
