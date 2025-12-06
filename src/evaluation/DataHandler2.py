@@ -45,14 +45,13 @@ def load_and_process_data(ground_truth_path, predictions_path):
     pred = pd.read_csv(temp_path)
     os.unlink(temp_path)  # Delete temp file
 
-    # Continue with your existing code...
     print(f"Predictions loaded: {len(pred)} rows")
 
     for col in ["userId", "movieId"]:
         if col in gt.columns:
-            gt[col] = gt[col].astype(str).str.replace('\.0$', '', regex=True)
+            gt[col] = gt[col].astype(str).str.replace('\\.0$', '', regex=True)
         if col in pred.columns:
-            pred[col] = pred[col].astype(str).str.replace('\.0$', '', regex=True)
+            pred[col] = pred[col].astype(str).str.replace('\\.0$', '', regex=True)
 
     print("✅ IDs normalized (stripped .0 decimals)")
 
@@ -110,8 +109,8 @@ def load_and_process_data(ground_truth_path, predictions_path):
     print(f"\nTotal interaction pairs: {len(interaction_set)}")
     print(f"Total recommendation pairs: {len(recommendation_set)}")
 
-    # Check 3 specific pairs from ground truth
-    test_pairs = list(interaction_set)[:3]
+    # Check 5 specific pairs from ground truth
+    test_pairs = list(zip(interactions['user_id'][:3], interactions['item_id'][:5]))
     for i, (u, m) in enumerate(test_pairs, 1):
         exists = (u, m) in recommendation_set
         print(f"  Pair {i}: ({u}, {m}) exists in predictions? {exists}")
