@@ -1,5 +1,5 @@
 import numpy as np
-from MF import MatrixFactorization, load_and_prepare_matrix, filter_empty_users_data, get_top_n_recommendations_MF, tune_mf, train_mf_with_best_params, align_train_val_matrices
+from MF import MatrixFactorization, load_and_prepare_matrix, filter_empty_users_data, get_top_n_recommendations_MF, tune_mf, train_mf_with_best_params, align_train_val_matrices,align_test_matrix,align_matrix_to_filtered_items, get_aligned_predictions
 from MMR import MMR, mmr_builder_factory, tune_mmr_lambda, run_mmr, process_save_mmr
 import os
 import pandas as pd
@@ -53,7 +53,7 @@ def run_train_pipeline(
 
 
     #load data
-    item_user_rating_train, genre_map, all_genres,title_to_id = load_and_prepare_matrix( 
+    item_user_rating_train, genre_map, all_genres, title_to_id = load_and_prepare_matrix( 
         ratings_train_path, item_path,nrows_items=chunksize)
     
 
@@ -67,22 +67,16 @@ def run_train_pipeline(
     R_train = train_aligned.values
     R_val = val_aligned.values
 
+
     # Remove users with not interactions 
-    R_filtered_train, filtered_item_titles = filter_empty_users_data(
+    R_filtered_train, filtered_user_ids, filtered_item_titles = filter_empty_users_data(
     R = R_train,
+    user_ids=train_aligned.index,
     item_titles = train_aligned.columns
     )
 
-    # Align validation with filtered train items (use same columns)
-    filtered_indices = [
-        train_aligned.columns.get_loc(m) 
-        for m in filtered_item_titles]
+    R_filtered_val, val_data_filtered = align_matrix_to_filtered_items(item_user_rating_val, filtered_item_titles, filtered_user_ids)
 
-    R_filtered_val = R_val[:, filtered_indices]
-
-    # Only keep columns in validation that exist in filtered training items
-    val_data_filtered = item_user_rating_val.iloc[:, filtered_indices]
-    
     
     # TRAIN MF
     # Tune MF parameters 
@@ -99,20 +93,28 @@ def run_train_pipeline(
 
 
     # Train MF with best hyperparameters
-    mf, predicted_ratings, train_rmse, random_state = train_mf_with_best_params(R_filtered_train, best_params, n_epochs=n_epochs, random_state = random_state)
+    mf, predicted_ratings, train_rmse, random_state = train_mf_with_best_params(
+        R_filtered_train, 
+        best_params, 
+        n_epochs=n_epochs, 
+        random_state = random_state)
+    
     val_rmse = mf.compute_rmse(R_filtered_val, predicted_ratings)
 
-
+    # Attach filtered item titles to MF model
+    mf.item_titles = filtered_item_titles
 
     # Get top-N candidates for MF
     get_top_n_recommendations_MF(
-        genre_map, predicted_ratings, R_filtered_train, 
-        item_user_rating_train.index, filtered_item_titles, 
+        genre_map, 
+        predicted_ratings,
+        R_filtered_train, 
+        filtered_user_ids, 
+        filtered_item_titles, 
         top_n=top_n,  
         title_to_id = title_to_id,
         save_path = os.path.join(output_dir,f"{run_id}/mf_train_{chunksize}_predictions.csv"))
 
-    predicted_ratings = np.array(predicted_ratings) 
 
     #TUNE MMR lambda
     # Create a builder for cosine similarity
@@ -143,7 +145,6 @@ def run_train_pipeline(
 
 
     # Repeat for jaccard similarity
- 
     builder_jaccard = mmr_builder_factory(
         item_titles=filtered_item_titles,
         genre_map=genre_map,
@@ -176,8 +177,6 @@ def run_train_pipeline(
     mmr_jaccard = builder_jaccard(best_lambda_jaccard)
 
     # Run MMR
-
-
     all_recs_cosine = run_mmr(mmr_model = mmr_cosine, 
             R_filtered = R_filtered_train , 
             top_k = top_k)
@@ -247,8 +246,6 @@ def run_train_pipeline(
                 "Best_score": best_score_cosine,
                 "Benchmark_time": time_cos,
                 "Max_Memory_MB": mem_cos},
-                
-
     )
 
 
@@ -271,7 +268,7 @@ def run_train_pipeline(
 
     print("Pipeline for train finished successfully!")
 
-    return best_params, best_lambda_cosine, best_lambda_jaccard
+    return best_lambda_cosine, best_lambda_jaccard, mf
 
     
 
@@ -283,14 +280,10 @@ def run_test_pipeline(
     dataset=None, 
     top_n=10, 
     chunksize=10000,
-    k=20, 
     top_k=20, 
-    alpha=0.01, 
-    lambda_=0.1, 
-    n_epochs=50,
-    random_state = 42,
     best_lambda_cosine = 0.7,
-    best_lambda_jaccard = 0.7
+    best_lambda_jaccard = 0.7,
+    trained_mf_model=None
 ):
     
     os.makedirs(output_dir, exist_ok=True)
@@ -300,41 +293,30 @@ def run_test_pipeline(
     item_user_rating, genre_map, all_genres,title_to_id = load_and_prepare_matrix(
         ratings_path, item_path, nrows_items=chunksize)
 
-    R = item_user_rating.values
+    R_aligned_test, aligned_test_items = align_test_matrix(item_user_rating, trained_mf_model)
 
-    R_filtered, filtered_item_titles = filter_empty_users_data(R,item_user_rating.columns )
-
-
-    # Train the model
-    tracemalloc.start()
-    start_time_mf = time.time()
-    mf = MatrixFactorization(R_filtered, k, alpha, lambda_ , n_epochs, random_state)
-    mf.train()
+    R_filtered, filtered_user_ids, filtered_item_titles = filter_empty_users_data(
+        R = R_aligned_test,
+        item_titles = aligned_test_items,
+        user_ids = item_user_rating.index )
     
 
-    # Full predicted rating matrix
-    predicted_ratings = mf.full_prediction()
-    end_time_mf = time.time()
+    predicted_ratings = get_aligned_predictions(trained_mf_model, filtered_item_titles)
 
-    time_mf = end_time_mf - start_time_mf
-    mem_mf = tracemalloc.get_traced_memory()[1] / 1024**2
-    tracemalloc.stop()
 
 
     # Get top-N candidates for MMR
     save_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
     get_top_n_recommendations_MF(
-        genre_map, predicted_ratings, R_filtered, 
-        item_user_rating.index, filtered_item_titles, 
+        genre_map, 
+        predicted_ratings, 
+        R_filtered, 
+        filtered_user_ids, 
+        filtered_item_titles, 
         top_n=top_n, 
         title_to_id = title_to_id,
         save_path=save_path)
     
-
-
-    predicted_ratings = np.array(predicted_ratings) 
-
-
     # Create a builder for cosine similarity
     builder_cosine = mmr_builder_factory(
         item_titles=filtered_item_titles,
@@ -405,19 +387,6 @@ def run_test_pipeline(
     
 
 
-    #LOG MF DATA
-    log_experiment(
-        output_dir = output_dir,
-        file_name="mf_test_experiment_log.csv",
-        params = {
-            "Run_id": run_id,
-            "Dataset_name": dataset,
-            "Datasize": chunksize,
-            "Benchmark_time": time_mf,
-            "Max_Memory_MB": mem_mf
-
-        },
-    )
 
     # LOG MMR DATA
     log_experiment(
@@ -456,7 +425,7 @@ def run_test_pipeline(
 if __name__ == "__main__":
     # PARAMETER
     TOP_N = 10
-    CHUNK_SIZE = 100000
+    CHUNK_SIZE = 10000
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1
@@ -481,7 +450,7 @@ if __name__ == "__main__":
 
     run_movie_id = generate_run_id()
 
-    best_params, best_lambda_cosine, best_lambda_jaccard = run_train_pipeline(
+    best_lambda_cosine, best_lambda_jaccard, mf_trained = run_train_pipeline(
         run_id = run_movie_id,
         ratings_train_path = ratings_train_file,
         ratings_val_path= ratings_val_file,
@@ -507,13 +476,9 @@ if __name__ == "__main__":
         top_n=TOP_N,
         top_k=TOP_K, 
         chunksize=CHUNK_SIZE,
-        k=best_params["k"],
-        alpha=best_params["alpha"],
-        lambda_=best_params["lambda_"],
-        n_epochs=N_EPOCHS,
-        random_state = RANDOM_STATE,
         best_lambda_cosine = best_lambda_cosine,
-        best_lambda_jaccard = best_lambda_jaccard
+        best_lambda_jaccard = best_lambda_jaccard,
+        trained_mf_model = mf_trained
     )
 
 
@@ -533,7 +498,7 @@ if __name__ == "__main__":
 
     run_book_id = generate_run_id()
 
-    best_params,best_lambda_cosine, best_lambda_jaccard = run_train_pipeline(
+    best_lambda_cosine, best_lambda_jaccard, mf_trained = run_train_pipeline(
         run_id = run_book_id,
         ratings_train_path = ratings_train_file,
         ratings_val_path= ratings_val_file,
@@ -560,12 +525,8 @@ if __name__ == "__main__":
         dataset=dataset_books,
         top_n=TOP_N,
         top_k=TOP_K,
-        k=best_params["k"],
-        alpha=best_params["alpha"],
-        lambda_=best_params["lambda_"],
-        n_epochs=N_EPOCHS,
         chunksize=CHUNK_SIZE,
-        random_state = RANDOM_STATE,
         best_lambda_cosine = best_lambda_cosine,
-        best_lambda_jaccard = best_lambda_jaccard
+        best_lambda_jaccard = best_lambda_jaccard,
+        trained_mf_model = mf_trained
     )

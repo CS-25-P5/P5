@@ -131,7 +131,6 @@ def process_save_mmr(all_recs, item_user_rating, item_titles, predicted_ratings,
 
 def process_mmr(user_id, user_idx, mmr_indices, item_names, genre_map, predicted_ratings, mmr_recommendations_list, title_to_id, top_n=10):
 
-
     for rank, idx in enumerate(mmr_indices[:top_n], start = 1):
         title = item_names[idx]
         # handle missing genres

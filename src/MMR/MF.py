@@ -6,7 +6,7 @@ import os, csv
 
 
 class MatrixFactorization:
-    def __init__(self, R, k=20, alpha=0.01, lamda_=0.1, n_epochs=50, random_state=42):
+    def __init__(self, R, k=20, alpha=0.01, lamda_=0.1, n_epochs=50, random_state=42, item_titles=None):
         self.R = R
         self.num_users, self.num_items = R.shape
         self.k = k
@@ -14,6 +14,7 @@ class MatrixFactorization:
         self.lambda_ = lamda_
         self.n_epochs = n_epochs
         self.random_state = random_state
+        self.item_titles = item_titles if item_titles is not None else np.arange(self.num_items)
         np.random.seed(self.random_state)
 
     def train(self):
@@ -157,17 +158,30 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path,nrows_items=None):
     return user_item_matrix, genre_map, all_genres,title_to_id
 
 
-def filter_empty_users_data(R, item_titles=None):
-    # keep users and movies with at least on rating
-    #user_filter = R.sum(axis = 1) > 0
+def filter_empty_users_data(R, user_ids=None,item_titles=None):
+    
+    # keep users with at least 1 rating
+    if user_ids is not None:
+        user_filter = R.sum(axis=1) > 0
+        R = R[user_filter, :]
+        user_ids = user_ids[user_filter]
+    else:
+        user_ids = None
 
-    movie_filter = R.sum(axis = 0) > 0
+    # keep items with at least 1 rating
+    if item_titles is not None:
+        item_filter = R.sum(axis=0) > 0
+        R = R[:, item_filter]
+        item_titles = item_titles[item_filter]
+    else:
+        item_titles = None
 
-    R_filtered = R[:, movie_filter]
+    return R, user_ids, item_titles
 
-    filtered_movie_titles = item_titles[movie_filter] if item_titles is not None else None
 
-    return R_filtered, filtered_movie_titles
+    #filtered_item_titles = item_titles[item_filter] if item_titles is not None else None
+
+    #return R_filtered, filtered_item_titles
 
 
 def align_train_val_matrices(train_df, val_df):
@@ -186,6 +200,42 @@ def align_train_val_matrices(train_df, val_df):
 
     return train_aligned, val_aligned
 
+def align_test_matrix(item_user_rating, trained_mf_model):
+    trained_items = np.array(trained_mf_model.item_titles)
+    test_items = np.array(item_user_rating.columns)
+    common_items = np.array([i for i in trained_items if i in test_items])
+
+    # Get column indices of the common items in the test matrix
+    indices = [np.where(test_items == i)[0][0] for i in common_items]
+
+    # Build aligned R matrix
+    R_aligned_test = item_user_rating.iloc[:, indices].values
+
+    return R_aligned_test, common_items
+
+def align_matrix_to_filtered_items(matrix_df, filtered_item_titles, filtered_user_ids):
+    # Filter users that exist in matrix_df
+    user_indices = [matrix_df.index.get_loc(u) for u in filtered_user_ids if u in matrix_df.index]
+    # Filter items that exist in matrix_df
+    item_indices = [matrix_df.columns.get_loc(i) for i in filtered_item_titles if i in matrix_df.columns]
+
+    aligned_matrix = matrix_df.values[np.ix_(user_indices, item_indices)]
+    aligned_df = matrix_df.iloc[user_indices, item_indices]
+
+    return aligned_matrix, aligned_df
+
+def get_aligned_predictions(trained_mf_model, filtered_item_titles):
+    trained_items = np.array(trained_mf_model.item_titles)
+    
+    item_indices_in_mf = []
+    for title in filtered_item_titles:
+        index = np.where(trained_items == title)[0][0]
+        item_indices_in_mf.append(index)
+    
+    # Get the predicted ratings for the filtered items
+    predicted_ratings_filtered = trained_mf_model.full_prediction()[:, item_indices_in_mf]
+    
+    return predicted_ratings_filtered
 
 
 
