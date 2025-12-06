@@ -16,7 +16,6 @@ cd /ceph/home/student.aau.dk/nr38sp/P5
 mkdir -p logs
 source venv/bin/activate
 
-#python -u src/backend/scripts/MLPwithgenres_1M_movies.py
-python -u src/backend/scripts/MLP_multipattributes_movies_100K.py
-#python -u src/backend/scripts/scripts/MLPwithgenres_100K_books.py
-
+python -u src/backend/scripts/MLP_multipattributes_movies_1M.py
+python -u src/backend/scripts/MLP_multipattributes_goodbooks_100K.py
+python -u src/backend/scripts/MLP_multipattributes_goodbooks_100K.py
