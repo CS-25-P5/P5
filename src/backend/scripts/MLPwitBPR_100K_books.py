@@ -742,4 +742,4 @@ c8 =  run_program(
                 learningrate = 0.0003,
                 embedding_length = 32,
                 prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_mbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch128.csv")
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch128.csv")
