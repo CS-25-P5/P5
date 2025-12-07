@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#SBATCH --job-name=movies_neural_network_with_genres		        #Name of the job
+#SBATCH --job-name=recommend_items_with_NN		            #Name of the job
 #SBATCH  --partition=l4						                        #GPU partition
 #SBATCH --gres=gpu:1						                        #Ask for one GPU
 
-#SBATCH --time=05:00:00						                        #Max amount for training is 1 hour
+#SBATCH --time=07:00:00						                        #Max amount for training is 1 hour
 #SBATCH --mem=32G						                            #Amount of RAM allocated
 #SBATCH --cpus-per-task=8					                        #CPu core for loading data and process
 #SBATCH --output=logs/%x-%j.out 				                    #%x is the jobe name, and %j is the ID of the job
@@ -16,6 +16,4 @@ cd /ceph/home/student.aau.dk/nr38sp/P5
 mkdir -p logs
 source venv/bin/activate
 
-python -u src/backend/scripts/MLP_multipattributes_movies_1M.py
-python -u src/backend/scripts/MLP_multipattributes_goodbooks_100K.py
-python -u src/backend/scripts/MLP_multipattributes_goodbooks_100K.py
+python -u src/backend/scripts/recommend_genres.py

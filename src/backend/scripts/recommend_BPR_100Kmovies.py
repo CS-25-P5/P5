@@ -26,11 +26,13 @@ def run_program(optim,
                 hiddenlayers,
                 learningrate,
                 embedding_length,
-                prediction_val_save,
-                prediction_test_save):
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input = None,
+                recommend_output = None):
     
     #STEP 1 - Redo the database - I need movies and ratings so that I can create triplets. 
-    dataset = pandas.read_csv("data/Input_movies_dataset_1M/ratings_1M.csv") 
+    dataset = pandas.read_csv("data/Input_movies_dataset_100K/ratings_100K.csv") 
     dataset = dataset[["userId", "movieId", "rating"]] 
 
     #STEP 1.1. : Split into train 80%, validation 10%, test 10% => SAVE
@@ -415,7 +417,8 @@ def run_program(optim,
             else:
                 file.write("# GPU not available for the program")
 
-    validate_bpr()
+    if prediction_val_save is not None: #ONLY VALIDATE IF I GIVE PATH FILE!
+        validate_bpr()
 
     #STEP 12 - test the model
     def test_bpr(model, testdataloader, device):
@@ -432,9 +435,30 @@ def run_program(optim,
             file.write("\n")
             file.write(f"# Average testing loss per batch for one epoch: {average_test_loss_per_batch:.4f}\n")
 
-    #STEP 13 : TEST IT 
-    test_bpr(model, test_bpr_dataloader, device)
+    #STEP 13 : TEST IT  
+    if prediction_test_save is not None: #ONLY VALIDATE IF I GIVE PATH FILE!
+        test_bpr(model, test_bpr_dataloader, device)
     
+
+
+
+    # STEP 14 – Predict on the GROUNDFTRUTH for all user x all movie items (ONYL from testset! 10% )
+    big_input = recommend_input
+    big_output = recommend_output
+
+    big_df = pandas.read_csv(big_input)
+
+    if "userId" not in big_df.columns or "movieId" not in big_df.columns:
+        raise ValueError("The big input file must contain 'userId' and 'movieId' columns.")
+
+    big_scores = predict_ratings(model, big_df, device)
+
+    big_df["recommendation_score"] = big_scores
+    big_df.to_csv(big_output, index=False)
+
+
+
+inputforall = "data/Output_Predictions_test_100K_movies(MLPwithBPR)/GROUNDTRUTH_alluserandmovies.csv"
 
 
 a1 = run_program( 
@@ -444,9 +468,14 @@ a1 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed64_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed64_lr0001_batch64.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output= "data/Recommend_test_100K_movies(MLPwithBPR)/Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv")
     
+
+
+
 a2 = run_program( 
                 optim = torch.optim.Adam,
                 weightdecay = 1e-5,
@@ -454,8 +483,10 @@ a2 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_batch64.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output="data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_OneLayer_embed32_lr0001_batch64.csv")
     
 
 
@@ -466,8 +497,10 @@ a3 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed64_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed64_lr00003_batch64.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv")
     
 a4 = run_program( 
                 optim = torch.optim.Adam,
@@ -476,8 +509,10 @@ a4 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_batch64.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv")
     
 
 a5 = run_program(
@@ -487,8 +522,10 @@ a5 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed64_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed64_lr0001_batch128.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv")
 
 
 a6 = run_program(
@@ -498,8 +535,10 @@ a6 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr0001_batch128.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv")
 
 
 
@@ -511,8 +550,10 @@ a7 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed64_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed64_lr00003_batch128.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv")
 
 
 
@@ -524,8 +565,10 @@ a8 =  run_program(
                 hiddenlayers = [32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_OneLayer_embed32_lr00003_batch128.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv")
 
 
 
@@ -545,8 +588,10 @@ b1 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr0001_batch64.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed64_lr0001_batch64.csv")
     
 b2 = run_program( 
                 optim = torch.optim.Adam,
@@ -555,8 +600,10 @@ b2 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr0001_batch64.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed32_lr0001_batch64.csv")
     
 
 
@@ -567,8 +614,10 @@ b3 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr00003_batch64.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed64_lr00003_batch64.csv")
     
 b4 = run_program( 
                 optim = torch.optim.Adam,
@@ -577,8 +626,10 @@ b4 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr00003_batch64.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed32_lr00003_batch64.csv")
     
 
 b5 = run_program(
@@ -588,8 +639,10 @@ b5 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr0001_batch128.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed64_lr0001_batch128.csv")
 
 
 b6 = run_program(
@@ -599,8 +652,10 @@ b6 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr0001_batch128.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed32_lr0001_batch128.csv")
 
 
 
@@ -612,8 +667,10 @@ b7 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed64_lr00003_batch128.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed64_lr00003_batch128.csv")
 
 
 
@@ -625,8 +682,10 @@ b8 =  run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_TwoLayers_embed32_lr00003_batch128.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv")
 
 
 
@@ -662,8 +721,10 @@ c1 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr0001_batch64.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64.csv")
     
 c2 = run_program( 
                 optim = torch.optim.Adam,
@@ -672,8 +733,10 @@ c2 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_batch64.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64.csv")
     
 
 
@@ -684,8 +747,10 @@ c3 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr00003_batch64.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64.csv")
     
 c4 = run_program( 
                 optim = torch.optim.Adam,
@@ -694,8 +759,10 @@ c4 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch64.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64.csv")
     
 
 c5 = run_program(
@@ -705,8 +772,10 @@ c5 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr0001_batch128.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128.csv")
 
 
 c6 = run_program(
@@ -716,8 +785,10 @@ c6 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr0001_batch128.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128.csv")
 
 
 
@@ -729,8 +800,10 @@ c7 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed64_lr00003_batch128.csv")
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128.csv")
 
 
 
@@ -742,5 +815,8 @@ c8 =  run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch128.csv")
+                
+                prediction_val_save = None,
+                prediction_test_save = None,
+                recommend_input=inputforall,
+                recommend_output = "data/Recommend_test_100K_movies(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128.csv")

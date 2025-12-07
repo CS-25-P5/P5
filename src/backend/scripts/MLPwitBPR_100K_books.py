@@ -434,6 +434,7 @@ def run_program(optim,
 
     #STEP 13 : TEST IT 
     test_bpr(model, test_bpr_dataloader, device)
+    
 
 
 
