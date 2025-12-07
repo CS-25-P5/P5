@@ -26,14 +26,9 @@ input4 = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/TEST_GROUND
 def rewrite(input):
     inputpath = input
     df = pandas.read_csv(inputpath)
-    if df["timestamp"]:
-        df = df.drop(columns=["timestamp"])
-    
-    #Make sure of datatype
-    df["userId"] = df["userId"].astype(int)
-    df["movieId"] = df["movieId"].astype(int)
-    df["rating"] = df["rating"].astype(float)
 
+    df = df.drop(columns=["timestamp"])
+    
     users_unique = df["userId"].unique()
     movies_unique = df["movieId"].unique()
 
@@ -50,17 +45,12 @@ def rewrite(input):
     output_path = os.path.join(input_folder, output_name)
 
     #Save
-    final.to_csv(output_path, index=False, na_rep="NaN")
+    final.to_csv(output_path, index=False)
 
 
 def rewritebook(input):
     inputpath = input
     df = pandas.read_csv(inputpath)
-
-    #Make sure of datatype
-    df["userId"] = df["userId"].astype(int)
-    df["itemId"] = df["itemId"].astype(int)
-    df["rating"] = df["rating"].astype(float)
 
     users_unique = df["userId"].unique()
     books_unique = df["itemId"].unique()
@@ -77,7 +67,7 @@ def rewritebook(input):
     output_path = os.path.join(input_folder, output_name)
 
     #Save
-    final.to_csv(output_path, index=False, na_rep="NaN")
+    final.to_csv(output_path, index=False)
 
 
 #rewrite(input2)
@@ -85,5 +75,5 @@ def rewritebook(input):
 #rewrite(input5)
 #rewrite(input6)
 
-#rewritebook(input3)
-#rewritebook(input4)
+rewritebook(input3)
+rewritebook(input4)
