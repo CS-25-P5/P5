@@ -12,17 +12,19 @@ import torch.nn.functional as F
 import numpy as np
 import random
 
-
+input1 = "data/Output_Predictions_test_1M_movies(MLPwithBPR)"
+input2 = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)"
+input3 = "data/Output_Predictions_test_100K_movies(MLPwithBPR)"
 
 def reorder(input_folder):
 
     for filename in os.listdir(input_folder):
-        if filename.endswith(".csv"):
+        if filename.endswith("8.csv") or filename.endswith("4.csv"):
             input_path = os.path.join(input_folder, filename) #### GEt the the path for each file
 
 
             #Load me
-            pred_dataset = pandas.read_csv(input_path) 
+            pred_dataset = pandas.read_csv(input_path, comment = "#") 
 
             #Sorty by userId first, then descend
 
@@ -39,3 +41,9 @@ def reorder(input_folder):
             #Save
             sort_by_id.to_csv(output_path, index = False)
 
+
+'''
+reorder(input1)
+reorder(input2)
+reorder(input3)
+'''
