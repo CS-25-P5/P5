@@ -16,8 +16,8 @@ input1 = "data/Output_Predictions_test_1M_movies(MLPwithBPR)"
 input2 = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)"
 input3 = "data/Output_Predictions_test_100K_movies(MLPwithBPR)"
 
-
-
+input4 = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)"
+input5 = "data/Output_Predictions_test_100K_movies(MLPwithGenres)"
 
 def reorder(input_folder):
 
@@ -32,7 +32,7 @@ def reorder(input_folder):
             #Sorty by userId first, then descend
 
             sort_by_id = pred_dataset.sort_values(
-                by = ["userId", "test_score"],
+                by = ["userId", "test_rating"],
                 ascending=[True, False]
             )
 
@@ -49,4 +49,7 @@ def reorder(input_folder):
 reorder(input1)
 reorder(input2)
 reorder(input3)
+
+reorder(input4)
+reorder(input5)
 '''

@@ -17,5 +17,5 @@ mkdir -p logs
 source venv/bin/activate
 
 #python -u src/backend/scripts/MLP_multipattributes_movies_1M.py
-python -u src/backend/scripts/MLP_multipattributes_goodbooks_100K.py
-python -u src/backend/scripts/MLP_multipattributes_movies_100K.py
+#python -u src/backend/scripts/MLP_multipattributes_goodbooks_100K.py
+#python -u src/backend/scripts/MLP_multipattributes_movies_100K.py
