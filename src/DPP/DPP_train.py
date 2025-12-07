@@ -58,7 +58,7 @@ def run_dpp_pipeline(
 
     # Load train/validation matrices
     item_user_rating_train, genre_map, all_genres, title_to_id = load_and_prepare_matrix(ratings_train_path, item_path, nrows_items=chunksize)
-    item_user_rating_val, _, _ = load_and_prepare_matrix(ratings_val_path, item_path, nrows_items=chunksize)
+    item_user_rating_val, _, _, _ = load_and_prepare_matrix(ratings_val_path, item_path, nrows_items=chunksize)
 
     # Align train/val matrices
     train_aligned, val_aligned = align_train_val_matrices(item_user_rating_train, item_user_rating_val)
