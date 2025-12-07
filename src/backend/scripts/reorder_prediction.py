@@ -16,6 +16,9 @@ input1 = "data/Output_Predictions_test_1M_movies(MLPwithBPR)"
 input2 = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)"
 input3 = "data/Output_Predictions_test_100K_movies(MLPwithBPR)"
 
+
+
+
 def reorder(input_folder):
 
     for filename in os.listdir(input_folder):
