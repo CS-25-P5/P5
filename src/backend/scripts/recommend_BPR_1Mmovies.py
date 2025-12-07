@@ -474,7 +474,6 @@ a1 = run_program(
                 recommend_output= "data/Recommend_test_1M_movies(MLPwithBPR)/Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv")
     
 
-
 a2 = run_program( 
                 optim = torch.optim.Adam,
                 weightdecay = 1e-5,
