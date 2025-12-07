@@ -1,7 +1,0 @@
-import src.backend.scripts.MLPwitBPR_100K_movies
-
-input_dataset_100Kmovies = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/GROUNDTRUTH_alluserandmovies.csv"
-
-input_dataset_1Mmovies = "data/Output_Predictions_test_1M_movies(MLPwithGenres)/GROUNDTRUTH_alluserandmovies.csv"
-
-input_dataset_100Kbooks = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/GROUNDTRUTH_alluserandbooks.csv"

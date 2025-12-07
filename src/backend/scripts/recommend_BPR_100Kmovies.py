@@ -460,7 +460,6 @@ def run_program(optim,
 
 inputforall = "data/Output_Predictions_test_100K_movies(MLPwithBPR)/GROUNDTRUTH_alluserandmovies.csv"
 
-
 a1 = run_program( 
                 optim = torch.optim.Adam,
                 weightdecay = 1e-5,

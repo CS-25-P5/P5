@@ -16,6 +16,6 @@ cd /ceph/home/student.aau.dk/nr38sp/P5
 mkdir -p logs
 source venv/bin/activate
 
-python -u src/backend/scripts/recommend_Genres_1Mmovies.py
 python -u src/backend/scripts/recommend_Genres_100Kbooks.py
 python -u src/backend/scripts/recommend_Genres_100Kmovies.py
+
