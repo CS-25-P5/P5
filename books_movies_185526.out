@@ -1,0 +1,48 @@
+Running on ailab-l4-01
+Start time: Sat Dec  6 12:20:41 CET 2025
+Activating virtual environment...
+Python path: /ceph/home/student.aau.dk/vo55zp/projects/P5/venv/bin/python3
+Python version: Python 3.10.12
+Running on ailab-l4-01
+Start time: Sat Dec  6 12:20:41 CET 2025
+Starting pipeline...
+Best MF params: {'k': 60, 'alpha': 0.005, 'lambda_': 0.2}, RMSE=1.0459
+MF predictions saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-06_12-21-17/mf_train_100000_predictions.csv
+Best lambda: 1.0 with score 0.9361
+Best lambda: 0.9500000000000001 with score 0.9515
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-06_12-21-17/mmr_train_100000_cosine_predictions.csv
+Done MMR for /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-06_12-21-17/mmr_train_100000_cosine_predictions.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-06_12-21-17/mmr_train_100000_jaccard_predictions.csv
+Done MMR for /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-06_12-21-17/mmr_train_100000_jaccard_predictions.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mf_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mmr_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mmr_train_experiment_log.csv
+Pipeline for train finished successfully!
+MF predictions saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-06_12-21-17/mf_test_100000_predictions.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-06_12-21-17/mmr_test_100000_cosine_predictions.csv
+Done MMR for /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-06_12-21-17/mmr_test_100000_cosine_predictions.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-06_12-21-17/mmr_test_100000_jaccard_predictions.csv
+Done MMR for /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-06_12-21-17/mmr_test_100000_jaccard_predictions.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mmr_test_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mmr_test_experiment_log.csv
+Pipeline for test finished successfully!
+Best MF params: {'k': 60, 'alpha': 0.005, 'lambda_': 0.2}, RMSE=0.9926
+MF predictions saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-06_13-18-39/mf_train_100000_predictions.csv
+Best lambda: 0.0 with score 0.6000
+Best lambda: 0.0 with score 0.6000
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-06_13-18-39/mmr_train_100000_cosine_predictions.csv
+Done MMR for /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-06_13-18-39/mmr_train_100000_cosine_predictions.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-06_13-18-39/mmr_train_100000_jaccard_predictions.csv
+Done MMR for /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-06_13-18-39/mmr_train_100000_jaccard_predictions.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/mf_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/mmr_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/mmr_train_experiment_log.csv
+Pipeline for train finished successfully!
+MF predictions saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-06_13-18-39/mf_test_100000_predictions.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-06_13-18-39/mmr_test_100000_cosine_predictions.csv
+Done MMR for /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-06_13-18-39/mmr_test_100000_cosine_predictions.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-06_13-18-39/mmr_test_100000_jaccard_predictions.csv
+Done MMR for /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-06_13-18-39/mmr_test_100000_jaccard_predictions.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/mmr_test_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/mmr_test_experiment_log.csv
+Pipeline for test finished successfully!
