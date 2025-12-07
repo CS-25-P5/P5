@@ -4,7 +4,7 @@
 #SBATCH  --partition=l4						                        #GPU partition
 #SBATCH --gres=gpu:1						                        #Ask for one GPU
 
-#SBATCH --time=07:00:00						                        #Max amount for training is 1 hour
+#SBATCH --time=08:00:00						                        #Max amount for training is 1 hour
 #SBATCH --mem=32G						                            #Amount of RAM allocated
 #SBATCH --cpus-per-task=8					                        #CPu core for loading data and process
 #SBATCH --output=logs/%x-%j.out 				                    #%x is the jobe name, and %j is the ID of the job
