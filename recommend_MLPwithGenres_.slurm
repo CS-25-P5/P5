@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=recommend_items_with_NN_genres		            #Name of the job
 #SBATCH  --partition=l4						                        #GPU partition
-#SBATCH --gres=gpu:2							                    #Ask for one GPU
+#SBATCH --gres=gpu:4							                    #Ask for one GPU
 
 #SBATCH --time=12:00:00						                        #Max amount for training is 1 hour
 #SBATCH --mem=32G						                            #Amount of RAM allocated
