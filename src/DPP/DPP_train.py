@@ -2,7 +2,8 @@ import csv
 import os
 import sys
 import tracemalloc
-from datetime import time, datetime
+from datetime import datetime
+timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
