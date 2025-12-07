@@ -174,7 +174,8 @@ def run_dpp_pipeline_test(
 
     # Align test to filtered items from train
     R_filtered_test, filtered_user_ids_test = align_matrix_to_filtered_items(item_user_rating_test, item_titles)
-
+    num_test_users = R_filtered_test.shape[0]
+    num_items = Q.shape[0]
 
     print(f"→ Test matrix aligned: {R_filtered_test.shape[0]} users × {R_filtered_test.shape[1]} items")
 
@@ -182,14 +183,24 @@ def run_dpp_pipeline_test(
     print("→ Inferring user latent factors P_test...")
 
     # Build an MF container for inference
-    mf = type("MFModel", (), {})()  # dummy object to hold P/Q
-    mf.P, mf.Q = P, Q
-    predicted_ratings_test = mf.P.dot(mf.Q.T)  # full prediction
+    print("→ Inferring test user latent factors...")
+    mf_dummy = type("MFModel", (), {})()  # dummy object to hold P/Q
+    mf_dummy.P = np.zeros((num_test_users, Q.shape[1]))   # zero latent factors for new users
+    mf_dummy.Q = Q
+    mf_dummy.b_u = np.zeros(num_test_users)
+    mf_dummy.b_i = np.zeros(num_items)
+    mf_dummy.mu = np.mean(predicted_ratings_train)
+
+    predicted_ratings_test = mf_dummy.P.dot(mf_dummy.Q.T) + mf_dummy.mu
+
 
     # Top-N MF recommendations
     get_top_n_recommendations_MF(
-        genre_map, predicted_ratings_test, R_filtered_test,
-        filtered_user_ids_test, item_titles,
+        genre_map,
+        predicted_ratings_test,
+        R_filtered_test,
+        filtered_user_ids_test,
+        item_titles,
         title_to_id=title_to_id,
         top_n=top_n,
         save_path=os.path.join(output_dir, f"{run_id}/mf_test_predictions.csv")
@@ -199,8 +210,10 @@ def run_dpp_pipeline_test(
 
     print("→ Building DPP models...")
 
+    all_genres = sorted({g for genres in genre_map.values() for g in genres})
+    print("→ Building DPP models...")
     dpp_cosine, dpp_jaccard = build_dpp_models(
-        item_titles, genre_map, None, predicted_ratings_test
+        item_titles, genre_map, all_genres, predicted_ratings_test
     )
 
     print("→ Running DPP recommendations...")
