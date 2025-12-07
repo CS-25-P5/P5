@@ -11,7 +11,7 @@ from MMR.MF import (
     load_and_prepare_matrix,
     filter_empty_users_data,
     get_top_n_recommendations_MF,
-tune_mf, train_mf_with_best_params,  align_train_val_matrices
+tune_mf, train_mf_with_best_params,  align_train_val_matrices, align_matrix_to_filtered_items
 )
 
 
@@ -48,14 +48,14 @@ def log_experiment(output_dir, file_name, params):
 
 
 def run_dpp_pipeline(
-        ratings_train_path, ratings_val_path, item_path, output_dir, dataset=None, datasize=None,
+        run_id, ratings_train_path, ratings_val_path, item_path, output_dir, dataset=None, datasize=None,
         top_n=10, top_k=20, chunksize = 10000 , n_epochs=50, similarity_types = ["cosine", "jaccard"]
 ):
 
     os.makedirs(output_dir, exist_ok=True)
 
     # Load train/validation matrices
-    item_user_rating_train, genre_map, all_genres = load_and_prepare_matrix(ratings_train_path, item_path, nrows_items=chunksize)
+    item_user_rating_train, genre_map, all_genres, title_to_id = load_and_prepare_matrix(ratings_train_path, item_path, nrows_items=chunksize)
     item_user_rating_val, _, _ = load_and_prepare_matrix(ratings_val_path, item_path, nrows_items=chunksize)
 
     # Align train/val matrices
@@ -72,7 +72,9 @@ def run_dpp_pipeline(
     # Tune MF hyperparameters
     best_params = tune_mf(R_filtered_train, R_filtered_val, n_epochs=n_epochs)
 
-    # Train MF with best hyperparameters
+    print("→ Training Matrix Factorization...")
+
+# Train MF with best hyperparameters
     mf, predicted_ratings, train_rmse = train_mf_with_best_params(R_filtered_train, best_params, n_epochs=n_epochs)
     val_rmse = mf.compute_rmse(R_filtered_val, predicted_ratings)
 
@@ -96,7 +98,7 @@ def run_dpp_pipeline(
         genre_map, predicted_ratings, R_filtered_train,
         item_user_rating_train.index, filtered_item_titles,
         top_n=top_n,
-        save_path=os.path.join(output_dir, "mf_train_predictions.csv")
+        save_path=os.path.join(output_dir, f"{run_id}mf_train_predictions.csv")
     )
 
     movie_titles = filtered_item_titles
@@ -105,7 +107,7 @@ def run_dpp_pipeline(
 
 
 # Build DPP models
-
+    print("→ Building DPP models...")
     dpp_cosine, dpp_jaccard = build_dpp_models(movie_titles, genre_map, all_genres, predicted_ratings)
 
 
@@ -124,6 +126,18 @@ def run_dpp_pipeline(
         output_dir, "jaccard"
     )
 
+    os.makedirs(os.path.join(output_dir, run_id), exist_ok=True)
+    np.save(os.path.join(output_dir, run_id, f"P_{run_id}.npy"), mf.P)
+    np.save(os.path.join(output_dir, run_id, f"Q_{run_id}.npy"), mf.Q)
+    np.save(os.path.join(output_dir, run_id, f"predicted_ratings_{run_id}.npy"), predicted_ratings)
+    pd.Series(filtered_item_titles).to_pickle(os.path.join(output_dir, run_id, f"item_titles_{run_id}.pkl"))
+    pd.Series(genre_map).to_pickle(os.path.join(output_dir, run_id, f"genre_map_{run_id}.pkl"))
+    import pickle
+    with open(os.path.join(output_dir, run_id, f"title_to_id_{run_id}.pkl"), "wb") as f:
+        pickle.dump(title_to_id, f)
+
+    print("DPP TRAIN pipeline completed successfully!")
+
 
 
     return (
@@ -138,106 +152,72 @@ def run_dpp_pipeline(
 # Test pipeline:
 
 
-def run_dpp_test_pipeline(
-        run_id,
-        ratings_path,
-        item_path,
-        output_dir,
-        dataset=None,
-        top_n=10,
-        chunksize=10000,
-        k=20,
-        top_k=20,
-        alpha=0.01,
-        lambda_=0.1,
-        n_epochs=50,
-        random_state = 42):
-
+def run_dpp_pipeline_test(
+        run_id, ratings_test_path, item_path, train_artifact_dir, output_dir,
+        top_n=10, top_k=20
+):
     os.makedirs(output_dir, exist_ok=True)
 
+    # Load test data
+    item_user_rating_test, _, _, _ = load_and_prepare_matrix(ratings_test_path, item_path)
 
-    # Load and prepare data
-    item_user_rating, genre_map, all_genres = load_and_prepare_matrix(
-        ratings_path, item_path, nrows_items=chunksize)
+    # Load train artifacts
+    import pickle
+    import numpy as np
+    P = np.load(os.path.join(train_artifact_dir, run_id, f"P_{run_id}.npy"))
+    Q = np.load(os.path.join(train_artifact_dir, run_id, f"Q_{run_id}.npy"))
+    predicted_ratings_train = np.load(os.path.join(train_artifact_dir, run_id, f"predicted_ratings_{run_id}.npy"))
+    item_titles = pd.read_pickle(os.path.join(train_artifact_dir, run_id, f"item_titles_{run_id}.pkl"))
+    genre_map = pd.read_pickle(os.path.join(train_artifact_dir, run_id, f"genre_map_{run_id}.pkl"))
+    with open(os.path.join(train_artifact_dir, run_id, f"title_to_id_{run_id}.pkl"), "rb") as f:
+        title_to_id = pickle.load(f)
 
-    R = item_user_rating.values
+    # Align test to filtered items from train
+    R_filtered_test, filtered_user_ids_test = align_matrix_to_filtered_items(item_user_rating_test, item_titles)
 
-    R_filtered, filtered_item_titles = filter_empty_users_data(R,item_user_rating.columns )
 
+    print(f"→ Test matrix aligned: {R_filtered_test.shape[0]} users × {R_filtered_test.shape[1]} items")
 
-    tracemalloc.start()
-    start_time_mf = time.time()
+    # ---------- INFER USER LATENT FACTORS ----------
+    print("→ Inferring user latent factors P_test...")
 
-    mf = MatrixFactorization(
-        R_filtered,
-        k,
-        alpha,
-        lambda_,
-        n_epochs,
-        random_state
-    )
-    mf.train()
+    # Build an MF container for inference
+    mf = type("MFModel", (), {})()  # dummy object to hold P/Q
+    mf.P, mf.Q = P, Q
+    predicted_ratings_test = mf.P.dot(mf.Q.T)  # full prediction
 
-    predicted_ratings = mf.full_prediction()  # shape: users × items
-
-    end_time_mf = time.time()
-    time_mf = end_time_mf - start_time_mf
-    mem_mf = tracemalloc.get_traced_memory()[1] / 1024**2
-    tracemalloc.stop()
-
-    # Get top-N candidates for MMR
-    save_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
+    # Top-N MF recommendations
     get_top_n_recommendations_MF(
-        genre_map, predicted_ratings, R_filtered,
-        item_user_rating.index, filtered_item_titles,
-        top_n=top_n, save_path=save_path)
+        genre_map, predicted_ratings_test, R_filtered_test,
+        filtered_user_ids_test, item_titles,
+        title_to_id=title_to_id,
+        top_n=top_n,
+        save_path=os.path.join(output_dir, f"{run_id}/mf_test_predictions.csv")
+    )
 
 
 
+    print("→ Building DPP models...")
 
-    predicted_ratings = np.array(predicted_ratings)
-
-
-
-
-    # 4. Build DPP models (same as TRAIN)
     dpp_cosine, dpp_jaccard = build_dpp_models(
-        filtered_item_titles,
-        genre_map,
-        all_genres,
-        predicted_ratings
+        item_titles, genre_map, None, predicted_ratings_test
     )
 
+    print("→ Running DPP recommendations...")
 
-    # 5. Run DPP recommendations
-    print("→ Running COSINE DPP test recommendations...")
     get_recommendations_for_dpp(
-        dpp_cosine,
-        R_filtered,
-        filtered_item_titles,
-        genre_map,
-        predicted_ratings,
-        top_k,
-        top_n,
-        output_dir,
-        "cosine_test"
+        dpp_cosine, item_user_rating_test[item_titles], item_titles,
+        genre_map, predicted_ratings_test, top_k, top_n,
+        output_dir, "cosine"
     )
 
-    print("→ Running JACCARD DPP test recommendations...")
     get_recommendations_for_dpp(
-        dpp_jaccard,
-        R_filtered,
-        filtered_item_titles,
-        genre_map,
-        predicted_ratings,
-        top_k,
-        top_n,
-        output_dir,
-        "jaccard_test"
-        )
+        dpp_jaccard, item_user_rating_test[item_titles], item_titles,
+        genre_map, predicted_ratings_test, top_k, top_n,
+        output_dir, "jaccard"
+    )
 
-    print("✓ DPP TEST pipeline completed successfully.")
-
+    print("✔ TEST DONE.")
 
 
 
@@ -265,7 +245,10 @@ books_file_path = os.path.join(base_dir, "../datasets/GoodBooks", "books.csv")
 output_dir = os.path.join(base_dir, f"../datasets/dpp_data/{DATASET_NAME}")
 output_dir_test = os.path.join(base_dir, f"../datasets/dpp_data/{DATASET_NAME}/test")
 
+run_book_id = generate_run_id()
+
 run_dpp_pipeline(
+    run_id = run_book_id,
     ratings_train_path = ratings_train_file,
     ratings_val_path= ratings_val_file,
     item_path = books_file_path,
@@ -277,22 +260,14 @@ run_dpp_pipeline(
     dataset=DATASET_NAME,
     datasize=CHUNK_SIZE)
 
-run_book_id = generate_run_id()
 
-run_dpp_test_pipeline(
+run_dpp_pipeline_test(
     run_id = run_book_id,
-    ratings_path = ratings_test_file,
-    item_path = books_file_path,
-    output_dir= output_dir_test,
-    dataset= DATASET_NAME,
-    top_n = TOP_N,
-    chunksize= CHUNK_SIZE,
-    k= K,
-    top_k= TOP_K,
-    alpha= ALPHA,
-    lambda_= LAMDA_,
-    n_epochs=N_EPOCHS,
-    random_state = 42)
-
-
+    ratings_test_path=ratings_test_file,
+    item_path=books_file_path,
+    train_artifact_dir=output_dir,        # folder where train saved P.npy, Q.npy, etc.
+    output_dir=output_dir_test,           # folder to save test results
+    top_n=TOP_N,
+    top_k=TOP_K
+)
 
