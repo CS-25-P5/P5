@@ -65,7 +65,8 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
         results[f"NDCG@{k}"] = metrics_values[f'NDCG@{k}']
         results[f"MRR@{k}"] = metrics_values[f'MRR@{k}']
         results[f"Coverage@{k}"] = metrics_values[f'CatalogCoverage@{k}'] / catalog_size
-        results["Overall Coverage"] = results[f"Coverage@{k}"]
+        unique_recommended_items = data_handler.recommendations['item_id'].nunique()
+        results["Overall Coverage"] = unique_recommended_items / catalog_size
     except Exception as e:
         print(f"Warning: Error calculating ranking metrics for {model_name}: {e}")
         print("Filling with NaN values and continuing")
