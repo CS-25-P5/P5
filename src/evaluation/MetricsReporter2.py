@@ -10,6 +10,7 @@ from DataHandler2 import ProcessedData, load_and_process_data
 import matplotlib.pyplot as plt
 import os
 from datetime import datetime
+from sklearn.metrics.pairwise import pairwise_distances
 
 # Calculate most metrics using RecTools
 def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_features=None,
@@ -81,15 +82,17 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
         results["Overall Coverage"] = np.nan
 
     # intra list diversity (ILD)
+    # Change this block (around line 95):
     if calculate_ild and item_features is not None and not item_features.empty:
         print(f"Calculating ILD@{k} for {model_name}")
-        results[f"ILD@{k}"] = _calculate_ild(data_handler, item_features, k)
+        results[f"ILD@{k}_Hamming"] = _calculate_ild(data_handler, item_features, k, metric='hamming')
+        results[f"ILD@{k}_Jaccard"] = _calculate_ild(data_handler, item_features, k, metric='jaccard')
+        results[f"ILD@{k}_Cosine"] = _calculate_ild(data_handler, item_features, k, metric='cosine')
     else:
-        if calculate_ild:
-            print(f"Skipping ILD for {model_name}: No item features")
-        else:
-            print(f"Skipping ILD for {model_name}: Disabled by user")
-        results[f"ILD@{k}"] = np.nan
+        # Set all three to NaN if skipped
+        results[f"ILD@{k}_Hamming"] = np.nan
+        results[f"ILD@{k}_Jaccard"] = np.nan
+        results[f"ILD@{k}_Cosine"] = np.nan
 
     # Reverse Gini (Popularity Bias)
     print(f"Calculating Reverse Gini for {model_name}")
@@ -133,47 +136,53 @@ def _calculate_rating_metrics(data_handler, model_name="Unknown"):
 
 
 # Calculate Intra-List Diversity with RecTools
-def _calculate_ild(data_handler, item_features, k):
+def _calculate_ild(data_handler, item_features, k, metric='hamming'):
     try:
-        # Ensure matching index types
-        recommendations = data_handler.recommendations.copy()
-        recommendations['item_id'] = recommendations['item_id'].astype(str)
+        recos = data_handler.recommendations.copy()
+        recos['item_id'] = recos['item_id'].astype(str)
+        available = list(set(recos['item_id'].unique()) & set(item_features.index.astype(str)))
 
-        # Filter to items that exist in feature matrix
-        available_items = list(set(recommendations['item_id'].unique()) &
-                               set(item_features.index.astype(str)))
-
-        if not available_items:
-            print("Warning: No item feature overlap")
+        if not available:
             return np.nan
 
-        filtered_features = item_features.loc[available_items]
+        features = item_features.loc[available]
 
-        # Calculate distances (raw)
-        distance_calc = PairwiseHammingDistanceCalculator(filtered_features)
-        ild_metric = IntraListDiversity(k=k, distance_calculator=distance_calc)
-        ild_per_user = ild_metric.calc_per_user(reco=recommendations)
+        class Calculator:
+            def __init__(self, f, m):
+                self.d = pairwise_distances(f.values, metric=m)
+                self.ids = f.index.tolist()
+                self.map = {id_: i for i, id_ in enumerate(self.ids)}
 
-        # Normalize to 0-1 range
-        max_possible_distance = item_features.shape[1]  # Number of genre features
-        normalized_ild = ild_per_user.mean() / max_possible_distance
+            def get_distances(self, ids):
+                # ✅ Handle tuple of two arrays (rectools passes this way)
+                if isinstance(ids, tuple) and len(ids) == 2:
+                    item_0, item_1 = ids
+                    # Convert to numpy arrays
+                    item_0 = item_0.values if hasattr(item_0, 'values') else np.asarray(item_0)
+                    item_1 = item_1.values if hasattr(item_1, 'values') else np.asarray(item_1)
+                    # Build distances for each pair
+                    result = []
+                    for a, b in zip(item_0, item_1):
+                        a_val = str(a.item() if hasattr(a, 'item') else a)
+                        b_val = str(b.item() if hasattr(b, 'item') else b)
+                        if a_val in self.map and b_val in self.map:
+                            result.append(self.d[self.map[a_val], self.map[b_val]])
+                        else:
+                            result.append(0.0)
+                    return np.array(result)
 
-        print(f"Raw ILD: {ild_per_user.mean():.3f}, Normalized ILD: {normalized_ild:.3f}")
-        return normalized_ild
+                return np.array([])  # Fallback
+
+            def __getitem__(self, ids):
+                return self.get_distances(ids)
+
+        calc = Calculator(features, metric)
+        ild = IntraListDiversity(k=k, distance_calculator=calc).calc_per_user(reco=recos)
+        return ild.mean() / (item_features.shape[1] if metric == 'hamming' else 1)
 
     except Exception as e:
-        print(f"ILD calculation failed: {e}")
+        print(f"ILD failed for {metric}: {e}")
         return np.nan
-
-    except Exception as e:
-        print(f"\nILD calculation failed with error: {e}")
-        print(f"Recommendations columns: {list(data_handler.recommendations.columns)}")
-        print(f"Recommendations dtypes:\n{data_handler.recommendations.dtypes}")
-        print(f"Recommendations sample:\n{data_handler.recommendations.head()}")
-        print(f"Item features shape: {item_features.shape}")
-        print(f"Item features index sample: {list(item_features.index)[:5]}")
-        return np.nan
-
 
 # Calculate Reverse Gini (1-gini)
 def _calculate_reverse_gini(recommendations):
@@ -199,7 +208,9 @@ def display_metrics_table(metrics_dict, source_name="Model", k=5):
         f"MAP@{k}",
         f"MRR@{k}",
         f"Coverage@{k}",
-        f"ILD@{k}"
+        f"ILD@{k}_Hamming",
+        f"ILD@{k}_Jaccard",
+        f"ILD@{k}_Cosine"
     ]
     metric_order = overall_metrics + topk_metrics
 
