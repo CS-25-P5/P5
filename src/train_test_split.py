@@ -15,6 +15,24 @@ def convert_genres(genres_str):
         return ""  # empty if parsing fails
     
 
+def remove_duplicate_genres(df, genre_column='genres'):
+
+    def removal(genres_str):
+        if pd.isna(genres_str) or genres_str == "":
+            return ""
+        
+        # Split, clean, remove duplicates
+        genres = str(genres_str).split("|")
+        # preserves order, removes duplicates
+        unique_genres = list(dict.fromkeys(genres))
+
+        return "|".join(unique_genres)
+    
+    df[genre_column] = df[genre_column].apply(removal)
+
+    return df
+
+
 def fix_movie_ratings_mapping_with_links(ratings_df, movies_df, links_df):    
     # Make copies
     ratings = ratings_df.copy()
@@ -69,7 +87,7 @@ def standardize_csv(
     col_mapping: dict = None,
     drop_columns: list = None,
     nrows: int = None,
-    map_to_dense : bool = False
+    #map_to_dense : bool = False
 
 ):
     df = pd.read_csv(input_csv, nrows=nrows)
@@ -101,21 +119,21 @@ def standardize_csv(
             df = df.drop_duplicates(subset=['userId', 'itemId'], keep='first')
 
     # Map userId and itemId to consecutive dense IDS
-    if map_to_dense:
-        for col in ["userId", "itemId"]:
-            if col in df.columns:
-                #get the unique values for column
-                unique_ids = df[col].unique()
+    # if map_to_dense:
+    #     for col in ["userId", "itemId"]:
+    #         if col in df.columns:
+    #             get the unique values for column
+    #             unique_ids = df[col].unique()
 
-                # Build a mapping from orginal ID to new dense index
-                id_to_idx = {original_id: idx for idx, original_id in enumerate(unique_ids)}
+    #             Build a mapping from orginal ID to new dense index
+    #             id_to_idx = {original_id: idx for idx, original_id in enumerate(unique_ids)}
 
-                # Apply mapping to dataframe
-                df[col] = df[col].map(id_to_idx)
+    #             Apply mapping to dataframe
+    #             df[col] = df[col].map(id_to_idx)
 
     # save standardized CSV
     os.makedirs(os.path.dirname(output_csv), exist_ok=True)
-    df.to_csv(output_csv, index=False, low_memory=False)
+    df.to_csv(output_csv, index=False)
     print(f"Standardized CSV saved: {output_csv}")
 
 
@@ -200,7 +218,7 @@ def split_ratings(
 
 
 # Parameters
-CHUNKSIZE = 5000
+CHUNKSIZE = 100000
 TEST_SIZE = 0.20
 
 
@@ -239,7 +257,7 @@ ratings_fixed, movies_fixed = fix_movie_ratings_mapping_with_links(
     links_df=links_raw
 )
 
-# 3. Save the fixed versions temporarily
+# Save the fixed versions temporarily
 temp_ratings_path = os.path.join(output_dir_rating, "ratings.csv")
 final_movies_path = os.path.join(output_dir_rating, "movies.csv")
 
@@ -276,27 +294,28 @@ output_dir = os.path.join(base_dir, "datasets/mmr_data")
 output_dir_rating = os.path.join(base_dir, "datasets/GoodBooks")
 
 
-standardize_csv(
+books_df = standardize_csv(
     input_csv=input_books_csv,
     output_csv=os.path.join(output_dir_rating, f"books.csv"),
     col_mapping={"book_id": "itemId", "book_title": "title", "genres": "genres"},
     drop_columns=["title_ex","book_series", "book_authors", "book_score", "book_rating", 
-                  "book_rating_obj","book_rating_count", "book_review_count", 
-                  "book_desc", "tags", "FE_text", "book_desc_tags_FE", "ratings_1",
-                  "ratings_2","ratings_3","ratings_4","ratings_5","book_edition",
-                  "book_format","original_publication_year","language_code", "book_pages",
-                  "book_pages_obj","books_count","books_count_obj","goodreads_book_id","book_isbn",
-                  "isbn","isbn13","image_url_x","image_url_y","small_image_url"]
+                "book_rating_obj","book_rating_count", "book_review_count", 
+                "book_desc", "tags", "FE_text", "book_desc_tags_FE", "ratings_1",
+                "ratings_2","ratings_3","ratings_4","ratings_5","book_edition",
+                "book_format","original_publication_year","language_code", "book_pages",
+                "book_pages_obj","books_count","books_count_obj","goodreads_book_id","book_isbn",
+                "isbn","isbn13","image_url_x","image_url_y","small_image_url"]
 )
 
 
+books_df = remove_duplicate_genres(books_df)
+books_df.to_csv(os.path.join(output_dir_rating, "books.csv"), index=False)
 
 ratings_df = standardize_csv(
     input_csv=input_rating_csv,
     output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
     col_mapping={"user_id": "userId", "book_id": "itemId", "rating": "rating"},
     nrows = CHUNKSIZE,
-    map_to_dense = True
 )
 
 

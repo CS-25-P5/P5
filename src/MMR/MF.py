@@ -152,85 +152,85 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path):
 
 
 
-def filter_empty_users_data(R, user_ids=None):
-    # Filter users (keep users with at least 1 rating)
-    if user_ids is not None:
-        user_filter = R.sum(axis=1) > 0
-        R = R[user_filter, :]
-        user_ids = user_ids[user_filter]
-    return R, user_ids
+# def filter_empty_users_data(R, user_ids=None):
+#     Filter users (keep users with at least 1 rating)
+#     if user_ids is not None:
+#         user_filter = R.sum(axis=1) > 0
+#         R = R[user_filter, :]
+#         user_ids = user_ids[user_filter]
+#     return R, user_ids
 
 
-def align_train_val_matrices(train_df, val_df):
-    # Find common users AND common items
-    common_users = train_df.index.intersection(val_df.index)
-    common_items = train_df.columns.intersection(val_df.columns)
+# def align_train_val_matrices(train_df, val_df):
+#     # Find common users AND common items
+#     common_users = train_df.index.intersection(val_df.index)
+#     common_items = train_df.columns.intersection(val_df.columns)
     
-    # Align to common users and items only
-    train_aligned = train_df.loc[common_users, common_items]
-    val_aligned = val_df.loc[common_users, common_items]
+#     # Align to common users and items only
+#     train_aligned = train_df.loc[common_users, common_items]
+#     val_aligned = val_df.loc[common_users, common_items]
         
-    return train_aligned, val_aligned
+#     return train_aligned, val_aligned
 
 
-def align_test_matrix(item_user_rating, trained_mf_model):
-    # trained_items = np.array(trained_mf_model.item_ids)    
+# def align_test_matrix(item_user_rating, trained_mf_model):
+#     # trained_items = np.array(trained_mf_model.item_ids)    
 
-    # # Only keep columns that exist in trained MF model
-    # common_items = [i for i in item_user_rating.columns if i in trained_items]
-    # aligned_test = item_user_rating.reindex(columns=common_items, fill_value=0)
+#     # # Only keep columns that exist in trained MF model
+#     # common_items = [i for i in item_user_rating.columns if i in trained_items]
+#     # aligned_test = item_user_rating.reindex(columns=common_items, fill_value=0)
     
-    # # Convert to numpy
-    # R_aligned_test = aligned_test.values
+#     # # Convert to numpy
+#     # R_aligned_test = aligned_test.values
 
-    # # Ensure NumPy array of strings for item_ids
-    # common_items_array = np.array(common_items)
+#     # # Ensure NumPy array of strings for item_ids
+#     # common_items_array = np.array(common_items)
 
-    # return R_aligned_test, common_items_array
+#     # return R_aligned_test, common_items_array
 
-    trained_items = np.array([str(i) for i in trained_mf_model.item_ids])    
+#     trained_items = np.array([str(i) for i in trained_mf_model.item_ids])    
 
-    # Only keep columns that exist in trained MF model
-    common_items = [str(i) for i in item_user_rating.columns if str(i) in trained_items]
+#     # Only keep columns that exist in trained MF model
+#     common_items = [str(i) for i in item_user_rating.columns if str(i) in trained_items]
 
-    aligned_test = item_user_rating.reindex(columns=common_items, fill_value=0)
+#     aligned_test = item_user_rating.reindex(columns=common_items, fill_value=0)
     
-    # Convert to numpy
-    R_aligned_test = aligned_test.values
+#     # Convert to numpy
+#     R_aligned_test = aligned_test.values
 
-    # Ensure NumPy array of strings for item_ids
-    common_items_array = np.array(common_items)
+#     # Ensure NumPy array of strings for item_ids
+#     common_items_array = np.array(common_items)
 
-    print("Aligned test items:", common_items)
-    print("Number of items dropped:", len(item_user_rating.columns) - len(common_items))
-
-
-    return R_aligned_test, common_items_array
+#     print("Aligned test items:", common_items)
+#     print("Number of items dropped:", len(item_user_rating.columns) - len(common_items))
 
 
+#     return R_aligned_test, common_items_array
 
 
 
-def get_aligned_predictions(trained_mf_model, filtered_item_ids):
-    trained_items = np.array([str(i) for i in trained_mf_model.item_ids])
-    filtered_item_ids_str = np.array([str(i) for i in filtered_item_ids])
+
+
+# def get_aligned_predictions(trained_mf_model, filtered_item_ids):
+#     trained_items = np.array([str(i) for i in trained_mf_model.item_ids])
+#     filtered_item_ids_str = np.array([str(i) for i in filtered_item_ids])
     
-    item_indices_in_mf = []
-    for item_id in filtered_item_ids_str:
-        # Check if the item exists in trained MF
-        if item_id in trained_items:
-            index = np.where(trained_items == item_id)[0][0]
-            item_indices_in_mf.append(index)
+#     item_indices_in_mf = []
+#     for item_id in filtered_item_ids_str:
+#         # Check if the item exists in trained MF
+#         if item_id in trained_items:
+#             index = np.where(trained_items == item_id)[0][0]
+#             item_indices_in_mf.append(index)
         
 
-    # Get the predicted ratings for the filtered items
-    predicted_ratings_filtered = trained_mf_model.full_prediction()[:, item_indices_in_mf]
+#     # Get the predicted ratings for the filtered items
+#     predicted_ratings_filtered = trained_mf_model.full_prediction()[:, item_indices_in_mf]
     
-    return predicted_ratings_filtered
+#     return predicted_ratings_filtered
 
 
 
-def save_mf_predictions(all_recommendations, genre_map, id_to_title, output_path="mf_predictions.csv"):
+def save_mf_top_n(all_recommendations, genre_map, id_to_title, output_path="mf_predictions.csv"):
     # ensure parent directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
@@ -290,7 +290,7 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
     #         print(f"{rank}. {movie} — Predicted rating: {score:.2f} | Genres {genres}")
     # print("--------------------------------------------------------------------")
 
-    save_mf_predictions(all_recomenndations, genre_map, id_to_title, save_path)
+    save_mf_top_n(all_recomenndations, genre_map, id_to_title, save_path)
     
 
 
@@ -344,151 +344,6 @@ def train_mf_with_best_params(R_filtered, best_params, n_epochs=50,  random_stat
     return mf, predicted_ratings, train_rmse, random_state
 
 
-
-def generate_rating_predictions(trained_mf_model, train_user_ids, train_item_ids ):
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    ground_truth = os.path.join(base_dir, "../datasets/mmr_data", "movies_ratings_10000_test.csv")
-    test_df = pd.read_csv(ground_truth)
-
-
-
-      
-    def clean_id(x):
-        try:
-            return str(int(float(str(x))))
-        except:
-            return str(x)
-    
-    # Clean IDs
-    test_df['userId'] = test_df['userId'].apply(clean_id)
-    test_df['itemId'] = test_df['itemId'].apply(clean_id)
-    train_users_clean = [clean_id(id) for id in train_user_ids]
-    train_items_clean = [clean_id(id) for id in train_item_ids]
-    
-    # ========== ADD DEBUG CODE HERE ==========
-    print("\n" + "="*60)
-    print("DEBUG: Checking Item Overlap")
-    print("="*60)
-    
-    print(f"MF model was trained on {len(train_items_clean)} items")
-    print(f"Sample training items: {train_items_clean[:20]}")
-    print(f"\nTest has {len(set(test_df['itemId']))} unique items")
-    print(f"Sample test items: {list(test_df['itemId'].unique())[:20]}")
-    
-    # Find overlap
-    train_items_set = set(train_items_clean)
-    test_items_set = set(test_df['itemId'])
-    
-    overlap = train_items_set & test_items_set
-    print(f"\nItem overlap: {len(overlap)} items")
-    if overlap:
-        print(f"Overlap items: {sorted(overlap)[:20]}")
-    else:
-        print("NO OVERLAP FOUND!")
-    
-    # Check the successful predictions
-    successful_items = []
-    for _, row in test_df.iterrows():
-        if row['itemId'] in train_items_set:
-            successful_items.append(row['itemId'])
-    
-    print(f"\nTest items that ARE in training: {len(set(successful_items))}")
-    if successful_items:
-        print(f"Sample: {list(set(successful_items))[:10]}")
-    
-    # Also check users
-    train_users_set = set(train_users_clean)
-    test_users_set = set(test_df['userId'])
-    user_overlap = train_users_set & test_users_set
-    print(f"\nUser overlap: {len(user_overlap)} users")
-    
-    print("="*60 + "\n")
-
-    # DEBUG: Check what's in test data
-    print(f"Test data first row: user={test_df['userId'].iloc[0]}, item={test_df['itemId'].iloc[0]}")
-    print(f"Test user type: {type(test_df['userId'].iloc[0])}")
-    print(f"Test item type: {type(test_df['itemId'].iloc[0])}")
-    
-    # DEBUG: Check what's in training IDs
-    print(f"\nFirst train user: {train_user_ids[0]} (type: {type(train_user_ids[0])})")
-    print(f"First train item: {train_item_ids[0]} (type: {type(train_item_ids[0])})")
-    
-    # Convert ALL IDs to clean strings (no .0, same format)
-    test_df['userId'] = test_df['userId'].apply(lambda x: str(int(float(str(x)))))
-    test_df['itemId'] = test_df['itemId'].apply(lambda x: str(int(float(str(x)))))
-    
-    # Also clean training IDs
-    train_users_clean = [str(int(float(str(id)))) for id in train_user_ids]
-    train_items_clean = [str(int(float(str(id)))) for id in train_item_ids]
-    
-    # Create mappings with CLEAN IDs
-    user_id_to_idx = {user_id: idx for idx, user_id in enumerate(train_users_clean)}
-    item_id_to_idx = {item_id: idx for idx, item_id in enumerate(train_items_clean)}
-    
-    # DEBUG: Check mappings
-    print(f"\nChecking mappings:")
-    test_user = test_df['userId'].iloc[0]
-    test_item = test_df['itemId'].iloc[0]
-    print(f"Test user '{test_user}' in mapping? {test_user in user_id_to_idx}")
-    print(f"Test item '{test_item}' in mapping? {test_item in item_id_to_idx}")
-    
-    if test_user in user_id_to_idx and test_item in item_id_to_idx:
-        print(f"Indices: user[{user_id_to_idx[test_user]}], item[{item_id_to_idx[test_item]}]")
-    else:
-        print("PROBLEM: Can't find in mappings!")
-        print(f"Sample train users: {train_users_clean[:10]}")
-        print(f"Sample test users: {test_df['userId'].unique()[:10]}")
-
-    # Get all predictions
-    all_predictions = trained_mf_model.full_prediction()
-    
-    # Create mappings - IMPORTANT: Convert to strings!
-    user_id_to_idx = {str(user_id): idx for idx, user_id in enumerate(train_user_ids)}
-    item_id_to_idx = {str(item_id): idx for idx, item_id in enumerate(train_item_ids)}
-    
-    results = []
-    successful = 0
-    failed = 0
-
-
-    
-    
-    for _, row in test_df.iterrows():
-        user_str = str(row['userId'])
-        item_str = str(row['itemId'])
-        
-        if user_str in user_id_to_idx and item_str in item_id_to_idx:
-            user_idx = user_id_to_idx[user_str]
-            item_idx = item_id_to_idx[item_str]
-            
-            mf_prediction = all_predictions[user_idx, item_idx]
-            successful += 1
-        else:
-            # Can't predict - use average or 0 instead of None
-            mf_prediction = 0.0  # Or trained_mf_model.mu (global average)
-            failed += 1
-            
-            # Debug why it failed
-            if user_str not in user_id_to_idx:
-                print(f"User {user_str} not in training")
-            if item_str not in item_id_to_idx:
-                print(f"Item {item_str} not in training")
-        
-        results.append({
-            'userId': row['userId'],
-            'itemId': row['itemId'],
-            'true_rating': row['rating'],
-            'mf_prediction': mf_prediction  # Always a number, never None
-        })
-    
-    print(f"Successfully predicted: {successful}/{len(test_df)}")
-    print(f"Failed (cold start): {failed}/{len(test_df)}")
-    
-    pd.DataFrame(results).to_csv("mf_rating_predictions.csv", index=False)
-
-
-
-
 def save_mf_predictions(trained_mf_model, train_user_ids, train_item_ids, ground_truth_path, output_path="mf_rating_predictions.csv"):
     test_df = pd.read_csv(ground_truth_path)
 
@@ -527,6 +382,7 @@ def save_mf_predictions(trained_mf_model, train_user_ids, train_item_ids, ground
         })
 
     # Save predictions
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     pd.DataFrame(results).to_csv(output_path, index=False)
 
-    print(f"✅ MF test predictions saved to: {output_path}")
+    print(f"MF test predictions saved to: {output_path}")
