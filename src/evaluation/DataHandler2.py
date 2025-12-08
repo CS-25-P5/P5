@@ -53,7 +53,7 @@ def load_and_process_data(ground_truth_path, predictions_path):
         if col in pred.columns:
             pred[col] = pred[col].astype(str).str.replace('\\.0$', '', regex=True)
 
-    print("✅ IDs normalized (stripped .0 decimals)")
+    print("IDs normalized (stripped .0 decimals)")
 
     # Convert IDs to strings
     id_columns = ["userId", "itemId", "title"]
