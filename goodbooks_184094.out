@@ -1,0 +1,19 @@
+Running on ailab-l4-04
+Start time: Wed Dec  3 13:25:35 CET 2025
+Activating virtual environment...
+Python path: /ceph/home/student.aau.dk/la15yk/p5_env/bin/python3
+Python version: Python 3.10.12
+Running on ailab-l4-04
+Start time: Wed Dec  3 13:25:35 CET 2025
+Starting pipeline...
+ITEMS COLUMNS: Index(['itemId', 'title', 'title.1', 'genres'], dtype='object')
+RATINGS COLUMNS: Index(['userId', 'itemId', 'rating'], dtype='object')
+ITEMS COLUMNS: Index(['itemId', 'title', 'title.1', 'genres'], dtype='object')
+RATINGS COLUMNS: Index(['userId', 'itemId', 'rating'], dtype='object')
+Best MF params: {'k': 60, 'alpha': 0.005, 'lambda_': 0.2}, RMSE=0.9938
+MF predictions saved: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/books/mf_train_predictions.csv
+DONE with DPP :)
+Done DPP for cosine
+DONE with DPP :)
+Done DPP for jaccard
+End time: Wed Dec  3 14:42:35 CET 2025

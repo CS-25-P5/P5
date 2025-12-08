@@ -110,6 +110,8 @@ class DPP:
         return selected
 
 
+
+
 def build_dpp_models(movie_titles, genre_map, all_features, predicted_ratings):
     dpp_cosine = DPP(
         titles=movie_titles,
@@ -133,7 +135,7 @@ def build_dpp_models(movie_titles, genre_map, all_features, predicted_ratings):
 
 # Add DPP results to list
 def process_dpp(user_id, user_idx, dpp_indices, item_names, feature_map,
-                predicted_ratings, dpp_recommendations_list, top_n=10):
+                predicted_ratings, dpp_recommendations_list, item_to_id,  top_n=10):
 
     for rank, idx in enumerate(dpp_indices[:top_n], start=1):
         item = item_names[idx]
@@ -142,6 +144,7 @@ def process_dpp(user_id, user_idx, dpp_indices, item_names, feature_map,
         dpp_recommendations_list.append({
             'userId': user_id,
             'rank': rank,
+            "itemId": item_to_id.get(item, ""),
             'title': item,
             'predictedRating': predicted_ratings[user_idx, idx],
             'features': feature
@@ -152,7 +155,7 @@ def process_dpp(user_id, user_idx, dpp_indices, item_names, feature_map,
 # Run DPP for all users
 
 def get_recommendations_for_dpp(dpp_model, movie_user_rating, movie_titles, genre_map,
-                                predicted_ratings, top_k, top_n, output_dir, similarity_type):
+                                predicted_ratings, item_to_id, top_k, top_n, output_dir, similarity_type):
 
     results = []
 
@@ -166,9 +169,15 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, movie_titles, genr
         )
 
         process_dpp(
-            user_id, user_idx, dpp_indices,
-            movie_titles, genre_map, predicted_ratings,
-            results, top_n
+            user_id=user_id,
+            user_idx=user_idx,
+            dpp_indices=dpp_indices,
+            item_titles= movie_titles,
+            genre_map=genre_map,
+            predicted_ratings=predicted_ratings,
+            results_list=results,
+            item_to_id=item_to_id,
+            top_n=top_n
         )
 
     save_DPP(results, output_dir, similarity_type)
@@ -180,10 +189,10 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, movie_titles, genr
 
 
 
-def save_DPP(dpp_recommendations_list, base_dir, similarity_type = "cosine"):
+def save_DPP(dpp_recommendations_list, base_dir, similarity_type):
     dpp_df = pd.DataFrame(dpp_recommendations_list)
-    output_dir = os.path.join(base_dir, "../datasets/dpp_data")
+    output_dir = base_dir
     os.makedirs(output_dir, exist_ok=True)
-    output_file_path = os.path.join(output_dir, f"dpp_train_{similarity_type}_recommendations.csv")
+    output_file_path = os.path.join(output_dir, f"dpp_{similarity_type}_recommendations.csv")
     dpp_df.to_csv(output_file_path, index=False)
     print("DONE with DPP :)")
