@@ -516,9 +516,6 @@ def run_test_pipeline(
     print(f"Pipeline for {dataset} test finished successfully!")
 
 
-
-
-
 if __name__ == "__main__":
     # PARAMETER
     TOP_N = 10
