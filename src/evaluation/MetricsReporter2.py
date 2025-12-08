@@ -12,7 +12,7 @@ import os
 from datetime import datetime
 
 # Calculate most metrics using RecTools
-def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None,
+def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_features=None,
                          model_name="Unknown", calculate_ild=True):
     results = {}
 
@@ -31,8 +31,8 @@ def calculate_all_metrics(data_handler, threshold=4.0, k=5, item_features=None,
         ].copy()
 
     # Create catalog of all items from ground truth
-    catalog = data_handler.interactions['item_id'].unique()
-    catalog_size = len(catalog)
+    catalog = catalog["item_id"].unique()
+    catalog_size = 1682 # change when i get the correct movielens file
 
     # Create dictionary of metrics to calculate and set their variables
     metrics = {
@@ -262,7 +262,7 @@ def plot_individual_metric_charts(df_metrics, output_dir="metric_charts"):
 
 
 # function for running it all
-def run_model_comparison(ground_truth_path, sources, threshold=4.0, k=5,
+def run_model_comparison(ground_truth_path, sources, catalog, threshold=4.0, k=5,
                          item_features=None, output_prefix="comparison",
                          calculate_ild=True):  # Add parameter
     all_results_df = pd.DataFrame()
@@ -280,7 +280,7 @@ def run_model_comparison(ground_truth_path, sources, threshold=4.0, k=5,
             continue
 
         # Pass the calculate_ild parameter
-        metrics = calculate_all_metrics(data, threshold, k, item_features,
+        metrics = calculate_all_metrics(catalog, data, threshold, k, item_features,
                                        source_name, calculate_ild)
         source_df = display_metrics_table(metrics, source_name, k)
         all_results_df = pd.concat([all_results_df, source_df])
@@ -378,6 +378,10 @@ if __name__ == "__main__":
 
     # SET THIS TO False TO SKIP ILD AND GENRE LOADING
     CALCULATE_ILD = True # Change to False to skip ILD entirely
+
+    CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+    CATALOG = pd.read_csv(CATALOG_PATH)
+    CATALOG = CATALOG.rename(columns={"itemId": "item_id"})
 
     #Test1
     #GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
@@ -621,5 +625,6 @@ if __name__ == "__main__":
         k=K,
         item_features=ITEM_FEATURES,  # Can still provide features, but they won't be used
         output_prefix=f"top{K}_comparison",
-        calculate_ild=CALCULATE_ILD  #
+        calculate_ild=CALCULATE_ILD,  #
+        catalog=CATALOG
     )
