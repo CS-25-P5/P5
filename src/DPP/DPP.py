@@ -3,9 +3,9 @@ import pandas as pd
 import os
 
 class DPP:
-    def __init__(self, titles, feature_map, all_features, predicted_ratings,
+    def __init__(self, item_ids, feature_map, all_features, predicted_ratings,
                  similarity_type="cosine", epsilon=1e-8):
-        self.titles = titles
+        self.item_ids = item_ids
         self.feature_map = feature_map
         self.all_features = all_features
         self.predicted_ratings = predicted_ratings
@@ -28,10 +28,10 @@ class DPP:
     def build_feature_matrix(self):
         feature_index = {g: i for i, g in enumerate(self.all_features)}
 
-        mat = np.zeros((len(self.titles), len(self.all_features)), dtype=float)
+        mat = np.zeros((len(self.item_ids), len(self.all_features)), dtype=float)
 
-        for i, title in enumerate(self.titles):
-            for g in self.feature_map.get(title, []):
+        for i, item_ids in enumerate(self.item_ids):
+            for g in self.feature_map.get(item_ids, []):
                 mat[i, feature_index[g]] = 1.0
 
         return mat
@@ -114,7 +114,7 @@ class DPP:
 
 def build_dpp_models(movie_titles, genre_map, all_features, predicted_ratings):
     dpp_cosine = DPP(
-        titles=movie_titles,
+        item_ids=movie_titles,
         feature_map=genre_map,
         all_features=all_features,
         predicted_ratings=predicted_ratings,
@@ -122,7 +122,7 @@ def build_dpp_models(movie_titles, genre_map, all_features, predicted_ratings):
     )
 
     dpp_jaccard = DPP(
-        titles=movie_titles,
+        item_ids=movie_titles,
         feature_map=genre_map,
         all_features=all_features,
         predicted_ratings=predicted_ratings,
@@ -139,13 +139,14 @@ def process_dpp(user_id, user_idx, dpp_indices, item_names, feature_map,
 
     for rank, idx in enumerate(dpp_indices[:top_n], start=1):
         item = item_names[idx]
+        title = item_to_id.get(item, "")
         feature = ",".join(feature_map.get(item, set()))
 
         dpp_recommendations_list.append({
             'userId': user_id,
             'rank': rank,
-            "itemId": item_to_id.get(item, ""),
-            'title': item,
+            "itemId": item,
+            'title': title,
             'predictedRating': predicted_ratings[user_idx, idx],
             'features': feature
         })

@@ -6,7 +6,7 @@ import os, csv
 
 
 class MatrixFactorization:
-    def __init__(self, R, k=20, alpha=0.01, lamda_=0.1, n_epochs=50, random_state=42):
+    def __init__(self, R, k=20, alpha=0.01, lamda_=0.1, n_epochs=50, random_state=42, item_ids=None):
         self.R = R
         self.num_users, self.num_items = R.shape
         self.k = k
@@ -14,6 +14,7 @@ class MatrixFactorization:
         self.lambda_ = lamda_
         self.n_epochs = n_epochs
         self.random_state = random_state
+        self.item_ids  = item_ids if item_ids is not None else np.arange(self.num_items)
         np.random.seed(self.random_state)
 
     def train(self):
@@ -39,7 +40,6 @@ class MatrixFactorization:
             for u,i in known_ratings:
                 prediction = self.predict_single(u,i)
                 error = self.R[u,i] - prediction
-
 
                 #append squared error
                 epoch_errors.append(error ** 2)
@@ -101,7 +101,7 @@ class MatrixFactorization:
 
 
 
-def load_and_prepare_matrix(ratings_file_path, item_file_path,nrows_items=None):
+def load_and_prepare_matrix(ratings_file_path, item_file_path):
     # Check if files exist before loading
     if not os.path.exists(ratings_file_path):
         raise FileNotFoundError(f"Ratings file not found: {ratings_file_path}")
@@ -111,7 +111,7 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path,nrows_items=None):
 
     # Load the files
     ratings = pd.read_csv(ratings_file_path)
-    items = pd.read_csv(item_file_path, nrows=nrows_items)
+    items = pd.read_csv(item_file_path)
 
     ratings['itemId'] = ratings['itemId'].astype(str)
     items['itemId'] = items['itemId'].astype(str)
@@ -119,33 +119,27 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path,nrows_items=None):
     #Merge and Clean
     combine = pd.merge(ratings,items, on='itemId')
 
-    # Drop rows without a title
-    combine = combine.dropna(subset=['title'])
-
-
     # Remove duplicates by averaging ratings per user-movie pair
-    combine = combine.groupby(['userId', 'title'], as_index=False).agg({'rating': 'mean'})
-
+    combine = combine.groupby(['userId', 'itemId'], as_index=False).agg({'rating': 'mean'})
 
     # Pivot data into user-item rating matrix
-    user_item_matrix = combine.pivot(index='userId', columns='title', values='rating').fillna(0)
-
+    user_item_matrix = combine.pivot(index='userId', columns='itemId', values='rating').fillna(0)
 
     #build genre map (title to set of genres )
     genre_map = {}
-    title_to_id = {}
+    id_to_title = {}
     for _,row in items.iterrows():
         genres = row['genres']
         title = row['title']
         item_id = row['itemId']
 
-        title_to_id[title] = item_id
+        id_to_title[item_id] = title
 
         if isinstance(genres, str):
             genre_set = set(genres.split('|'))
         else:
             genre_set = set()
-        genre_map[title] = genre_set
+        genre_map[item_id] = genre_set
 
 
     # build all unique genre list
@@ -154,54 +148,101 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path,nrows_items=None):
         all_genres.update(genres)
     all_genres = sorted(all_genres)
 
-    return user_item_matrix, genre_map, all_genres,title_to_id
-
-
-def filter_empty_users_data(R, item_titles=None):
-    # keep users and movies with at least on rating
-    #user_filter = R.sum(axis = 1) > 0
-
-    movie_filter = R.sum(axis = 0) > 0
-
-    R_filtered = R[:, movie_filter]
-
-    filtered_movie_titles = item_titles[movie_filter] if item_titles is not None else None
-
-    return R_filtered, filtered_movie_titles
-
-
-def align_train_val_matrices(train_df, val_df):
-    # Find common movies
-    train_items = set(train_df.columns)
-    val_items = set(val_df.columns)
-    common_items = sorted(train_items & val_items)
-
-    if len(common_items) == 0:
-        raise ValueError("No overlapping itemIds  between train and validation")
-
-
-    # SUbset and reorder both matrices
-    train_aligned = train_df[common_items]
-    val_aligned = val_df[common_items]
-
-    return train_aligned, val_aligned
+    return user_item_matrix, genre_map, all_genres, id_to_title
 
 
 
+# def filter_empty_users_data(R, user_ids=None):
+#     Filter users (keep users with at least 1 rating)
+#     if user_ids is not None:
+#         user_filter = R.sum(axis=1) > 0
+#         R = R[user_filter, :]
+#         user_ids = user_ids[user_filter]
+#     return R, user_ids
 
-def save_mf_predictions(all_recommendations, genre_map, title_to_id, output_path="mf_predictions.csv"):
+
+# def align_train_val_matrices(train_df, val_df):
+#     # Find common users AND common items
+#     common_users = train_df.index.intersection(val_df.index)
+#     common_items = train_df.columns.intersection(val_df.columns)
+
+#     # Align to common users and items only
+#     train_aligned = train_df.loc[common_users, common_items]
+#     val_aligned = val_df.loc[common_users, common_items]
+
+#     return train_aligned, val_aligned
+
+
+# def align_test_matrix(item_user_rating, trained_mf_model):
+#     # trained_items = np.array(trained_mf_model.item_ids)
+
+#     # # Only keep columns that exist in trained MF model
+#     # common_items = [i for i in item_user_rating.columns if i in trained_items]
+#     # aligned_test = item_user_rating.reindex(columns=common_items, fill_value=0)
+
+#     # # Convert to numpy
+#     # R_aligned_test = aligned_test.values
+
+#     # # Ensure NumPy array of strings for item_ids
+#     # common_items_array = np.array(common_items)
+
+#     # return R_aligned_test, common_items_array
+
+#     trained_items = np.array([str(i) for i in trained_mf_model.item_ids])
+
+#     # Only keep columns that exist in trained MF model
+#     common_items = [str(i) for i in item_user_rating.columns if str(i) in trained_items]
+
+#     aligned_test = item_user_rating.reindex(columns=common_items, fill_value=0)
+
+#     # Convert to numpy
+#     R_aligned_test = aligned_test.values
+
+#     # Ensure NumPy array of strings for item_ids
+#     common_items_array = np.array(common_items)
+
+#     print("Aligned test items:", common_items)
+#     print("Number of items dropped:", len(item_user_rating.columns) - len(common_items))
+
+
+#     return R_aligned_test, common_items_array
+
+
+
+
+
+# def get_aligned_predictions(trained_mf_model, filtered_item_ids):
+#     trained_items = np.array([str(i) for i in trained_mf_model.item_ids])
+#     filtered_item_ids_str = np.array([str(i) for i in filtered_item_ids])
+
+#     item_indices_in_mf = []
+#     for item_id in filtered_item_ids_str:
+#         # Check if the item exists in trained MF
+#         if item_id in trained_items:
+#             index = np.where(trained_items == item_id)[0][0]
+#             item_indices_in_mf.append(index)
+
+
+#     # Get the predicted ratings for the filtered items
+#     predicted_ratings_filtered = trained_mf_model.full_prediction()[:, item_indices_in_mf]
+
+#     return predicted_ratings_filtered
+
+
+
+def save_mf_top_n(all_recommendations, genre_map, id_to_title, output_path="mf_predictions.csv"):
     # ensure parent directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     rows = []
     for user_id, recs in all_recommendations.items():
-        for title, score in recs:
+        for item_id, score in recs:
             rows.append({
                 "userId": user_id,
-                "itemId": title_to_id.get(title,""),
-                "title": title,
+                "itemId": item_id,
+                "title": id_to_title.get(item_id, ""),
                 "mf_score":score,
-                "genres": ",".join(genre_map.get(title,[])) if genre_map else ""
+                "genres": ",".join(genre_map.get(item_id,[])) if genre_map else ""
             })
 
     df = pd.DataFrame(rows)
@@ -209,7 +250,11 @@ def save_mf_predictions(all_recommendations, genre_map, title_to_id, output_path
     print(f"MF predictions saved: {output_path}")
 
 
-def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filtered_user_ids, filtered_item_titles,  title_to_id, top_n=10, save_path=None ):
+def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filtered_user_ids, filtered_item_ids,  id_to_title, top_n=10, save_path=None ):
+
+    # Convert filtered_item_ids to NumPy array to allow array indexing
+    filtered_item_ids = np.array(filtered_item_ids)
+
     # store all recomendations for all users
     all_recomenndations = {}
 
@@ -230,8 +275,8 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
         top_indices = sorted_indices[:min(top_n, len(sorted_indices))]
 
 
-        # Map to movies titles and scors
-        top_items = filtered_item_titles[top_indices]
+        # Map top indices to item IDs
+        top_items = filtered_item_ids[top_indices]
         top_scores = user_ratings_filtered[top_indices]
 
         #store a list of (movie, predicted rating)
@@ -245,7 +290,7 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
     #         print(f"{rank}. {movie} — Predicted rating: {score:.2f} | Genres {genres}")
     # print("--------------------------------------------------------------------")
 
-    save_mf_predictions(all_recomenndations, genre_map, title_to_id, save_path)
+    save_mf_top_n(all_recomenndations, genre_map, id_to_title, save_path)
 
 
 
@@ -299,39 +344,45 @@ def train_mf_with_best_params(R_filtered, best_params, n_epochs=50,  random_stat
     return mf, predicted_ratings, train_rmse, random_state
 
 
-def infer_user_factors(self, R_test, max_steps=50):
-    """
-    user latent vectors P_test while keeping Q fixed.
-    goal: NOT to re-train MF.
-    """
-    num_users = R_test.shape[0]
-    P_test = np.random.normal(scale=0.1, size=(num_users, self.k))
+def save_mf_predictions(trained_mf_model, train_user_ids, train_item_ids, ground_truth_path, output_path="mf_rating_predictions.csv"):
+    test_df = pd.read_csv(ground_truth_path)
 
-    for step in range(max_steps):
-        for u in range(num_users):
-            # select only rated items
-            rated_items = np.where(R_test[u] > 0)[0]
-            if len(rated_items) == 0:
-                continue
+    # Convert all IDs to strings (clean format)
+    test_df['userId'] = test_df['userId'].apply(lambda x: str(int(float(x))))
+    test_df['itemId'] = test_df['itemId'].apply(lambda x: str(int(float(x))))
+    train_user_ids = [str(int(float(u))) for u in train_user_ids]
+    train_item_ids = [str(int(float(i))) for i in train_item_ids]
 
-            Q_i = self.Q[rated_items]
-            r_ui = R_test[u, rated_items]
+    # Create mappings from IDs to matrix indices
+    user_id_to_idx = {user_id: idx for idx, user_id in enumerate(train_user_ids)}
+    item_id_to_idx = {item_id: idx for idx, item_id in enumerate(train_item_ids)}
 
-            # Ridge regression closed-form update:
-            A = Q_i.T @ Q_i + self.lambda_ * np.eye(self.k)
-            b = Q_i.T @ r_ui
+    # Get all MF predictions
+    all_predictions = trained_mf_model.full_prediction()
 
-            P_test[u] = np.linalg.solve(A, b)
+    # Generate predictions for test set
+    results = []
+    for _, row in test_df.iterrows():
+        user_str = row['userId']
+        item_str = row['itemId']
 
-    return P_test
+        if user_str in user_id_to_idx and item_str in item_id_to_idx:
+            user_idx = user_id_to_idx[user_str]
+            item_idx = item_id_to_idx[item_str]
+            mf_prediction = all_predictions[user_idx, item_idx]
+        else:
+            # Cold-start user/item fallback
+            mf_prediction = 0.0
 
-def align_matrix_to_filtered_items(matrix_df, filtered_item_titles, filtered_user_ids):
-    # Filter users that exist in matrix_df
-    user_indices = [matrix_df.index.get_loc(u) for u in filtered_user_ids if u in matrix_df.index]
-    # Filter items that exist in matrix_df
-    item_indices = [matrix_df.columns.get_loc(i) for i in filtered_item_titles if i in matrix_df.columns]
+        results.append({
+            'userId': row['userId'],
+            'itemId': row['itemId'],
+            'true_rating': row['rating'],
+            'mf_prediction': mf_prediction
+        })
 
-    aligned_matrix = matrix_df.values[np.ix_(user_indices, item_indices)]
-    aligned_df = matrix_df.iloc[user_indices, item_indices]
+    # Save predictions
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    pd.DataFrame(results).to_csv(output_path, index=False)
 
-    return aligned_matrix, aligned_df
+    print(f"MF test predictions saved to: {output_path}")
