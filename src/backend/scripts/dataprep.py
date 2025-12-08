@@ -4,7 +4,7 @@ import os
 import torch
 from torch import nn
 import copy
-
+import ast
 from torch.utils.data import DataLoader, Dataset
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -12,6 +12,7 @@ import pandas as pandas
 import torch.nn.functional as F
 import numpy as np
 import random
+import json
 
 
 '''
@@ -182,3 +183,54 @@ new_merged_dataset_100K = books_100K.merge(
 #SAVE the dataset
 new_merged_dataset_100K.to_csv("data/input_data_til_MLP_genres_100K_books.csv", index=False)
 '''
+
+
+
+########## Make datasets for recommendation test for 100Kbooks and 100K movies
+
+
+###inputs
+books_test_dataset = pandas.read_csv("data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/GROUNDTRUTH_alluserandbooks.csv")
+books_metadata = pandas.read_csv("data/Input_goodbooks_dataset_100K/books.csv")
+
+movies_test_dataset = pandas.read_csv("data/Output_Predictions_test_100K_movies(MLPwithGenres)/GROUNDTRUTH_alluserandmovies.csv")
+movies_metadata = pandas.read_csv("data/input_data_til_MLP_genres_100K.csv")
+
+'''
+#Books
+books_test_dataset = books_test_dataset.head(200000)
+merged_books = books_test_dataset.merge(books_metadata[["itemId", "genres"]], on="itemId", how="left")
+
+def processing_missing_genres_forbook(input):
+    if pandas.isna(input) or input == "":
+        return []              # if no genre => make empty list []
+    if isinstance(input, str):
+        return input.split("|")    #Split it into a lits
+    return input                   
+    
+merged_books["genres"] = merged_books["genres"].apply(processing_missing_genres_forbook)
+merged_books.to_csv("data/Recommend_test_100K_goodbooks(MLPwithGenres)/Final_input.csv", index=False)
+
+'''
+
+
+
+#Movies
+movies_test_dataset = movies_test_dataset.head(20)
+merged_movies = movies_test_dataset.merge(movies_metadata[["movieId", "genres"]], on="movieId", how="left")
+
+def genres_movies(inputmovie):
+    if pandas.isna(inputmovie) or inputmovie == "":
+        return []
+    try:
+        parsed_genres = ast.literal_eval(inputmovie)
+        if isinstance(parsed_genres, list):
+            return [entry.get("name") for entry in parsed_genres if isinstance(entry, dict) and "name" in entry]
+        return []
+
+    except(ValueError, SyntaxError):
+        return []
+
+merged_movies["genres"]=merged_movies["genres"].apply(genres_movies)
+
+merged_movies.to_csv("data/Recommend_test_100K_movies(MLPwithGenres)/Final_inputmovie.csv", index=False)
