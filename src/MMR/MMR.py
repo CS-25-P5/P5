@@ -10,8 +10,8 @@ from rectools.metrics.distances import PairwiseHammingDistanceCalculator
 
 
 class MMR:
-    def __init__(self, item_titles, genre_map, all_genres, predicted_ratings, similarity_type='jaccard', lambda_param=0.7):
-        self.item_titles = item_titles
+    def __init__(self, item_ids, genre_map, all_genres, predicted_ratings, similarity_type='jaccard', lambda_param=0.7):
+        self.item_ids = item_ids
         self.genre_map = genre_map
         self.all_genres = all_genres
         self.predicted_ratings = predicted_ratings
@@ -38,12 +38,12 @@ class MMR:
             genre_index[genre] = idx
 
         # create a 2-dimensional matrix (numpy array) filled with zeros
-        mat = np.zeros((len(self.item_titles), len(self.all_genres)), dtype=np.float32)
+        mat = np.zeros((len(self.item_ids), len(self.all_genres)), dtype=np.float32)
 
         # fill matrix so it indicates which genres each movie belong to
-        for i, title in enumerate(self.item_titles):
-            # fallback to empty set if title missing or empty in genre_map
-            genres = self.genre_map.get(title, set())
+        for i, item_id in enumerate(self.item_ids):
+            # fallback to empty set if item_id missing in genre_map
+            genres = self.genre_map.get(item_id, set())
             for g in genres:
                 mat[i, genre_index[g]] = 1.0
 
@@ -113,14 +113,20 @@ def run_mmr(mmr_model, R_filtered, top_k):
     
     return all_recs
 
-def process_save_mmr(all_recs, item_user_rating, item_titles, predicted_ratings, genre_map,title_to_id, top_n, output_file_path):
+def process_save_mmr(all_recs, item_user_rating, item_ids, predicted_ratings, genre_map, id_to_title, top_n, output_file_path):
     results = []
     for user_idx, rec_indices in enumerate(all_recs):
         user_id = item_user_rating.index[user_idx]
         process_mmr(
-            user_id, user_idx, rec_indices, 
-            item_titles, genre_map, predicted_ratings, 
-            results, title_to_id, top_n)
+            user_id=user_id,
+            user_idx=user_idx,
+            mmr_indices=rec_indices,
+            item_ids=item_ids,
+            genre_map=genre_map,
+            predicted_ratings=predicted_ratings,
+            mmr_recommendations_list=results,
+            id_to_title=id_to_title,
+            top_n=top_n)
 
     # save result as csv
     save_mmr_results(results, output_file_path)
@@ -129,19 +135,20 @@ def process_save_mmr(all_recs, item_user_rating, item_titles, predicted_ratings,
 
 
 
-def process_mmr(user_id, user_idx, mmr_indices, item_names, genre_map, predicted_ratings, mmr_recommendations_list, title_to_id, top_n=10):
+def process_mmr(user_id, user_idx, mmr_indices, item_ids, genre_map, predicted_ratings, mmr_recommendations_list, id_to_title, top_n=10):
 
     for rank, idx in enumerate(mmr_indices[:top_n], start = 1):
-        title = item_names[idx]
+        item_id = item_ids[idx]
+        title = id_to_title.get(item_id, "")
         # handle missing genres
-        item_genres = genre_map.get(title, set())
+        item_genres = genre_map.get(item_id, set())
         genres = ",".join(item_genres)
 
 
         mmr_recommendations_list.append({
             'userId': user_id,
             'rank': rank,
-            'itemId': title_to_id.get(title, "") ,
+            'itemId': item_id ,
             'title': title,
             'predictedRating': predicted_ratings[user_idx, idx],
             'genres':genres
@@ -258,7 +265,7 @@ def tune_mmr_lambda(
         # takes mean over all users - overall relevnace score
         ndcg_val = ndcg_val.mean()
 
-     
+
         #compute ILD - overall diverisity score
         ild_val = ild_metric.calc_per_user(
             reco=recs_df.rename(columns={"user": "user_id", "item": "item_id", "rank": "rank"})).mean()
@@ -289,22 +296,20 @@ def tune_mmr_lambda(
 
 
 def mmr_builder_factory(
-        item_titles, 
+        item_ids, 
         genre_map, 
         all_genres, 
         predicted_ratings, 
         similarity_type="cosine"):
-    
 
     def builder(lambda_param):
         return MMR(
-            item_titles = item_titles,
+            item_ids = item_ids,
             genre_map=genre_map,
             all_genres=all_genres,
             predicted_ratings=predicted_ratings,
             similarity_type=similarity_type,
             lambda_param=lambda_param
-            
             )
     return builder
 
