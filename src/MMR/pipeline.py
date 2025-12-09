@@ -534,8 +534,8 @@ if __name__ == "__main__":
     N_EPOCHS = 50
     TOP_K = 20
     LAMBDA_PARAM = 0.7
-    RELEVANCE_WEIGHT = 0.6
-    DIVERSITY_WEIGHT = 0.4
+    RELEVANCE_WEIGHT = 0.8
+    DIVERSITY_WEIGHT = 0.2
     RANDOM_STATE = 42
 
     #load data
