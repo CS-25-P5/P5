@@ -78,6 +78,7 @@ def run_program(optim,
     final_dataframe["movie_index"] = final_dataframe["movieId"].map(movie_to_index)
 
 
+
     #create the genre columns
     genre_columns = [c for c in final_dataframe.columns if c.startswith("genre_")]
 
@@ -388,7 +389,8 @@ def run_program(optim,
 
 
 
-inputforall = "data/Output_Predictions_test_100K_movies(MLPwithBPR)/GROUNDTRUTH_alluserandmovies.csv"
+
+inputforall = "data/Recommend_test_100K_movies(MLPwithGenres)/Final_input_movies.csv"
 
 
 a1 = run_program( 

@@ -456,6 +456,11 @@ def run_program(optim,
     big_df["recommendation_score"] = big_scores
     big_df.to_csv(big_output, index=False)
 
+    unknown_users  = ~big_df["userId"].isin(dataset["userId"])
+    unknown_movies = ~big_df["movieId"].isin(dataset["movieId"])
+    print("Unknown users:", unknown_users.sum())
+    print("Unknown movies:", unknown_movies.sum())  
+
 
 
 inputforall = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/GROUNDTRUTH_alluserandbooks.csv"
@@ -471,10 +476,10 @@ a1 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output= "data/Recommend_test_100K_goodbooks(MLPwithBPR)/Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv")
+                recommend_output= "data/dummy/Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv")
     
 
-
+'''
 
 a2 = run_program( 
                 optim = torch.optim.Adam,
@@ -820,3 +825,4 @@ c8 =  run_program(
                 prediction_test_save = None,
                 recommend_input=inputforall,
                 recommend_output = "data/Recommend_test_100K_goodbooks(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128.csv")
+'''

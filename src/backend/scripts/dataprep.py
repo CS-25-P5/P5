@@ -13,6 +13,7 @@ import torch.nn.functional as F
 import numpy as np
 import random
 import json
+from sklearn.preprocessing import MultiLabelBinarizer
 
 
 '''
@@ -194,7 +195,8 @@ books_test_dataset = pandas.read_csv("data/Output_Predictions_test_100K_goodbook
 books_metadata = pandas.read_csv("data/Input_goodbooks_dataset_100K/books.csv")
 
 movies_test_dataset = pandas.read_csv("data/Output_Predictions_test_100K_movies(MLPwithGenres)/GROUNDTRUTH_alluserandmovies.csv")
-movies_metadata = pandas.read_csv("data/input_data_til_MLP_genres_100K.csv")
+movies_links = pandas.read_csv("data/Input_movies_dataset_100K/links.csv")
+movies_meta = pandas.read_csv("data/Input_movies_dataset_100K/movies_metadata.csv", low_memory=False)
 
 '''
 #Books
@@ -215,22 +217,42 @@ merged_books.to_csv("data/Recommend_test_100K_goodbooks(MLPwithGenres)/Final_inp
 
 
 
-#Movies
-movies_test_dataset = movies_test_dataset.head(20)
-merged_movies = movies_test_dataset.merge(movies_metadata[["movieId", "genres"]], on="movieId", how="left")
+#Movies => We have to link ratings to links first, and then the merged file to movie metadata
+movies_test_dataset = movies_test_dataset.head(200000)
+merged_on_links = movies_test_dataset.merge(movies_links[["movieId", "tmdbId"]], on="movieId", how="left")
 
-def genres_movies(inputmovie):
+merged_on_links["tmdbId"] = pandas.to_numeric(merged_on_links["tmdbId"], errors="coerce")
+movies_meta["id"] = pandas.to_numeric(movies_meta["id"], errors="coerce")
+
+merge_all = merged_on_links.merge(movies_meta[["id", "genres"]], left_on="tmdbId", right_on="id", how="left")
+#print(merge_all.head(5))
+#print(merge_all.columns)
+merge_all=merge_all.drop(columns=["tmdbId", "id"])
+#print(merge_all.columns)
+
+
+def change_genre_layout(inputmovie):
     if pandas.isna(inputmovie) or inputmovie == "":
-        return []
+        return[]
     try:
-        parsed_genres = ast.literal_eval(inputmovie)
-        if isinstance(parsed_genres, list):
-            return [entry.get("name") for entry in parsed_genres if isinstance(entry, dict) and "name" in entry]
+        parsedgenres = ast.literal_eval(inputmovie)
+    except (ValueError, SyntaxError):
         return []
+    
+    if isinstance(parsedgenres, list):
+        genre_list = []
+        for entry in parsedgenres:
+            if isinstance(entry, dict) and "name" in entry:  #Get the name of the dictionary list and append to list
+                genre_list.append(entry["name"])
+        return genre_list
 
-    except(ValueError, SyntaxError):
-        return []
 
-merged_movies["genres"]=merged_movies["genres"].apply(genres_movies)
+    #For any other weird input we just return a lsit
+    return []
 
-merged_movies.to_csv("data/Recommend_test_100K_movies(MLPwithGenres)/Final_inputmovie.csv", index=False)
+merge_all["genres"] = merge_all["genres"].apply(change_genre_layout) #Apply the function to the dataset
+
+final_dataset = merge_all[["userId", "movieId", "rating", "genres"]]
+final_dataset.to_csv("data/Recommend_test_100K_movies(MLPwithGenres)/Final_input_movies.csv", index=False)
+
+
