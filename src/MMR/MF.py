@@ -228,26 +228,56 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path):
     
 #     return predicted_ratings_filtered
 
+def process_save_mf(all_recommendations, item_user_rating, item_ids, predicted_ratings, genre_map, id_to_title, top_n=10, output_file_path="mf_predictions.csv"):
+    results = []
+
+    for user_idx, user_id in enumerate(item_user_rating.index):
+        user_recs = all_recommendations[user_id]
+        process_mf(
+            user_id=user_id,
+            user_idx=user_idx,
+            user_recs=user_recs,
+            item_ids=item_ids,
+            genre_map=genre_map,
+            id_to_title=id_to_title,
+            predicted_ratings=predicted_ratings,
+            mf_recommendations_list=results,
+            top_n=top_n
+        )
+
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
+
+    # Save to CSV
+    df = pd.DataFrame(results)
+    df.to_csv(output_file_path, index=False)
+    print(f"MF predictions saved: {output_file_path}")
 
 
-def save_mf_top_n(all_recommendations, genre_map, id_to_title, output_path="mf_predictions.csv"):
-    # ensure parent directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    rows = []
-    for user_id, recs in all_recommendations.items():
-        for item_id, score in recs:
-            rows.append({
-                "userId": user_id, 
-                "itemId": item_id,
-                "title": id_to_title.get(item_id, ""), 
-                "mf_score":score,
-                "genres": ",".join(genre_map.get(item_id,[])) if genre_map else ""
-                })
+def process_mf(user_id, user_idx, mf_indices, item_ids, genre_map, id_to_title, predicted_ratings,  mf_recommendations_list, top_n=10):
 
-    df = pd.DataFrame(rows)
-    df.to_csv(output_path, index=False)
-    print(f"MF predictions saved: {output_path}")
+    for rank, idx in enumerate(mf_indices[:top_n], start=1):
+        item_id = item_ids[idx]
+        title = id_to_title.get(item_id, "")
+        score =  predicted_ratings[user_idx, idx]
+
+        # handle missing genres
+        item_genres = genre_map.get(item_id, set())
+        genres = ",".join(item_genres)
+
+        mf_recommendations_list.append({
+            "userId": user_id, 
+            "rank": rank,
+            "itemId": item_id,
+            "title": title, 
+            "predictedRating":score,
+            "genres": genres
+            })
+
+    # df = pd.DataFrame(rows)
+    # df.to_csv(output_path, index=False)
+    # print(f"MF predictions saved: {output_path}")
 
 
 def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filtered_user_ids, filtered_item_ids,  id_to_title, top_n=10, save_path=None ):
@@ -256,7 +286,7 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
     filtered_item_ids = np.array(filtered_item_ids)
 
     # store all recomendations for all users
-    all_recomenndations = {}
+    all_recommendations = {}
 
     for user_idx, user_id in enumerate(filtered_user_ids):
         # Get all predicted movie ratings for user
@@ -269,18 +299,22 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
         user_ratings_filtered = np.where(already_rated, -np.inf, user_ratings)
 
         # get indicies sorted descending 
-        sorted_indices = np.argsort(user_ratings_filtered)[::-1]
+        #sorted_indices = np.argsort(user_ratings_filtered)[::-1]
 
-        # Tak top N or fewer if not enough movies
-        top_indices = sorted_indices[:min(top_n, len(sorted_indices))]
+        # # Tak top N or fewer if not enough movies
+        # top_indices = sorted_indices[:min(top_n, len(sorted_indices))]
 
 
         # Map top indices to item IDs
-        top_items = filtered_item_ids[top_indices]
-        top_scores = user_ratings_filtered[top_indices]
+        # top_items = filtered_item_ids[top_indices]
+        # top_scores = user_ratings_filtered[top_indices]
+
+        sorted_indices = np.argsort(user_ratings_filtered)[::-1]
+        top_indices = sorted_indices[:top_n]
 
         #store a list of (movie, predicted rating)
-        all_recomenndations[user_id] = list(zip(top_items, top_scores))
+        #all_recommendations[user_id] = list(zip(top_items, top_scores))
+        all_recommendations[user_id] = top_indices.tolist()
 
         # MMR-style output for this user
     #     print("--------------------------------------------------------------------")
@@ -290,7 +324,17 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
     #         print(f"{rank}. {movie} — Predicted rating: {score:.2f} | Genres {genres}")
     # print("--------------------------------------------------------------------")
 
-    save_mf_top_n(all_recomenndations, genre_map, id_to_title, save_path)
+    process_save_mf(
+        all_recommendations=all_recommendations,
+        item_user_rating=R_filtered,         
+        item_ids=filtered_item_ids,          
+        predicted_ratings=predicted_ratings, 
+        genre_map=genre_map,
+        id_to_title=id_to_title,
+        top_n=top_n,
+        output_file_path=save_path
+    )
+
     
 
 
@@ -378,7 +422,7 @@ def save_mf_predictions(trained_mf_model, train_user_ids, train_item_ids, ground
             'userId': row['userId'],
             'itemId': row['itemId'],
             'true_rating': row['rating'],
-            'mf_prediction': mf_prediction
+            'predictedRating': mf_prediction
         })
 
     # Save predictions

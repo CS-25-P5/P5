@@ -1,6 +1,7 @@
 import rectools
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
+import os
 import numpy as np
 from rectools.metrics import (
     NDCG, IntraListDiversity
@@ -129,8 +130,15 @@ def process_save_mmr(all_recs, item_user_rating, item_ids, predicted_ratings, ge
             top_n=top_n)
 
     # save result as csv
-    save_mmr_results(results, output_file_path)
-    print(f"Done MMR for {output_file_path}")
+    #save_mmr_results(results, output_file_path)
+
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
+
+    #save to csv
+    mmr_df = pd.DataFrame(results)
+    mmr_df.to_csv(output_file_path, index=False)
+    print(f"MMR results saved: {output_file_path}")
 
 
 
@@ -143,6 +151,7 @@ def process_mmr(user_id, user_idx, mmr_indices, item_ids, genre_map, predicted_r
         # handle missing genres
         item_genres = genre_map.get(item_id, set())
         genres = ",".join(item_genres)
+        score =  predicted_ratings[user_idx, idx]
 
 
         mmr_recommendations_list.append({
@@ -150,7 +159,7 @@ def process_mmr(user_id, user_idx, mmr_indices, item_ids, genre_map, predicted_r
             'rank': rank,
             'itemId': item_id ,
             'title': title,
-            'predictedRating': predicted_ratings[user_idx, idx],
+            'predictedRating': score,
             'genres':genres
 
         })
@@ -166,14 +175,14 @@ def process_mmr(user_id, user_idx, mmr_indices, item_ids, genre_map, predicted_r
     # print("--------------------------------------------------")
 
 
-def save_mmr_results(mmr_recommendations_list, output_file_path):
-    # create output dataframe
-    mmr_df = pd.DataFrame(mmr_recommendations_list)
+# def save_mmr_results(mmr_recommendations_list, output_file_path):
+#     # create output dataframe
+#     mmr_df = pd.DataFrame(mmr_recommendations_list)
 
-    #save to csv
-    mmr_df.to_csv(output_file_path, index=False)
+#     #save to csv
+#     mmr_df.to_csv(output_file_path, index=False)
  
-    print(f"MMR results saved: {output_file_path}")
+#     print(f"MMR results saved: {output_file_path}")
 
 
 
