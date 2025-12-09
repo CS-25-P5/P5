@@ -173,23 +173,46 @@ input4= pandas.read_csv("data/IMPORTANTdatasets/ratingsandgenres_100K_goodbooks.
 input5= pandas.read_csv("data/IMPORTANTdatasets/ratings_100K_movies.csv")
 input6= pandas.read_csv("data/IMPORTANTdatasets/ratingsandgenres_100K_movies.csv")
 
-def split_train_val_test(input, user_column_name, outputfortrain, outputfortest, outputforval, base_name):
+def split_train_val_test(input, user_column_name, item_column_name, outputfortrain, outputfortest, outputforval, base_name):
     train_data, temp_data = train_test_split(input, test_size=0.2, random_state=42)
     val_data, test_data = train_test_split(temp_data, test_size=0.5, random_state=42)
 
 
     training_users = set(train_data[user_column_name]) #All unique userIds in the training set
+    train_items = set(train_data[item_column_name]) # ALL unique itemIds in the training set
+    
+    #FIND in val and test all the unknown users and items that do not appear in train
+    is_val_unknown = ((~val_data[user_column_name].isin(training_users)) |
+        (~val_data[item_column_name].isin(train_items)))
+    is_test_unknown = (
+        (~test_data[user_column_name].isin(training_users)) |
+        (~test_data[item_column_name].isin(train_items))
+    )
+    #Whcih ones
+    val_unknown = val_data[is_val_unknown]
+    test_unknown = test_data[is_test_unknown]
 
-    validation_unknown = val_data[~val_data[user_column_name].isin(training_users)] #all user ids where user is not in training
-    test_unknown = test_data[~test_data[user_column_name].isin(training_users)]
+    #MOve the unknown in test and val to train!
+    train_data = pandas.concat([train_data, val_unknown, test_unknown], ignore_index=True)
 
-    train_data = pandas.concat([train_data, validation_unknown, test_unknown], ignore_index=True) #Add unknowns to training
+    #removie from val and test the unknown ones
+    val_data = val_data[~is_val_unknown]
+    test_data = test_data[~is_test_unknown]
+
 
     #Only keep ids that appear in training
     train_users = set(train_data[user_column_name]) #Upated users in the training set
-    val_data = val_data[val_data[user_column_name].isin(train_users)]
-    test_data = test_data[test_data[user_column_name].isin(train_users)]
-    
+    train_items = set(train_data[item_column_name])
+
+    val_data = val_data[
+        val_data[user_column_name].isin(train_users) &
+        val_data[item_column_name].isin(train_items)
+    ]
+    test_data = test_data[
+        test_data[user_column_name].isin(train_users) &
+        test_data[item_column_name].isin(train_items)
+    ]
+
     #building back index from 0 ..number of rating
     train_data = train_data.reset_index(drop=True)
     val_data   = val_data.reset_index(drop=True)
@@ -206,12 +229,12 @@ def split_train_val_test(input, user_column_name, outputfortrain, outputfortest,
     return train_data, val_data, test_data
 
 
-train1, val1, test1 = split_train_val_test(input1, "userId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_1M_movies")
-train2, val2, test2 = split_train_val_test(input2, "userId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratingsandgenres_1M_movies")
-train3, val3, test3 = split_train_val_test(input3, "user_id", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_100K_goodbooks")
-train4, val4, test4 = split_train_val_test(input4, "user_id", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratingsandgenres_100K_goodbooks")
-train5, val5, test5 = split_train_val_test(input5, "userId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_100K_movies")
-train6, val6, test6 = split_train_val_test(input6, "userId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratingsandgenres_100K_movies")
+train1, val1, test1 = split_train_val_test(input1, "userId", "movieId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_1M_movies")
+train2, val2, test2 = split_train_val_test(input2, "userId", "movieId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratingsandgenres_1M_movies")
+train3, val3, test3 = split_train_val_test(input3, "user_id", "itemId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_100K_goodbooks")
+train4, val4, test4 = split_train_val_test(input4, "user_id", "itemId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratingsandgenres_100K_goodbooks")
+train5, val5, test5 = split_train_val_test(input5, "userId", "movieId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_100K_movies")
+train6, val6, test6 = split_train_val_test(input6, "userId", "movieId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratingsandgenres_100K_movies")
 
 
 #Pair all users with all items in TEST_groundtruth!
