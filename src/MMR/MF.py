@@ -228,10 +228,10 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path):
     
 #     return predicted_ratings_filtered
 
-def process_save_mf(all_recommendations, item_user_rating, item_ids, predicted_ratings, genre_map, id_to_title, top_n=10, output_file_path="mf_predictions.csv"):
+def process_save_mf(all_recommendations, user_ids, item_ids, predicted_ratings, genre_map, id_to_title, top_n=10, output_file_path="mf_predictions.csv"):
     results = []
 
-    for user_idx, user_id in enumerate(item_user_rating.index):
+    for user_idx, user_id in enumerate(user_ids):
         user_recs = all_recommendations[user_id]
         process_mf(
             user_id=user_id,
@@ -326,7 +326,7 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
 
     process_save_mf(
         all_recommendations=all_recommendations,
-        item_user_rating=R_filtered,         
+        user_ids=filtered_user_ids,         
         item_ids=filtered_item_ids,          
         predicted_ratings=predicted_ratings, 
         genre_map=genre_map,

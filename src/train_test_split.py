@@ -220,13 +220,13 @@ def split_ratings(
 
 
 # Parameters
-CHUNKSIZE = 10000
+CHUNKSIZE = 5000
 TEST_SIZE = 0.20
 
 
 #Prepare movie dataset
 base_dir = os.path.dirname(os.path.abspath(__file__))
-input_rating_csv = os.path.join(base_dir, "datasets/MovieLens", "ratings_small.csv")
+input_rating_csv = os.path.join(base_dir, "datasets/MovieLens", "ratings_100000_.csv")
 input_movies_csv = os.path.join(base_dir, "datasets/MovieLens", "movies_metadata.csv")
 
 output_dir = os.path.join(base_dir, "datasets/mmr_data")
@@ -286,23 +286,23 @@ output_dir_rating = os.path.join(base_dir, "datasets/MovieLens")
 # movies_fixed.to_csv(final_movies_path, index=False)
 
 # # #Prepare MOVie dataset
-# ratings_df = standardize_csv(
-#     input_csv=temp_ratings_path,
-#     output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
-#     col_mapping={"userId": "userId", "movieId": "itemId", "rating": "rating"},
-#     drop_columns=["timestamp"],
-#     nrows = CHUNKSIZE,
-# )
+ratings_df = standardize_csv(
+    input_csv=input_rating_csv,
+    output_csv=os.path.join(output_dir_rating, f"ratings_{CHUNKSIZE}_.csv"),
+    col_mapping={"userId": "userId", "movieId": "itemId", "rating": "rating"},
+    drop_columns=["timestamp"],
+    nrows = CHUNKSIZE,
+)
 
 
-# split_ratings(
-#     ratings_df,
-#     output_dir=output_dir,
-#     dataset_name="movies",
-#     test_size=0.1,
-#     val_size=0.1,
-#     chunksize = CHUNKSIZE,
-# )
+split_ratings(
+    ratings_df,
+    output_dir=output_dir,
+    dataset_name="movies",
+    test_size=0.1,
+    val_size=0.1,
+    chunksize = CHUNKSIZE,
+)
 
 
 
