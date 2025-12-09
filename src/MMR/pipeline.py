@@ -527,7 +527,7 @@ def run_test_pipeline(
 if __name__ == "__main__":
     # PARAMETER
     TOP_N = 10
-    CHUNK_SIZE = 5000
+    CHUNK_SIZE = 100000
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1
@@ -599,35 +599,35 @@ if __name__ == "__main__":
 
     run_book_id = generate_run_id()
 
-    # best_lambda_cosine, best_lambda_jaccard, mf_trained, train_user_ids, train_item_ids = run_train_pipeline(
-    #     run_id = run_book_id,
-    #     ratings_train_path = ratings_train_file,
-    #     ratings_val_path= ratings_val_file,
-    #     item_path = item_file_path,
-    #     output_dir = output_dir,
-    #     top_n = TOP_N,
-    #     top_k = TOP_K,
-    #     chunksize= CHUNK_SIZE,
-    #     n_epochs= N_EPOCHS,
-    #     relevance_weight=0.6,
-    #     diversity_weight=0.4,
-    #     dataset=dataset_books,
-    #     random_state=RANDOM_STATE)
+    best_lambda_cosine, best_lambda_jaccard, mf_trained, train_user_ids, train_item_ids = run_train_pipeline(
+        run_id = run_book_id,
+        ratings_train_path = ratings_train_file,
+        ratings_val_path= ratings_val_file,
+        item_path = item_file_path,
+        output_dir = output_dir,
+        top_n = TOP_N,
+        top_k = TOP_K,
+        chunksize= CHUNK_SIZE,
+        n_epochs= N_EPOCHS,
+        relevance_weight=0.6,
+        diversity_weight=0.4,
+        dataset=dataset_books,
+        random_state=RANDOM_STATE)
 
 
-    # #Run MF pipeline for test dataset
-    # run_test_pipeline(
-    #     run_id = run_book_id,
-    #     ratings_path=ratings_test_path,
-    #     item_path=item_file_path,
-    #     output_dir=output_dir,
-    #     dataset=dataset_books,
-    #     top_n=TOP_N,
-    #     top_k=TOP_K,
-    #     chunksize=CHUNK_SIZE,
-    #     best_lambda_cosine = best_lambda_cosine,
-    #     best_lambda_jaccard = best_lambda_jaccard,
-    #     trained_mf_model = mf_trained,
-    #     train_filtered_user_ids=train_user_ids,
-    #     train_filtered_item_ids=train_item_ids
-    # )
+    #Run MF pipeline for test dataset
+    run_test_pipeline(
+        run_id = run_book_id,
+        ratings_path=ratings_test_path,
+        item_path=item_file_path,
+        output_dir=output_dir,
+        dataset=dataset_books,
+        top_n=TOP_N,
+        top_k=TOP_K,
+        chunksize=CHUNK_SIZE,
+        best_lambda_cosine = best_lambda_cosine,
+        best_lambda_jaccard = best_lambda_jaccard,
+        trained_mf_model = mf_trained,
+        train_filtered_user_ids=train_user_ids,
+        train_filtered_item_ids=train_item_ids
+    )
