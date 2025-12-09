@@ -234,15 +234,18 @@ def run_program(optim,
         model.eval() #stop training, use the fixed wieghts
         all_predictions = []
         with torch.no_grad():
+            for start in range(0, len(dataset), batch_size):
+                end = start + batch_size
+                batch = dataset.iloc[start:end]
 
-            #Make rows from columns for user and corresponding books
-            user_tensor = torch.tensor(dataset["user_index"].values, dtype=torch.long).to(device) 
-            book_tensor = torch.tensor(dataset["book_index"].values, dtype=torch.long).to(device) 
-            genre_array = np.stack(dataset["united_genre_vector"].values)
-            genre_tensor = torch.tensor(genre_array, dtype=torch.float).to(device) 
-            
-            batch_predictions = model(user_tensor, book_tensor, genre_tensor).cpu()
-            all_predictions.append(batch_predictions)
+                #Make rows from columns for user and corresponding books
+                user_tensor = torch.tensor(dataset["user_index"].values, dtype=torch.long).to(device) 
+                book_tensor = torch.tensor(dataset["book_index"].values, dtype=torch.long).to(device) 
+                genre_array = np.stack(dataset["united_genre_vector"].values)
+                genre_tensor = torch.tensor(genre_array, dtype=torch.float).to(device) 
+                
+                batch_predictions = model(user_tensor, book_tensor, genre_tensor).cpu()
+                all_predictions.append(batch_predictions)
         return  torch.cat(all_predictions).numpy()
             
 
@@ -373,7 +376,7 @@ def run_program(optim,
     big_input = recommend_input
     big_output = recommend_output
 
-    big_df = pandas.read_csv(big_input)
+    big_df = pandas.read_csv(big_input, dtype={"genres": str}, low_memory=False)
 
     if "user_id" not in big_df.columns or "itemId" not in big_df.columns:
         raise ValueError("The big input file must contain 'user_id' and 'itemId' columns.")
