@@ -27,7 +27,10 @@ def align_matrix_to_items(matrix_df, filtered_item_ids, filtered_user_ids):
     return aligned_matrix, aligned_df
 
 
+
+
 def prepare_train_val_matrices(train_df, val_df, id_to_title=None):
+
     # Align train and val to common users/items
     common_users = train_df.index.intersection(val_df.index)
     common_items = train_df.columns.intersection(val_df.columns)
@@ -48,6 +51,9 @@ def prepare_train_val_matrices(train_df, val_df, id_to_title=None):
         filtered_item_ids,
         filtered_user_ids
     )
+
+    # Log shapes for debugging
+    print(f"Train matrix: {R_filtered_train.shape}, Val matrix: {R_filtered_val.shape}")
 
     return R_filtered_train, R_filtered_val,  val_data_filtered, filtered_user_ids, filtered_item_ids, filtered_item_titles
 
@@ -96,6 +102,8 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
     predicted_ratings = predicted_ratings_all[test_user_indices, :]
 
     return filtered_user_ids, filtered_item_ids, predicted_ratings
+
+
 
 
 
@@ -212,7 +220,7 @@ def run_train_pipeline(
         predicted_ratings = predicted_ratings,
         R_filtered=R_filtered_train,
         val_data=val_data_filtered,
-        item_titles = filtered_item_titles,
+        item_ids = filtered_item_ids,
         k_eval = top_k,
         relevance_weight=relevance_weight,
         diversity_weight=diversity_weight
@@ -240,7 +248,7 @@ def run_train_pipeline(
         predicted_ratings=predicted_ratings,
         R_filtered=R_filtered_train,
         val_data=val_data_filtered,
-        item_titles=filtered_item_titles,
+        item_ids = filtered_item_ids,
         k_eval=top_k,
         relevance_weight=relevance_weight,
         diversity_weight=diversity_weight

@@ -15,7 +15,7 @@ class MMR:
         self.genre_map = genre_map
         self.all_genres = all_genres
         self.predicted_ratings = predicted_ratings
-        self.similiarity_type = similarity_type
+        self.similarity_type = similarity_type
         self.lambda_param = lambda_param
 
         # Build genre vector
@@ -182,7 +182,7 @@ def tune_mmr_lambda(
         predicted_ratings,
         R_filtered,
         val_data,
-        item_titles,
+        item_ids,
         k_eval=10,
         relevance_weight = 0.6,
         diversity_weight = 0.4
@@ -200,7 +200,7 @@ def tune_mmr_lambda(
     # Build DataFrame for rectools distnace calculation
     genre_df = pd.DataFrame(
         genre_matrix,
-        index = item_titles,
+        index = item_ids,
         columns=sample_mmr.all_genres
     )
 
@@ -217,12 +217,29 @@ def tune_mmr_lambda(
     ndcg_metric = NDCG(k=k_eval)
     ild_metric = IntraListDiversity(k=k_eval, distance_calculator=distance_calc)
 
+
+    val_array = val_data.values
+    rows, cols = np.where(val_array > 0)
+
+    print(f"Validation data: {len(rows)} ratings")
+    print(f"Item IDs length: {len(item_ids)}")
+    print(f"Max column index: {cols.max() if len(cols) > 0 else 0}")
+
+    # Map column indices to actual item IDs
+    mapped_item_ids = []
+    for c in cols:
+        if c < len(item_ids):  # Safety check
+            mapped_item_ids.append(item_ids[c])
+        else:
+            print(f"Warning: Column index {c} out of bounds for item_ids")
+            mapped_item_ids.append(None)
+
     # Convert validation data to Rectools format using titles
     val_array = val_data.values
     rows, cols = np.where(val_array > 0)
     interactions_df = pd.DataFrame({
         "user_id": rows,
-        "item_id": [item_titles[c] for c in cols],  # map column indices to titles
+        "item_id": mapped_item_ids,  # map column indices to titles
         "rating": val_array[rows, cols]
     })
 
@@ -243,8 +260,13 @@ def tune_mmr_lambda(
             user_history = (R_filtered[user_idx, :] > 0)
             rec_indices = mmr_model.mmr(user_idx, user_history, top_k =k_eval)
             
-            # Convert MF column indices to item titles
-            recs = [item_titles[i] for i in rec_indices]
+       
+            recs = []
+            for idx in rec_indices:
+                if idx < len(item_ids):  # Safety check
+                    recs.append(item_ids[idx])
+                else:
+                    print(f"Warning: Recommendation index {idx} out of bounds")
             user_recs[user_idx] = recs
 
         # Convert to Rectools input format
