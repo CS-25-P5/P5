@@ -1,4 +1,5 @@
 
+''' 
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 import torch
@@ -24,23 +25,21 @@ def run_program(optim,
                 prediction_val_save,
                 prediction_test_save):
     
+
     ### STEP 1 - load the data and set up the NN
-    original_df = pandas.read_csv("data/input_data_til_MLP_genres_100K.csv")
-    original_df = original_df[["userId","movieId","rating","genres"]].copy()
+    original_df = pandas.read_csv("data/input_data_til_MLP_genres_100K_books.csv")
+    original_df = original_df[["userId","itemId","rating","genres"]].copy()
 
     
     #STEP2) REDO GENRES LIST because weird
 
-    #genres has a format like "[{'id': 16, 'name': 'Animation'}, {'id': 35, 'name': 'Comedy'}]". 
     # Need to be changed to ["Animation", "Comedy"]
 
     def change_list(s):
         if pandas.isna(s): #if the list is empty
             return []
         try: 
-            data = ast.literal_eval(s) #ast.literal evalutates a string containng a Pityon literal (dictionary in this case)
-            data = [d['name'] for d in data] #Get only the name value/field
-            return data
+            return [item.strip() for item in s.split("|") if item.strip()]
         except Exception:
             return []
 
@@ -55,25 +54,25 @@ def run_program(optim,
 
 
 
-    final_dataframe = pandas.concat(           #concat with userId, movieId, and ratings for final dataframe
-        [original_df[["userId", "movieId", "rating"]].reset_index(drop=True),
+    final_dataframe = pandas.concat(           #concat with userId, itemId, and ratings for final dataframe
+        [original_df[["userId", "itemId", "rating"]].reset_index(drop=True),
         genres_df.reset_index(drop=True),
         ],
         axis=1
     )
 
 
-    #STEP4) Building the feature vector for input for the NN +  Mapping user and movie to 0 .. n-1
+    #STEP4) Building the feature vector for input for the NN +  Mapping user and book to 0 .. n-1
     unique_users = final_dataframe["userId"].unique()
-    unique_movies = final_dataframe["movieId"].unique()
+    unique_books = final_dataframe["itemId"].unique()
     user_to_index = {user: i for i, user in enumerate(unique_users)} 
-    movie_to_index = {movie: i for i, movie in enumerate(unique_movies)}
+    book_to_index = {book: i for i, book in enumerate(unique_books)}
 
     numberof_users = len(user_to_index)
-    numberof_movies = len(movie_to_index)
+    numberof_books = len(book_to_index)
 
     final_dataframe["user_index"] = final_dataframe["userId"].map(user_to_index)
-    final_dataframe["movie_index"] = final_dataframe["movieId"].map(movie_to_index)
+    final_dataframe["book_index"] = final_dataframe["itemId"].map(book_to_index)
 
 
     #create the genre columns
@@ -93,7 +92,7 @@ def run_program(optim,
         def __init__(self, dataframe): #dataframe
             
             self.users = torch.tensor(dataframe['user_index'].values, dtype=torch.long)
-            self.movies = torch.tensor(dataframe['movie_index'].values, dtype=torch.long)
+            self.books = torch.tensor(dataframe['book_index'].values, dtype=torch.long)
             self.genres = torch.tensor(np.stack(dataframe["united_genre_vector"].values), dtype=torch.float)
             self.ratings = torch.tensor(dataframe['rating'].values, dtype=torch.float)
 
@@ -103,7 +102,7 @@ def run_program(optim,
         def __getitem__(self, item): 
             return (
                 self.users[item],
-                self.movies[item],
+                self.books[item],
                 self.genres[item],
                 self.ratings[item],
             )
@@ -124,12 +123,12 @@ def run_program(optim,
 
     #STEP7) Create the MLPmodel
     class MLP_Model(nn.Module):
-        def __init__(self, n_users, n_movies, embed_len, genre_length, hidden_layers=None, dropout = 0.5):
+        def __init__(self, n_users, n_books, embed_len, genre_length, hidden_layers=None, dropout = 0.5):
 
             super().__init__()
         
             self.user_embeds = nn.Embedding(n_users, embed_len)
-            self.movie_embeds = nn.Embedding(n_movies, embed_len)
+            self.book_embeds = nn.Embedding(n_books, embed_len)
 
             
             if hidden_layers is None: 
@@ -150,11 +149,11 @@ def run_program(optim,
             self.perceptron = nn.Sequential(*layers) 
 
         #STEP 7.2 Define the forward propagation
-        def forward(self, uservect, movievect, movie_features): #Shape is (batch_size,1)
+        def forward(self, uservect, bookvect, book_features): #Shape is (batch_size,1)
             user_embed = self.user_embeds(uservect) #Shape is (batch_size, emb_dimension)
-            movie_embed = self.movie_embeds(movievect)
+            book_embed = self.book_embeds(bookvect)
 
-            x = torch.cat([user_embed, movie_embed, movie_features], dim=1)  #[batch, embed_len * 2 + movie_feature length]
+            x = torch.cat([user_embed, book_embed, book_features], dim=1)  #[batch, embed_len * 2 + book_feature length]
             output = self.perceptron(x) #batch, 1
             return output.squeeze(-1) #batch
 
@@ -162,7 +161,7 @@ def run_program(optim,
     ### STEP8) - Instantiating the model #########################
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
-    model = MLP_Model(n_users= numberof_users, n_movies=numberof_movies, 
+    model = MLP_Model(n_users= numberof_users, n_books=numberof_books, 
                       embed_len = embedding_length, genre_length=len(genre_columns), 
                       hidden_layers=hiddenlayers, dropout = 0.5).to(device)
     optimizer = optim(model.parameters(), lr=learningrate, weight_decay=weightdecay) 
@@ -217,13 +216,13 @@ def run_program(optim,
             total_loss = 0
 
             with torch.no_grad():
-                for users, movies, genres, ratings in dataloader:
+                for users, books, genres, ratings in dataloader:
                     users = users.to(device)
-                    movies = movies.to(device)
+                    books = books.to(device)
                     genres = genres.to(device)
                     ratings = ratings.to(device)
 
-                    prediction = model(users, movies, genres)
+                    prediction = model(users, books, genres)
                     loss = criterion(prediction, ratings)
                     total_loss = total_loss + loss.item()
 
@@ -231,19 +230,18 @@ def run_program(optim,
 
 
     def predict_ratings(model, dataset, device):
-        "We will give rating for every user and its rated movie:  containing userId, movieId, predicted_rating and genres (as a list)"
         
         model.eval() #stop training, use the fixed wieghts
         
         with torch.no_grad():
 
-            #Make rows from columns for user and corresponding movies
+            #Make rows from columns for user and corresponding books
             user_tensor = torch.tensor(dataset["user_index"].values, dtype=torch.long).to(device) 
-            movies_tensor = torch.tensor(dataset["movie_index"].values, dtype=torch.long).to(device) 
+            book_tensor = torch.tensor(dataset["book_index"].values, dtype=torch.long).to(device) 
             genre_array = np.stack(dataset["united_genre_vector"].values)
             genre_tensor = torch.tensor(genre_array, dtype=torch.float).to(device) 
 
-            predictions = model(user_tensor, movies_tensor, genre_tensor).cpu().numpy()
+            predictions = model(user_tensor, book_tensor, genre_tensor).cpu().numpy()
         return  predictions
             
 
@@ -258,13 +256,13 @@ def run_program(optim,
             model.train()
             total_training_loss = 0.0
 
-            for users, movies, genres, ratings in trainloader:
+            for users, books, genres, ratings in trainloader:
                 users = users.to(device)
-                movies = movies.to(device)
+                books = books.to(device)
                 genres = genres.to(device)
                 ratings = ratings.to(device)
 
-                prediction = model(users, movies, genres)
+                prediction = model(users, books, genres)
                 loss = criterion(prediction, ratings)
 
                 optimizer.zero_grad() #Delete old gradients from prev. batch
@@ -332,7 +330,7 @@ def run_program(optim,
 
         #Make a csv file
         prediction_val_dataset = validation_df.copy()
-        prediction_val_dataset =  prediction_val_dataset[["userId", "movieId", "rating"]].copy()
+        prediction_val_dataset =  prediction_val_dataset[["userId", "itemId", "rating"]].copy()
         prediction_val_dataset["val_rating"] = prediction
         prediction_val_dataset.to_csv(prediction_val_save, index = False)
         
@@ -356,7 +354,7 @@ def run_program(optim,
         
         #Tildel prediction til test datasæt
         prediction_test_dataset = test_df.copy()
-        prediction_test_dataset = prediction_test_dataset[["userId", "movieId", "rating"]].copy()
+        prediction_test_dataset = prediction_test_dataset[["userId", "itemId", "rating"]].copy()
         prediction_test_dataset["test_rating"] = test_predict_score
         prediction_test_dataset.to_csv(prediction_test_save, index = False)
 
@@ -368,8 +366,6 @@ def run_program(optim,
     test(model, test_loader, device)
 
 
-
-
 a1 = run_program( 
                 optim = torch.optim.Adam,
                 weightdecay = 1e-5,
@@ -377,8 +373,8 @@ a1 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed64_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed64_lr0001_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed64_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed64_lr0001_batch64.csv")
     
 a2 = run_program( 
                 optim = torch.optim.Adam,
@@ -387,8 +383,8 @@ a2 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed32_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed32_lr0001_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed32_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed32_lr0001_batch64.csv")
     
 
 
@@ -399,8 +395,8 @@ a3 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed64_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed64_lr00003_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed64_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed64_lr00003_batch64.csv")
     
 a4 = run_program( 
                 optim = torch.optim.Adam,
@@ -409,8 +405,8 @@ a4 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed32_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed32_lr00003_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed32_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed32_lr00003_batch64.csv")
     
 
 a5 = run_program(
@@ -420,8 +416,8 @@ a5 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed64_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed64_lr0001_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed64_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed64_lr0001_batch128.csv")
 
 
 a6 = run_program(
@@ -431,8 +427,8 @@ a6 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed32_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed32_lr0001_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed32_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed32_lr0001_batch128.csv")
 
 
 
@@ -444,8 +440,8 @@ a7 = run_program(
                 hiddenlayers = [32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed64_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed64_lr00003_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed64_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed64_lr00003_batch128.csv")
 
 
 
@@ -457,8 +453,8 @@ a8 =  run_program(
                 hiddenlayers = [32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed32_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_OneLayer_embed32_lr00003_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed32_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_OneLayer_embed32_lr00003_batch128.csv")
 
 
 
@@ -478,8 +474,8 @@ b1 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed64_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed64_lr0001_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed64_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed64_lr0001_batch64.csv")
     
 b2 = run_program( 
                 optim = torch.optim.Adam,
@@ -488,8 +484,8 @@ b2 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed32_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed32_lr0001_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed32_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed32_lr0001_batch64.csv")
     
 
 
@@ -500,8 +496,8 @@ b3 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed64_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed64_lr00003_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed64_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed64_lr00003_batch64.csv")
     
 b4 = run_program( 
                 optim = torch.optim.Adam,
@@ -510,8 +506,8 @@ b4 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed32_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed32_lr00003_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed32_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed32_lr00003_batch64.csv")
     
 
 b5 = run_program(
@@ -521,8 +517,8 @@ b5 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed64_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed64_lr0001_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed64_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed64_lr0001_batch128.csv")
 
 
 b6 = run_program(
@@ -532,8 +528,8 @@ b6 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed32_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed32_lr0001_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed32_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed32_lr0001_batch128.csv")
 
 
 
@@ -545,8 +541,8 @@ b7 = run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed64_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed64_lr00003_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed64_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed64_lr00003_batch128.csv")
 
 
 
@@ -558,8 +554,8 @@ b8 =  run_program(
                 hiddenlayers = [64, 32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed32_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_TwoLayers_embed32_lr00003_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed32_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_TwoLayers_embed32_lr00003_batch128.csv")
 
 
 
@@ -595,8 +591,8 @@ c1 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr0001_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr0001_batch64.csv")
     
 c2 = run_program( 
                 optim = torch.optim.Adam,
@@ -605,8 +601,8 @@ c2 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr0001_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr0001_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr0001_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr0001_batch64.csv")
     
 
 
@@ -617,8 +613,8 @@ c3 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr00003_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr00003_batch64.csv")
     
 c4 = run_program( 
                 optim = torch.optim.Adam,
@@ -627,8 +623,8 @@ c4 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr00003_batch64.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr00003_batch64.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr00003_batch64.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr00003_batch64.csv")
     
 
 c5 = run_program(
@@ -638,8 +634,8 @@ c5 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.001,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr0001_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr0001_batch128.csv")
 
 
 c6 = run_program(
@@ -649,8 +645,8 @@ c6 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.001,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr0001_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr0001_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr0001_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr0001_batch128.csv")
 
 
 
@@ -662,8 +658,8 @@ c7 = run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.0003,
                 embedding_length = 64,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr00003_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed64_lr00003_batch128.csv")
 
 
 
@@ -675,5 +671,7 @@ c8 =  run_program(
                 hiddenlayers = [128, 64, 32],
                 learningrate = 0.0003,
                 embedding_length = 32,
-                prediction_val_save = "data/Output_Predictions_val_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr00003_batch128.csv",
-                prediction_test_save = "data/Output_Predictions_test_100K_movies(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr00003_batch128.csv")
+                prediction_val_save = "data/Output_Predictions_val_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr00003_batch128.csv",
+                prediction_test_save = "data/Output_Predictions_test_100K_goodbooks(MLPwithGenres)/NNattr_ThreeLayers_embed32_lr00003_batch128.csv")
+
+''' 

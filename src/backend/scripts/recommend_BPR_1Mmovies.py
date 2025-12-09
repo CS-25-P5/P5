@@ -12,15 +12,12 @@ import pandas as pandas
 
 import numpy as np
 import random
-
+from groundtruth_test_allitems import *
 
 '''BPR is suited for datasets with implicit feedback. 
 Currently we have a Movielens database with ratings from 0.5 - 5 (explicit feedback), and we will use a threshold 
 for defining whether an item is positive or negative (rating above 3 is positive).'''
 
-TRAIN_DATASET = pandas.read_csv("data/TRAIN_GROUNDTRUTH/ratings_1M_movies_train.csv")
-VAL_DATASET = pandas.read_csv("data/VAL_GROUNDTRUTH/ratings_1M_movies_val.csv")
-TEST_DATASET = pandas.read_csv("data/TEST_GROUNDTRUTH/ratings_1M_movies_test.csv")
 
 def run_program(optim,
                 weightdecay,
@@ -37,12 +34,20 @@ def run_program(optim,
     dataset = pandas.read_csv("data/IMPORTANTdatasets/ratings_1M_movies.csv") 
     dataset = dataset[["userId", "movieId", "rating"]] 
 
-    #STEP 1.1. : Split into train 80%, validation 10%, test 10% => SAVE
-    train_df = TRAIN_DATASET
-    validation_df = VAL_DATASET
-    test_df = TEST_DATASET
+    #STEP 1.1 - Mapping user and movie to 0 .. n-1. Nn.Embeddings is a lookuptable that needs indices. # Current dataset for userId goes 1, 55, 105, 255, 6023.. We turn this into the amount of users # Pytorch is not working with raw IDs, so we map each userId and movieId to a common new index 
 
-    #STEP 1.2 : Split dataset into likes and dislakes (ratings of 3 and below are negative). Do for train, val, test df
+    unique_users = dataset["userId"].unique() 
+    unique_movies = dataset["movieId"].unique() 
+    user_to_index = {u: i for i,u in enumerate(unique_users)} 
+    movie_to_index = {m:i for i,m in enumerate(unique_movies)} 
+
+    numberofusers = len(user_to_index) 
+    numberofitems = len(movie_to_index)
+
+    #STEP 1.2. : Split into train 80%, validation 10%, test 10% => SAVE
+    train_df, validation_df, test_df = split_train_val_test(input = dataset, user_column_name="userId", item_column_name = "movieId")
+
+    #STEP 2 : Split dataset into likes and dislakes (ratings of 3 and below are negative). Do for train, val, test df
 
     positive_training_df = train_df[train_df["rating"] > 3].copy()  #Train 
     negative_training_df = train_df[train_df["rating"] <=3 ].copy() 
@@ -53,15 +58,7 @@ def run_program(optim,
     positive_test_df = test_df[test_df["rating"] > 3].copy() #Test
     negative_test_df = test_df[test_df["rating"] <= 3].copy()
 
-    #STEP 2 - Mapping user and movie to 0 .. n-1. Nn.Embeddings is a lookuptable that needs indices. # Current dataset for userId goes 1, 55, 105, 255, 6023.. We turn this into the amount of users # Pytorch is not working with raw IDs, so we map each userId and movieId to a common new index 
 
-    unique_users = dataset["userId"].unique() 
-    unique_movies = dataset["movieId"].unique() 
-    user_to_index = {u: i for i,u in enumerate(unique_users)} 
-    movie_to_index = {m:i for i,m in enumerate(unique_movies)} 
-
-    numberofusers = len(user_to_index) 
-    numberofitems = len(movie_to_index)
 
 
     #STEP 3 :Add the indicies for both positive and negatives in all 3 datasets, so that all use small numbers instead of userId=545 likes movieId=8000 => userwithindex=0 likes movie with index 10. 

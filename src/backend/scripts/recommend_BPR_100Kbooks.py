@@ -12,6 +12,7 @@ import pandas as pandas
 
 import numpy as np
 import random
+from groundtruth_test_allitems import *
 
 
 '''BPR is suited for datasets with implicit feedback. 
@@ -38,10 +39,20 @@ def run_program(optim,
     dataset = pandas.read_csv("data/IMPORTANTdatasets/ratings_100K_goodbooks.csv") 
     dataset = dataset[["user_id", "itemId", "rating"]] 
 
+    # Mapping user and books to 0 .. n-1. Nn.Embeddings is a lookuptable that needs indices. # Current dataset for user_id goes 1, 55, 105, 255, 6023.. We turn this into the amount of users # Pytorch is not working with raw IDs, so we map each user_id and itemId to a common new index 
+
+    unique_users = dataset["user_id"].unique() 
+    unique_books = dataset["itemId"].unique() 
+    user_to_index = {u: i for i,u in enumerate(unique_users)} 
+    books_to_index = {m:i for i,m in enumerate(unique_books)} 
+
+    numberofusers = len(user_to_index) 
+    numberofitems = len(books_to_index)
+
+
     #STEP 1.1. : Split into train 80%, validation 10%, test 10% => SAVE
-    train_df = TRAIN_DATASET
-    validation_df = VAL_DATASET
-    test_df = TEST_DATASET
+    train_df, validation_df, test_df = split_train_val_test(input = dataset, user_column_name="user_id", item_column_name = "itemId")
+    
     #STEP 1.2 : Split dataset into likes and dislakes (ratings of 3 and below are negative). Do for train, val, test df
 
     positive_training_df = train_df[train_df["rating"] > 3].copy()  #Train 
@@ -53,16 +64,7 @@ def run_program(optim,
     positive_test_df = test_df[test_df["rating"] > 3].copy() #Test
     negative_test_df = test_df[test_df["rating"] <= 3].copy()
 
-    #STEP 2 - Mapping user and books to 0 .. n-1. Nn.Embeddings is a lookuptable that needs indices. # Current dataset for user_id goes 1, 55, 105, 255, 6023.. We turn this into the amount of users # Pytorch is not working with raw IDs, so we map each user_id and itemId to a common new index 
-
-    unique_users = dataset["user_id"].unique() 
-    unique_books = dataset["itemId"].unique() 
-    user_to_index = {u: i for i,u in enumerate(unique_users)} 
-    books_to_index = {m:i for i,m in enumerate(unique_books)} 
-
-    numberofusers = len(user_to_index) 
-    numberofitems = len(books_to_index)
-
+    
 
     #STEP 3 :Add the indicies for both positive and negatives in all 3 datasets, so that all use small numbers instead of user_id=545 likes itemId=8000 => userwithindex=0 likes books with index 10. 
 
@@ -572,15 +574,6 @@ a8 =  run_program(
                 prediction_test_save = None,
                 recommend_input=inputforall,
                 recommend_output = "data/Recommend_test_100K_goodbooks(MLPwithBPR)/RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv")
-
-
-
-
-
-
-
-
-
 
 
 

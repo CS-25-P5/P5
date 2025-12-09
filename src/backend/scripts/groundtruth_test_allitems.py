@@ -130,7 +130,7 @@ if "timestamp" in ratings_data.columns:
 
 
 rating_links_merged = ratings_data.merge(
-    links_data[["movieId", "tmdbId"]],
+    links_data[["movieId",  "tmdbId"]],
     on="movieId",
     how="left" 
 )
@@ -160,8 +160,9 @@ def parse_genres(gen):
     return ""
 
 final_dataset["genres"] = final_dataset["genres"].apply(parse_genres)
-final_dataset = final_dataset[["userId", "movieId", "genres"]]
+final_dataset = final_dataset[["userId", "movieId", "rating", "genres"]]
 final_dataset.to_csv("data/IMPORTANTdatasets/ratingsandgenres_100K_movies.csv", index=False)
+
 
 
 #SPIT DATA 80% - 10% - 10% => Make sure users and movies in test appear in training! Add 10% Groundtruth to each filev
@@ -171,9 +172,11 @@ input2= pandas.read_csv("data/IMPORTANTdatasets/ratingsandgenres_1M_movies.csv")
 input3= pandas.read_csv("data/IMPORTANTdatasets/ratings_100K_goodbooks.csv")
 input4= pandas.read_csv("data/IMPORTANTdatasets/ratingsandgenres_100K_goodbooks.csv")
 input5= pandas.read_csv("data/IMPORTANTdatasets/ratings_100K_movies.csv")
+
+
 input6= pandas.read_csv("data/IMPORTANTdatasets/ratingsandgenres_100K_movies.csv")
 
-def split_train_val_test(input, user_column_name, item_column_name, outputfortrain, outputfortest, outputforval, base_name):
+def split_train_val_test(input, user_column_name, item_column_name, outputfortrain=None, outputfortest=None, outputforval=None, base_name=None):
     train_data, temp_data = train_test_split(input, test_size=0.2, random_state=42)
     val_data, test_data = train_test_split(temp_data, test_size=0.5, random_state=42)
 
@@ -216,14 +219,14 @@ def split_train_val_test(input, user_column_name, item_column_name, outputfortra
     train_data = train_data.reset_index(drop=True)
     val_data   = val_data.reset_index(drop=True)
     test_data  = test_data.reset_index(drop=True)
+    if outputfortrain is not None and outputfortest is not None and outputforval is not None and base_name is not None:
+        train_path = f"{outputfortrain}/{base_name}_train.csv"
+        val_path   = f"{outputforval}/{base_name}_val.csv"
+        test_path  = f"{outputfortest}/{base_name}_test.csv"
 
-    train_path = f"{outputfortrain}/{base_name}_train.csv"
-    val_path   = f"{outputforval}/{base_name}_val.csv"
-    test_path  = f"{outputfortest}/{base_name}_test.csv"
-
-    train_data.to_csv(train_path, index=False)
-    val_data.to_csv(val_path, index=False)
-    test_data.to_csv(test_path, index=False)
+        train_data.to_csv(train_path, index=False)
+        val_data.to_csv(val_path, index=False)
+        test_data.to_csv(test_path, index=False)
 
     return train_data, val_data, test_data
 
@@ -234,6 +237,7 @@ train2, val2, test2 = split_train_val_test(input2, "userId", "movieId", "data/TR
 train3, val3, test3 = split_train_val_test(input3, "user_id", "itemId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_100K_goodbooks")
 train4, val4, test4 = split_train_val_test(input4, "user_id", "itemId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratingsandgenres_100K_goodbooks")
 train5, val5, test5 = split_train_val_test(input5, "userId", "movieId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_100K_movies")
+
 train6, val6, test6 = split_train_val_test(input6, "userId", "movieId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratingsandgenres_100K_movies")
 
 

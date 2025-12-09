@@ -1,3 +1,4 @@
+'''
 import os
 import torch
 from torch import nn
@@ -209,3 +210,5 @@ for e in range(num_epoch):
 
     avg_loss = total_loss/len(training_dataset) #Average loss per barch equals to the total loss computed divided with the size of the training data. So I divide the sum of losses over all batches with the total number of rows in the train_data
     print(f"Epoch {e + 1} has an average loss of:  {avg_loss: .5f}")
+
+'''

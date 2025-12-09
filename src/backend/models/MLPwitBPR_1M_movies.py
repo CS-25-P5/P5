@@ -1,4 +1,5 @@
 
+''' 
 import time
 import os
 import torch
@@ -14,9 +15,9 @@ import numpy as np
 import random
 
 
-'''BPR is suited for datasets with implicit feedback. 
-Currently we have a Movielens database with ratings from 0.5 - 5 (explicit feedback), and we will use a threshold 
-for defining whether an item is positive or negative (rating above 3 is positive).'''
+#BPR is suited for datasets with implicit feedback. 
+#Currently we have a Movielens database with ratings from 0.5 - 5 (explicit feedback), and we will use a threshold 
+#for defining whether an item is positive or negative (rating above 3 is positive).
 
 
 
@@ -744,3 +745,8 @@ c8 =  run_program(
                 embedding_length = 32,
                 prediction_val_save = "data/Output_Predictions_val_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch128.csv",
                 prediction_test_save = "data/Output_Predictions_test_1M_movies(MLPwithBPR)/BPRnn_ThreeLayers_embed32_lr00003_batch128.csv")
+
+                
+
+                
+'''

@@ -13,6 +13,7 @@ import copy
 import time
 import os
 
+from groundtruth_test_allitems import *
 
 
 def run_program(optim,
@@ -25,9 +26,9 @@ def run_program(optim,
                 prediction_test_save = None,
                 recommend_input = None,
                 recommend_output = None):
-    
+
     ### STEP 1 - load the data and set up the NN
-    original_df = pandas.read_csv("data/input_data_til_MLP_genres_100K.csv")
+    original_df = pandas.read_csv("data/IMPORTANTdatasets/ratingsandgenres_100K_movies.csv")
     original_df = original_df[["userId","movieId","rating","genres"]].copy()
 
     
@@ -40,11 +41,10 @@ def run_program(optim,
         if pandas.isna(s): #if the list is empty
             return []
         try: 
-            data = ast.literal_eval(s) #ast.literal evalutates a string containng a Pityon literal (dictionary in this case)
-            data = [d['name'] for d in data] #Get only the name value/field
-            return data
+            return [item.strip() for item in s.split("|") if item.strip()]
         except Exception:
             return []
+
 
     original_df["genres_list"] = original_df["genres"].apply(change_list) #row-by-row application
     print(original_df.columns)
@@ -88,8 +88,7 @@ def run_program(optim,
     final_dataframe["united_genre_vector"] = final_dataframe.apply(build_genre_vector, axis = 1 )
     
     #STEP 4.1. : Split into train 80%, validation 10%, test 10% 
-    train_df, temporary_df = train_test_split(final_dataframe, test_size=0.2, random_state=42) 
-    validation_df, test_df = train_test_split(temporary_df, test_size=0.5, random_state=42)
+    train_df, validation_df, test_df = split_train_val_test(input = final_dataframe, user_column_name="userId", item_column_name = "movieId")
 
     #STEP5) - Pytorch friendly dataset
     class TorchDataset(Dataset):
@@ -381,16 +380,31 @@ def run_program(optim,
 
     if "userId" not in big_df.columns or "movieId" not in big_df.columns:
         raise ValueError("The big input file must contain 'userId' and 'movieId' columns.")
+    
+    big_df["genres_list"] = big_df["genres"].apply(change_list)
+    #Make onehot
+    big_genres_hot = mlb.transform(big_df["genres_list"])
+    big_genres_df = pandas.DataFrame(big_genres_hot, columns=genre_columns)
+
+    #Attack the genres columns
+    big_df = pandas.concat([big_df.reset_index(drop=True), big_genres_df.reset_index(drop=True)]
+                           ,axis = 1)
+    
+    
+
+    big_df["user_index"] = big_df["userId"].map(user_to_index)
+    big_df["movie_index"] = big_df["movieId"].map(movie_to_index)
+
+    big_df["united_genre_vector"] = big_df.apply(build_genre_vector, axis = 1 )
 
     big_scores = predict_ratings(model, big_df, device)
-
     big_df["recommendation_score"] = big_scores
+    big_df = big_df[["userId", "movieId", "rating", "recommendation_score"]]
     big_df.to_csv(big_output, index=False)
 
 
 
-
-inputforall = "data/Recommend_test_100K_movies(MLPwithGenres)/Final_input_movies.csv"
+inputforall = "data/TEST_RECOMMEND_inputfile/ratingsandgenres_100K_movies.csv"
 
 
 a1 = run_program( 

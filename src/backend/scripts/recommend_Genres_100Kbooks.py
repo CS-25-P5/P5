@@ -12,7 +12,7 @@ import ast
 import copy
 import time
 import os
-
+from groundtruth_test_allitems import *
 
 
 def run_program(optim,
@@ -28,8 +28,8 @@ def run_program(optim,
     
 
     ### STEP 1 - load the data and set up the NN
-    original_df = pandas.read_csv("data/input_data_til_MLP_genres_100K_books.csv")
-    original_df = original_df[["userId","itemId","rating","genres"]].copy()
+    original_df = pandas.read_csv("data/IMPORTANTdatasets/ratingsandgenres_100K_goodbooks.csv")
+    original_df = original_df[["user_id","itemId","rating","genres"]].copy()
 
     
     #STEP2) REDO GENRES LIST because weird
@@ -55,8 +55,8 @@ def run_program(optim,
 
 
 
-    final_dataframe = pandas.concat(           #concat with userId, itemId, and ratings for final dataframe
-        [original_df[["userId", "itemId", "rating"]].reset_index(drop=True),
+    final_dataframe = pandas.concat(           #concat with user_id, itemId, and ratings for final dataframe
+        [original_df[["user_id", "itemId", "rating"]].reset_index(drop=True),
         genres_df.reset_index(drop=True),
         ],
         axis=1
@@ -64,7 +64,7 @@ def run_program(optim,
 
 
     #STEP4) Building the feature vector for input for the NN +  Mapping user and book to 0 .. n-1
-    unique_users = final_dataframe["userId"].unique()
+    unique_users = final_dataframe["user_id"].unique()
     unique_books = final_dataframe["itemId"].unique()
     user_to_index = {user: i for i, user in enumerate(unique_users)} 
     book_to_index = {book: i for i, book in enumerate(unique_books)}
@@ -72,7 +72,7 @@ def run_program(optim,
     numberof_users = len(user_to_index)
     numberof_books = len(book_to_index)
 
-    final_dataframe["user_index"] = final_dataframe["userId"].map(user_to_index)
+    final_dataframe["user_index"] = final_dataframe["user_id"].map(user_to_index)
     final_dataframe["book_index"] = final_dataframe["itemId"].map(book_to_index)
 
 
@@ -83,10 +83,9 @@ def run_program(optim,
         return row[genre_columns].to_numpy(dtype=np.float32) #just use numpy to get an array lijke: [0,0, 1, 0, 1]
 
     final_dataframe["united_genre_vector"] = final_dataframe.apply(build_genre_vector, axis = 1 )
-    
+   
     #STEP 4.1. : Split into train 80%, validation 10%, test 10% 
-    train_df, temporary_df = train_test_split(final_dataframe, test_size=0.2, random_state=42) 
-    validation_df, test_df = train_test_split(temporary_df, test_size=0.5, random_state=42)
+    train_df, validation_df, test_df = split_train_val_test(input = final_dataframe, user_column_name="user_id", item_column_name = "itemId")
 
     #STEP5) - Pytorch friendly dataset
     class TorchDataset(Dataset):
@@ -230,10 +229,10 @@ def run_program(optim,
             return total_loss / len(dataloader)
 
 
-    def predict_ratings(model, dataset, device):
+    def predict_ratings(model, dataset, device, batch_size = 1024):
         
         model.eval() #stop training, use the fixed wieghts
-        
+        all_predictions = []
         with torch.no_grad():
 
             #Make rows from columns for user and corresponding books
@@ -241,9 +240,10 @@ def run_program(optim,
             book_tensor = torch.tensor(dataset["book_index"].values, dtype=torch.long).to(device) 
             genre_array = np.stack(dataset["united_genre_vector"].values)
             genre_tensor = torch.tensor(genre_array, dtype=torch.float).to(device) 
-
-            predictions = model(user_tensor, book_tensor, genre_tensor).cpu().numpy()
-        return  predictions
+            
+            batch_predictions = model(user_tensor, book_tensor, genre_tensor).cpu()
+            all_predictions.append(batch_predictions)
+        return  torch.cat(all_predictions).numpy()
             
 
 
@@ -331,7 +331,7 @@ def run_program(optim,
 
         #Make a csv file
         prediction_val_dataset = validation_df.copy()
-        prediction_val_dataset =  prediction_val_dataset[["userId", "itemId", "rating"]].copy()
+        prediction_val_dataset =  prediction_val_dataset[["user_id", "itemId", "rating"]].copy()
         prediction_val_dataset["val_rating"] = prediction
         prediction_val_dataset.to_csv(prediction_val_save, index = False)
         
@@ -356,7 +356,7 @@ def run_program(optim,
         
         #Tildel prediction til test datasæt
         prediction_test_dataset = test_df.copy()
-        prediction_test_dataset = prediction_test_dataset[["userId", "itemId", "rating"]].copy()
+        prediction_test_dataset = prediction_test_dataset[["user_id", "itemId", "rating"]].copy()
         prediction_test_dataset["test_rating"] = test_predict_score
         prediction_test_dataset.to_csv(prediction_test_save, index = False)
 
@@ -375,15 +375,38 @@ def run_program(optim,
 
     big_df = pandas.read_csv(big_input)
 
-    if "userId" not in big_df.columns or "itemId" not in big_df.columns:
-        raise ValueError("The big input file must contain 'userId' and 'itemId' columns.")
+    if "user_id" not in big_df.columns or "itemId" not in big_df.columns:
+        raise ValueError("The big input file must contain 'user_id' and 'itemId' columns.")
+    
+    big_df["genres_list"] = big_df["genres"].apply(change_list)
+
+
+
+    #Make onehot
+    big_genres_hot = mlb.transform(big_df["genres_list"])
+    big_genres_df = pandas.DataFrame(big_genres_hot, columns=genre_columns)
+
+    #Attack the genres columns
+    big_df = pandas.concat([big_df.reset_index(drop=True), big_genres_df.reset_index(drop=True)]
+                           ,axis = 1)
+    
+
+
+    big_df["user_index"] = big_df["user_id"].map(user_to_index)
+    big_df["book_index"] = big_df["itemId"].map(book_to_index)
+
+    big_df["united_genre_vector"] = big_df[genre_columns].apply(lambda row: row.to_numpy(dtype=np.float32),axis=1)
+
 
     big_scores = predict_ratings(model, big_df, device)
-
     big_df["recommendation_score"] = big_scores
+    big_df = big_df[["user_id", "itemId", "rating", "recommendation_score"]]
     big_df.to_csv(big_output, index=False)
 
-inputforall = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/GROUNDTRUTH_alluserandbooks.csv"
+
+    
+
+inputforall = "data/TEST_RECOMMEND_inputfile/ratingsandgenresgoodbook_100K.csv"
 
 
 a1 = run_program( 
