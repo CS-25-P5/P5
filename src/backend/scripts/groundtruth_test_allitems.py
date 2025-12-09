@@ -199,9 +199,8 @@ def split_train_val_test(input, user_column_name, item_column_name, outputfortra
     val_data = val_data[~is_val_unknown]
     test_data = test_data[~is_test_unknown]
 
-
-    #Only keep ids that appear in training
-    train_users = set(train_data[user_column_name]) #Upated users in the training set
+    #Upated users in the training set
+    train_users = set(train_data[user_column_name]) 
     train_items = set(train_data[item_column_name])
 
     val_data = val_data[
@@ -227,6 +226,7 @@ def split_train_val_test(input, user_column_name, item_column_name, outputfortra
     test_data.to_csv(test_path, index=False)
 
     return train_data, val_data, test_data
+
 
 
 train1, val1, test1 = split_train_val_test(input1, "userId", "movieId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_1M_movies")

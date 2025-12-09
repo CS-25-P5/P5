@@ -18,6 +18,9 @@ import random
 Currently we have a Movielens database with ratings from 0.5 - 5 (explicit feedback), and we will use a threshold 
 for defining whether an item is positive or negative (rating above 3 is positive).'''
 
+TRAIN_DATASET = pandas.read_csv("data/TRAIN_GROUNDTRUTH/ratings_100K_goodbooks_train.csv")
+VAL_DATASET = pandas.read_csv("data/VAL_GROUNDTRUTH/ratings_100K_goodbooks_val.csv")
+TEST_DATASET = pandas.read_csv("data/TEST_GROUNDTRUTH/ratings_100K_goodbooks_test.csv")
 
 
 def run_program(optim,
@@ -32,13 +35,13 @@ def run_program(optim,
                 recommend_output = None):
     
     #STEP 1 - Redo the database - I need books and ratings so that I can create triplets. 
-    dataset = pandas.read_csv("data/Input_goodbooks_dataset_100K/ratings_100K.csv") 
-    dataset = dataset[["userId", "itemId", "rating"]] 
+    dataset = pandas.read_csv("data/IMPORTANTdatasets/ratings_100K_goodbooks.csv") 
+    dataset = dataset[["user_id", "itemId", "rating"]] 
 
     #STEP 1.1. : Split into train 80%, validation 10%, test 10% => SAVE
-    train_df, temporary_df = train_test_split(dataset, test_size=0.2, random_state=42) 
-    validation_df, test_df = train_test_split(temporary_df, test_size=0.5, random_state=42)
-
+    train_df = TRAIN_DATASET
+    validation_df = VAL_DATASET
+    test_df = TEST_DATASET
     #STEP 1.2 : Split dataset into likes and dislakes (ratings of 3 and below are negative). Do for train, val, test df
 
     positive_training_df = train_df[train_df["rating"] > 3].copy()  #Train 
@@ -50,9 +53,9 @@ def run_program(optim,
     positive_test_df = test_df[test_df["rating"] > 3].copy() #Test
     negative_test_df = test_df[test_df["rating"] <= 3].copy()
 
-    #STEP 2 - Mapping user and books to 0 .. n-1. Nn.Embeddings is a lookuptable that needs indices. # Current dataset for userId goes 1, 55, 105, 255, 6023.. We turn this into the amount of users # Pytorch is not working with raw IDs, so we map each userId and itemId to a common new index 
+    #STEP 2 - Mapping user and books to 0 .. n-1. Nn.Embeddings is a lookuptable that needs indices. # Current dataset for user_id goes 1, 55, 105, 255, 6023.. We turn this into the amount of users # Pytorch is not working with raw IDs, so we map each user_id and itemId to a common new index 
 
-    unique_users = dataset["userId"].unique() 
+    unique_users = dataset["user_id"].unique() 
     unique_books = dataset["itemId"].unique() 
     user_to_index = {u: i for i,u in enumerate(unique_users)} 
     books_to_index = {m:i for i,m in enumerate(unique_books)} 
@@ -61,23 +64,23 @@ def run_program(optim,
     numberofitems = len(books_to_index)
 
 
-    #STEP 3 :Add the indicies for both positive and negatives in all 3 datasets, so that all use small numbers instead of userId=545 likes itemId=8000 => userwithindex=0 likes books with index 10. 
+    #STEP 3 :Add the indicies for both positive and negatives in all 3 datasets, so that all use small numbers instead of user_id=545 likes itemId=8000 => userwithindex=0 likes books with index 10. 
 
 
-    positive_training_df["user_index"] = positive_training_df["userId"].map(user_to_index) #For train 
+    positive_training_df["user_index"] = positive_training_df["user_id"].map(user_to_index) #For train 
     positive_training_df["positem_index"] = positive_training_df["itemId"].map(books_to_index) 
-    negative_training_df["user_index"] = negative_training_df["userId"].map(user_to_index) 
+    negative_training_df["user_index"] = negative_training_df["user_id"].map(user_to_index) 
     negative_training_df["negitem_index"] = negative_training_df["itemId"].map(books_to_index)
 
 
-    positive_validation_df["user_index"] = positive_validation_df["userId"].map(user_to_index) #For validation
+    positive_validation_df["user_index"] = positive_validation_df["user_id"].map(user_to_index) #For validation
     positive_validation_df["positem_index"] = positive_validation_df["itemId"].map(books_to_index) 
-    negative_validation_df["user_index"] = negative_validation_df["userId"].map(user_to_index) 
+    negative_validation_df["user_index"] = negative_validation_df["user_id"].map(user_to_index) 
     negative_validation_df["negitem_index"] = negative_validation_df["itemId"].map(books_to_index) 
 
-    positive_test_df["user_index"] = positive_test_df["userId"].map(user_to_index) #For test
+    positive_test_df["user_index"] = positive_test_df["user_id"].map(user_to_index) #For test
     positive_test_df["positem_index"] = positive_test_df["itemId"].map(books_to_index)
-    negative_test_df["user_index"] = negative_test_df["userId"].map(user_to_index)
+    negative_test_df["user_index"] = negative_test_df["user_id"].map(user_to_index)
     negative_test_df["negitem_index"] = negative_test_df["itemId"].map(books_to_index)
 
 
@@ -303,8 +306,8 @@ def run_program(optim,
         "We will comåute the scores for user and books pairs in train, val, test dataframe"
         model.eval() #stop training, use the fixed wieghts
         with torch.no_grad():
-            #map userID to index again
-            user_id = dataset["userId"].map(user_to_index).values
+            #map user_id to index again
+            user_id = dataset["user_id"].map(user_to_index).values
             books_id = dataset["itemId"].map(books_to_index).values
 
             #Make rows from columns for user and corresponding books
@@ -317,7 +320,7 @@ def run_program(optim,
             interaction = user_em * books_em 
 
             scores = model.perceptron(interaction).squeeze(-1).cpu().numpy() 
-            #Take array by array and multiple userid vector with omvie, give one number for that calc.
+            #Take array by array and multiple user_id vector with omvie, give one number for that calc.
             #|pandas needs data on CPU and so does nupmy + convert pytorch tensor to numpy, so that pandas can put it into a dataframe
 
         return scores
@@ -442,13 +445,13 @@ def run_program(optim,
 
 
 
-    # STEP 14 – Predict on the GROUNDFTRUTH for all user x all books items (ONYL from testset! 10% )
+    # STEP 14 – Predict on the GROUNDFTRUTH for all user x all movie items (ONYL from testset! 10% )
     big_input = recommend_input
     big_output = recommend_output
 
     big_df = pandas.read_csv(big_input)
 
-    if "userId" not in big_df.columns or "itemId" not in big_df.columns:
+    if "user_id" not in big_df.columns or "itemId" not in big_df.columns:
         raise ValueError("The big input file must contain 'userId' and 'itemId' columns.")
 
     big_scores = predict_ratings(model, big_df, device)
@@ -456,14 +459,9 @@ def run_program(optim,
     big_df["recommendation_score"] = big_scores
     big_df.to_csv(big_output, index=False)
 
-    unknown_users  = ~big_df["userId"].isin(dataset["userId"])
-    unknown_movies = ~big_df["movieId"].isin(dataset["movieId"])
-    print("Unknown users:", unknown_users.sum())
-    print("Unknown movies:", unknown_movies.sum())  
 
+inputforall = "data/TEST_RECOMMEND_inputfile/ratingsbooks_100K.csv"
 
-
-inputforall = "data/Output_Predictions_test_100K_goodbooks(MLPwithBPR)/GROUNDTRUTH_alluserandbooks.csv"
 
 
 a1 = run_program( 
@@ -476,10 +474,10 @@ a1 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output= "data/dummy/Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv")
+                recommend_output= "data/Recommend_test_100K_goodbooks(MLPwithBPR)/Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv")
     
 
-'''
+
 
 a2 = run_program( 
                 optim = torch.optim.Adam,
@@ -825,4 +823,3 @@ c8 =  run_program(
                 prediction_test_save = None,
                 recommend_input=inputforall,
                 recommend_output = "data/Recommend_test_100K_goodbooks(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128.csv")
-'''

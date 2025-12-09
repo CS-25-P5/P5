@@ -18,7 +18,9 @@ import random
 Currently we have a Movielens database with ratings from 0.5 - 5 (explicit feedback), and we will use a threshold 
 for defining whether an item is positive or negative (rating above 3 is positive).'''
 
-
+TRAIN_DATASET = pandas.read_csv("data/TRAIN_GROUNDTRUTH/ratings_1M_movies_train.csv")
+VAL_DATASET = pandas.read_csv("data/VAL_GROUNDTRUTH/ratings_1M_movies_val.csv")
+TEST_DATASET = pandas.read_csv("data/TEST_GROUNDTRUTH/ratings_1M_movies_test.csv")
 
 def run_program(optim,
                 weightdecay,
@@ -32,12 +34,13 @@ def run_program(optim,
                 recommend_output = None):
     
     #STEP 1 - Redo the database - I need movies and ratings so that I can create triplets. 
-    dataset = pandas.read_csv("data/Input_movies_dataset_1M/ratings_1M.csv") 
+    dataset = pandas.read_csv("data/IMPORTANTdatasets/ratings_1M_movies.csv") 
     dataset = dataset[["userId", "movieId", "rating"]] 
 
     #STEP 1.1. : Split into train 80%, validation 10%, test 10% => SAVE
-    train_df, temporary_df = train_test_split(dataset, test_size=0.2, random_state=42) 
-    validation_df, test_df = train_test_split(temporary_df, test_size=0.5, random_state=42)
+    train_df = TRAIN_DATASET
+    validation_df = VAL_DATASET
+    test_df = TEST_DATASET
 
     #STEP 1.2 : Split dataset into likes and dislakes (ratings of 3 and below are negative). Do for train, val, test df
 
@@ -458,7 +461,7 @@ def run_program(optim,
 
 
 
-inputforall = "data/Recommend_test_1M_movies(MLPwithBPR)/GROUNDTRUTH_alluserandmovies.csv"
+inputforall = "data/TEST_RECOMMEND_inputfile/ratings_1M_movies.csv"
 
 a1 = run_program( 
                 optim = torch.optim.Adam,
