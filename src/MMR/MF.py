@@ -236,7 +236,7 @@ def process_save_mf(all_recommendations, item_user_rating, item_ids, predicted_r
         process_mf(
             user_id=user_id,
             user_idx=user_idx,
-            user_recs=user_recs,
+            mf_indices=user_recs,
             item_ids=item_ids,
             genre_map=genre_map,
             id_to_title=id_to_title,
