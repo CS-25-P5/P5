@@ -1,0 +1,58 @@
+Running on ailab-l4-03
+Start time: Tue Dec  9 18:05:46 CET 2025
+Activating virtual environment...
+Python path: /ceph/home/student.aau.dk/vo55zp/projects/P5/venv/bin/python3
+Python version: Python 3.10.12
+Running on ailab-l4-03
+Start time: Tue Dec  9 18:05:46 CET 2025
+Starting pipeline...
+Starting pipeline for movies train
+Train matrix: (610, 1242), Val matrix: (610, 1242)
+Best MF params: {'k': 60, 'alpha': 0.01, 'lambda_': 0.1}, RMSE=0.8825
+Validation data: 4394 ratings
+Item IDs length: 1242
+Max column index: 1241
+Best lambda: 0.9500000000000001 with score 0.9783
+Validation data: 4394 ratings
+Item IDs length: 1242
+Max column index: 1241
+Best lambda: 0.9500000000000001 with score 0.9708
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mf_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mmr_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mmr_train_experiment_log.csv
+Pipeline for movies train finished successfully!
+Start movies test pipeline 
+Filtered users: 571, Filtered items: 868
+MF predictions saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-09_18-06-22/mf_test_100000_top_10.csv
+MF test predictions saved to: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-09_18-06-22/mf_test_100000_predictions.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-09_18-06-22/mmr_test_100000_cosine_top_10.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-09_18-06-22/mmr_test_100000_jaccard_top_10.csv
+Log MMR data
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mmr_test_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mmr_test_experiment_log.csv
+Pipeline for movies test finished successfully!
+Starting pipeline for books train
+Train matrix: (1584, 2559), Val matrix: (1584, 2559)
+Best MF params: {'k': 40, 'alpha': 0.005, 'lambda_': 0.1}, RMSE=0.8865
+Validation data: 9780 ratings
+Item IDs length: 2559
+Max column index: 2558
+Best lambda: 0.0 with score 0.6031
+Validation data: 9780 ratings
+Item IDs length: 2559
+Max column index: 2558
+Best lambda: 0.0 with score 0.6031
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/mf_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/mmr_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/mmr_train_experiment_log.csv
+Pipeline for books train finished successfully!
+Start books test pipeline 
+Filtered users: 1493, Filtered items: 1819
+MF predictions saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-09_18-38-41/mf_test_100000_top_10.csv
+MF test predictions saved to: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-09_18-38-41/mf_test_100000_predictions.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-09_18-38-41/mmr_test_100000_cosine_top_10.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-09_18-38-41/mmr_test_100000_jaccard_top_10.csv
+Log MMR data
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/mmr_test_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/mmr_test_experiment_log.csv
+Pipeline for books test finished successfully!
