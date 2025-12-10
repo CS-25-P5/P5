@@ -176,15 +176,14 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, movie_titles, genr
             top_n=top_n
         )
 
-    os.makedirs(os.path.dirname(output_dir), exist_ok=True)
-    save_DPP(results, output_dir, similarity_type)
     print(f"Done DPP for {similarity_type}")
+    return results
 
 
 
 
 
-def save_DPP(dpp_recommendations_list, output_dir, similarity_type):
+def save_DPP(dpp_recommendations_list, output_dir):
     dpp_df = pd.DataFrame(dpp_recommendations_list)
     dpp_df.to_csv(output_dir, index=False)
     print("DONE with DPP :)")

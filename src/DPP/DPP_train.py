@@ -311,15 +311,23 @@ def run_dpp_pipeline_test(
 
 
 # Run DPP recommendations on test
-    get_recommendations_for_dpp(
+    cosine_reco =  get_recommendations_for_dpp(
         dpp_cosine, filtered_df, filtered_item_ids, genre_map, predicted_ratings, id_to_title,
         top_k, top_n, dpp_path_cosine, "cosine"
     )
 
-    get_recommendations_for_dpp(
+    jaccard_rec = get_recommendations_for_dpp(
         dpp_jaccard, filtered_df, filtered_item_ids, genre_map, predicted_ratings, id_to_title,
         top_k, top_n, dpp_path_jaccard, "jaccard"
     )
+    os.makedirs(os.path.dirname(output_dir), exist_ok=True)
+    test_path = os.path.join(output_dir,f"{run_id}/dpp_test_{chunksize}_cosine_top_{top_n}.csv")
+    save_DPP(cosine_reco, test_path)
+
+    test_path = os.path.join(output_dir,f"{run_id}/dpp_test_{chunksize}_jaccard_top_{top_n}.csv")
+    save_DPP(jaccard_rec, test_path)
+
+
 
     print("DPP TEST pipeline completed successfully!")
 
