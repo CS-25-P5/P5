@@ -227,7 +227,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 input_rating_csv = os.path.join(base_dir, "datasets/MovieLens", "ratings_small.csv")
 input_movies_csv = os.path.join(base_dir, "datasets/MovieLens", "movies_metadata.csv")
 
-output_dir = os.path.join(base_dir, "datasets/mmr_data")
+output_dir = os.path.join(base_dir, "datasets/dpp_data")
 output_dir_rating = os.path.join(base_dir, "datasets/MovieLens")
 
 
@@ -290,7 +290,7 @@ split_ratings(
 input_rating_csv = os.path.join(base_dir, "datasets/GoodBooks", "ratings.csv")
 input_books_csv = os.path.join(base_dir, "datasets/GoodBooks", "books.csv")
 
-output_dir = os.path.join(base_dir, "datasets/mmr_data")
+output_dir = os.path.join(base_dir, "datasets/dpp_data")
 output_dir_rating = os.path.join(base_dir, "datasets/GoodBooks")
 
 
