@@ -1,4 +1,3 @@
-
 import time
 import os
 import torch
@@ -13,6 +12,7 @@ import pandas as pandas
 import numpy as np
 import random
 from groundtruth_test_allitems import *
+from pathlib import Path
 
 '''BPR is suited for datasets with implicit feedback. 
 Currently we have a Movielens database with ratings from 0.5 - 5 (explicit feedback), and we will use a threshold 
@@ -298,7 +298,7 @@ def run_program(optim,
 
 
 
-
+    '''
     def predict_ratings(model, dataset, device):
         "We will comåute the scores for user and movie pairs in train, val, test dataframe"
         model.eval() #stop training, use the fixed wieghts
@@ -320,11 +320,42 @@ def run_program(optim,
             #Take array by array and multiple userid vector with omvie, give one number for that calc.
             #|pandas needs data on CPU and so does nupmy + convert pytorch tensor to numpy, so that pandas can put it into a dataframe
 
+        return scores '''
+    
+    ##### COME BACK HERE AND CHANGE!
+
+    def predict_ratings_in_batches(model, dataset, device, batch_size=65_000):
+        
+        model.eval()
+        
+        # Map IDs to indices once
+        user_id = dataset["userId"].map(user_to_index).values
+        movie_id = dataset["movieId"].map(movie_to_index).values
+
+        n = len(dataset)
+        scores = np.empty(n, dtype=np.float32)
+
+        with torch.no_grad():
+            for start in range(0, n, batch_size):
+                end = min(start + batch_size, n)
+
+                batch_user = torch.tensor(user_id[start:end], dtype=torch.long, device=device)
+                batch_movie = torch.tensor(movie_id[start:end], dtype=torch.long, device=device)
+
+                user_em = model.user_emb(batch_user)
+                movie_em = model.item_emb(batch_movie)
+                interaction = user_em * movie_em
+
+                batch_scores = model.perceptron(interaction).squeeze(-1).cpu().numpy()
+                scores[start:end] = batch_scores
+
+                # Optional: free up GPU between iterations
+                del batch_user, batch_movie, user_em, movie_em, interaction, batch_scores
+                torch.cuda.empty_cache()
+
         return scores
-            
 
-
-
+    
     #STEP 10 - Train the model
     def training_with_bpr(model, trainloader, validationloader, optimizer, stopearly, epochs, device):
         #NN goes much fast on GPUs according to doc. Moving tensor to device here. 
@@ -388,7 +419,7 @@ def run_program(optim,
     #STEP 11 - Create predictions for validation set
     def validate_bpr():
         #Get preds in val dataset
-        predicted_score = predict_ratings(model, validation_df, device)
+        predicted_score = predict_ratings_in_batches(model, validation_df, device)
         #Avr val loss pr batch
         average_val_loss_per_batch = evaluate_loss(model, validate_bpr_dataloader, device)
         #MEasure how much time this whole thing takes
@@ -424,7 +455,7 @@ def run_program(optim,
     def test_bpr(model, testdataloader, device):
         average_test_loss_per_batch = evaluate_loss (model, testdataloader, device)
         #predict stuff using the test_df 
-        test_predict_score = predict_ratings(model, test_df, device)
+        test_predict_score = predict_ratings_in_batches(model, test_df, device)
         
         #Tildel prediction til test datasæt
         prediction_test_dataset = test_df.copy()
@@ -441,7 +472,7 @@ def run_program(optim,
     
 
 
-
+    
     # STEP 14 – Predict on the GROUNDFTRUTH for all user x all movie items (ONYL from testset! 10% )
     big_input = recommend_input
     big_output = recommend_output
@@ -451,11 +482,12 @@ def run_program(optim,
     if "userId" not in big_df.columns or "movieId" not in big_df.columns:
         raise ValueError("The big input file must contain 'userId' and 'movieId' columns.")
 
-    big_scores = predict_ratings(model, big_df, device)
+    big_scores = predict_ratings_in_batches(model, big_df, device)
 
     big_df["recommendation_score"] = big_scores
     big_df.to_csv(big_output, index=False)
-
+    
+    
 
 
 inputforall = "data/TEST_RECOMMEND_inputfile/ratings_1M_movies.csv"

@@ -1,4 +1,3 @@
-
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 import torch
@@ -13,6 +12,7 @@ import copy
 import time
 import os
 from groundtruth_test_allitems import *
+from pathlib import Path
 
 
 def run_program(optim,
@@ -228,7 +228,7 @@ def run_program(optim,
 
             return total_loss / len(dataloader)
 
-
+    '''
     def predict_ratings(model, dataset, device, batch_size = 1024):
         
         model.eval() #stop training, use the fixed wieghts
@@ -247,7 +247,29 @@ def run_program(optim,
                 batch_predictions = model(user_tensor, book_tensor, genre_tensor).cpu()
                 all_predictions.append(batch_predictions)
         return  torch.cat(all_predictions).numpy()
-            
+    '''     
+
+    from pathlib import Path
+
+    def predict_ratings_batched(model, df, device, batch_size=100_000):
+        model.eval()
+        preds = []
+        with torch.no_grad():
+            n = len(df)
+            for start in range(0, n, batch_size):
+                end = min(start + batch_size, n)
+                batch = df.iloc[start:end]
+
+                user_tensor = torch.tensor(batch["user_index"].values, dtype=torch.long).to(device)
+                book_tensor = torch.tensor(batch["book_index"].values, dtype=torch.long).to(device)
+
+                genre_array = np.stack(batch["united_genre_vector"].values)
+                genre_tensor = torch.tensor(genre_array, dtype=torch.float32).to(device)
+
+                batch_preds = model(user_tensor, book_tensor, genre_tensor).cpu().numpy()
+                preds.append(batch_preds)
+
+        return np.concatenate(preds)
 
 
     #STEP 10 - Train the model
@@ -317,7 +339,7 @@ def run_program(optim,
 
 
         #Get preds in val dataset
-        prediction = predict_ratings(model, validation_df, device)
+        prediction = predict_ratings_batched(model, validation_df, device)
         #Avr val loss pr batch
         average_val_loss_per_batch = evaluate_loss(model, validation_loader, device)
         #Measure how much time this whole thing takes
@@ -355,7 +377,7 @@ def run_program(optim,
     def test(model, testdataloader, device):
         average_test_loss_per_batch = evaluate_loss(model, testdataloader, device)
         #predict stuff using the test_df 
-        test_predict_score = predict_ratings(model, test_df, device)
+        test_predict_score = predict_ratings_batched(model, test_df, device)
         
         #Tildel prediction til test datasæt
         prediction_test_dataset = test_df.copy()
@@ -372,7 +394,8 @@ def run_program(optim,
     if prediction_test_save is not None: #ONLY VALIDATE IF I GIVE PATH FILE!
         test(model, test_loader, device)
 
-    # STEP 14 – Predict on the GROUNDFTRUTH for all user x all movie items (ONYL from testset! 10% )
+    '''
+    # STEP 14 – Predict on the GROUNDFTRUTH for all user x all book items (ONYL from testset! 10% )
     big_input = recommend_input
     big_output = recommend_output
 
@@ -401,11 +424,52 @@ def run_program(optim,
     big_df["united_genre_vector"] = big_df[genre_columns].apply(lambda row: row.to_numpy(dtype=np.float32),axis=1)
 
 
-    big_scores = predict_ratings(model, big_df, device)
+    big_scores = predict_ratings_batched(model, big_df, device)
     big_df["recommendation_score"] = big_scores
     big_df = big_df[["user_id", "itemId", "rating", "recommendation_score"]]
     big_df.to_csv(big_output, index=False)
+    '''
+    def run_recommendation(big_input, big_output, model, device, mlb, user_to_index, book_to_index):
+        Path(big_output).parent.mkdir(parents=True, exist_ok=True)
+        first = True
 
+        for chunk in pandas.read_csv(big_input, chunksize=100_000):
+            # prepare chunk
+            chunk["genres_list"] = chunk["genres"].apply(change_list)
+            big_genres_hot = mlb.transform(chunk["genres_list"])
+            big_genres_df = pandas.DataFrame(big_genres_hot, columns=genre_columns)
+
+            chunk = pandas.concat(
+                [chunk.reset_index(drop=True), big_genres_df.reset_index(drop=True)],
+                axis=1
+            )
+
+            chunk["user_index"] = chunk["user_id"].map(user_to_index)
+            chunk["book_index"] = chunk["itemId"].map(book_to_index)
+
+            chunk = chunk.dropna(subset=["user_index", "book_index"])
+            chunk["user_index"] = chunk["user_index"].astype(int)
+            chunk["book_index"] = chunk["book_index"].astype(int)
+
+            chunk["united_genre_vector"] = chunk.apply(build_genre_vector, axis=1)
+
+            scores = predict_ratings_batched(model, chunk, device, batch_size=50_000)
+            chunk["recommendation_score"] = scores
+
+            out = chunk[["user_id", "itemId", "rating", "recommendation_score"]]
+            out.to_csv(big_output, mode="a", index=False, header=first)
+            first = False
+
+    if recommend_input is not None and recommend_output is not None:
+        run_recommendation(
+            recommend_input,
+            recommend_output,
+            model,
+            device,
+            mlb,
+            user_to_index,
+            book_to_index,
+        )
 
     
 
