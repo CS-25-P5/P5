@@ -318,7 +318,7 @@ split_ratings(
 # output_dir_rating = os.path.join(base_dir, "datasets/GoodBooks")
 
 input_rating_books = os.path.join(base_dir, "datasets/books", "ratings_100000_.csv")
-input_books_csv = os.path.join(base_dir, "datasets/GoodBooks", "books.csv.csv")
+input_books_csv = os.path.join(base_dir, "datasets/GoodBooks", "books.csv")
 
 output_dir_book = os.path.join(base_dir, "datasets/dpp_data")
 output_dir_rating_book = os.path.join(base_dir, "datasets/GoodBooks")
