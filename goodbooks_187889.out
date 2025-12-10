@@ -1,0 +1,55 @@
+Running on ailab-l4-05
+Start time: Wed Dec 10 18:14:20 CET 2025
+Activating virtual environment...
+Python path: /ceph/home/student.aau.dk/la15yk/p5_env/bin/python3
+Python version: Python 3.10.12
+Running on ailab-l4-05
+Start time: Wed Dec 10 18:14:20 CET 2025
+Starting pipeline...
+Starting pipeline for books train
+Best MF params: {'k': 40, 'alpha': 0.005, 'lambda_': 0.1}, RMSE=0.8865
+→ Training Matrix Factorization...
+→ Building DPP models...
+DPP model build time: 0.14 sec
+Matrix alignment time: 0.05 sec
+Done DPP for cosine
+DPP cosine runtime: 1085.56 sec
+Done DPP for jaccard
+DPP jaccard runtime: 1075.18 sec
+TOTAL DPP pipeline time: 2160.93 sec
+DPP TRAIN pipeline completed successfully!
+Start books test pipeline 
+Filtered users: 1493, Filtered items: 1819
+MF predictions saved: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/books/2025-12-10_18-14-56/mf_test_100000_top_10.csv
+MF test predictions saved to: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/books/2025-12-10_18-14-56/mf_test_100000_predictions.csv
+Done DPP for cosine
+Done DPP for jaccard
+MF test predictions saved to: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/books/2025-12-10_18-14-56/dpp_test_100000_cosine_top_10.csv
+DONE with DPP :)
+MF test predictions saved to: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/books/2025-12-10_18-14-56/dpp_test_100000_jaccard_top_10.csv
+DONE with DPP :)
+DPP TEST pipeline completed successfully!
+Starting pipeline for movies train
+Best MF params: {'k': 60, 'alpha': 0.01, 'lambda_': 0.1}, RMSE=0.8825
+→ Training Matrix Factorization...
+→ Building DPP models...
+DPP model build time: 0.03 sec
+Matrix alignment time: 0.02 sec
+Done DPP for cosine
+DPP cosine runtime: 180.58 sec
+Done DPP for jaccard
+DPP jaccard runtime: 178.33 sec
+TOTAL DPP pipeline time: 358.95 sec
+DPP TRAIN pipeline completed successfully!
+Start movies test pipeline 
+Filtered users: 571, Filtered items: 868
+MF predictions saved: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/movies/2025-12-10_19-52-31/mf_test_100000_top_10.csv
+MF test predictions saved to: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/movies/2025-12-10_19-52-31/mf_test_100000_predictions.csv
+Done DPP for cosine
+Done DPP for jaccard
+MF test predictions saved to: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/movies/2025-12-10_19-52-31/dpp_test_100000_cosine_top_10.csv
+DONE with DPP :)
+MF test predictions saved to: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/movies/2025-12-10_19-52-31/dpp_test_100000_jaccard_top_10.csv
+DONE with DPP :)
+DPP TEST pipeline completed successfully!
+End time: Wed Dec 10 20:16:22 CET 2025
