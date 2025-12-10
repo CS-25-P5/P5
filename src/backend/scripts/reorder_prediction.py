@@ -16,8 +16,8 @@ input1 = "data/Recommend_test_1M_movies(MLPwithBPR)"
 input2 = "data/Recommend_test_100K_goodbooks(MLPwithBPR)"
 input3 = "data/Recommend_test_100K_movies(MLPwithBPR)"
 input4 = "data/Recommend_test_100K_movies(MLPwithGenres)"
-input5 = ""
-input6 = ""
+input5 = "data/Recommend_test_100K_goodbooks(MLPwithGenres)"
+
 
 def reorder(input_folder):
 
@@ -32,7 +32,7 @@ def reorder(input_folder):
             #Sorty by userId first, then descend
 
             sort_by_id = pred_dataset.sort_values(
-                by = ["userId", "recommendation_score"],
+                by = ["user_id", "recommendation_score"],
                 ascending=[True, False]
             )
 
@@ -48,6 +48,6 @@ def reorder(input_folder):
 
 #reorder(input1)
 #reorder(input2)
-reorder(input3)
-reorder(input4)
-
+#reorder(input3)
+#reorder(input4)
+reorder(input5)
