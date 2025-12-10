@@ -178,7 +178,7 @@ def _calculate_ild(data_handler, item_features, k, metric='hamming'):
 
         calc = Calculator(features, metric)
         ild = IntraListDiversity(k=k, distance_calculator=calc).calc_per_user(reco=recos)
-        return ild.mean() / (item_features.shape[1] if metric == 'hamming' else 1)
+        return ild.mean()
 
     except Exception as e:
         print(f"ILD failed for {metric}: {e}")
@@ -276,7 +276,7 @@ def plot_individual_metric_charts(df_metrics, output_dir="metric_charts"):
 # function for running it all
 def run_model_comparison(ground_truth_path, sources, catalog, threshold=4.0, k=5,
                          item_features=None, output_prefix="comparison",
-                         calculate_ild=True):  # Add parameter
+                         calculate_ild=True, dataset_type="movies"):  # Add parameter
     all_results_df = pd.DataFrame()
 
     print("Metrics calculations")
@@ -285,7 +285,7 @@ def run_model_comparison(ground_truth_path, sources, catalog, threshold=4.0, k=5
         print(f"\nProcessing '{source_name}'")
 
         try:
-            data = load_and_process_data(ground_truth_path, predictions_path)
+            data = load_and_process_data(ground_truth_path, predictions_path, dataset_type=dataset_type, verbose=False)
         except Exception as e:
             print(f"Error loading data for {source_name}: {e}")
             print("Skipping this model")
@@ -309,38 +309,99 @@ def run_model_comparison(ground_truth_path, sources, catalog, threshold=4.0, k=5
     return all_results_df
 
 #Load movies file and create binary genre features for ILD calculation.
-def load_item_features(movies_path):
+def load_item_features(items_path, dataset_type="movies"):
+    """
+    Load items file and create binary genre features for ILD calculation.
+    Handles both MovieLens and GoodBooks with pipe-separated genres.
+    """
+    print(f"Loading item features for {dataset_type}")
 
-    # Load movies data
-    print("starting loading")
-    movies = pd.read_csv(movies_path)
-    movies['itemId'] = movies['itemId'].astype(str)
+    # Robust CSV reading
+    items = pd.read_csv(items_path, engine='python', on_bad_lines='skip')
 
-    # Split pipe-separated genres and get all unique genres
-    movies['genres_list'] = movies['genres'].str.split('|')
-    all_genres = sorted(set([g for genres in movies['genres_list'] for g in genres]))
+    # CRITICAL: Normalize ID column to 'itemId' name
+    if 'itemId' not in items.columns and 'item_id' in items.columns:
+        items = items.rename(columns={'item_id': 'itemId'})
 
-    # Create binary feature matrix
-    item_features = pd.DataFrame(0, index=movies['itemId'], columns=all_genres)
+    # Normalize IDs: strip whitespace and remove .0 decimals
+    items['itemId'] = items['itemId'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
+
+    # Remove duplicates AFTER normalization
+    items = items.drop_duplicates(subset=['itemId'], keep='first')
+    print(f"After deduplication: {len(items)} unique items")
+
+    # Clean genres
+    items['genres'] = items['genres'].fillna('Unknown')
+    items['genres_list'] = items['genres'].str.split('|')
+
+    # Get unique genres
+    all_genres = set()
+    for genres in items['genres_list']:
+        if isinstance(genres, list):
+            for g in genres:
+                clean_genre = g.strip() if isinstance(g, str) else ''
+                if clean_genre and clean_genre.lower() != 'unknown':
+                    all_genres.add(clean_genre)
+
+    all_genres = sorted(list(all_genres))
+    print(f"Found {len(all_genres)} genres: {all_genres[:10]}...")
+
+    # Create feature matrix with explicit unique index
+    unique_ids = items['itemId'].unique()
+    item_features = pd.DataFrame(0, index=unique_ids, columns=all_genres)
     item_features.index.name = 'item_id'
 
-    for idx, row in movies.iterrows():
-        item_features.loc[row['itemId'], row['genres_list']] = 1
+    # Fill matrix safely
+    items_with_features = 0
+    for idx, row in items.iterrows():
+        if isinstance(row['genres_list'], list):
+            valid_genres = [g.strip() for g in row['genres_list']
+                            if g and g.strip() in all_genres]
+            if valid_genres:
+                # Use .at for safe single-value assignment
+                for genre in valid_genres:
+                    item_features.at[row['itemId'], genre] = 1
+                items_with_features += 1
 
+    print(f"Processed features for {items_with_features}/{len(items)} items")
+    print(f"Matrix shape: {item_features.shape}")
+    print(f"Index unique: {item_features.index.is_unique}")
     return item_features
 
 
-def plot_rating_distribution(ground_truth_path, output_dir="rating_charts"):
+def plot_rating_distribution(ground_truth_path, items_path, output_dir="rating_charts"):
     """
     Create a bar chart of rating distribution from ground truth data.
-    Saves as both PNG and SVG files.
+    Saves as both PNG and SVG files. Includes rating sparsity and genre count.
+    Stats box positioned on the left side.
     """
     # Load data
     gt = pd.read_csv(ground_truth_path)
 
-    # Calculate distribution
+    # Load items to get genre information
+    items = pd.read_csv(items_path, engine='python', on_bad_lines='skip')
+    items['genres'] = items['genres'].fillna('Unknown')
+    items_with_genres = (items['genres'] != 'Unknown').sum()
+    total_items = len(items)
+
+    # Rating distribution
     rating_counts = gt['rating'].value_counts().sort_index()
     rating_percentages = (rating_counts / len(gt) * 100).round(1)
+
+    # Calculate rating sparsity
+    num_users = gt["userId"].nunique()
+    item_col = "itemId" if "itemId" in gt.columns else "movieId"
+    num_items = gt[item_col].nunique()
+    total_ratings = len(gt)
+    rating_sparsity = (total_ratings / (num_users * num_items)) * 100
+
+    # Calculate genre stats
+    if 'genres_list' not in items.columns:
+        items['genres_list'] = items['genres'].str.split('|')
+    all_genres = set(g for genres in items['genres_list'] if isinstance(genres, list)
+                     for g in genres if g and g.strip().lower() != 'unknown')
+    num_genres = len(all_genres)
+    genre_coverage = (items_with_genres / total_items) * 100
 
     # Create figure
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -349,7 +410,7 @@ def plot_rating_distribution(ground_truth_path, output_dir="rating_charts"):
     bars = ax.bar(rating_counts.index.astype(str), rating_counts.values,
                   color=plt.cm.Set3(np.linspace(0, 1, len(rating_counts))))
 
-    # Add percentage labels on top of bars
+    # Add percentage labels
     for bar, percentage in zip(bars, rating_percentages.values):
         height = bar.get_height()
         ax.text(bar.get_x() + bar.get_width() / 2., height + max(rating_counts.values) * 0.01,
@@ -357,15 +418,20 @@ def plot_rating_distribution(ground_truth_path, output_dir="rating_charts"):
                 ha='center', va='bottom', fontsize=10, fontweight='bold')
 
     # Styling
-    ax.set_title('Rating Distribution in Movie Dataset', fontsize=16, fontweight='bold', pad=20)
+    dataset_name = "Books" if "book" in items_path.lower() else "Movies"
+    ax.set_title(f'Rating Distribution - {dataset_name}', fontsize=16, fontweight='bold', pad=20)
     ax.set_xlabel('Rating', fontsize=12)
     ax.set_ylabel('Count', fontsize=12)
     ax.grid(axis='y', alpha=0.3, linestyle='--')
 
-    # Add statistics box
-    stats_text = f'Total ratings: {len(gt):,}\nUnique users: {gt["userId"].nunique():,}\nUnique items: {gt["itemId" if "itemId" in gt.columns else "movieId"].nunique():,}'
-    ax.text(0.98, 0.95, stats_text, transform=ax.transAxes,
-            fontsize=10, verticalalignment='top', horizontalalignment='right',
+    # Statistics box (LEFT-SIDED with separate lines for genres)
+    stats_text = (f'Total ratings: {total_ratings:,}\n'
+                  f'Users: {num_users:,} | Items: {num_items:,}\n'
+                  f'Rating sparsity: {rating_sparsity:.3f}%\n'
+                  f'Genres: {num_genres}\n'
+                  f'Genre coverage: {genre_coverage:.1f}%')
+    ax.text(0.02, 0.95, stats_text, transform=ax.transAxes,  # Changed to 0.02 for left side
+            fontsize=10, verticalalignment='top', horizontalalignment='left',  # Changed to left align
             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 
     # Save
@@ -377,7 +443,7 @@ def plot_rating_distribution(ground_truth_path, output_dir="rating_charts"):
 
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, f'rating_distribution_{basename}_{timestamp}.svg'),
-                bbox_inches='tight')
+                bbox_inches="tight")
     plt.close(fig)
 
     print(f"✅ Rating distribution chart saved to {output_dir}/")
@@ -391,7 +457,8 @@ if __name__ == "__main__":
     # SET THIS TO False TO SKIP ILD AND GENRE LOADING
     CALCULATE_ILD = True # Change to False to skip ILD entirely
 
-    CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+    #CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+    CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
     CATALOG = pd.read_csv(CATALOG_PATH)
     CATALOG = CATALOG.rename(columns={"itemId": "item_id"})
 
@@ -399,12 +466,15 @@ if __name__ == "__main__":
     #GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
 
     #test2
-    GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\grount_truth_test2.csv"
+    #GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\grount_truth_test2.csv"
 
 
-    #MF - li
-    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movies_ratings_100000_test.csv")
+    #MF - li movoes
+    GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movies_ratings_100000_test.csv")
     #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movie\movies_ratings_100000_test.csv")
+
+    #MF - li books
+    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\books_ratings_100000_train.csv")
 
     #NN - diana
     #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\ratings_small.csv")
@@ -431,15 +501,21 @@ if __name__ == "__main__":
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\test_predictions.csv", "Test"),
 
         #test2
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\test2_predictions.csv", "Test2"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\test2_predictions.csv", "Test2"),
 
         #mf
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\ALIGNED_mf_test_predictions.csv", "mf"),
 
-        #MMR - li
+        #MMR - li movies
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movie\mf_test_100000_predictions.csv", "MF"),
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movie\mmr_test_100000_cosine_predictions.csv", "MMR_cosine"),
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movie\mmr_test_100000_jaccard_predictions.csv", "MMR_jaccard"),
+
+        #MMR - li books
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\mf_test_100000_predictions.csv", "MF"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\mmr_test_100000_cosine_predictions.csv", "MMR_cosine"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\mmr_test_100000_jaccard_predictions.csv", "MMR_jaccard"),
+
 
         #NN
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\predictionNNwithBPR.csv", "NN"),
@@ -580,14 +656,18 @@ if __name__ == "__main__":
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
     ]
 
-    #plot_rating_distribution(GROUND_TRUTH, output_dir="rating_charts")
+    plot_rating_distribution(
+        ground_truth_path=GROUND_TRUTH,
+        items_path=CATALOG_PATH,  # This provides the genre data
+        output_dir="rating_charts"
+    )
 
     # Conditionally load item features (this is the slow part)
     if CALCULATE_ILD:
         print("Loading item features for ILD calculation")
         ITEM_FEATURES = load_item_features(
-            #r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
-            r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\movies_test2.csv"
+            r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv", dataset_type="books"  # Must pass this!
+            #r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv", dataset_type="movies"
         )
     else:
         print("Skipping item feature loading (ILD disabled)")
@@ -638,5 +718,7 @@ if __name__ == "__main__":
         item_features=ITEM_FEATURES,  # Can still provide features, but they won't be used
         output_prefix=f"top{K}_comparison",
         calculate_ild=CALCULATE_ILD,  #
-        catalog=CATALOG
+        catalog=CATALOG,
+        dataset_type="books"
+        #dataset_type="movies"
     )
