@@ -112,24 +112,19 @@ class DPP:
 
 
 
-def build_dpp_models(movie_titles, genre_map, all_features, predicted_ratings):
-    dpp_cosine = DPP(
+def build_dpp_models(movie_titles, genre_map, all_features, predicted_ratings, similarity_type ="cosine"):
+
+
+    model = DPP(
         item_ids=movie_titles,
         feature_map=genre_map,
         all_features=all_features,
         predicted_ratings=predicted_ratings,
-        similarity_type ="cosine"
+        similarity_type = similarity_type
     )
 
-    dpp_jaccard = DPP(
-        item_ids=movie_titles,
-        feature_map=genre_map,
-        all_features=all_features,
-        predicted_ratings=predicted_ratings,
-        similarity_type="jaccard"
-    )
 
-    return dpp_cosine, dpp_jaccard
+    return model
 
 
 
@@ -173,14 +168,15 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, movie_titles, genr
             user_id=user_id,
             user_idx=user_idx,
             dpp_indices=dpp_indices,
-            item_titles= movie_titles,
-            genre_map=genre_map,
+            item_names = movie_titles,
+            feature_map=genre_map,
             predicted_ratings=predicted_ratings,
-            results_list=results,
+            dpp_recommendations_list=results,
             item_to_id=item_to_id,
             top_n=top_n
         )
 
+    os.makedirs(os.path.dirname(output_dir), exist_ok=True)
     save_DPP(results, output_dir, similarity_type)
     print(f"Done DPP for {similarity_type}")
 
@@ -188,12 +184,8 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, movie_titles, genr
 
 
 
-
-
-def save_DPP(dpp_recommendations_list, base_dir, similarity_type):
+def save_DPP(dpp_recommendations_list, output_dir, similarity_type):
     dpp_df = pd.DataFrame(dpp_recommendations_list)
-    output_dir = base_dir
-    os.makedirs(output_dir, exist_ok=True)
-    output_file_path = os.path.join(output_dir, f"dpp_{similarity_type}_recommendations.csv")
-    dpp_df.to_csv(output_file_path, index=False)
+    dpp_df.to_csv(output_dir, index=False)
     print("DONE with DPP :)")
+
