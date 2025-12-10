@@ -337,7 +337,7 @@ def run_dpp_pipeline_test(
 
 # PARAMETER
 TOP_N = 10
-CHUNK_SIZE = 10000
+CHUNK_SIZE = 100000
 K = 20
 ALPHA = 0.01
 LAMDA_ = 0.1
@@ -415,7 +415,7 @@ best_params, predicted_ratings, filtered_item_ids, filtered_user_ids, mf = run_d
     top_k = TOP_K,
     chunksize= CHUNK_SIZE,
     n_epochs= N_EPOCHS,
-    dataset=dataset_books,
+    dataset=dataset_movie,
     random_state=RANDOM_STATE)
 
 
@@ -425,7 +425,7 @@ run_dpp_pipeline_test(
     ratings_path=ratings_test_path,
     item_path=item_file_path,
     output_dir= output_dir,
-    dataset= dataset_books,
+    dataset= dataset_movie,
     chunksize=CHUNK_SIZE,
     top_n=TOP_N,
     top_k=TOP_K,
