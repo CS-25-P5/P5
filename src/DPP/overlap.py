@@ -55,19 +55,47 @@ def check_overlap(ground_truth_file, mf_test_file, user_col='userId', item_col='
 
 
 # Paths
-base_dir = os.path.dirname(os.path.abspath(__file__))
-ground_truth = os.path.join(base_dir, "../datasets/dpp_data/dpp_train_cosine_recommendations.csv")
-mf_test = os.path.join(base_dir, "../datasets/dpp_data/books/2025-12-10_21-37-31/mf_test_100000_predictions.csv")
-ground_truth_df = pd.read_csv(ground_truth)
-mf_test_df = pd.read_csv(mf_test)
+#base_dir = os.path.dirname(os.path.abspath(__file__))
+#ground_truth = os.path.join(base_dir, "../datasets/dpp_data/dpp_train_cosine_recommendations.csv")
+#mf_test = os.path.join(base_dir, "../datasets/dpp_data/books/2025-12-10_21-37-31/mf_test_100000_predictions.csv")
+#ground_truth_df = pd.read_csv(ground_truth)
+#mf_test_df = pd.read_csv(mf_test)
 
-print("GROUND TRUTH COLUMNS:", ground_truth_df.columns.tolist())
-print("MF TEST COLUMNS:", mf_test_df.columns.tolist())
+#print("GROUND TRUTH COLUMNS:", ground_truth_df.columns.tolist())
+#print("MF TEST COLUMNS:", mf_test_df.columns.tolist())
 
 
 # Now call the function with DataFrames
-overlap_df = check_overlap(ground_truth_df, mf_test_df)
-print(overlap_df.head())
+#overlap_df = check_overlap(ground_truth_df, mf_test_df)
+#print(overlap_df.head())
+
+
+# Paths to saved MF and DPP predictions (from your pipeline)
+mf_path = "path/to/mf_test_100000_predictions.csv"
+dpp_path = "path/to/dpp_test_100000_cosine_top_10.csv"  # or jaccard
+
+# Load the files
+mf_df = pd.read_csv(mf_path)
+dpp_df = pd.read_csv(dpp_path)
+
+# Check column names
+print("MF columns:", mf_df.columns.tolist())
+print("DPP columns:", dpp_df.columns.tolist())
+
+# Rename columns if needed for consistency
+# Example: ensure both have 'userId' and 'itemId'
+dpp_df.rename(columns={"user": "userId", "item": "itemId"}, inplace=True)
+
+# Merge to find overlap
+overlap = pd.merge(mf_df, dpp_df, on=["userId", "itemId"])
+
+print(f"Total MF predictions: {len(mf_df)}")
+print(f"Total DPP recommendations: {len(dpp_df)}")
+print(f"Overlap count: {len(overlap)}")
+print(f"Percentage of DPP recommendations present in MF: {len(overlap)/len(dpp_df)*100:.2f}%")
+
+# Optionally, see some overlapping rows
+print(overlap.head())
 
 #mf_test = "mf_rating_predictions.csv"
 
