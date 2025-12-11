@@ -58,11 +58,11 @@ def check_overlap(ground_truth_file, mf_test_file, user_col='userId', item_col='
 base_dir = os.path.dirname(os.path.abspath(__file__))
 ground_truth = os.path.join(base_dir, "../datasets/dpp_data/dpp_train_cosine_recommendations.csv")
 mf_test = os.path.join(base_dir, "../datasets/dpp_data/books/2025-12-10_21-37-31/mf_test_100000_predictions.csv")
-ground_truth_df = pd.read_csv(ground_truth)
-mf_test_df = pd.read_csv(mf_test)
+print("GROUND TRUTH COLUMNS:", ground_truth.columns.tolist())
+print("MF TEST COLUMNS:", mf_test.columns.tolist())
 
 # Now call the function with DataFrames
-overlap_df = check_overlap(ground_truth_df, mf_test_df)
+overlap_df = check_overlap(ground_truth, mf_test)
 print(overlap_df.head())
 
 #mf_test = "mf_rating_predictions.csv"
