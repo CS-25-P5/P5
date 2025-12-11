@@ -76,6 +76,7 @@ class MMR:
         # predicted score for each item
         relevance = self.predicted_ratings[user_id]
         # items the user hasn't seen
+        user_history = np.array(user_history, dtype=bool)
         remaining = np.where(~user_history)[0].copy()  #~user_history flips True/False
         # store all indices of items chosen by MMR
         selected = []
@@ -105,16 +106,20 @@ class MMR:
         return selected
 
 
-def run_mmr(mmr_model, R_filtered, top_k):
+def run_mmr(mmr_model, R_filtered, top_k, user_history_top_n):
     all_recs = []
     for user_idx in range(R_filtered.shape[0]):
-        user_history = (R_filtered[user_idx, :] > 0)
+        # user_history = (R_filtered[user_idx, :] > 0)
+        user_history = np.atleast_1d(user_history_top_n[user_idx])
+        print(f"\n=== DEBUG for user {user_idx} ===")
+        print(f"user_hist type: {type(user_history)}")
+        print(f"user_hist value: {user_history}")
         rec_indices = mmr_model.mmr(user_idx, user_history, top_k)
         all_recs.append(rec_indices)
     
     return all_recs
 
-def process_save_mmr(all_recs, item_user_rating, item_ids, predicted_ratings, genre_map, id_to_title, top_n, output_file_path):
+def process_save_mmr(all_recs, item_user_rating, item_ids, predicted_ratings, genre_map, id_to_title, top_n = 10, output_file_path = None):
     results = []
     for user_idx, rec_indices in enumerate(all_recs):
         user_id = item_user_rating.index[user_idx]
@@ -126,8 +131,7 @@ def process_save_mmr(all_recs, item_user_rating, item_ids, predicted_ratings, ge
             genre_map=genre_map,
             predicted_ratings=predicted_ratings,
             mmr_recommendations_list=results,
-            id_to_title=id_to_title,
-            top_n=top_n)
+            id_to_title=id_to_title)
 
     # save result as csv
     #save_mmr_results(results, output_file_path)

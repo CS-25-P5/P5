@@ -295,7 +295,9 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
         # Boolean series of movie rating status
         already_rated = R_filtered[user_idx, :]> 0
 
-        # Filter out already rated movies
+        
+        
+        # Filter out already rated items
         user_ratings_filtered = np.where(already_rated, -np.inf, user_ratings)
 
         # get indicies sorted descending 
@@ -331,9 +333,10 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
         predicted_ratings=predicted_ratings, 
         genre_map=genre_map,
         id_to_title=id_to_title,
-        top_n=top_n,
         output_file_path=save_path
     )
+
+    return all_recommendations
 
     
 
