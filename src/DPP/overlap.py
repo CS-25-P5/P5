@@ -69,10 +69,11 @@ def check_overlap(ground_truth_file, mf_test_file, user_col='userId', item_col='
 #overlap_df = check_overlap(ground_truth_df, mf_test_df)
 #print(overlap_df.head())
 
+base_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Paths to saved MF and DPP predictions (from your pipeline)
-mf_path = "/datasets/dpp_data/books/2025-12-10_21-37-31/mf_test_100000_predictions.csv"
-dpp_path = "/datasets/dpp_data/books/2025-12-10_21-37-31/dpp_test_100000_cosine_top_10.csv"  # or jaccard
+mf_path = os.path.join(base_dir,"../datasets/dpp_data/books/2025-12-10_21-37-31/mf_test_100000_predictions.csv")
+dpp_path = os.path.join(base_dir,"../datasets/dpp_data/books/2025-12-10_21-37-31/dpp_test_100000_cosine_top_10.csv")
 
 # Load the files
 mf_df = pd.read_csv(mf_path)
