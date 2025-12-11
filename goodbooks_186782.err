@@ -1,0 +1,7 @@
+/var/spool/slurm/job186782/slurm_script: line 18: ~P5/venv/bin/activate: No such file or directory
+Traceback (most recent call last):
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_train.py", line 347, in <module>
+    train_results = run_dpp_pipeline(
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_train.py", line 142, in run_dpp_pipeline
+    item_user_rating_train, genre_map, all_genres, id_to_title = load_and_prepare_matrix(ratings_train_path, item_path, nrows_items=chunksize)
+TypeError: load_and_prepare_matrix() got an unexpected keyword argument 'nrows_items'
