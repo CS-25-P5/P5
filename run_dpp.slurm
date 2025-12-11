@@ -2,7 +2,7 @@
 #SBATCH --job-name=goodbooks_experiment   # Job name
 #SBATCH --output=goodbooks_%j.out
 #SBATCH --error=goodbooks_%j.err
-#SBATCH --time=5:00:00
+#SBATCH --time=12:00:00
 #SBATCH --partition=l4
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
@@ -15,7 +15,8 @@ echo "Start time: $(date)"
 
 # Activate your Python environment
 echo "Activating virtual environment..."
-source ~P5/venv/bin/activate
+source /ceph/home/student.aau.dk/la15yk/P5/venv/bin/activate
+
 
 # Debug info
 echo "Python path: $(which python3)"
