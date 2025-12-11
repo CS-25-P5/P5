@@ -87,6 +87,9 @@ print("DPP columns:", dpp_df.columns.tolist())
 # Example: ensure both have 'userId' and 'itemId'
 dpp_df.rename(columns={"user": "userId", "item": "itemId"}, inplace=True)
 
+print(mf_df.dtypes)
+print(dpp_df.dtypes)
+
 # Merge to find overlap
 overlap = pd.merge(mf_df, dpp_df, on=["userId", "itemId"])
 
