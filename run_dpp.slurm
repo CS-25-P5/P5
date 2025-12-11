@@ -15,7 +15,8 @@ echo "Start time: $(date)"
 
 # Activate your Python environment
 echo "Activating virtual environment..."
-source ~P5/venv/bin/activate
+source /ceph/home/student.aau.dk/la15yk/P5/venv/bin/activate
+
 
 # Debug info
 echo "Python path: $(which python3)"
