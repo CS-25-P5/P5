@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_train.py", line 425, in <module>
+    run_dpp_pipeline_test(
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_train.py", line 357, in run_dpp_pipeline_test
+    cosine_reco =  get_recommendations_for_dpp(
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP.py", line 161, in get_recommendations_for_dpp
+    dpp_indices = dpp_model.dpp(
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP.py", line 107, in dpp
+    K = self.build_kernel(relevance)
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP.py", line 62, in build_kernel
+    K = np.outer(q, q) * self.sim_matrix
+ValueError: operands could not be broadcast together with shapes (97,97) (1819,1819) 
