@@ -1,7 +1,0 @@
-/var/spool/slurm/job186410/slurm_script: line 18: ~P5/venv/bin/activate: No such file or directory
-Traceback (most recent call last):
-  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_train.py", line 265, in <module>
-    run_dpp_pipeline(
-  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_train.py", line 80, in run_dpp_pipeline
-    mf, predicted_ratings, train_rmse = train_mf_with_best_params(R_filtered_train, best_params, n_epochs=n_epochs)
-ValueError: too many values to unpack (expected 3)
