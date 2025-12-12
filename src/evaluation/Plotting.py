@@ -103,14 +103,14 @@ def plot_rating_distribution(ground_truth_path, items_path, output_dir="rating_c
     ax.grid(axis='y', alpha=0.3, linestyle='--')
 
     # Statistics box (LEFT-SIDED with separate lines for genres)
-    stats_text = (f'Total ratings: {total_ratings:,}\n'
-                  f'Users: {num_users:,} | Items: {num_items:,}\n'
-                  f'Rating sparsity: {rating_sparsity:.3f}%\n'
-                  f'Genres: {num_genres}\n'
-                  f'Genre coverage: {genre_coverage:.1f}%')
-    ax.text(0.02, 0.95, stats_text, transform=ax.transAxes,  # Changed to 0.02 for left side
-            fontsize=10, verticalalignment='top', horizontalalignment='left',  # Changed to left align
-            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+    # stats_text = (f'Total ratings: {total_ratings:,}\n'
+    #               f'Users: {num_users:,} | Items: {num_items:,}\n'
+    #               f'Rating sparsity: {rating_sparsity:.3f}%\n'
+    #               f'Genres: {num_genres}\n'
+    #               f'Genre coverage: {genre_coverage:.1f}%')
+    # ax.text(0.02, 0.95, stats_text, transform=ax.transAxes,  # Changed to 0.02 for left side
+    #         fontsize=10, verticalalignment='top', horizontalalignment='left',  # Changed to left align
+    #         bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 
     # Save
     if not os.path.exists(output_dir):

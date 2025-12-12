@@ -42,7 +42,7 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
     pred_items = data_handler.recommendations["item_id"].unique()
     catalog = np.union1d(gt_items, pred_items)
     catalog_size = len(catalog)
-    print(f"Catalog size is: {catalog_size} XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+    print(f"Catalog size is: {catalog_size}")
 
     # Create dictionary of metrics to calculate and set their variables
     metrics = {
@@ -358,18 +358,18 @@ if __name__ == "__main__":
     )
 
     # Optional: plot rating distribution
-    #plot_rating_distribution(
-       # ground_truth_path=GROUND_TRUTH,
-      #  items_path=CATALOG_PATH,  # This provides the genre data
-       # output_dir="rating_charts"
-    #)
+    plot_rating_distribution(
+        ground_truth_path=GROUND_TRUTH,
+        items_path=CATALOG_PATH,  # This provides the genre data
+        output_dir="rating_charts"
+    )
 
     # Conditionally load item features (this is the slow part)
     if CALCULATE_ILD:
         print("Loading item features for ILD calculation")
         ITEM_FEATURES = load_item_features(
-            #r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv", dataset_type="books"  # Must pass this!
-            r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv", dataset_type="movies"
+            r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv", dataset_type="books"
+            #r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv", dataset_type="movies"
         )
     else:
         print("Skipping item feature loading (ILD disabled)")
@@ -391,9 +391,9 @@ if __name__ == "__main__":
         threshold=THRESHOLD,
         k=K,
         item_features=ITEM_FEATURES,  # Can still provide features, but they won't be used
-        output_prefix=f"Johannes, 100k, top{K}_comparison",
+        output_prefix=f"Johannes, gb 100k, top{K}_comparison",
         calculate_ild=CALCULATE_ILD,  #
         catalog=CATALOG,
-        dataset_type="movies"
-        #dataset_type="books"
+        #dataset_type="movies"
+        dataset_type="books"
     )
