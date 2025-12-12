@@ -312,6 +312,7 @@ def run_dpp_pipeline_test(
         trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids)
 
 
+
     # Get top-N candidates for MMR
     mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
@@ -345,24 +346,41 @@ def run_dpp_pipeline_test(
 
 
     # Build DPP models using test predictions
-    all_genres = sorted({g for genres in genre_map.values() for g in genres})
-    dpp_cosine = build_dpp_models(filtered_item_ids, genre_map, all_genres, predicted_ratings_top_n, 'cosine')
-    dpp_jaccard = build_dpp_models(filtered_item_ids, genre_map, all_genres, predicted_ratings_top_n, 'jaccard')
+    genre_map_test = {item: genre_map[item] for item in filtered_item_ids if item in genre_map}
+
+    all_genres_test = sorted({g for genres in genre_map_test.values() for g in genres})
+
+    dpp_cosine = build_dpp_models(filtered_item_ids, genre_map, all_genres_test, predicted_ratings_top_n, 'cosine')
+    dpp_jaccard = build_dpp_models(filtered_item_ids, genre_map, all_genres_test, predicted_ratings_top_n, 'jaccard')
 
     dpp_path_cosine = os.path.join(output_dir,f"{run_id}/dpp_test_{chunksize}_cosine_top_{top_n}.csv")
     dpp_path_jaccard = os.path.join(output_dir,f"{run_id}/dpp_test_{chunksize}_jaccard_top_{top_n}.csv")
 
 
+    # Build candidate item set (union of all MF top-N results)
+    top_n_items = sorted({
+        filtered_item_ids[idx]
+        for user_items in all_recommendations.values()
+        for idx in user_items
+    })
+
+    filtered_df_top_n = filtered_df[top_n_items]
+
+
+
 # Run DPP recommendations on test
     cosine_reco =  get_recommendations_for_dpp(
-        dpp_cosine, filtered_df, filtered_item_ids, genre_map, predicted_ratings, id_to_title,
+        dpp_cosine, filtered_df_top_n, filtered_item_ids, genre_map, predicted_ratings_top_n, id_to_title,
         top_k, top_n, dpp_path_cosine, "cosine"
     )
 
     jaccard_rec = get_recommendations_for_dpp(
-        dpp_jaccard, filtered_df, filtered_item_ids, genre_map, predicted_ratings, id_to_title,
+        dpp_jaccard, filtered_df_top_n, filtered_item_ids, genre_map, predicted_ratings_top_n, id_to_title,
         top_k, top_n, dpp_path_jaccard, "jaccard"
     )
+
+
+
     os.makedirs(os.path.dirname(output_dir), exist_ok=True)
     test_path = os.path.join(output_dir,f"{run_id}/dpp_test_{chunksize}_cosine_top_{top_n}.csv")
     save_DPP(cosine_reco, test_path)
@@ -381,7 +399,7 @@ if __name__ == "__main__":
 
     # PARAMETER
     TOP_N = 10
-    CHUNK_SIZE = 100000
+    CHUNK_SIZE = 10000
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1

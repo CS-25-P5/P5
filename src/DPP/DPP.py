@@ -53,11 +53,14 @@ class DPP:
         return (self.feature_matrix @ self.feature_matrix.T) / denom
 
     # Build full DPP kernel K = diag(q) * S * diag(q)
-    def build_kernel(self, relevance_scores):
+    def build_kernel(self, relevance_scores, candidate_indices):
 
         scores = np.array(relevance_scores, dtype=float)
         scores = scores - np.min(scores) + self.epsilon
         q = np.sqrt(scores)
+
+        # subset similarity matrix
+        sim_sub = self.sim_matrix[np.ix_(candidate_indices, candidate_indices)]
 
         K = np.outer(q, q) * self.sim_matrix
         K += np.eye(len(K)) * self.epsilon
@@ -101,11 +104,19 @@ class DPP:
         if len(user_history) > self.predicted_ratings.shape[1]:
             user_history = user_history[:self.predicted_ratings.shape[1]]
 
-        relevance = self.predicted_ratings[user_id, :]
-        candidate_indices = np.where(~user_history)[0].copy()
+        candidate_indices = np.where(~user_history)[0]
 
-        K = self.build_kernel(relevance)
-        selected = self.dpp_greedy(K, candidate_indices, top_k)
+        # relevance only for candidate items
+        relevance = self.predicted_ratings[user_id, candidate_indices]
+
+        # kernel only for candidate items
+        K = self.build_kernel(relevance, candidate_indices)
+
+        # but greedy needs indices 0..len-1 within K
+        selected_local = self.dpp_greedy(K, list(range(len(candidate_indices))), top_k)
+
+        # map back to original item indices
+        selected = [candidate_indices[i] for i in selected_local]
 
         return selected
 
@@ -151,7 +162,7 @@ def process_dpp(user_id, user_idx, dpp_indices, item_names, feature_map,
 # Run DPP for all users
 
 def get_recommendations_for_dpp(dpp_model, movie_user_rating, movie_titles, genre_map,
-                                predicted_ratings, item_to_id, top_k, top_n, output_dir, similarity_type):
+                                predicted_ratings, item_to_id, top_k, top_n, similarity_type):
 
     results = []
 
