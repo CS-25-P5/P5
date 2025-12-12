@@ -502,8 +502,6 @@ a1 = run_program(
                 prediction_test_save = None,
                 recommend_input=inputforall,
                 recommend_output= "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv")
-    
-
 
 
 a2 = run_program( 
