@@ -7,13 +7,16 @@ from rectools.metrics import (
 )
 from rectools.metrics.distances import PairwiseHammingDistanceCalculator
 from DataHandler2 import load_and_process_data
-import matplotlib.pyplot as plt
 import os
 from datetime import datetime
 from sklearn.metrics.pairwise import pairwise_distances
 import warnings
 from sklearn.exceptions import DataConversionWarning
 warnings.filterwarnings("ignore", category=DataConversionWarning, module="sklearn.metrics.pairwise")
+
+# Import from new modules
+from Plotting import plot_individual_metric_charts, plot_rating_distribution
+from Diagnostics import _print_data_diagnostics
 
 # Calculate most metrics using RecTools
 def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_features=None,
@@ -72,7 +75,6 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
         results[f"NDCG@{k}"] = metrics_values[f'NDCG@{k}']
         results[f"MRR@{k}"] = metrics_values[f'MRR@{k}']
         results[f"Coverage@{k}"] = metrics_values[f'CatalogCoverage@{k}'] / catalog_size
-        print(f"catalog size::::::::: {catalog_size}")
 
     except Exception as e:
         print(f"Warning: Error calculating ranking metrics for {model_name}: {e}")
@@ -141,7 +143,6 @@ def _calculate_rating_metrics(data_handler, model_name="Unknown"):
         print(f"\nError in RMSE/MAE calculation for {model_name}: {e}")
         print("   Returning NaN for RMSE and MAE to allow other metrics to continue.\n")
         return np.nan, np.nan
-
 
 # Calculate Intra-List Diversity with RecTools
 def _calculate_ild(data_handler, item_features, k, metric='hamming'):
@@ -313,228 +314,9 @@ def load_item_features(items_path, dataset_type="movies"):
     print(f"Index unique: {item_features.index.is_unique}")
     return item_features
 
-
-# function for creating charts of calculated metrics
-def plot_individual_metric_charts(df_metrics, output_dir="metric_charts"):
-    # Create charts folder if it doesn't exist
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    # Loop making plots for each metric
-    for metric in df_metrics.columns:
-        fig, ax = plt.subplots(figsize=(8, 6))  # Create figure and axes
-
-        # Create bar chart
-        bars = ax.bar(df_metrics.index, df_metrics[metric],
-                      color=plt.cm.Set3(np.linspace(0, 1, len(df_metrics.index))))
-
-        # Add value labels
-        for bar in bars:
-            height = bar.get_height()
-            if not np.isnan(height):
-                ax.text(bar.get_x() + bar.get_width() / 2., height,
-                        f'{height:.3f}',
-                        ha='center', va='bottom', fontsize=10)
-
-        # ✅ FIX: Add 15% padding to top of y-axis
-        max_height = df_metrics[metric].max()
-        if not np.isnan(max_height):
-            ax.set_ylim(0, max_height * 1.15)  # 15% padding at top
-
-        ax.set_title(f'{metric} Comparison', fontsize=14, fontweight='bold')
-        ax.set_xlabel('Sources', fontsize=12)
-        ax.set_ylabel('Metric Value', fontsize=12)
-        ax.set_xticks(range(len(df_metrics.index)))
-        ax.set_xticklabels(df_metrics.index, rotation=45, ha='right')
-        ax.grid(axis='y', alpha=0.3)
-
-        # Adjust layout to prevent label cutoff
-        plt.tight_layout()
-
-        # Save individual chart
-        filename = os.path.join(output_dir, f"{metric.replace(' ', '_')}_chart.png")
-        plt.savefig(filename, dpi=300, bbox_inches="tight")
-        plt.close(fig)
-
-    print(f"Individual metric charts saved in '{output_dir}' directory")
-
-def plot_rating_distribution(ground_truth_path, items_path, output_dir="rating_charts"):
-    """
-    Create a bar chart of rating distribution from ground truth data.
-    Saves as both PNG and SVG files. Includes rating sparsity and genre count.
-    Stats box positioned on the left side.
-    """
-    # Load data
-    gt = pd.read_csv(ground_truth_path)
-
-    # Load items to get genre information
-    items = pd.read_csv(items_path, engine='python', on_bad_lines='skip')
-    items['genres'] = items['genres'].fillna('Unknown')
-    items_with_genres = (items['genres'] != 'Unknown').sum()
-    total_items = len(items)
-
-    # Rating distribution
-    rating_counts = gt['rating'].value_counts().sort_index()
-    rating_percentages = (rating_counts / len(gt) * 100).round(1)
-
-    # Calculate rating sparsity
-    num_users = gt["userId"].nunique()
-    item_col = "itemId" if "itemId" in gt.columns else "movieId"
-    num_items = gt[item_col].nunique()
-    total_ratings = len(gt)
-    rating_sparsity = (total_ratings / (num_users * num_items)) * 100
-
-    # Calculate genre stats
-    if 'genres_list' not in items.columns:
-        items['genres_list'] = items['genres'].str.split('|')
-    all_genres = set(g for genres in items['genres_list'] if isinstance(genres, list)
-                     for g in genres if g and g.strip().lower() != 'unknown')
-    num_genres = len(all_genres)
-    genre_coverage = (items_with_genres / total_items) * 100
-
-    # Create figure
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Create bars
-    bars = ax.bar(rating_counts.index.astype(str), rating_counts.values,
-                  color=plt.cm.Set3(np.linspace(0, 1, len(rating_counts))))
-
-    # Add percentage labels
-    for bar, percentage in zip(bars, rating_percentages.values):
-        height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width() / 2., height + max(rating_counts.values) * 0.01,
-                f'{percentage:.1f}%',
-                ha='center', va='bottom', fontsize=10, fontweight='bold')
-
-    # Styling
-    dataset_name = "Books" if "book" in items_path.lower() else "Movies"
-    ax.set_title(f'Rating Distribution - {dataset_name}', fontsize=16, fontweight='bold', pad=20)
-    ax.set_xlabel('Rating', fontsize=12)
-    ax.set_ylabel('Count', fontsize=12)
-    ax.grid(axis='y', alpha=0.3, linestyle='--')
-
-    # Statistics box (LEFT-SIDED with separate lines for genres)
-    stats_text = (f'Total ratings: {total_ratings:,}\n'
-                  f'Users: {num_users:,} | Items: {num_items:,}\n'
-                  f'Rating sparsity: {rating_sparsity:.3f}%\n'
-                  f'Genres: {num_genres}\n'
-                  f'Genre coverage: {genre_coverage:.1f}%')
-    ax.text(0.02, 0.95, stats_text, transform=ax.transAxes,  # Changed to 0.02 for left side
-            fontsize=10, verticalalignment='top', horizontalalignment='left',  # Changed to left align
-            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-
-    # Save
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    basename = os.path.splitext(os.path.basename(ground_truth_path))[0]
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, f'rating_distribution_{basename}_{timestamp}.svg'),
-                bbox_inches="tight")
-    plt.close(fig)
-
-    print(f"✅ Rating distribution chart saved to {output_dir}/")
-    return rating_counts, rating_percentages
-
-
-def _print_data_diagnostics(file_path, file_label="Data", threshold=4.0, is_ground_truth=False):
-    """
-    Comprehensive diagnostics for either ground truth or predictions files.
-    Works with both rating prediction and recommendation formats.
-    """
-    try:
-        df = pd.read_csv(file_path, encoding='latin1')
-
-        print(f"\n{'=' * 60}")
-        print(f"{file_label.upper()} DIAGNOSTIC")
-        print(f"{'=' * 60}")
-        print(f"File: {os.path.basename(file_path)}")
-        print(f"Total rows: {len(df)}")
-        print(f"Columns: {list(df.columns)}")
-
-        # Auto-detect columns
-        user_col = next((col for col in df.columns if 'user' in col.lower()), None)
-        item_col = next((col for col in df.columns if 'item' in col.lower() or 'movie' in col.lower()), None)
-        rating_col = next((col for col in df.columns if 'rating' in col.lower() and 'predict' not in col.lower()), None)
-        pred_rating_col = next((col for col in df.columns if 'predicted' in col.lower() or 'pred' in col.lower()), None)
-
-        if user_col:
-            print(f"Unique users: {df[user_col].nunique()}")
-
-            # For recommendation format with ranks
-            if 'rank' in df.columns:
-                rows_per_user = df.groupby(user_col).size()
-                print(
-                    f"Rows per user - Min: {rows_per_user.min()}, Max: {rows_per_user.max()}, Mean: {rows_per_user.mean():.1f}")
-                print(f"Rank range: {df['rank'].min()} - {df['rank'].max()}")
-
-                # Check rank sequence integrity
-                if not all(df.groupby(user_col)['rank'].apply(lambda x: sorted(x) == list(range(1, len(x) + 1)))):
-                    print("⚠️ WARNING: Ranks are not sequential 1..K for all users")
-            else:
-                # For rating prediction format
-                rows_per_user = df.groupby(user_col).size()
-                print(
-                    f"Rows per user - Min: {rows_per_user.min()}, Max: {rows_per_user.max()}, Mean: {rows_per_user.mean():.1f}")
-
-        if item_col:
-            print(f"Unique items: {df[item_col].nunique()}")
-
-        # Rating distribution (for ground truth or if true ratings exist)
-        if is_ground_truth and rating_col:
-            print(f"\nRating distribution:")
-            print(df[rating_col].value_counts().sort_index().to_string())
-            print(f"% ratings ≥ {threshold}: {(df[rating_col] >= threshold).mean():.1%}")
-
-        # Predicted ratings statistics
-        if pred_rating_col:
-            print(f"\nPredicted rating statistics:")
-            print(f"  Min: {df[pred_rating_col].min():.4f}")
-            print(f"  Max: {df[pred_rating_col].max():.4f}")
-            print(f"  Mean: {df[pred_rating_col].mean():.4f}")
-            print(f"  Std: {df[pred_rating_col].std():.4f}")
-
-            # Correlation if both true and predicted ratings exist
-            if rating_col and rating_col != pred_rating_col:
-                correlation = df[rating_col].corr(df[pred_rating_col])
-                print(f"\nCorrelation between true and predicted ratings: {correlation:.4f}")
-                if correlation > 0.95:
-                    print("⚠️ WARNING: Very high correlation - possible data leakage")
-                elif correlation < 0.3:
-                    print("⚠️ WARNING: Low correlation - predictions may be random")
-                else:
-                    print("✓ Reasonable correlation")
-
-        # Data quality
-        print(f"\nMissing values:")
-        null_counts = df.isnull().sum()
-        if null_counts.sum() > 0:
-            print(null_counts[null_counts > 0])
-        else:
-            print("  None")
-
-        duplicates = df.duplicated().sum()
-        if duplicates > 0:
-            print(f"⚠️ WARNING: Found {duplicates} duplicate rows")
-        else:
-            print(f"✓ No duplicate rows")
-
-        # Sample data
-        print(f"\nFirst 5 rows:")
-        print(df.head().to_string())
-
-        print(f"{'=' * 60}")
-
-    except Exception as e:
-        print(f"Error reading {file_path}: {e}")
-
-
-# function for running it all
 def run_model_comparison(ground_truth_path, sources, catalog, threshold=4.0, k=5,
                          item_features=None, output_prefix="comparison",
-                         calculate_ild=True, dataset_type="movies"):  # Add parameter
+                         calculate_ild=True, dataset_type="movies"):
     all_results_df = pd.DataFrame()
 
     print("Metrics calculations")
@@ -567,211 +349,15 @@ def run_model_comparison(ground_truth_path, sources, catalog, threshold=4.0, k=5
     return all_results_df
 
 if __name__ == "__main__":
-    # Configuration
-    THRESHOLD = 4.0  # for the metrics that need to view things in a binary fashion
-    K = 5  # recommendations to look at
+    # Import configuration from separate file
+    from DataPaths import (
+        THRESHOLD, K, CALCULATE_ILD,
+        CATALOG_PATH, CATALOG,
+        GROUND_TRUTH,
+        MODELS
+    )
 
-    # SET THIS TO False TO SKIP ILD AND GENRE LOADING
-    CALCULATE_ILD = True # Change to False to skip ILD entirely
-
-    #CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
-    CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
-    CATALOG = pd.read_csv(CATALOG_PATH)
-    CATALOG = CATALOG.rename(columns={"itemId": "item_id"})
-
-    #Test1
-    #GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
-
-    #test2
-    GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\grount_truth_test2.csv"
-
-
-    #MF - li movoes
-    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movies_ratings_100000_test.csv")
-    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movie\movies_ratings_100000_test.csv")
-
-    #MF - li books
-    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\books_ratings_100000_train.csv")
-
-    #NN - diana
-    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\ratings_small.csv")
-    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\GROUNDTRUTH_TEST.csv") # data from diana
-    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\MMR_evaluation\movies_ratings_100000_test.csv")
-
-    #NN - johannes
-    #movies 100k
-    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\ground_truth")
-    #Books
-    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\ground_truth")
-    #movies 1m
-    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\ground_truth")
-
-    #DPP - movies
-    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-10_20-10-18\gt_ratings.csv")
-
-    #DPP - books
-    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\books_ratings_100000_test_gt.csv")
-
-    # Models to compare
-    MODELS = [
-        #test1
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\test_predictions.csv", "Test"),
-
-        #test2
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\test2_predictions.csv", "Test2"),
-
-        #mf
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\ALIGNED_mf_test_predictions.csv", "mf"),
-
-        #MMR - li movies
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movie\mf_test_100000_predictions.csv", "MF"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movie\mmr_test_100000_cosine_predictions.csv", "MMR_cosine"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movie\mmr_test_100000_jaccard_predictions.csv", "MMR_jaccard"),
-
-        #MMR - li books
-        #r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\mf_test_100000_predictions.csv", "MF"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\mmr_test_100000_cosine_predictions.csv", "MMR_cosine"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\mmr_test_100000_jaccard_predictions.csv", "MMR_jaccard"),
-
-
-        #NN
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\predictionNNwithBPR.csv", "NN"),
-
-        #DPP - movies
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-10_20-10-18\dpp_test_100000_jaccard_top_10.csv", "dpp_Jaccard"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-10_20-10-18\dpp_test_100000_cosine_top_10.csv", "dpp_cosine"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-10_20-10-18\mf_test_100000_predictions.csv", "MF"),
-        # Add more models: (predictions_path, model_name)
-
-        # DPP - books
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_dpp_train_jaccard_recommendations.csv","dpp_jaccard"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_dpp_train_cosine_recommendations.csv","dpp_cosine"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_mf_train_predictions_books.csv", "MF"),
-
-        #diana data
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr0001_optimizeradam.csv", "One-32-0001"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr00003_optimizeradam.csv","One-32-00003"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr0001_optimizeradam.csv","One-64-0001"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr00003_optimizeradam.csv","One-64-00003"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr0001_optimizeradam.csv","Two-32-0001"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr00003_optimizeradam.csv","Two-32-00003"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr0001_optimizeradam.csv","Two-64-0001"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr00003_optimizeradam.csv","Two-64-00003"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr0001_optimizeradam.csv","Three-32-0001"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr00003_optimizeradam.csv","Three-32-00003"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr0001_optimizeradam.csv","Three-64-0001"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\Predictions_test_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr00003_optimizeradam.csv","Three-64-00003"),
-
-        #MMR nyeste
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\MMR_evaluation\mf_test_100000_predictions.csv", "MMR_MF"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\MMR_evaluation\mmr_test_100000_cosine_predictions", "MMR_Cosine"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\MMR_evaluation\mmr_test_100000_jaccard_predictions.csv", "MMR_Jaccard"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-
-        #NN johannes - movies
-        #1layer
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-        #
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv", "1layer-em32-lr001-b64"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-        #
-        # #2 layers
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-        #
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-        #
-        #
-        # #3 layers
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-        #
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv", "3layer-em32-lr001-b128"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-        # NN johannes - books
-        # 1layer
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv", "1layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-
-        # 2 layers
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-
-        # 3 layers
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\gb100k\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-        # NN johannes - movies 1m
-        # 1layer
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv", "1layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-
-        # 2 layers
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-
-        # 3 layers
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    ]
-
+    # Optional: plot rating distribution
     #plot_rating_distribution(
        # ground_truth_path=GROUND_TRUTH,
       #  items_path=CATALOG_PATH,  # This provides the genre data
@@ -805,9 +391,9 @@ if __name__ == "__main__":
         threshold=THRESHOLD,
         k=K,
         item_features=ITEM_FEATURES,  # Can still provide features, but they won't be used
-        output_prefix=f"top{K}_comparison",
+        output_prefix=f"Johannes, 100k, top{K}_comparison",
         calculate_ild=CALCULATE_ILD,  #
         catalog=CATALOG,
         dataset_type="movies"
-        #dataset_type="movies"
+        #dataset_type="books"
     )
