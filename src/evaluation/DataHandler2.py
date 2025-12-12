@@ -29,8 +29,8 @@ def load_and_process_data(ground_truth_path, predictions_path, dataset_type="mov
         dataset_type: "movies" or "books" - determines cleaning behavior
         verbose: Whether to print debug information
     """
-    # Load ground truth
-    gt = pd.read_csv(ground_truth_path)
+    # Load ground truth with proper encoding
+    gt = pd.read_csv(ground_truth_path, encoding='latin1')  # Add encoding here
 
     # Load predictions (with dataset-specific cleaning)
     pred = _load_predictions(predictions_path, dataset_type, verbose)
@@ -71,27 +71,29 @@ def _load_predictions(predictions_path, dataset_type, verbose):
         # GoodBooks files are typically clean - load directly
         if verbose:
             print(f"Loading predictions (books mode): {predictions_path}")
-        return pd.read_csv(predictions_path)
+        return pd.read_csv(predictions_path, encoding='latin1')  # Add encoding here
+
     else:
         # MovieLens files may have extra lines - clean them
         if verbose:
             print(f"Cleaning predictions file (movies mode): {predictions_path}")
 
         valid_lines = []
-        with open(predictions_path, 'r', encoding='utf-8') as f:
+        with open(predictions_path, 'r', encoding='latin1') as f:
             for line in f:
                 stripped = line.strip()
                 if stripped.startswith('userId') or stripped.startswith('user_id') or (
                         stripped and stripped[0].isdigit()):
                     valid_lines.append(line)
 
-        # Write to temp file and load
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as temp:
+        # Write to temp file with explicit encoding
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False,
+                                         encoding='latin1') as temp:  # Add encoding='latin1'
             temp.writelines(valid_lines)
             temp_path = temp.name
 
         try:
-            pred = pd.read_csv(temp_path)
+            pred = pd.read_csv(temp_path, encoding='latin1')
         finally:
             os.unlink(temp_path)  # Always clean up
 
@@ -99,7 +101,6 @@ def _load_predictions(predictions_path, dataset_type, verbose):
             print(f"Predictions loaded: {len(pred)} rows")
 
         return pred
-
 
 def _normalize_ids(df, dataset_type):
     """Normalize ID columns by removing .0 decimals and converting to string."""

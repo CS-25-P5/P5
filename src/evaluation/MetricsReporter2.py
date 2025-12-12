@@ -6,11 +6,14 @@ from rectools.metrics import (
     IntraListDiversity, CatalogCoverage, calc_metrics
 )
 from rectools.metrics.distances import PairwiseHammingDistanceCalculator
-from DataHandler2 import ProcessedData, load_and_process_data
+from DataHandler2 import load_and_process_data
 import matplotlib.pyplot as plt
 import os
 from datetime import datetime
 from sklearn.metrics.pairwise import pairwise_distances
+import warnings
+from sklearn.exceptions import DataConversionWarning
+warnings.filterwarnings("ignore", category=DataConversionWarning, module="sklearn.metrics.pairwise")
 
 # Calculate most metrics using RecTools
 def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_features=None,
@@ -32,8 +35,11 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
         ].copy()
 
     # Create catalog of all items from ground truth
-    catalog = catalog["item_id"].unique()
-    catalog_size = 1682 # change when i get the correct movielens file
+    gt_items = data_handler.interactions["item_id"].unique()
+    pred_items = data_handler.recommendations["item_id"].unique()
+    catalog = np.union1d(gt_items, pred_items)
+    catalog_size = len(catalog)
+    print(f"Catalog size is: {catalog_size} XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
     # Create dictionary of metrics to calculate and set their variables
     metrics = {
@@ -66,8 +72,8 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
         results[f"NDCG@{k}"] = metrics_values[f'NDCG@{k}']
         results[f"MRR@{k}"] = metrics_values[f'MRR@{k}']
         results[f"Coverage@{k}"] = metrics_values[f'CatalogCoverage@{k}'] / catalog_size
-        unique_recommended_items = data_handler.recommendations['item_id'].nunique()
-        results["Overall Coverage"] = unique_recommended_items / catalog_size
+        print(f"catalog size::::::::: {catalog_size}")
+
     except Exception as e:
         print(f"Warning: Error calculating ranking metrics for {model_name}: {e}")
         print("Filling with NaN values and continuing")
@@ -79,7 +85,6 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
         results[f"NDCG@{k}"] = np.nan
         results[f"MRR@{k}"] = np.nan
         results[f"Coverage@{k}"] = np.nan
-        results["Overall Coverage"] = np.nan
 
     # intra list diversity (ILD)
     # Change this block (around line 95):
@@ -94,9 +99,12 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
         results[f"ILD@{k}_Jaccard"] = np.nan
         results[f"ILD@{k}_Cosine"] = np.nan
 
+    # Filter recommendations to only the Top K for Gini calculation
+    top_k_recos = data_handler.recommendations[data_handler.recommendations['rank'] <= k]
+
     # Reverse Gini (Popularity Bias)
     print(f"Calculating Reverse Gini for {model_name}")
-    results['Reverse Gini'] = _calculate_reverse_gini(data_handler.recommendations)
+    results['Reverse Gini'] = _calculate_reverse_gini(top_k_recos)
 
     return results
 
@@ -149,12 +157,20 @@ def _calculate_ild(data_handler, item_features, k, metric='hamming'):
 
         class Calculator:
             def __init__(self, f, m):
-                self.d = pairwise_distances(f.values, metric=m)
+                # Suppress the jaccard warning since we know data is binary
+                with warnings.catch_warnings():
+                    warnings.filterwarnings(
+                        "ignore",
+                        category=DataConversionWarning,
+                        module="sklearn.metrics.pairwise"
+                    )
+                    self.d = pairwise_distances(f.values, metric=m)
+
                 self.ids = f.index.tolist()
                 self.map = {id_: i for i, id_ in enumerate(self.ids)}
 
             def get_distances(self, ids):
-                # ✅ Handle tuple of two arrays (rectools passes this way)
+                # Handle tuple of two arrays (rectools passes this way)
                 if isinstance(ids, tuple) and len(ids) == 2:
                     item_0, item_1 = ids
                     # Convert to numpy arrays
@@ -184,21 +200,31 @@ def _calculate_ild(data_handler, item_features, k, metric='hamming'):
         print(f"ILD failed for {metric}: {e}")
         return np.nan
 
-# Calculate Reverse Gini (1-gini)
 def _calculate_reverse_gini(recommendations):
     item_counts = recommendations['item_id'].value_counts()
-    if len(item_counts) < 2: return 1.0
+    n = len(item_counts)
 
-    values = np.sort(item_counts.values)
-    n = len(values)
-    cumsum = np.cumsum(values)
-    gini = (n + 1 - 2 * np.sum(cumsum) / cumsum[-1]) / n
-    return 1 - gini
+    if n < 2:
+        print("n < 2, returning 1.0")
+        return 1.0
 
+    sorted_counts = np.sort(item_counts.values)
+    total = sorted_counts.sum()
+    proportions = sorted_counts / total
+
+    i = np.arange(1, n + 1)
+    weighted_sum = np.sum(i * proportions)
+    gini = (2 * weighted_sum - (n + 1)) / (n - 1)
+
+    gini = np.clip(gini, 0.0, 1.0)
+    result = 1 - gini
+
+    print(f"Reverse Gini: {result:.6f}")
+    return result
 
 # Display metrics table
 def display_metrics_table(metrics_dict, source_name="Model", k=5):
-    overall_metrics = ["RMSE", "MAE", "Overall Coverage", "Reverse Gini"]
+    overall_metrics = ["RMSE", "MAE", "Reverse Gini"]
     topk_metrics = [
         f"HitRate@{k}",
         f"Precision@{k}",
@@ -223,90 +249,9 @@ def display_metrics_table(metrics_dict, source_name="Model", k=5):
     return df
 
 def save_metrics_table_as_file(metrics_df, filename="metrics_results"):
-    metrics_df.to_csv(f"{filename}.csv")
+    #metrics_df.to_csv(f"{filename}.csv")
     metrics_df.to_excel(f"{filename}.xlsx")
     print(f"Saved: {filename}.csv, {filename}.xlsx")
-
-
-# function for creating charts of calculated metrics
-def plot_individual_metric_charts(df_metrics, output_dir="metric_charts"):
-    # Create charts folder if it doesn't exist
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    # Loop making plots for each metric
-    for metric in df_metrics.columns:
-        fig, ax = plt.subplots(figsize=(8, 6))  # Create figure and axes
-
-        # Create bar chart
-        bars = ax.bar(df_metrics.index, df_metrics[metric],
-                      color=plt.cm.Set3(np.linspace(0, 1, len(df_metrics.index))))
-
-        # Add value labels
-        for bar in bars:
-            height = bar.get_height()
-            if not np.isnan(height):
-                ax.text(bar.get_x() + bar.get_width() / 2., height,
-                        f'{height:.3f}',
-                        ha='center', va='bottom', fontsize=10)
-
-        # ✅ FIX: Add 15% padding to top of y-axis
-        max_height = df_metrics[metric].max()
-        if not np.isnan(max_height):
-            ax.set_ylim(0, max_height * 1.15)  # 15% padding at top
-
-        ax.set_title(f'{metric} Comparison', fontsize=14, fontweight='bold')
-        ax.set_xlabel('Sources', fontsize=12)
-        ax.set_ylabel('Metric Value', fontsize=12)
-        ax.set_xticks(range(len(df_metrics.index)))
-        ax.set_xticklabels(df_metrics.index, rotation=45, ha='right')
-        ax.grid(axis='y', alpha=0.3)
-
-        # Adjust layout to prevent label cutoff
-        plt.tight_layout()
-
-        # Save individual chart
-        filename = os.path.join(output_dir, f"{metric.replace(' ', '_')}_chart.png")
-        plt.savefig(filename, dpi=300, bbox_inches="tight")
-        plt.close(fig)
-
-    print(f"Individual metric charts saved in '{output_dir}' directory")
-
-
-# function for running it all
-def run_model_comparison(ground_truth_path, sources, catalog, threshold=4.0, k=5,
-                         item_features=None, output_prefix="comparison",
-                         calculate_ild=True, dataset_type="movies"):  # Add parameter
-    all_results_df = pd.DataFrame()
-
-    print("Metrics calculations")
-
-    for predictions_path, source_name in sources:
-        print(f"\nProcessing '{source_name}'")
-
-        try:
-            data = load_and_process_data(ground_truth_path, predictions_path, dataset_type=dataset_type, verbose=False)
-        except Exception as e:
-            print(f"Error loading data for {source_name}: {e}")
-            print("Skipping this model")
-            continue
-
-        # Pass the calculate_ild parameter
-        metrics = calculate_all_metrics(catalog, data, threshold, k, item_features,
-                                       source_name, calculate_ild)
-        source_df = display_metrics_table(metrics, source_name, k)
-        all_results_df = pd.concat([all_results_df, source_df])
-
-
-    # Generate timestamp
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    # Add timestamp to output filenames
-    save_metrics_table_as_file(all_results_df, f"{output_prefix}_results_{timestamp}")
-    plot_individual_metric_charts(all_results_df, output_dir=f"{output_prefix}_individual_charts_{timestamp}")
-
-    print(f"\nProcessed {len(all_results_df)} model(s) with k={k}")
-    return all_results_df
 
 #Load movies file and create binary genre features for ILD calculation.
 def load_item_features(items_path, dataset_type="movies"):
@@ -368,6 +313,50 @@ def load_item_features(items_path, dataset_type="movies"):
     print(f"Index unique: {item_features.index.is_unique}")
     return item_features
 
+
+# function for creating charts of calculated metrics
+def plot_individual_metric_charts(df_metrics, output_dir="metric_charts"):
+    # Create charts folder if it doesn't exist
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Loop making plots for each metric
+    for metric in df_metrics.columns:
+        fig, ax = plt.subplots(figsize=(8, 6))  # Create figure and axes
+
+        # Create bar chart
+        bars = ax.bar(df_metrics.index, df_metrics[metric],
+                      color=plt.cm.Set3(np.linspace(0, 1, len(df_metrics.index))))
+
+        # Add value labels
+        for bar in bars:
+            height = bar.get_height()
+            if not np.isnan(height):
+                ax.text(bar.get_x() + bar.get_width() / 2., height,
+                        f'{height:.3f}',
+                        ha='center', va='bottom', fontsize=10)
+
+        # ✅ FIX: Add 15% padding to top of y-axis
+        max_height = df_metrics[metric].max()
+        if not np.isnan(max_height):
+            ax.set_ylim(0, max_height * 1.15)  # 15% padding at top
+
+        ax.set_title(f'{metric} Comparison', fontsize=14, fontweight='bold')
+        ax.set_xlabel('Sources', fontsize=12)
+        ax.set_ylabel('Metric Value', fontsize=12)
+        ax.set_xticks(range(len(df_metrics.index)))
+        ax.set_xticklabels(df_metrics.index, rotation=45, ha='right')
+        ax.grid(axis='y', alpha=0.3)
+
+        # Adjust layout to prevent label cutoff
+        plt.tight_layout()
+
+        # Save individual chart
+        filename = os.path.join(output_dir, f"{metric.replace(' ', '_')}_chart.png")
+        plt.savefig(filename, dpi=300, bbox_inches="tight")
+        plt.close(fig)
+
+    print(f"Individual metric charts saved in '{output_dir}' directory")
 
 def plot_rating_distribution(ground_truth_path, items_path, output_dir="rating_charts"):
     """
@@ -449,6 +438,134 @@ def plot_rating_distribution(ground_truth_path, items_path, output_dir="rating_c
     print(f"✅ Rating distribution chart saved to {output_dir}/")
     return rating_counts, rating_percentages
 
+
+def _print_data_diagnostics(file_path, file_label="Data", threshold=4.0, is_ground_truth=False):
+    """
+    Comprehensive diagnostics for either ground truth or predictions files.
+    Works with both rating prediction and recommendation formats.
+    """
+    try:
+        df = pd.read_csv(file_path, encoding='latin1')
+
+        print(f"\n{'=' * 60}")
+        print(f"{file_label.upper()} DIAGNOSTIC")
+        print(f"{'=' * 60}")
+        print(f"File: {os.path.basename(file_path)}")
+        print(f"Total rows: {len(df)}")
+        print(f"Columns: {list(df.columns)}")
+
+        # Auto-detect columns
+        user_col = next((col for col in df.columns if 'user' in col.lower()), None)
+        item_col = next((col for col in df.columns if 'item' in col.lower() or 'movie' in col.lower()), None)
+        rating_col = next((col for col in df.columns if 'rating' in col.lower() and 'predict' not in col.lower()), None)
+        pred_rating_col = next((col for col in df.columns if 'predicted' in col.lower() or 'pred' in col.lower()), None)
+
+        if user_col:
+            print(f"Unique users: {df[user_col].nunique()}")
+
+            # For recommendation format with ranks
+            if 'rank' in df.columns:
+                rows_per_user = df.groupby(user_col).size()
+                print(
+                    f"Rows per user - Min: {rows_per_user.min()}, Max: {rows_per_user.max()}, Mean: {rows_per_user.mean():.1f}")
+                print(f"Rank range: {df['rank'].min()} - {df['rank'].max()}")
+
+                # Check rank sequence integrity
+                if not all(df.groupby(user_col)['rank'].apply(lambda x: sorted(x) == list(range(1, len(x) + 1)))):
+                    print("⚠️ WARNING: Ranks are not sequential 1..K for all users")
+            else:
+                # For rating prediction format
+                rows_per_user = df.groupby(user_col).size()
+                print(
+                    f"Rows per user - Min: {rows_per_user.min()}, Max: {rows_per_user.max()}, Mean: {rows_per_user.mean():.1f}")
+
+        if item_col:
+            print(f"Unique items: {df[item_col].nunique()}")
+
+        # Rating distribution (for ground truth or if true ratings exist)
+        if is_ground_truth and rating_col:
+            print(f"\nRating distribution:")
+            print(df[rating_col].value_counts().sort_index().to_string())
+            print(f"% ratings ≥ {threshold}: {(df[rating_col] >= threshold).mean():.1%}")
+
+        # Predicted ratings statistics
+        if pred_rating_col:
+            print(f"\nPredicted rating statistics:")
+            print(f"  Min: {df[pred_rating_col].min():.4f}")
+            print(f"  Max: {df[pred_rating_col].max():.4f}")
+            print(f"  Mean: {df[pred_rating_col].mean():.4f}")
+            print(f"  Std: {df[pred_rating_col].std():.4f}")
+
+            # Correlation if both true and predicted ratings exist
+            if rating_col and rating_col != pred_rating_col:
+                correlation = df[rating_col].corr(df[pred_rating_col])
+                print(f"\nCorrelation between true and predicted ratings: {correlation:.4f}")
+                if correlation > 0.95:
+                    print("⚠️ WARNING: Very high correlation - possible data leakage")
+                elif correlation < 0.3:
+                    print("⚠️ WARNING: Low correlation - predictions may be random")
+                else:
+                    print("✓ Reasonable correlation")
+
+        # Data quality
+        print(f"\nMissing values:")
+        null_counts = df.isnull().sum()
+        if null_counts.sum() > 0:
+            print(null_counts[null_counts > 0])
+        else:
+            print("  None")
+
+        duplicates = df.duplicated().sum()
+        if duplicates > 0:
+            print(f"⚠️ WARNING: Found {duplicates} duplicate rows")
+        else:
+            print(f"✓ No duplicate rows")
+
+        # Sample data
+        print(f"\nFirst 5 rows:")
+        print(df.head().to_string())
+
+        print(f"{'=' * 60}")
+
+    except Exception as e:
+        print(f"Error reading {file_path}: {e}")
+
+
+# function for running it all
+def run_model_comparison(ground_truth_path, sources, catalog, threshold=4.0, k=5,
+                         item_features=None, output_prefix="comparison",
+                         calculate_ild=True, dataset_type="movies"):  # Add parameter
+    all_results_df = pd.DataFrame()
+
+    print("Metrics calculations")
+
+    for predictions_path, source_name in sources:
+        print(f"\nProcessing '{source_name}'")
+
+        try:
+            data = load_and_process_data(ground_truth_path, predictions_path, dataset_type=dataset_type, verbose=False)
+        except Exception as e:
+            print(f"Error loading data for {source_name}: {e}")
+            print("Skipping this model")
+            continue
+
+        # Pass the calculate_ild parameter
+        metrics = calculate_all_metrics(catalog, data, threshold, k, item_features,
+                                       source_name, calculate_ild)
+        source_df = display_metrics_table(metrics, source_name, k)
+        all_results_df = pd.concat([all_results_df, source_df])
+
+
+    # Generate timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # Add timestamp to output filenames
+    save_metrics_table_as_file(all_results_df, f"{output_prefix}_results_{timestamp}")
+    #plot_individual_metric_charts(all_results_df, output_dir=f"{output_prefix}_individual_charts_{timestamp}")
+
+    print(f"\nProcessed {len(all_results_df)} model(s) with k={k}")
+    return all_results_df
+
 if __name__ == "__main__":
     # Configuration
     THRESHOLD = 4.0  # for the metrics that need to view things in a binary fashion
@@ -466,11 +583,11 @@ if __name__ == "__main__":
     #GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
 
     #test2
-    #GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\grount_truth_test2.csv"
+    GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\grount_truth_test2.csv"
 
 
     #MF - li movoes
-    GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movies_ratings_100000_test.csv")
+    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movies_ratings_100000_test.csv")
     #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movie\movies_ratings_100000_test.csv")
 
     #MF - li books
@@ -490,7 +607,7 @@ if __name__ == "__main__":
     #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\ground_truth")
 
     #DPP - movies
-    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\movies_ratings_100000_test_gt.csv")
+    #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-10_20-10-18\gt_ratings.csv")
 
     #DPP - books
     #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\books_ratings_100000_test_gt.csv")
@@ -501,7 +618,7 @@ if __name__ == "__main__":
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\test_predictions.csv", "Test"),
 
         #test2
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\test2_predictions.csv", "Test2"),
+        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\test2_predictions.csv", "Test2"),
 
         #mf
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\ALIGNED_mf_test_predictions.csv", "mf"),
@@ -512,7 +629,7 @@ if __name__ == "__main__":
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movie\mmr_test_100000_jaccard_predictions.csv", "MMR_jaccard"),
 
         #MMR - li books
-        (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\mf_test_100000_predictions.csv", "MF"),
+        #r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\mf_test_100000_predictions.csv", "MF"),
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\mmr_test_100000_cosine_predictions.csv", "MMR_cosine"),
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\mmr_test_100000_jaccard_predictions.csv", "MMR_jaccard"),
 
@@ -521,9 +638,9 @@ if __name__ == "__main__":
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\predictionNNwithBPR.csv", "NN"),
 
         #DPP - movies
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\ALIGNED_dpp_train_jaccard_recommendations_movies.csv", "dpp_jaccard"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\ALIGNED_dpp_train_cosine_recommendations_movies.csv", "dpp_cosine"),
-        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\movies\mf_train_predictions.csv", "MF"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-10_20-10-18\dpp_test_100000_jaccard_top_10.csv", "dpp_Jaccard"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-10_20-10-18\dpp_test_100000_cosine_top_10.csv", "dpp_cosine"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-10_20-10-18\mf_test_100000_predictions.csv", "MF"),
         # Add more models: (predictions_path, model_name)
 
         # DPP - books
@@ -551,10 +668,9 @@ if __name__ == "__main__":
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\MMR_evaluation\mmr_test_100000_jaccard_predictions.csv", "MMR_Jaccard"),
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
 
-
         #NN johannes - movies
         #1layer
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+        #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
         # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
         # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
         # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
@@ -583,7 +699,7 @@ if __name__ == "__main__":
         # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
         #
         # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+        # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv", "3layer-em32-lr001-b128"),
         # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
         # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
 
@@ -656,59 +772,32 @@ if __name__ == "__main__":
         #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_resultater\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
     ]
 
-    plot_rating_distribution(
-        ground_truth_path=GROUND_TRUTH,
-        items_path=CATALOG_PATH,  # This provides the genre data
-        output_dir="rating_charts"
-    )
+    #plot_rating_distribution(
+       # ground_truth_path=GROUND_TRUTH,
+      #  items_path=CATALOG_PATH,  # This provides the genre data
+       # output_dir="rating_charts"
+    #)
 
     # Conditionally load item features (this is the slow part)
     if CALCULATE_ILD:
         print("Loading item features for ILD calculation")
         ITEM_FEATURES = load_item_features(
-            r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv", dataset_type="books"  # Must pass this!
-            #r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv", dataset_type="movies"
+            #r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv", dataset_type="books"  # Must pass this!
+            r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv", dataset_type="movies"
         )
     else:
         print("Skipping item feature loading (ILD disabled)")
         ITEM_FEATURES = None
     # Run comparison
 
-    # 🔍 DEBUG: Check ground truth distribution
-    gt_check = pd.read_csv(GROUND_TRUTH)
-    print(f"\n{'=' * 60}")
-    print("GROUND TRUTH DIAGNOSTIC")
-    print(f"{'=' * 60}")
-    print(f"Total rows: {len(gt_check)}")
-    print(f"Unique users: {gt_check['userId'].nunique()}")
+    # 🔍 UNIFIED DIAGNOSTICS
+    # Ground truth
+    _print_data_diagnostics(GROUND_TRUTH, file_label="Ground Truth", threshold=THRESHOLD, is_ground_truth=True)
 
-    # Auto-detect item column name
-    item_col = 'movieId' if 'movieId' in gt_check.columns else 'itemId'
-    print(f"Unique items: {gt_check[item_col].nunique()}")
-    print(f"Rating distribution:\n{gt_check['rating'].value_counts().sort_index()}")
-    print(f"% ratings ≥ {THRESHOLD}: {(gt_check['rating'] >= THRESHOLD).mean():.1%}")
-
-    # If this is >70%, your threshold is too low
-    if (gt_check['rating'] >= THRESHOLD).mean() > 0.7:
-        print("⚠️ WARNING: More than 70% of ratings are above threshold!")
-        print("  This makes HitRate artificially high. Try threshold=4.0 or 4.5")
-
-    # 🔍 DEBUG: Check one prediction file raw
-    sample_pred = pd.read_csv(MODELS[0][0])
-    print(f"\n{'=' * 60}")
-    print("RAW PREDICTIONS DIAGNOSTIC")
-    print(f"{'=' * 60}")
-    print(f"Columns: {list(sample_pred.columns)}")
-    print(f"First 5 rows:\n{sample_pred.head()}")
-
-    # Check if predictions are sorted by rating (true) vs test_predicted_rating (predicted)
-    if 'test_predicted_rating' in sample_pred.columns:
-        correlation = sample_pred['rating'].corr(sample_pred['test_predicted_rating'])
-        print(f"Correlation between true rating and predicted rating: {correlation:.3f}")
-        if correlation > 0.95:
-            print("✓ Predictions are well-correlated with true ratings")
-        elif correlation < 0.3:
-            print("⚠️ WARNING: Low correlation - predictions may be random")
+    # Predictions
+    for predictions_path, source_name in MODELS:
+        _print_data_diagnostics(predictions_path, file_label=f"Model '{source_name}'", threshold=THRESHOLD,
+                                is_ground_truth=False)
 
     results = run_model_comparison(
         ground_truth_path=GROUND_TRUTH,
@@ -719,6 +808,6 @@ if __name__ == "__main__":
         output_prefix=f"top{K}_comparison",
         calculate_ild=CALCULATE_ILD,  #
         catalog=CATALOG,
-        dataset_type="books"
+        dataset_type="movies"
         #dataset_type="movies"
     )
