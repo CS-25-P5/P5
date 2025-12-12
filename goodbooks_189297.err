@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_train.py", line 410, in <module>
-    best_params, predicted_ratings, filtered_item_ids, filtered_user_ids, mf = run_dpp_pipeline(
-  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_train.py", line 192, in run_dpp_pipeline
-    R_filtered_train, R_filtered_val, val_data_filtered, filtered_user_ids, filtered_item_ids, filtered_item_titles = prepare_train_val_matrices(
-ValueError: not enough values to unpack (expected 6, got 5)
