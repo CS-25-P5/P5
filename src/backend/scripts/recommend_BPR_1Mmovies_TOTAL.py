@@ -489,8 +489,7 @@ def run_program(optim,
 
 
 
-inputforall = "data/TEST_RECOMMEND_inputfile/ratings_100K_movies_TOTAL.csv"
-
+inputforall = "data/TEST_RECOMMEND_inputfile/ratings_100K_TOTAL.csv"
 
 a1 = run_program( 
                 optim = torch.optim.Adam,

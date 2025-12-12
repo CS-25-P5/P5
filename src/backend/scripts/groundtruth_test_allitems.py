@@ -252,7 +252,9 @@ movie4 = "data/TEST_GROUNDTRUTH/ratingsandgenres_100K_movies_test.csv"
 book1 = "data/TEST_GROUNDTRUTH/ratings_100K_goodbooks_test.csv"
 book2 = "data/TEST_GROUNDTRUTH/ratingsandgenres_100K_goodbooks_test.csv"
 
-total = "data/IMPORTANTdatasets/ratings_100K_movies.csv"
+total1 = "data/IMPORTANTdatasets/ratings_100K_movies.csv"
+total2 = "data/IMPORTANTdatasets/ratings_100K_goodbooks.csv"
+total3 = "data/IMPORTANTdatasets/ratings_1M_movies.csv"
 
 def rewrite_rating(input, outputname):
     inputpath = input
@@ -334,4 +336,6 @@ rewritebook(book2, "ratingsandgenresgoodbook_100K.csv")
 '''
 ##### Do entire dataset
 
-rewrite_rating(total, "ratings_100K_TOTAL.csv")
+#rewrite_rating(total1, "ratings_100K_movies_TOTAL.csv")
+#rewritebook(total2, "ratings_100K_books_TOTAL.csv")
+#rewrite_rating(total3, "ratings_1M_movies_TOTAL.csv")

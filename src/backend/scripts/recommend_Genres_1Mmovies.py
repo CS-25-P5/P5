@@ -249,7 +249,7 @@ def run_program(optim,
         return  predictions '''
     
     ##Change this function
-    def predict_ratings_in_batches(model, dataset, device, batch_size=65_000):
+    def predict_ratings_in_batches(model, dataset, device, batch_size=120_000):
     
         model.eval()
 

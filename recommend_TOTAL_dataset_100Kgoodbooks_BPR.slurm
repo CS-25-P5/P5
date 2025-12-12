@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=recommend_1Mmovies_with_NN_genres		            #Name of the job
+#SBATCH --job-name=recommend_books_with_whole_dataset100Kmovies        #Name of the job
 #SBATCH  --partition=l4						                            #GPU partition
 #SBATCH --gres=gpu:4							                        #Ask for one GPU
 
@@ -16,4 +16,4 @@ cd /ceph/home/student.aau.dk/nr38sp/P5
 mkdir -p logs
 source venv/bin/activate
 
-python -u src/backend/scripts/recommend_Genres_1Mmovies.py
+python -u src/backend/scripts/recommend_BPR_100Kgoodbooks_TOTAL.py
