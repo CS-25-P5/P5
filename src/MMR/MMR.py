@@ -106,15 +106,14 @@ class MMR:
         return selected
 
 
-def run_mmr(mmr_model, R_filtered, top_k, user_history_top_n):
+def run_mmr(mmr_model, R_filtered, top_k, user_history = None):
     all_recs = []
     for user_idx in range(R_filtered.shape[0]):
-        # user_history = (R_filtered[user_idx, :] > 0)
-        user_history = np.atleast_1d(user_history_top_n[user_idx])
-        print(f"\n=== DEBUG for user {user_idx} ===")
-        print(f"user_hist type: {type(user_history)}")
-        print(f"user_hist value: {user_history}")
-        rec_indices = mmr_model.mmr(user_idx, user_history, top_k)
+        user_histories = np.atleast_1d(
+            user_history[user_idx] if user_history is not None else (R_filtered[user_idx, :] > 0)
+        )
+
+        rec_indices = mmr_model.mmr(user_idx, user_histories, top_k)
         all_recs.append(rec_indices)
     
     return all_recs

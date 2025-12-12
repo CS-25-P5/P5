@@ -60,7 +60,7 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
     # Get the filtered user and item IDs from the aligned DataFrame
     filtered_user_ids = filtered_df.index.tolist()
     filtered_item_ids = filtered_df.columns.tolist()
-    print(f"Filtered users: {len(filtered_user_ids)}, Filtered items: {len(filtered_item_ids)}")
+    #print(f"Filtered users: {len(filtered_user_ids)}, Filtered items: {len(filtered_item_ids)}")
     
     # Align filtered items to MF model
     trained_items = np.array([str(i) for i in trained_mf_model.item_ids])
@@ -159,6 +159,31 @@ def log_experiment(output_dir, file_name, params):
     print(f"Logged experiment to {log_file}")
 
 
+def log_loss_history(output_dir, filename, train_mse, val_mse):
+    loss_file = os.path.join(output_dir, filename)
+
+    # Make sure run_id directory exists
+    os.makedirs(os.path.dirname(loss_file), exist_ok=True)
+
+    file_exists = os.path.isfile(loss_file)
+
+    with open(loss_file, "a", newline="") as f:
+        writer = csv.writer(f)
+
+        # Header only once
+        if not file_exists:
+            writer.writerow(["Epoch", "Train_mse", "Val_mse"])
+
+        # One row per epoch
+        for epoch, (t, v) in enumerate(zip(train_mse, val_mse)):
+            writer.writerow([epoch, float(t), float(v)])
+
+
+    print(f"Logged experiment to {loss_file}")
+
+
+
+
 def run_train_pipeline(
     run_id,
     ratings_train_path,
@@ -185,6 +210,8 @@ def run_train_pipeline(
     ratings_val_path, item_path,)
 
 
+
+
     (
         R_filtered_train,
         R_filtered_val,
@@ -198,28 +225,34 @@ def run_train_pipeline(
     )
 
 
+
+
     # TRAIN MF
     # Tune MF parameters
-    tracemalloc.start()
-    start_time_mf = time.time()
+
     best_params = tune_mf(
         R_train = R_filtered_train,
         R_val = R_filtered_val,
         n_epochs = n_epochs)
+
+
+
+
+    # Train MF with best hyperparameters
+    tracemalloc.start()
+    start_time_mf = time.time()
+    mf, predicted_ratings, train_mse_history, train_rmse_final, val_mse_history, val_rmse_final = train_mf_with_best_params(
+        R_filtered = R_filtered_train,
+        R_val = R_filtered_val,        
+        best_params = best_params,
+        n_epochs=n_epochs,
+        random_state = random_state)
     end_time_mf = time.time()
     time_mf = end_time_mf - start_time_mf
     mem_mf = tracemalloc.get_traced_memory()[1] / 1024**2
     tracemalloc.stop()
 
-
-    # Train MF with best hyperparameters
-    mf, predicted_ratings, train_rmse, random_state = train_mf_with_best_params(
-        R_filtered_train,
-        best_params,
-        n_epochs=n_epochs,
-        random_state = random_state)
-
-    val_rmse = mf.compute_rmse(R_filtered_val, predicted_ratings)
+    #val_rmse = mf.compute_rmse(R_filtered_val, predicted_ratings)
 
     # Attach filtered item titles to MF model
     mf.item_ids = filtered_item_ids
@@ -247,8 +280,7 @@ def run_train_pipeline(
         similarity_type="cosine"
     )
 
-    tracemalloc.start()
-    start_time_cos = time.time()
+
     best_lambda_cosine, best_score_cosine = tune_mmr_lambda(
         mmr_builder = builder_cosine,
         predicted_ratings = predicted_ratings,
@@ -259,10 +291,7 @@ def run_train_pipeline(
         relevance_weight=relevance_weight,
         diversity_weight=diversity_weight
     )
-    end_time_cos = time.time()
-    time_cos = end_time_cos - start_time_cos
-    mem_cos = tracemalloc.get_traced_memory()[1] / 1024**2
-    tracemalloc.stop()
+
 
 
     # Repeat for jaccard similarity
@@ -275,8 +304,6 @@ def run_train_pipeline(
     )
     
 
-    tracemalloc.start()
-    start_time_jac = time.time()
     best_lambda_jaccard, best_score_jaccard = tune_mmr_lambda(
         mmr_builder=builder_jaccard,
         predicted_ratings=predicted_ratings,
@@ -287,26 +314,32 @@ def run_train_pipeline(
         relevance_weight=relevance_weight,
         diversity_weight=diversity_weight
     )
+
+
+
+    # Build Final MMR models with best lambda and run MMR
+    tracemalloc.start()
+    start_time_cos = time.time()
+    mmr_cosine = builder_cosine(best_lambda_cosine)
+    run_mmr(mmr_model = mmr_cosine,
+            R_filtered = R_filtered_train ,
+            top_k = top_k)
+    end_time_cos = time.time()
+    time_cos = end_time_cos - start_time_cos
+    mem_cos = tracemalloc.get_traced_memory()[1] / 1024**2
+    tracemalloc.stop()
+
+
+    tracemalloc.start()
+    start_time_jac = time.time()
+    mmr_jaccard = builder_jaccard(best_lambda_jaccard)
+    run_mmr(mmr_model = mmr_jaccard,
+        R_filtered = R_filtered_train,
+        top_k = top_k)
     end_time_jac = time.time()
     time_jac = end_time_jac - start_time_jac
     mem_jac = tracemalloc.get_traced_memory()[1] / 1024**2
     tracemalloc.stop()
-
-
-    # Build Final MMR models with best lambda
-    # mmr_cosine = builder_cosine(best_lambda_cosine)
-
-    # mmr_jaccard = builder_jaccard(best_lambda_jaccard)
-
-    # # Run MMR
-    # all_recs_cosine = run_mmr(mmr_model = mmr_cosine,
-    #         R_filtered = R_filtered_train ,
-    #         top_k = top_k)
-
-
-    # all_recs_jaccard = run_mmr(mmr_model = mmr_jaccard,
-    #         R_filtered = R_filtered_train,
-    #         top_k = top_k)
 
 
 
@@ -344,12 +377,21 @@ def run_train_pipeline(
             "Lambda": best_params["lambda_"],
             "N_epochs": n_epochs,
             "Random_state": random_state,
-            "Train_rmse": train_rmse,
-            "Val_rmse": val_rmse,
+            "Train_rmse": train_rmse_final,
+            "Val_rmse": val_rmse_final,
             "Benchmark_time": time_mf,
             "Max_Memory_MB": mem_mf
         },
     )
+
+
+    log_loss_history(
+        output_dir = output_dir,
+        filename = f"{run_id}/mf_train_{chunksize}_loss_history.csv" , 
+        train_mse = train_mse_history, 
+        val_mse = val_mse_history)
+
+
 
     # LOG MMR DATA
     log_experiment(
@@ -479,33 +521,32 @@ def run_test_pipeline(
 
     mmr_jaccard = builder_jaccard(best_lambda_jaccard)
 
-
     # Run MMR
-    tracemalloc.start()
-    start_time_cos = time.time()
+    # tracemalloc.start()
+    # start_time_cos = time.time()
     all_recs_cosine = run_mmr(
         mmr_model = mmr_cosine,
         R_filtered = R_filtered ,
-        user_history_top_n = user_history_top_n,
+        user_history = user_history_top_n,
         top_k = top_k)
-    end_time_cos = time.time()
+    
+    # end_time_cos = time.time()
+    # time_cos = end_time_cos - start_time_cos
+    # mem_cos = tracemalloc.get_traced_memory()[1] / 1024**2
+    # tracemalloc.stop()
 
-    time_cos = end_time_cos - start_time_cos
-    mem_cos = tracemalloc.get_traced_memory()[1] / 1024**2
-    tracemalloc.stop()
- 
-    tracemalloc.start()
-    start_time_jac = time.time()
+    # tracemalloc.start()
+    # start_time_jac = time.time()
     all_recs_jaccard = run_mmr(
         mmr_model = mmr_jaccard,
         R_filtered = R_filtered ,
-        user_history_top_n = user_history_top_n,
+        user_history = user_history_top_n,
         top_k = top_k)
-    end_time_jac = time.time()
-
-    time_jac = end_time_jac - start_time_jac
-    mem_jac = tracemalloc.get_traced_memory()[1] / 1024**2
-    tracemalloc.stop()
+    
+    # end_time_jac = time.time()
+    # time_jac = end_time_jac - start_time_jac
+    # mem_jac = tracemalloc.get_traced_memory()[1] / 1024**2
+    # tracemalloc.stop()
 
 
     # Process and Save MMR result
@@ -532,31 +573,31 @@ def run_test_pipeline(
     print(f"Log MMR data")
 
     # LOG MMR DATA
-    log_experiment(
-        output_dir = output_dir,
-        file_name="mmr_test_experiment_log.csv",
-        params={ "Run_id": run_id,
-                "Dataset_name": dataset,
-                "Datasize": chunksize,
-                "Similarity_type": "cosine",
-                "Benchmark_time": time_cos,
-                "Max_Memory_MB": mem_cos
-                }
+    # log_experiment(
+    #     output_dir = output_dir,
+    #     file_name="mmr_test_experiment_log.csv",
+    #     params={ "Run_id": run_id,
+    #             "Dataset_name": dataset,
+    #             "Datasize": chunksize,
+    #             "Similarity_type": "cosine",
+    #             "Benchmark_time": time_cos,
+    #             "Max_Memory_MB": mem_cos
+    #             }
 
-    )
+    # )
 
 
-    log_experiment(
-        output_dir = output_dir,
-        file_name="mmr_test_experiment_log.csv",
-        params={ "Run_id": run_id,
-                "Dataset_name": dataset,
-                "Datasize": chunksize,
-                "Similarity_type": "jaccard",
-                "Benchmark_time": time_jac,
-                "Max_Memory_MB": mem_jac
-                }
-    )
+    # log_experiment(
+    #     output_dir = output_dir,
+    #     file_name="mmr_test_experiment_log.csv",
+    #     params={ "Run_id": run_id,
+    #             "Dataset_name": dataset,
+    #             "Datasize": chunksize,
+    #             "Similarity_type": "jaccard",
+    #             "Benchmark_time": time_jac,
+    #             "Max_Memory_MB": mem_jac
+    #             }
+    # )
 
     print(f"Pipeline for {dataset} test finished successfully!")
 
@@ -597,15 +638,14 @@ if __name__ == "__main__":
 
 
     weight_pairs = [
-    # (0.1, 0.0),
-    # (0.8, 0.2),
-    # (0.6, 0.4),
+    (0.1, 0.0),
+    (0.8, 0.2),
+    (0.6, 0.4),
     (0.5, 0.5),
-    (0.4, 0.6),
-    (0.2, 0.8),
-    (0.0, 0.1),
+    # (0.4, 0.6),
+    # (0.2, 0.8),
+    # (0.0, 0.1),
     ]
-
 
 
 
@@ -651,7 +691,7 @@ if __name__ == "__main__":
         )
 
 
-        # RUN pipeline for books
+        # #RUN pipeline for books
         run_book_id = generate_run_id()
         (
             books_best_lambda_cosine, 
