@@ -16,7 +16,6 @@ tune_mf, train_mf_with_best_params,
     save_mf_predictions
 )
 
-from MMR.MMR import process_save_mmr
 
 
 
@@ -47,6 +46,7 @@ def align_matrix_to_items(matrix_df, filtered_item_ids, filtered_user_ids):
 
 
 def prepare_train_val_matrices(train_df, val_df, id_to_title=None):
+
     # Align train and val to common users/items
     common_users = train_df.index.intersection(val_df.index)
     common_items = train_df.columns.intersection(val_df.columns)
@@ -60,7 +60,7 @@ def prepare_train_val_matrices(train_df, val_df, id_to_title=None):
     R_filtered_train = R_train[user_filter, :]
     filtered_user_ids = train_aligned.index[user_filter].tolist()
     filtered_item_ids = train_aligned.columns.tolist()
-    filtered_item_titles = [id_to_title[i] for i in filtered_item_ids]
+    #filtered_item_titles = [id_to_title[i] for i in filtered_item_ids]
 
     R_filtered_val, val_data_filtered = align_matrix_to_items(
         val_aligned,
@@ -68,7 +68,10 @@ def prepare_train_val_matrices(train_df, val_df, id_to_title=None):
         filtered_user_ids
     )
 
-    return R_filtered_train, R_filtered_val,  val_data_filtered, filtered_user_ids, filtered_item_ids, filtered_item_titles
+    # Log shapes for debugging
+    print(f"Train matrix: {R_filtered_train.shape}, Val matrix: {R_filtered_val.shape}")
+
+    return R_filtered_train, R_filtered_val,  val_data_filtered, filtered_user_ids, filtered_item_ids
 
 def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_ids, filtered_item_ids=None):
     # Get the filtered user and item IDs from the aligned DataFrame
@@ -115,6 +118,44 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
     predicted_ratings = predicted_ratings_all[test_user_indices, :]
 
     return filtered_user_ids, filtered_item_ids, predicted_ratings
+
+
+def prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered):
+    #Keep order, remove duplicates
+    top_n_items = []
+    seen_items = set()
+    for user_id, indices in all_recommendations.items():
+        for idx in indices:
+            item_id = filtered_item_ids[idx]
+            if item_id not in seen_items:
+                top_n_items.append(item_id)
+                seen_items.add(item_id)
+
+    # Map top_n_items to columns in predicted_ratings
+    item_idx_map = [filtered_item_ids.index(i) for i in top_n_items]
+    predicted_ratings_top_n = predicted_ratings[:, item_idx_map]
+
+    # sanity check
+    #assert predicted_ratings_top_n.shape[1] == len(top_n_items), "Predicted ratings and items mismatch!"
+
+    # Create user histories aligned to top-N items
+    user_history_top_n = []
+    num_top_items = len(top_n_items)  # should be 21 in your case
+
+    for user_idx, user_id in enumerate(filtered_user_ids):
+        items_user_has_rated = np.where(R_filtered[user_idx, :] > 0)[0]
+        item_ids_user_has_rated = [filtered_item_ids[i] for i in items_user_has_rated]
+
+        # Boolean mask aligned to top_n_items
+        mask = np.zeros(num_top_items, dtype=bool)
+        for i, item_id in enumerate(top_n_items):
+            if item_id in item_ids_user_has_rated:
+                mask[i] = True
+
+        user_history_top_n.append(mask)
+
+    return predicted_ratings_top_n, user_history_top_n
+
 
 
 def log_experiment(output_dir, file_name, params):
@@ -275,16 +316,17 @@ def run_dpp_pipeline_test(
     mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
 
-    get_top_n_recommendations_MF(
-        genre_map=genre_map,
-        predicted_ratings=predicted_ratings,
-        R_filtered=R_filtered,
-        filtered_user_ids=filtered_user_ids,
-        filtered_item_ids=filtered_item_ids,
-        id_to_title=id_to_title,
-        top_n=top_n,
-        save_path=mf_top_n_path)
+    all_recommendations = get_top_n_recommendations_MF(
+                                genre_map=genre_map,
+                                predicted_ratings=predicted_ratings,
+                                R_filtered=R_filtered,
+                                filtered_user_ids=filtered_user_ids,
+                                filtered_item_ids=filtered_item_ids,
+                                id_to_title=id_to_title,
+                                top_n=top_n,
+                                save_path=mf_top_n_path)
 
+    predicted_ratings_top_n, user_history_top_n = prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered)
 
     # Define output path for MF predictions
     dataset_root = os.path.dirname(output_dir)
@@ -301,10 +343,11 @@ def run_dpp_pipeline_test(
     )
 
 
+
     # Build DPP models using test predictions
     all_genres = sorted({g for genres in genre_map.values() for g in genres})
-    dpp_cosine = build_dpp_models(filtered_item_ids, genre_map, all_genres, predicted_ratings, 'cosine')
-    dpp_jaccard = build_dpp_models(filtered_item_ids, genre_map, all_genres, predicted_ratings, 'jaccard')
+    dpp_cosine = build_dpp_models(filtered_item_ids, genre_map, all_genres, predicted_ratings_top_n, 'cosine')
+    dpp_jaccard = build_dpp_models(filtered_item_ids, genre_map, all_genres, predicted_ratings_top_n, 'jaccard')
 
     dpp_path_cosine = os.path.join(output_dir,f"{run_id}/dpp_test_{chunksize}_cosine_top_{top_n}.csv")
     dpp_path_jaccard = os.path.join(output_dir,f"{run_id}/dpp_test_{chunksize}_jaccard_top_{top_n}.csv")
@@ -343,9 +386,9 @@ if __name__ == "__main__":
     ALPHA = 0.01
     LAMDA_ = 0.1
     N_EPOCHS = 50
-    TOP_K = 20
+    TOP_K = 50
     LAMBDA_PARAM = 0.7
-    DATASET_NAME = "books"
+    #DATASET_NAME = "books"
     RANDOM_STATE = 42
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
