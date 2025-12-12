@@ -31,7 +31,7 @@ def run_program(optim,
                 recommend_output = None):
     
     #STEP 1 - Redo the database - I need movies and ratings so that I can create triplets. 
-    dataset = pandas.read_csv("data/Input_movies_dataset_100K/ratings_100K.csv") 
+    dataset = pandas.read_csv("data/IMPORTANTdatasets/ratings_1M_movies.csv") 
     dataset = dataset[["userId", "movieId", "rating"]] 
     
     #Mapping user and movie to 0 .. n-1. Nn.Embeddings is a lookuptable that needs indices. # Current dataset for userId goes 1, 55, 105, 255, 6023.. We turn this into the amount of users # Pytorch is not working with raw IDs, so we map each userId and movieId to a common new index 
@@ -489,7 +489,7 @@ def run_program(optim,
 
 
 
-inputforall = "data/TEST_RECOMMEND_inputfile/ratings_100K_TOTAL.csv"
+inputforall = "data/TEST_RECOMMEND_inputfile/ratings_1M_movies_TOTAL.csv"
 
 a1 = run_program( 
                 optim = torch.optim.Adam,
@@ -501,7 +501,7 @@ a1 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output= "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv")
+                recommend_output= "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv")
 
 
 a2 = run_program( 
@@ -514,7 +514,7 @@ a2 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output="data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_OneLayer_embed32_lr0001_batch64.csv")
+                recommend_output="data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_OneLayer_embed32_lr0001_batch64.csv")
     
 
 
@@ -528,7 +528,7 @@ a3 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv")
     
 a4 = run_program( 
                 optim = torch.optim.Adam,
@@ -540,7 +540,7 @@ a4 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv")
     
 
 a5 = run_program(
@@ -553,7 +553,7 @@ a5 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv")
 
 
 a6 = run_program(
@@ -566,7 +566,7 @@ a6 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv")
 
 
 
@@ -581,7 +581,7 @@ a7 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv")
 
 
 
@@ -596,7 +596,7 @@ a8 =  run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv")
 
 
 
@@ -619,7 +619,7 @@ b1 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed64_lr0001_batch64.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed64_lr0001_batch64.csv")
     
 b2 = run_program( 
                 optim = torch.optim.Adam,
@@ -631,7 +631,7 @@ b2 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed32_lr0001_batch64.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed32_lr0001_batch64.csv")
     
 
 
@@ -645,7 +645,7 @@ b3 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed64_lr00003_batch64.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed64_lr00003_batch64.csv")
     
 b4 = run_program( 
                 optim = torch.optim.Adam,
@@ -657,7 +657,7 @@ b4 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed32_lr00003_batch64.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed32_lr00003_batch64.csv")
     
 
 b5 = run_program(
@@ -670,7 +670,7 @@ b5 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed64_lr0001_batch128.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed64_lr0001_batch128.csv")
 
 
 b6 = run_program(
@@ -683,7 +683,7 @@ b6 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed32_lr0001_batch128.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed32_lr0001_batch128.csv")
 
 
 
@@ -698,7 +698,7 @@ b7 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed64_lr00003_batch128.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed64_lr00003_batch128.csv")
 
 
 
@@ -713,7 +713,7 @@ b8 =  run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv")
 
 
 
@@ -752,7 +752,7 @@ c1 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64.csv")
     
 c2 = run_program( 
                 optim = torch.optim.Adam,
@@ -764,7 +764,7 @@ c2 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64.csv")
     
 
 
@@ -778,7 +778,7 @@ c3 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64.csv")
     
 c4 = run_program( 
                 optim = torch.optim.Adam,
@@ -790,7 +790,7 @@ c4 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64.csv")
     
 
 c5 = run_program(
@@ -803,7 +803,7 @@ c5 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128.csv")
 
 
 c6 = run_program(
@@ -816,7 +816,7 @@ c6 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128.csv")
 
 
 
@@ -831,7 +831,7 @@ c7 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128.csv")
 
 
 
@@ -847,4 +847,4 @@ c8 =  run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_100K_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128.csv")
+                recommend_output = "data/Recommend_test_1M_movies_TOTAL(MLPwithBPR)/RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128.csv")
