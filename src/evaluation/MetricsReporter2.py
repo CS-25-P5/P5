@@ -467,12 +467,12 @@ if __name__ == "__main__":
         ITEM_FEATURES_PATH
     )
 
-    # Optional: plot rating distribution (not captured)
-    # plot_rating_distribution(
-    #     ground_truth_path=GROUND_TRUTH,
-    #     items_path=CATALOG_PATH,
-    #     output_dir="rating_charts"
-    # )
+    ##Optional: plot rating distribution (not captured)
+    plot_rating_distribution(
+        ground_truth_path=GROUND_TRUTH,
+        items_path=CATALOG_PATH,
+        output_dir="rating_charts"
+    )
 
     # Conditionally load item features (not captured)
     if CALCULATE_ILD:
@@ -514,7 +514,7 @@ if __name__ == "__main__":
             threshold=THRESHOLD,
             k=K,
             item_features=ITEM_FEATURES,
-            output_prefix=f"Diana, ml100k (MLPwithGenres), top{K}_comparison",
+            output_prefix=f"Diana, 1M Movielens (MLPwithBPR, Total), top{K}_comparison",
             calculate_ild=CALCULATE_ILD,
             catalog=CATALOG,
             dataset_type="movies"
