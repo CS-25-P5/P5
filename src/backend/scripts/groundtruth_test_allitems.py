@@ -121,6 +121,8 @@ movie_genres = movie_data[["id", "genres"]].copy()
 movie_genres["id"] = pandas.to_numeric(movie_genres["id"], errors="coerce")
 movie_genres = movie_genres.dropna(subset=["id"])
 movie_genres["id"] = movie_genres["id"].astype(int)
+movie_genres = movie_genres.drop_duplicates(subset=["id"], keep="first")
+
 
 
 links_data["tmdbId"] = pandas.to_numeric(links_data["tmdbId"], errors="coerce")
@@ -231,16 +233,16 @@ def split_train_val_test(input, user_column_name, item_column_name, outputfortra
     return train_data, val_data, test_data
 
 
-'''
-train1, val1, test1 = split_train_val_test(input1, "userId", "movieId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_1M_movies")
-train2, val2, test2 = split_train_val_test(input2, "userId", "movieId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratingsandgenres_1M_movies")
-train3, val3, test3 = split_train_val_test(input3, "user_id", "itemId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_100K_goodbooks")
-train4, val4, test4 = split_train_val_test(input4, "user_id", "itemId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratingsandgenres_100K_goodbooks")
-train5, val5, test5 = split_train_val_test(input5, "userId", "movieId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_100K_movies")
+
+#train1, val1, test1 = split_train_val_test(input1, "userId", "movieId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_1M_movies")
+#train2, val2, test2 = split_train_val_test(input2, "userId", "movieId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratingsandgenres_1M_movies")
+#train3, val3, test3 = split_train_val_test(input3, "user_id", "itemId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_100K_goodbooks")
+#train4, val4, test4 = split_train_val_test(input4, "user_id", "itemId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratingsandgenres_100K_goodbooks")
+#train5, val5, test5 = split_train_val_test(input5, "userId", "movieId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratings_100K_movies")
 
 train6, val6, test6 = split_train_val_test(input6, "userId", "movieId", "data/TRAIN_GROUNDTRUTH", "data/TEST_GROUNDTRUTH", "data/VAL_GROUNDTRUTH", "ratingsandgenres_100K_movies")
 
-'''
+
 #Pair all users with all items in TEST_groundtruth!
 
 movie1 = "data/TEST_GROUNDTRUTH/ratings_1M_movies_test.csv"
@@ -255,6 +257,7 @@ book2 = "data/TEST_GROUNDTRUTH/ratingsandgenres_100K_goodbooks_test.csv"
 total1 = "data/IMPORTANTdatasets/ratings_100K_movies.csv"
 total2 = "data/IMPORTANTdatasets/ratings_100K_goodbooks.csv"
 total3 = "data/IMPORTANTdatasets/ratings_1M_movies.csv"
+
 
 def rewrite_rating(input, outputname):
     inputpath = input
@@ -279,10 +282,10 @@ def rewrite_rating(input, outputname):
 
     #Save
     final.to_csv(output_path, index=False)
-'''
-rewrite_rating(movie1, "ratings_1M_movies.csv")
-rewrite_rating(movie2, "ratings_100K_movies.csv")
-'''
+
+#rewrite_rating(movie1, "ratings_1M_movies.csv")
+#rewrite_rating(movie2, "ratings_100K_movies.csv")
+
 
 def rewrite_rating_and_genres(input, outputname):
     inputpath = input
@@ -305,10 +308,10 @@ def rewrite_rating_and_genres(input, outputname):
 
     #Save
     final.to_csv(output_path, index=False)
-'''
-rewrite_rating_and_genres(movie3, "ratingsandgenres_1M_movies.csv")
+
+#rewrite_rating_and_genres(movie3, "ratingsandgenres_1M_movies.csv")
 rewrite_rating_and_genres(movie4, "ratingsandgenres_100K_movies.csv")
-'''
+
 
 def rewritebook(input, outputname):
     inputpath = input
@@ -331,8 +334,8 @@ def rewritebook(input, outputname):
     #Save
     final.to_csv(output_path, index=False)
 '''
-rewritebook(book1, "ratingsbooks_100K.csv")
-rewritebook(book2, "ratingsandgenresgoodbook_100K.csv")
+#rewritebook(book1, "ratingsbooks_100K.csv")
+#rewritebook(book2, "ratingsandgenresgoodbook_100K.csv")
 '''
 ##### Do entire dataset
 
