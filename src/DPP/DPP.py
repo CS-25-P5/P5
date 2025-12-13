@@ -162,7 +162,7 @@ def process_dpp(user_id, user_idx, dpp_indices, item_names, feature_map,
 # Run DPP for all users
 
 def get_recommendations_for_dpp(dpp_model, movie_user_rating, movie_titles, genre_map,
-                                predicted_ratings, item_to_id, top_k, top_n, similarity_type):
+                                predicted_ratings, item_to_id, top_k, top_n,output_dir, similarity_type):
 
     results = []
 
