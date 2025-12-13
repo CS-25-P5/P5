@@ -55,7 +55,7 @@ class DPP:
     # Build full DPP kernel K = diag(q) * S * diag(q)
     def build_kernel(self, relevance_scores, candidate_indices):
 
-        scores = relevance_scores[candidate_indices].astype(float)
+        scores = relevance_scores.astype(float)
         scores = scores - np.min(scores) + self.epsilon
         q = np.sqrt(scores)
 
