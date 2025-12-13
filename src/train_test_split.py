@@ -220,7 +220,7 @@ def split_ratings(
 
 
 # Parameters
-CHUNKSIZE = 10000
+CHUNKSIZE = 1000
 TEST_SIZE = 0.20
 
 
