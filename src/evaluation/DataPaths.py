@@ -1,16 +1,20 @@
 import pandas as pd
 
 # Configuration
-THRESHOLD = 4.0  # for the metrics that need to view things in a binary fashion
-K = 10  # recommendations to look at
+THRESHOLD = 4.0
+K = 10
+CALCULATE_ILD = True  # Set to False to skip ILD calculation
 
-# SET THIS TO False TO SKIP ILD AND GENRE LOADING
-CALCULATE_ILD = True # Change to False to skip ILD entirely
-
-#CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+# Catalog paths
 CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+#CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+
 CATALOG = pd.read_csv(CATALOG_PATH)
 CATALOG = CATALOG.rename(columns={"itemId": "item_id"})
+
+# Item features path (for ILD calculation)
+ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+#ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
 
 #Test1
 #GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
@@ -28,13 +32,13 @@ CATALOG = CATALOG.rename(columns={"itemId": "item_id"})
 
 #NN - diana
 
-#movies 100k
+#movies 100k - Diana
 GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\TEST_GROUNDTRUTH\ratings_100K_movies_test.csv")
 
-#movies 1m
+#movies 1m - Diana
 #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\TEST_GROUNDTRUTH\ratings_1M_movies_test.csv")
 
-#books 100k
+#books 100k - Diana
 #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\TEST_GROUNDTRUTH\ratings_100K_goodbooks_test.csv")
 
 
@@ -86,287 +90,565 @@ MODELS = [
     #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_dpp_train_cosine_recommendations.csv","dpp_cosine"),
     #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\books\ALIGNED_mf_train_predictions_books.csv", "MF"),
 
-    # #diana data 100K movies with BPR
-    # #1 LAYER
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch64.csv" ,"One-32-0001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv" ,"One-32-0001-b128"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv" ,"One-32-00003-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv" ,"One-32-00003-b128"),
+    # # #diana data 100K movies with BPR
+    # # # #1 LAYER
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch64.csv" ,"One-32-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv" ,"One-32-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv" ,"One-32-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv" ,"One-32-00003-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv","One-64-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv","One-64-0001-128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv","One-64-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv","One-64-00003-b128"),
+    #
+    # #2 LAYER
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch64.csv","Two-32-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch128.csv","Two-32-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch64.csv","Two-32-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv","Two-32-00003-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch64.csv","Two-64-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch128.csv","Two-64-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch64.csv","Two-64-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch128.csv","Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64.csv","Three-32-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128.csv","Three-32-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64.csv","Three-32-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128.csv","Three-32-00003-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64.csv","Three-64-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128.csv","Three-64-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64.csv","Three-64-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128.csv","Three-64-00003-b128"),
 
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv","One-64-0001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv","One-64-0001-128"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv","One-64-00003-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv","One-64-00003-b128"),
+    # #diana data 100K movies with Genres
+    #1 LAYER
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_OneLayer_embed32_lr0001_batch64.csv",
+    "One-32-0001-b64"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_OneLayer_embed32_lr0001_batch128.csv",
+    "One-32-0001-b128"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_OneLayer_embed32_lr00003_batch64.csv",
+    "One-32-00003-b64"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_OneLayer_embed32_lr00003_batch128.csv",
+    "One-32-00003-b128"),
 
-    #2 LAYER
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch64.csv","Two-32-0001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch128.csv","Two-32-0001-b128"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch64.csv","Two-32-00003-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv","Two-32-00003-b128"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_OneLayer_embed64_lr0001_batch64.csv",
+    "One-64-0001-b64"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_OneLayer_embed64_lr0001_batch128.csv",
+    "One-64-0001-128"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_OneLayer_embed64_lr00003_batch64.csv",
+    "One-64-00003-b64"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_OneLayer_embed64_lr00003_batch128.csv",
+    "One-64-00003-b128"),
 
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch64.csv","Two-64-0001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch128.csv","Two-64-0001-b128"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch64.csv","Two-64-00003-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch128.csv","Two-64-00003-b128"),
+    # 2 LAYER
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_TwoLayers_embed32_lr0001_batch64.csv",
+    "Two-32-0001-b64"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_TwoLayers_embed32_lr0001_batch128.csv",
+    "Two-32-0001-b128"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_TwoLayers_embed32_lr00003_batch64.csv",
+    "Two-32-00003-b64"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_TwoLayers_embed32_lr00003_batch128.csv",
+    "Two-32-00003-b128"),
+
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_TwoLayers_embed64_lr0001_batch64.csv",
+    "Two-64-0001-b64"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_TwoLayers_embed64_lr0001_batch128.csv",
+    "Two-64-0001-b128"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_TwoLayers_embed64_lr00003_batch64.csv",
+    "Two-64-00003-b64"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_TwoLayers_embed64_lr00003_batch128.csv",
+    "Two-64-00003-b128"),
 
     # 3 LAYER
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64.csv","Three-32-0001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128.csv","Three-32-0001-b128"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64.csv","Three-32-00003-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128.csv","Three-32-00003-b128"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed32_lr0001_batch64.csv",
+    "Three-32-0001-b64"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed32_lr0001_batch128.csv",
+    "Three-32-0001-b128"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed32_lr00003_batch64.csv",
+    "Three-32-00003-b64"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed32_lr00003_batch128.csv",
+    "Three-32-00003-b128"),
 
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64.csv","Three-64-0001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128.csv","Three-64-0001-b128"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64.csv","Three-64-00003-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128.csv","Three-64-00003-b128"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed64_lr0001_batch64.csv",
+    "Three-64-0001-b64"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed64_lr0001_batch128.csv",
+    "Three-64-0001-b128"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed64_lr00003_batch64.csv",
+    "Three-64-00003-b64"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed64_lr00003_batch128.csv",
+    "Three-64-00003-b128"),
 
-    # diana data 100K movies with Genres
+    # # #diana data 100K movies with BPR Total
+    # # #1 LAYER
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch64.csv" ,"One-32-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv" ,"One-32-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv" ,"One-32-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv" ,"One-32-00003-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv","One-64-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv","One-64-0001-128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv","One-64-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv","One-64-00003-b128"),
+    #
+    # #2 LAYER
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch64.csv","Two-32-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch128.csv","Two-32-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch64.csv","Two-32-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv","Two-32-00003-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv","Two-32-00003-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch64.csv","Two-64-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch128.csv","Two-64-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch64.csv","Two-64-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch128.csv","Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64.csv","Three-32-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128.csv","Three-32-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64.csv","Three-32-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128.csv","Three-32-00003-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64.csv","Three-64-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128.csv","Three-64-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64.csv","Three-64-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128.csv","Three-64-00003-b128"),
+
+    # # #diana data 1M movies with BPR
+    # # #1 LAYER
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch64.csv" ,"One-32-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv" ,"One-32-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv" ,"One-32-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv" ,"One-32-00003-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv","One-64-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv","One-64-0001-128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv","One-64-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv","One-64-00003-b128"),
+    #
+    # #2 LAYER
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch64.csv","Two-32-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch128.csv","Two-32-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch64.csv","Two-32-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv","Two-32-00003-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch64.csv","Two-64-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch128.csv","Two-64-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch64.csv","Two-64-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch128.csv","Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64.csv","Three-32-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128.csv","Three-32-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64.csv","Three-32-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128.csv","Three-32-00003-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64.csv","Three-64-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128.csv","Three-64-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64.csv","Three-64-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128.csv","Three-64-00003-b128"),
+
+    # #diana data 1M movies with Genres
     # 1 LAYER
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_OneLayer_embed32_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_OneLayer_embed32_lr0001_batch64.csv",
     # "One-32-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_OneLayer_embed32_lr0001_batch128.csv",
     # "One-32-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_OneLayer_embed32_lr00003_batch64.csv",
     # "One-32-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_OneLayer_embed32_lr00003_batch128.csv",
     # "One-32-00003-b128"),
     #
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_OneLayer_embed64_lr0001_batch64.csv",
     # "One-64-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_OneLayer_embed64_lr0001_batch128.csv",
     # "One-64-0001-128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_OneLayer_embed64_lr00003_batch64.csv",
     # "One-64-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_OneLayer_embed64_lr00003_batch128.csv",
     # "One-64-00003-b128"),
     #
     # # 2 LAYER
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_TwoLayer_embed32_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_TwoLayers_embed32_lr0001_batch64.csv",
     # "Two-32-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_TwoLayer_embed32_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_TwoLayers_embed32_lr0001_batch128.csv",
     # "Two-32-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_TwoLayer_embed32_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_TwoLayers_embed32_lr00003_batch64.csv",
     # "Two-32-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_TwoLayer_embed32_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_TwoLayers_embed32_lr00003_batch128.csv",
     # "Two-32-00003-b128"),
     #
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_TwoLayer_embed64_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_TwoLayers_embed64_lr0001_batch64.csv",
     # "Two-64-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_TwoLayer_embed64_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_TwoLayers_embed64_lr0001_batch128.csv",
     # "Two-64-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_TwoLayer_embed64_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_TwoLayers_embed64_lr00003_batch64.csv",
     # "Two-64-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_TwoLayer_embed64_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_TwoLayers_embed64_lr00003_batch128.csv",
     # "Two-64-00003-b128"),
     #
     # # 3 LAYER
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_ThreeLayer_embed32_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed32_lr0001_batch64.csv",
     # "Three-32-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_ThreeLayer_embed32_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed32_lr0001_batch128.csv",
     # "Three-32-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_ThreeLayer_embed32_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed32_lr00003_batch64.csv",
     # "Three-32-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_ThreeLayer_embed32_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed32_lr00003_batch128.csv",
     # "Three-32-00003-b128"),
     #
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_ThreeLayer_embed64_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed64_lr0001_batch64.csv",
     # "Three-64-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_ThreeLayer_embed64_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed64_lr0001_batch128.csv",
     # "Three-64-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_ThreeLayer_embed64_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed64_lr00003_batch64.csv",
     # "Three-64-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies(MLPwithGenres)\RecommendBPRnn_ThreeLayer_embed64_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_ThreeLayers_embed64_lr00003_batch128.csv",
     # "Three-64-00003-b128"),
 
-    # diana data 100K movies with BPR TOtAL
-    # 1 LAYER
+    # # # #diana data 1m movies with BPR Total
+    # # # #1 LAYER
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch64.csv",
     # "One-32-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv",
     # "One-32-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv",
     # "One-32-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv",
     # "One-32-00003-b128"),
     #
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv",
     # "One-64-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv",
     # "One-64-0001-128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv",
     # "One-64-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv",
     # "One-64-00003-b128"),
     #
     # # 2 LAYER
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed32_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch64.csv",
     # "Two-32-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed32_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch128.csv",
     # "Two-32-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed32_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch64.csv",
     # "Two-32-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed32_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv",
+    # "Two-32-00003-b128"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv",
     # "Two-32-00003-b128"),
     #
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed64_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch64.csv",
     # "Two-64-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed64_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch128.csv",
     # "Two-64-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed64_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch64.csv",
     # "Two-64-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed64_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch128.csv",
     # "Two-64-00003-b128"),
     #
     # # 3 LAYER
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed32_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64.csv",
     # "Three-32-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed32_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128.csv",
     # "Three-32-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed32_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64.csv",
     # "Three-32-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed32_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128.csv",
     # "Three-32-00003-b128"),
     #
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed64_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64.csv",
     # "Three-64-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed64_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128.csv",
     # "Three-64-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed64_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64.csv",
     # "Three-64-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed64_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128.csv",
     # "Three-64-00003-b128"),
 
 
-    # diana data 1M movies with BPR Total
+#XXXXX
+
+    # # #diana data 100K books with BPR
+    # # #1 LAYER
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch64.csv" ,"One-32-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv" ,"One-32-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv" ,"One-32-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv" ,"One-32-00003-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv","One-64-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv","One-64-0001-128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv","One-64-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv","One-64-00003-b128"),
+    #
+    # #2 LAYER
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch64.csv","Two-32-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch128.csv","Two-32-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch64.csv","Two-32-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv","Two-32-00003-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch64.csv","Two-64-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch128.csv","Two-64-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch64.csv","Two-64-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch128.csv","Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64.csv","Three-32-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128.csv","Three-32-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64.csv","Three-32-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128.csv","Three-32-00003-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64.csv","Three-64-0001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128.csv","Three-64-0001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64.csv","Three-64-00003-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128.csv","Three-64-00003-b128"),
+
+    # #diana data 100K books with Genres
     # 1 LAYER
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_OneLayer_embed32_lr0001_batch64.csv",
     # "One-32-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_OneLayer_embed32_lr0001_batch128.csv",
     # "One-32-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_OneLayer_embed32_lr00003_batch64.csv",
     # "One-32-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_OneLayer_embed32_lr00003_batch128.csv",
     # "One-32-00003-b128"),
     #
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_OneLayer_embed64_lr0001_batch64.csv",
     # "One-64-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_OneLayer_embed64_lr0001_batch128.csv",
     # "One-64-0001-128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_OneLayer_embed64_lr00003_batch64.csv",
     # "One-64-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_OneLayer_embed64_lr00003_batch128.csv",
     # "One-64-00003-b128"),
     #
     # # 2 LAYER
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed32_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_TwoLayers_embed32_lr0001_batch64.csv",
     # "Two-32-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed32_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_TwoLayers_embed32_lr0001_batch128.csv",
     # "Two-32-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed32_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_TwoLayers_embed32_lr00003_batch64.csv",
     # "Two-32-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed32_lr00003_batch128.csv",
+    # "Two-32-00003-b128"),
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_TwoLayers_embed32_lr00003_batch128.csv",
     # "Two-32-00003-b128"),
     #
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed64_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_TwoLayers_embed64_lr0001_batch64.csv",
     # "Two-64-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed64_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_TwoLayers_embed64_lr0001_batch128.csv",
     # "Two-64-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed64_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_TwoLayers_embed64_lr00003_batch64.csv",
     # "Two-64-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayer_embed64_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_TwoLayers_embed64_lr00003_batch128.csv",
     # "Two-64-00003-b128"),
     #
     # # 3 LAYER
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed32_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_ThreeLayers_embed32_lr0001_batch64.csv",
     # "Three-32-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed32_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_ThreeLayers_embed32_lr0001_batch128.csv",
     # "Three-32-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed32_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_ThreeLayers_embed32_lr00003_batch64.csv",
     # "Three-32-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed32_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_ThreeLayers_embed32_lr00003_batch128.csv",
     # "Three-32-00003-b128"),
     #
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed64_lr0001_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_ThreeLayers_embed64_lr0001_batch64.csv",
     # "Three-64-0001-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed64_lr0001_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_ThreeLayers_embed64_lr0001_batch128.csv",
     # "Three-64-0001-b128"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed64_lr00003_batch64.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_ThreeLayers_embed64_lr00003_batch64.csv",
     # "Three-64-00003-b64"),
     # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayer_embed64_lr00003_batch128.csv",
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_ThreeLayers_embed64_lr00003_batch128.csv",
     # "Three-64-00003-b128"),
+
+    # # #diana data 100K books with BPR Total
+    # # #1 LAYER
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch64.csv",
+    # "One-32-0001-b64"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv",
+    # "One-32-0001-b128"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv",
+    # "One-32-00003-b64"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv",
+    # "One-32-00003-b128"),
     #
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv",
+    # "One-64-0001-b64"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv",
+    # "One-64-0001-128"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv",
+    # "One-64-00003-b64"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv",
+    # "One-64-00003-b128"),
+    #
+    # # 2 LAYER
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch64.csv",
+    # "Two-32-0001-b64"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch128.csv",
+    # "Two-32-0001-b128"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch64.csv",
+    # "Two-32-00003-b64"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv",
+    # "Two-32-00003-b128"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv",
+    # "Two-32-00003-b128"),
+    #
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch64.csv",
+    # "Two-64-0001-b64"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch128.csv",
+    # "Two-64-0001-b128"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch64.csv",
+    # "Two-64-00003-b64"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch128.csv",
+    # "Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64.csv",
+    # "Three-32-0001-b64"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128.csv",
+    # "Three-32-0001-b128"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64.csv",
+    # "Three-32-00003-b64"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128.csv",
+    # "Three-32-00003-b128"),
+    #
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64.csv",
+    # "Three-64-0001-b64"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128.csv",
+    # "Three-64-0001-b128"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64.csv",
+    # "Three-64-00003-b64"),
+    # (
+    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128.csv",
+    # "Three-64-00003-b128"),
+
+    #XXXXX
+
 
     #NN johannes - movies
     #1layer

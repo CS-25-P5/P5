@@ -8,55 +8,192 @@ from rectools.metrics import (
 from rectools.metrics.distances import PairwiseHammingDistanceCalculator
 from DataHandler2 import load_and_process_data
 import os
+import tempfile
 from datetime import datetime
 from sklearn.metrics.pairwise import pairwise_distances
 import warnings
 from sklearn.exceptions import DataConversionWarning
+import contextlib
+from io import StringIO
+import sys
+from openpyxl import load_workbook
+import re
+
 warnings.filterwarnings("ignore", category=DataConversionWarning, module="sklearn.metrics.pairwise")
 
-# Import from new modules
+# Import from your custom modules
 from Plotting import plot_individual_metric_charts, plot_rating_distribution
 from Diagnostics import _print_data_diagnostics
 
-# Calculate most metrics using RecTools
+
+# NEW: Tee class to capture terminal output while still displaying it
+class Tee:
+    def __init__(self, terminal, buffer):
+        self.terminal = terminal
+        self.buffer = buffer
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.buffer.write(message)
+
+    def flush(self):
+        self.terminal.flush()
+        self.buffer.flush()
+
+
+# NEW: Excel sanitization function
+def sanitize_for_excel(text):
+    """
+    Sanitizes text to prevent Excel errors.
+    - Removes/escapes control characters
+    - Prefixes formulas to prevent execution
+    - Truncates extremely long lines
+    """
+    if not text:
+        return ""
+
+    # Remove control characters (except newline, tab)
+    text = re.sub(r'[\x00-\x08\x0B-\x1F\x7F]', '', text)
+
+    # Handle lines that might be interpreted as formulas
+    if text.startswith(('=', '+', '-', '@')):
+        text = "'" + text  # Prefix with apostrophe to force text mode
+
+    # Truncate if too long (Excel cell limit is 32,767 characters)
+    if len(text) > 32700:
+        text = text[:32700] + " [TRUNCATED]"
+
+    return text
+
+
+# NEW: File validation function
+def validate_files(config_dict):
+    """
+    Validates all required files before processing.
+    Stops execution if any files are invalid.
+    """
+    errors = []
+    print("\n🔍 Validating all input files...")
+
+    # Check catalog
+    if not os.path.exists(config_dict['CATALOG_PATH']):
+        errors.append(f"❌ Catalog file not found: {config_dict['CATALOG_PATH']}")
+    else:
+        try:
+            pd.read_csv(config_dict['CATALOG_PATH'], nrows=1)
+            print(f"✅ Catalog: {config_dict['CATALOG_PATH']}")
+        except Exception as e:
+            errors.append(f"❌ Cannot load catalog: {config_dict['CATALOG_PATH']} - {e}")
+
+    # Check ground truth
+    if not os.path.exists(config_dict['GROUND_TRUTH']):
+        errors.append(f"❌ Ground truth file not found: {config_dict['GROUND_TRUTH']}")
+    else:
+        try:
+            pd.read_csv(config_dict['GROUND_TRUTH'], encoding='latin1', nrows=1)
+            print(f"✅ Ground truth: {config_dict['GROUND_TRUTH']}")
+        except Exception as e:
+            errors.append(f"❌ Cannot load ground truth: {config_dict['GROUND_TRUTH']} - {e}")
+
+    # Check item features file if ILD is enabled
+    if config_dict.get('CALCULATE_ILD', False):
+        item_features_path = config_dict.get('ITEM_FEATURES_PATH')
+        if item_features_path and os.path.exists(item_features_path):
+            try:
+                pd.read_csv(item_features_path, engine='python', on_bad_lines='skip', nrows=1)
+                print(f"✅ Item features: {item_features_path}")
+            except Exception as e:
+                errors.append(f"❌ Cannot load item features: {item_features_path} - {e}")
+        elif item_features_path:
+            errors.append(f"❌ Item features file not found: {item_features_path}")
+
+    # Check all model prediction files
+    for predictions_path, source_name in config_dict.get('MODELS', []):
+        if not os.path.exists(predictions_path):
+            errors.append(f"❌ Model file not found for '{source_name}': {predictions_path}")
+        else:
+            try:
+                dataset_type = config_dict.get('dataset_type', 'movies')
+                if dataset_type == "books":
+                    pd.read_csv(predictions_path, encoding='latin1', nrows=1)
+                else:
+                    # For movies, use same cleaning logic as actual loading
+                    valid_lines = []
+                    with open(predictions_path, 'r', encoding='latin1') as f:
+                        header_line = None
+                        for line_num, line in enumerate(f):
+                            stripped = line.strip()
+                            if line_num == 0 and (stripped.startswith('userId') or stripped.startswith('user_id')):
+                                header_line = line
+                            if stripped != '' and not stripped.startswith('#'):
+                                valid_lines.append(line)
+                            if line_num > 100:  # Sample first 100 lines max
+                                break
+
+                    if not valid_lines:
+                        raise ValueError("No valid data lines found")
+
+                    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='latin1') as temp:
+                        if header_line:
+                            temp.write(header_line)
+                        temp.writelines(valid_lines[1:] if header_line else valid_lines)
+                        temp_path = temp.name
+
+                    try:
+                        pd.read_csv(temp_path, nrows=1)
+                    finally:
+                        os.unlink(temp_path)
+
+                print(f"✅ Model '{source_name}': {predictions_path}")
+
+            except Exception as e:
+                errors.append(f"❌ Cannot load model file for '{source_name}': {predictions_path} - {e}")
+
+    # Report errors and stop if any
+    if errors:
+        print("\n" + "=" * 60)
+        print(" FILE VALIDATION ERRORS FOUND - STOPPING EXECUTION ")
+        print("=" * 60)
+        for error in errors:
+            print(error)
+        print("\nPlease fix the issues above and run again.")
+        raise SystemExit(1)
+
+    print("\n✅ All files validated successfully!\n")
+
+
 def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_features=None,
-                         model_name="Unknown", calculate_ild=True):
+                          model_name="Unknown", calculate_ild=True):
     results = {}
 
-    # RMSE & MAE (prediction metrics) - with error handling
     print(f"Calculating RMSE and MAE for {model_name}")
     rmse, mae = _calculate_rating_metrics(data_handler, model_name)
     results["RMSE"] = rmse
     results["MAE"] = mae
 
-    # Top-K Metrics (using filtered relevant interactions)
     print(f"Calculating top-{k} metrics for {model_name}")
 
-    # Filter interactions to only include relevant items (rating >= threshold), Necesarry for ranking metrics
     relevant_interactions = data_handler.interactions[
         data_handler.interactions['weight'] >= threshold
         ].copy()
 
-    # Create catalog of all items from ground truth
     gt_items = data_handler.interactions["item_id"].unique()
     pred_items = data_handler.recommendations["item_id"].unique()
     catalog = np.union1d(gt_items, pred_items)
     catalog_size = len(catalog)
     print(f"Catalog size is: {catalog_size}")
 
-    # Create dictionary of metrics to calculate and set their variables
     metrics = {
-        f'Precision@{k}': Precision(k=k),  # Proportion of recommended items that are relevant
-        f'Recall@{k}': Recall(k=k),  # Proportion of items that where recommended
-        f'F1Beta@{k}': F1Beta(k=k, beta=1.0),  # Harmonic mean of Precision and recall
-        f'MAP@{k}': MAP(k=k),  # Considers ranking order of relevant items
-        f'NDCG@{k}': NDCG(k=k),  # Rewards relevant items appearing earlier in recommendations
-        f'MRR@{k}': MRR(k=k),  # focuses on position of the first relevant item
-        f'CatalogCoverage@{k}': CatalogCoverage(k=k),  # proportion of catalog items that appear in recommendations
-        f'HitRate@{k}': HitRate(k=k), #proportion of users with at least 1 match
+        f'Precision@{k}': Precision(k=k),
+        f'Recall@{k}': Recall(k=k),
+        f'F1Beta@{k}': F1Beta(k=k, beta=1.0),
+        f'MAP@{k}': MAP(k=k),
+        f'NDCG@{k}': NDCG(k=k),
+        f'MRR@{k}': MRR(k=k),
+        f'CatalogCoverage@{k}': CatalogCoverage(k=k),
+        f'HitRate@{k}': HitRate(k=k),
     }
 
-    # Calculate metrics
     try:
         metrics_values = calc_metrics(
             metrics=metrics,
@@ -66,7 +203,6 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
             prev_interactions=None,
         )
 
-        # Store calculated metrics in results dictionary
         results[f"HitRate@{k}"] = metrics_values[f'HitRate@{k}']
         results[f"Precision@{k}"] = metrics_values[f'Precision@{k}']
         results[f"Recall@{k}"] = metrics_values[f'Recall@{k}']
@@ -88,32 +224,26 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
         results[f"MRR@{k}"] = np.nan
         results[f"Coverage@{k}"] = np.nan
 
-    # intra list diversity (ILD)
-    # Change this block (around line 95):
     if calculate_ild and item_features is not None and not item_features.empty:
         print(f"Calculating ILD@{k} for {model_name}")
         results[f"ILD@{k}_Hamming"] = _calculate_ild(data_handler, item_features, k, metric='hamming')
         results[f"ILD@{k}_Jaccard"] = _calculate_ild(data_handler, item_features, k, metric='jaccard')
         results[f"ILD@{k}_Cosine"] = _calculate_ild(data_handler, item_features, k, metric='cosine')
     else:
-        # Set all three to NaN if skipped
         results[f"ILD@{k}_Hamming"] = np.nan
         results[f"ILD@{k}_Jaccard"] = np.nan
         results[f"ILD@{k}_Cosine"] = np.nan
 
-    # Filter recommendations to only the Top K for Gini calculation
     top_k_recos = data_handler.recommendations[data_handler.recommendations['rank'] <= k]
 
-    # Reverse Gini (Popularity Bias)
     print(f"Calculating Reverse Gini for {model_name}")
     results['Reverse Gini'] = _calculate_reverse_gini(top_k_recos)
 
     return results
 
-# Calculate RMSE and MAE using scikit-learn - with error handling
+
 def _calculate_rating_metrics(data_handler, model_name="Unknown"):
     try:
-        # Merge predictions with ground truth
         merged = pd.merge(
             data_handler.predictions,
             data_handler.interactions,
@@ -121,14 +251,12 @@ def _calculate_rating_metrics(data_handler, model_name="Unknown"):
             suffixes=('_pred', '_gt')
         )
 
-        # Remove any rows with NaN values
         merged_clean = merged[['weight_gt', 'weight_pred']].dropna()
 
         if merged_clean.empty:
             print(f"Warning for {model_name}: After merge, no valid rating pairs found (all NaN).")
             return np.nan, np.nan
 
-        # Calculate metrics
         rmse = np.sqrt(mean_squared_error(
             merged_clean['weight_gt'],
             merged_clean['weight_pred']
@@ -144,7 +272,7 @@ def _calculate_rating_metrics(data_handler, model_name="Unknown"):
         print("   Returning NaN for RMSE and MAE to allow other metrics to continue.\n")
         return np.nan, np.nan
 
-# Calculate Intra-List Diversity with RecTools
+
 def _calculate_ild(data_handler, item_features, k, metric='hamming'):
     try:
         recos = data_handler.recommendations.copy()
@@ -158,7 +286,6 @@ def _calculate_ild(data_handler, item_features, k, metric='hamming'):
 
         class Calculator:
             def __init__(self, f, m):
-                # Suppress the jaccard warning since we know data is binary
                 with warnings.catch_warnings():
                     warnings.filterwarnings(
                         "ignore",
@@ -171,13 +298,10 @@ def _calculate_ild(data_handler, item_features, k, metric='hamming'):
                 self.map = {id_: i for i, id_ in enumerate(self.ids)}
 
             def get_distances(self, ids):
-                # Handle tuple of two arrays (rectools passes this way)
                 if isinstance(ids, tuple) and len(ids) == 2:
                     item_0, item_1 = ids
-                    # Convert to numpy arrays
                     item_0 = item_0.values if hasattr(item_0, 'values') else np.asarray(item_0)
                     item_1 = item_1.values if hasattr(item_1, 'values') else np.asarray(item_1)
-                    # Build distances for each pair
                     result = []
                     for a, b in zip(item_0, item_1):
                         a_val = str(a.item() if hasattr(a, 'item') else a)
@@ -188,7 +312,7 @@ def _calculate_ild(data_handler, item_features, k, metric='hamming'):
                             result.append(0.0)
                     return np.array(result)
 
-                return np.array([])  # Fallback
+                return np.array([])
 
             def __getitem__(self, ids):
                 return self.get_distances(ids)
@@ -200,6 +324,7 @@ def _calculate_ild(data_handler, item_features, k, metric='hamming'):
     except Exception as e:
         print(f"ILD failed for {metric}: {e}")
         return np.nan
+
 
 def _calculate_reverse_gini(recommendations):
     item_counts = recommendations['item_id'].value_counts()
@@ -223,7 +348,7 @@ def _calculate_reverse_gini(recommendations):
     print(f"Reverse Gini: {result:.6f}")
     return result
 
-# Display metrics table
+
 def display_metrics_table(metrics_dict, source_name="Model", k=5):
     overall_metrics = ["RMSE", "MAE", "Reverse Gini"]
     topk_metrics = [
@@ -249,38 +374,27 @@ def display_metrics_table(metrics_dict, source_name="Model", k=5):
 
     return df
 
-def save_metrics_table_as_file(metrics_df, filename="metrics_results"):
-    #metrics_df.to_csv(f"{filename}.csv")
-    metrics_df.to_excel(f"{filename}.xlsx")
-    print(f"Saved: {filename}.csv, {filename}.xlsx")
 
-#Load movies file and create binary genre features for ILD calculation.
+def save_metrics_table_as_file(metrics_df, filename="metrics_results"):
+    metrics_df.to_excel(f"{filename}.xlsx")
+    print(f"Saved: {filename}.xlsx")
+
+
 def load_item_features(items_path, dataset_type="movies"):
-    """
-    Load items file and create binary genre features for ILD calculation.
-    Handles both MovieLens and GoodBooks with pipe-separated genres.
-    """
     print(f"Loading item features for {dataset_type}")
 
-    # Robust CSV reading
     items = pd.read_csv(items_path, engine='python', on_bad_lines='skip')
 
-    # CRITICAL: Normalize ID column to 'itemId' name
     if 'itemId' not in items.columns and 'item_id' in items.columns:
         items = items.rename(columns={'item_id': 'itemId'})
 
-    # Normalize IDs: strip whitespace and remove .0 decimals
     items['itemId'] = items['itemId'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
-
-    # Remove duplicates AFTER normalization
     items = items.drop_duplicates(subset=['itemId'], keep='first')
     print(f"After deduplication: {len(items)} unique items")
 
-    # Clean genres
     items['genres'] = items['genres'].fillna('Unknown')
     items['genres_list'] = items['genres'].str.split('|')
 
-    # Get unique genres
     all_genres = set()
     for genres in items['genres_list']:
         if isinstance(genres, list):
@@ -292,19 +406,16 @@ def load_item_features(items_path, dataset_type="movies"):
     all_genres = sorted(list(all_genres))
     print(f"Found {len(all_genres)} genres: {all_genres[:10]}...")
 
-    # Create feature matrix with explicit unique index
     unique_ids = items['itemId'].unique()
     item_features = pd.DataFrame(0, index=unique_ids, columns=all_genres)
     item_features.index.name = 'item_id'
 
-    # Fill matrix safely
     items_with_features = 0
     for idx, row in items.iterrows():
         if isinstance(row['genres_list'], list):
             valid_genres = [g.strip() for g in row['genres_list']
                             if g and g.strip() in all_genres]
             if valid_genres:
-                # Use .at for safe single-value assignment
                 for genre in valid_genres:
                     item_features.at[row['itemId'], genre] = 1
                 items_with_features += 1
@@ -313,6 +424,7 @@ def load_item_features(items_path, dataset_type="movies"):
     print(f"Matrix shape: {item_features.shape}")
     print(f"Index unique: {item_features.index.is_unique}")
     return item_features
+
 
 def run_model_comparison(ground_truth_path, sources, catalog, threshold=4.0, k=5,
                          item_features=None, output_prefix="comparison",
@@ -331,69 +443,107 @@ def run_model_comparison(ground_truth_path, sources, catalog, threshold=4.0, k=5
             print("Skipping this model")
             continue
 
-        # Pass the calculate_ild parameter
         metrics = calculate_all_metrics(catalog, data, threshold, k, item_features,
-                                       source_name, calculate_ild)
+                                        source_name, calculate_ild)
         source_df = display_metrics_table(metrics, source_name, k)
         all_results_df = pd.concat([all_results_df, source_df])
 
-
-    # Generate timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    # Add timestamp to output filenames
-    save_metrics_table_as_file(all_results_df, f"{output_prefix}_results_{timestamp}")
-    #plot_individual_metric_charts(all_results_df, output_dir=f"{output_prefix}_individual_charts_{timestamp}")
+    filename = f"{output_prefix}_results_{timestamp}"
+    save_metrics_table_as_file(all_results_df, filename)
 
     print(f"\nProcessed {len(all_results_df)} model(s) with k={k}")
-    return all_results_df
+    return all_results_df, filename
 
+
+# ----- Main Execution Block -----
 if __name__ == "__main__":
-    # Import configuration from separate file
+    # Import configuration
     from DataPaths import (
         THRESHOLD, K, CALCULATE_ILD,
         CATALOG_PATH, CATALOG,
         GROUND_TRUTH,
-        MODELS
+        MODELS,
+        ITEM_FEATURES_PATH
     )
 
-    # Optional: plot rating distribution
-    plot_rating_distribution(
-        ground_truth_path=GROUND_TRUTH,
-        items_path=CATALOG_PATH,  # This provides the genre data
-        output_dir="rating_charts"
-    )
+    # Optional: plot rating distribution (not captured)
+    # plot_rating_distribution(
+    #     ground_truth_path=GROUND_TRUTH,
+    #     items_path=CATALOG_PATH,
+    #     output_dir="rating_charts"
+    # )
 
-    # Conditionally load item features (this is the slow part)
+    # Conditionally load item features (not captured)
     if CALCULATE_ILD:
         print("Loading item features for ILD calculation")
-        ITEM_FEATURES = load_item_features(
-            #r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv", dataset_type="books"
-            r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv", dataset_type="movies"
-        )
+        ITEM_FEATURES = load_item_features(ITEM_FEATURES_PATH, dataset_type="movies")
     else:
         print("Skipping item feature loading (ILD disabled)")
         ITEM_FEATURES = None
-    # Run comparison
 
-    # 🔍 UNIFIED DIAGNOSTICS
-    # Ground truth
-    _print_data_diagnostics(GROUND_TRUTH, file_label="Ground Truth", threshold=THRESHOLD, is_ground_truth=True)
+    # Start capturing output for validation, diagnostics, and comparison
+    stdout_buffer = StringIO()
+    tee_stdout = Tee(sys.stdout, stdout_buffer)
 
-    # Predictions
-    for predictions_path, source_name in MODELS:
-        _print_data_diagnostics(predictions_path, file_label=f"Model '{source_name}'", threshold=THRESHOLD,
-                                is_ground_truth=False)
+    with contextlib.redirect_stdout(tee_stdout):
+        # Create config dict for validation
+        config_for_validation = {
+            'CATALOG_PATH': CATALOG_PATH,
+            'GROUND_TRUTH': GROUND_TRUTH,
+            'CALCULATE_ILD': CALCULATE_ILD,
+            'ITEM_FEATURES_PATH': ITEM_FEATURES_PATH,
+            'MODELS': MODELS,
+            'dataset_type': "movies"
+        }
 
-    results = run_model_comparison(
-        ground_truth_path=GROUND_TRUTH,
-        sources=MODELS,
-        threshold=THRESHOLD,
-        k=K,
-        item_features=ITEM_FEATURES,  # Can still provide features, but they won't be used
-        output_prefix=f"Diana, ml100k (MLPwithBPR), top{K}_comparison",
-        calculate_ild=CALCULATE_ILD,  #
-        catalog=CATALOG,
-        dataset_type="movies"
-        #dataset_type="books"
-    )
+        # Validate all files (now captured)
+        validate_files(config_for_validation)
+
+        # UNIFIED DIAGNOSTICS (captured)
+        _print_data_diagnostics(GROUND_TRUTH, file_label="Ground Truth", threshold=THRESHOLD, is_ground_truth=True)
+
+        for predictions_path, source_name in MODELS:
+            _print_data_diagnostics(predictions_path, file_label=f"Model '{source_name}'", threshold=THRESHOLD,
+                                    is_ground_truth=False)
+
+        # Run comparison (captured)
+        results, filename = run_model_comparison(
+            ground_truth_path=GROUND_TRUTH,
+            sources=MODELS,
+            threshold=THRESHOLD,
+            k=K,
+            item_features=ITEM_FEATURES,
+            output_prefix=f"Diana, ml100k (MLPwithGenres), top{K}_comparison",
+            calculate_ild=CALCULATE_ILD,
+            catalog=CATALOG,
+            dataset_type="movies"
+        )
+
+    # Get captured terminal output (includes validation, diagnostics, and results)
+    terminal_output = stdout_buffer.getvalue()
+
+    try:
+        excel_file = f"{filename}.xlsx"
+        wb = load_workbook(excel_file)
+
+        if "Terminal Output" in wb.sheetnames:
+            wb.remove(wb["Terminal Output"])
+
+        ws = wb.create_sheet("Terminal Output")
+
+        # Write sanitized output line by line
+        for i, line in enumerate(terminal_output.split('\n'), 1):
+            sanitized_line = sanitize_for_excel(line)
+            ws.cell(row=i, column=1, value=sanitized_line)
+
+        ws.column_dimensions['A'].width = 100
+        ws.freeze_panes = 'A2'
+        wb.save(excel_file)
+        print(f"\n✅ Full terminal output (validation + diagnostics) saved as new sheet in {excel_file}")
+
+    except Exception as e:
+        print(f"\n⚠ Could not add terminal output to Excel: {e}")
+        with open(f"{filename}_terminal_output.txt", "w", encoding="utf-8") as f:
+            f.write(terminal_output)
+        print(f"✅ Full terminal output saved to {filename}_terminal_output.txt")
