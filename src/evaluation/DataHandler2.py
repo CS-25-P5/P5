@@ -151,9 +151,9 @@ def _to_rectools_format(df, is_ground_truth, dataset_type):
     else:
         # Common prediction column names across datasets
         possible_cols = [
-            "rating_pred", "predictedRating", "prediction",
-            "predicted_rating", "rating", "mf_score",
-            "test_predicted_rating", "predictedRating"
+            'recommendation_score',"rating_pred", "predictedRating", "prediction",
+            "predicted_rating", "mf_score",
+            "test_predicted_rating", "predictedRating", "rating"
         ]
         rating_col = next((col for col in possible_cols if col in df.columns), None)
 
@@ -205,7 +205,6 @@ def _prepare_recommendations(df):
         recos["rank"] = recos.groupby("user_id").cumcount() + 1
 
     return recos
-
 
 def _print_debug_info(interactions, recommendations):
     """Print debug information about data overlap."""

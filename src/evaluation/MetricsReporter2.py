@@ -368,8 +368,8 @@ if __name__ == "__main__":
     if CALCULATE_ILD:
         print("Loading item features for ILD calculation")
         ITEM_FEATURES = load_item_features(
-            r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv", dataset_type="books"
-            #r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv", dataset_type="movies"
+            #r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv", dataset_type="books"
+            r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv", dataset_type="movies"
         )
     else:
         print("Skipping item feature loading (ILD disabled)")
@@ -391,9 +391,9 @@ if __name__ == "__main__":
         threshold=THRESHOLD,
         k=K,
         item_features=ITEM_FEATURES,  # Can still provide features, but they won't be used
-        output_prefix=f"Johannes, gb 100k, top{K}_comparison",
+        output_prefix=f"Diana, ml100k (MLPwithBPR), top{K}_comparison",
         calculate_ild=CALCULATE_ILD,  #
         catalog=CATALOG,
-        #dataset_type="movies"
-        dataset_type="books"
+        dataset_type="movies"
+        #dataset_type="books"
     )
