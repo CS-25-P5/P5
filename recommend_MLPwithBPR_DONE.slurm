@@ -18,4 +18,4 @@ source venv/bin/activate
 
 #python -u src/backend/scripts/recommend_BPR_100Kbooks.py
 #python -u src/backend/scripts/recommend_BPR_100Kmovies.py
-python -u src/backend/scripts/recommend_BPR_1Mmovies.py
+#python -u src/backend/scripts/recommend_BPR_1Mmovies.py
