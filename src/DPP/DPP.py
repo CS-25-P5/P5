@@ -55,14 +55,16 @@ class DPP:
     # Build full DPP kernel K = diag(q) * S * diag(q)
     def build_kernel(self, relevance_scores, candidate_indices):
 
-        scores = np.array(relevance_scores, dtype=float)
+        scores = np.array(relevance_scores[candidate_indices], dtype=float)
         scores = scores - np.min(scores) + self.epsilon
         q = np.sqrt(scores)
 
         # subset similarity matrix
-        sim_sub = self.sim_matrix[np.ix_(candidate_indices, candidate_indices)]
+        S = self.sim_matrix[np.ix_(candidate_indices, candidate_indices)]
+        print("q shape:", q.shape),
+        print("S shape:", S.shape)
 
-        K = np.outer(q, q) * self.sim_matrix
+        K = np.outer(q, q) * S
         K += np.eye(len(K)) * self.epsilon
         return K
 
@@ -112,14 +114,18 @@ class DPP:
         # kernel only for candidate items
         K = self.build_kernel(relevance, candidate_indices)
 
-        # but greedy needs indices 0..len-1 within K
-        selected_local = self.dpp_greedy(K, list(range(len(candidate_indices))), top_k)
+        print("Candidates:", len(candidate_indices))
+        print("K shape:", K.shape)
 
-        # map back to original item indices
-        selected = [candidate_indices[i] for i in selected_local]
 
+    # map global → local indices
+        local_indices = np.arange(len(candidate_indices))
+
+        selected_local = self.dpp_greedy(K, local_indices, top_k)
+
+        # map back to global indices
+        selected = candidate_indices[selected_local]
         return selected
-
 
 
 
