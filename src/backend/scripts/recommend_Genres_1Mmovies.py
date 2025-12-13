@@ -231,7 +231,7 @@ def run_program(optim,
 
             return total_loss / len(dataloader)
 
-
+    '''
     def predict_ratings(model, dataset, device):
         "We will give rating for every user and its rated movie:  containing userId, movieId, predicted_rating and genres (as a list)"
         
@@ -246,7 +246,58 @@ def run_program(optim,
             genre_tensor = torch.tensor(genre_array, dtype=torch.float).to(device) 
 
             predictions = model(user_tensor, movies_tensor, genre_tensor).cpu().numpy()
-        return  predictions
+        return  predictions '''
+    
+    ##Change this function
+    def predict_ratings_in_batches(model, dataset, device, batch_size=120_000):
+    
+        model.eval()
+
+        # --- Map IDs to indices once (if needed) ---
+        if "user_index" in dataset.columns and "movie_index" in dataset.columns:
+            user_idx = dataset["user_index"].values
+            movie_idx = dataset["movie_index"].values
+        else:
+            # Fallback: map from original IDs using the dictionaries defined above
+            user_idx = dataset["userId"].map(user_to_index).values
+            movie_idx = dataset["movieId"].map(movie_to_index).values
+
+        n = len(dataset)
+        scores = np.empty(n, dtype=np.float32)
+
+        with torch.no_grad():
+            for start in range(0, n, batch_size):
+                end = min(start + batch_size, n)
+
+                # Slice indices for this batch
+                batch_user_idx = user_idx[start:end]
+                batch_movie_idx = movie_idx[start:end]
+
+                batch_users = torch.tensor(batch_user_idx, dtype=torch.long, device=device)
+                batch_movies = torch.tensor(batch_movie_idx, dtype=torch.long, device=device)
+
+                # --- Genres for this batch ---
+                if "united_genre_vector" in dataset.columns:
+                    # Column contains per-row np.arrays already
+                    genre_batch_array = np.stack(dataset["united_genre_vector"].values[start:end])
+                else:
+                    # Fallback: build from genre_ columns if united_genre_vector is missing
+                    genre_batch_array = dataset.iloc[start:end][genre_columns].to_numpy(dtype=np.float32)
+
+                batch_genres = torch.tensor(genre_batch_array, dtype=torch.float32, device=device)
+
+                # Use your model's forward (user, movie, genres)
+                batch_preds = model(batch_users, batch_movies, batch_genres)
+
+                scores[start:end] = batch_preds.squeeze(-1).cpu().numpy()
+
+                # Optional clean-up for GPU memory
+                del batch_users, batch_movies, batch_genres, genre_batch_array, batch_preds
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+
+        return scores
+
             
 
 
@@ -317,7 +368,8 @@ def run_program(optim,
 
 
         #Get preds in val dataset
-        prediction = predict_ratings(model, validation_df, device)
+        prediction = predict_ratings_in_batches(model, validation_df, device)
+
         #Avr val loss pr batch
         average_val_loss_per_batch = evaluate_loss(model, validation_loader, device)
         #Measure how much time this whole thing takes
@@ -355,7 +407,7 @@ def run_program(optim,
     def test(model, testdataloader, device):
         average_test_loss_per_batch = evaluate_loss(model, testdataloader, device)
         #predict stuff using the test_df 
-        test_predict_score = predict_ratings(model, test_df, device)
+        test_predict_score = predict_ratings_in_batches(model, test_df, device)
         
         #Tildel prediction til test datasæt
         prediction_test_dataset = test_df.copy()
@@ -397,7 +449,7 @@ def run_program(optim,
 
     big_df["united_genre_vector"] = big_df.apply(build_genre_vector, axis = 1 )
 
-    big_scores = predict_ratings(model, big_df, device)
+    big_scores = predict_ratings_in_batches(model, big_df, device)
     big_df["recommendation_score"] = big_scores
     big_df = big_df[["userId", "movieId", "rating", "recommendation_score"]]
     big_df.to_csv(big_output, index=False)
