@@ -55,7 +55,7 @@ class DPP:
     # Build full DPP kernel K = diag(q) * S * diag(q)
     def build_kernel(self, relevance_scores, candidate_indices):
 
-        scores = np.array(relevance_scores[candidate_indices], dtype=float)
+        scores = relevance_scores[candidate_indices].astype(float)
         scores = scores - np.min(scores) + self.epsilon
         q = np.sqrt(scores)
 
@@ -63,6 +63,9 @@ class DPP:
         S = self.sim_matrix[np.ix_(candidate_indices, candidate_indices)]
         print("q shape:", q.shape),
         print("S shape:", S.shape)
+
+        assert q.shape[0] == S.shape[0], "q and S dimension mismatch"
+
 
         K = np.outer(q, q) * S
         K += np.eye(len(K)) * self.epsilon
