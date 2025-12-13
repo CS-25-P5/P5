@@ -647,8 +647,6 @@ if __name__ == "__main__":
     (0.0, 1.0),
     ]
 
-
-
     for REL_WEIGHT, DIV_WEIGHT in weight_pairs:
         print(f"\n=== Running pipeline with weights: "f"relevance={REL_WEIGHT}, diversity={DIV_WEIGHT} ===")
 
