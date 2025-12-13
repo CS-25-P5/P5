@@ -5,121 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11791cf8-c2b8-46f3-b1a3-b17b115cfce3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/python-package.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/python-package.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/P5.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/P5.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/ev.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/books_movies_184687.err" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/books_movies_184687.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/mmr_genre_training-173625.err" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/mmr_genre_training-173625.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/mmr_genre_training-173626.err" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/mmr_genre_training-173626.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/mmr_genre_training-173627.err" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/mmr_genre_training-173627.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/mmr_genre_training-173628.err" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/mmr_genre_training-173628.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/mmr_genre_training-173629.err" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/mmr_genre_training-173629.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_experiments.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_experiments2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_pipeline.sbatch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MMR/MF.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MMR/MMR.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MMR/mf_train_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MMR/mmr_train_cosine_recommendations.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MMR/overlapCheck.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MMR/pipeline.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/backend/_init_.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/backend/_init_.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/GoodBooks/books.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/GoodBooks/ratings.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/GoodBooks/ratings_100000_.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/GoodBooks/ratings_10000_.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/MovieLens/movies.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/MovieLens/ratings.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/MovieLens/ratings_100000_.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/MovieLens/ratings_10000_.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/2025-12-03_19-29-46/mf_test_10000_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/2025-12-03_19-29-46/mf_train_10000_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/2025-12-03_19-29-46/mmr_test_10000_cosine_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/2025-12-03_19-29-46/mmr_test_10000_jaccard_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/2025-12-03_19-29-46/mmr_train_10000_cosine_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/2025-12-03_19-29-46/mmr_train_10000_jaccard_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/2025-12-03_20-48-24/mf_test_100000_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/2025-12-03_20-48-24/mf_train_100000_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/2025-12-03_20-48-24/mmr_test_100000_cosine_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/2025-12-03_20-48-24/mmr_test_100000_jaccard_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/2025-12-03_20-48-24/mmr_train_100000_cosine_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/2025-12-03_20-48-24/mmr_train_100000_jaccard_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/mf_test_experiment_log.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/mf_train_experiment_log.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/mmr_test_experiment_log.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books/mmr_train_experiment_log.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books_ratings_100000_test.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books_ratings_100000_train.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books_ratings_100000_val.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books_ratings_10000_test.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books_ratings_10000_train.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/books_ratings_10000_val.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-28-59/mf_test_10000_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-28-59/mf_train_10000_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-28-59/mmr_test_10000_cosine_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-28-59/mmr_test_10000_jaccard_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-28-59/mmr_train_10000_cosine_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-28-59/mmr_train_10000_jaccard_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-43-47/mf_test_10000_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-43-47/mf_train_10000_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-43-47/mmr_test_10000_cosine_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-43-47/mmr_test_10000_jaccard_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-43-47/mmr_train_10000_cosine_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-43-47/mmr_train_10000_jaccard_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-58-35/mf_test_100000_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-58-35/mf_train_100000_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-58-35/mmr_test_100000_cosine_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-58-35/mmr_test_100000_jaccard_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-58-35/mmr_train_100000_cosine_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/2025-12-03_19-58-35/mmr_train_100000_jaccard_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/mf_test_experiment_log.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/mf_train_experiment_log.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/mmr_test_experiment_log.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies/mmr_train_experiment_log.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies_ratings_100000_test.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies_ratings_100000_train.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies_ratings_100000_val.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies_ratings_10000_test.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies_ratings_10000_train.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/mmr_data/movies_ratings_10000_val.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets2/MovieLens/movies.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets2/MovieLens/ratings.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets2/MovieLens/ratings_100000_.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets2/mmr_data/movie/mf_test_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets2/mmr_data/movie/mf_train_experiments_log.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets2/mmr_data/movie/mf_train_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets2/mmr_data/movie/mmr_train_cosine_test_recommendations.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets2/mmr_data/movie/mmr_train_jaccard_test_recommendations.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets2/mmr_data/movies_ratings_100000_test.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets2/mmr_data/movies_ratings_100000_train.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets2/mmr_data/movies_ratings_100000_val.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets2/mmr_data/movies_ratings_10000_test.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets2/mmr_data/movies_ratings_10000_train.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets2/mmr_data/movies_ratings_10000_val.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/evaluation/book/books_ratings_100000_train.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/evaluation/book/mf_test_100000_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/evaluation/book/mmr_test_100000_cosine_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/evaluation/book/mmr_test_100000_jaccard_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/evaluation/movie/mf_test_100000_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/evaluation/movie/mmr_test_100000_cosine_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/evaluation/movie/mmr_test_100000_jaccard_predictions.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/evaluation/movie/movies_ratings_100000_test.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/train_test_split.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,6 +13,11 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="Evaluation-(based-on-MMR-branch)" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -144,7 +35,8 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "MMR",
+    "git-widget-placeholder": "MLPwithBPR",
+    "ignore.virus.scanning.warn.message": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
