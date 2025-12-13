@@ -61,8 +61,6 @@ class DPP:
 
         # subset similarity matrix
         S = self.sim_matrix[np.ix_(candidate_indices, candidate_indices)]
-        print("q shape:", q.shape),
-        print("S shape:", S.shape)
 
         assert q.shape[0] == S.shape[0], "q and S dimension mismatch"
 
