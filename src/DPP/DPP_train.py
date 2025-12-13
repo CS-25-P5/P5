@@ -364,11 +364,19 @@ def run_dpp_pipeline_test(
         for idx in user_items
     })
 
-    filtered_df_top_n = filtered_df[top_n_items]
+    #filtered_df_top_n = filtered_df[top_n_items]
+    # Prepare top-N items per user for DPP (only unseen)
+    filtered_df_top_n = pd.DataFrame(index=filtered_user_ids)
+
+    for user_idx, user_id in enumerate(filtered_user_ids):
+        unseen_mask = ~user_history_top_n[user_idx]  # True = unseen
+        unseen_items = [top_n_items[i] for i, keep in enumerate(unseen_mask) if keep]
+        filtered_df_top_n.loc[user_id, unseen_items] = filtered_df.loc[user_id, unseen_items]
 
 
 
-# Run DPP recommendations on test
+
+    # Run DPP recommendations on test
     cosine_reco =  get_recommendations_for_dpp(
         dpp_cosine, filtered_df_top_n, filtered_item_ids, genre_map, predicted_ratings_top_n, id_to_title,
         top_k, top_n, dpp_path_cosine, "cosine"

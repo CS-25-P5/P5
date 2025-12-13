@@ -103,13 +103,15 @@ class DPP:
         return selected
 
     # DPP recommendations for a user
-    def dpp(self, user_id, user_history, top_k=10):
+    def dpp(self, user_id, user_history,candidate_indices=None, top_k=10):
 
         # Ensure user_history matches predicted_ratings length
         if len(user_history) > self.predicted_ratings.shape[1]:
             user_history = user_history[:self.predicted_ratings.shape[1]]
 
-        candidate_indices = np.where(~user_history)[0]
+        if candidate_indices is None:
+            # If not provided, consider all items
+            candidate_indices = np.arange(len(user_history))
 
         # relevance only for candidate items
         relevance = self.predicted_ratings[user_id, candidate_indices]
@@ -121,7 +123,7 @@ class DPP:
         print("K shape:", K.shape)
 
 
-    # map global → local indices
+        # map global → local indices
         local_indices = np.arange(len(candidate_indices))
 
         selected_local = self.dpp_greedy(K, local_indices, top_k)
@@ -178,9 +180,13 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, movie_titles, genr
     for user_idx, user_id in enumerate(movie_user_rating.index):
         user_history = (movie_user_rating.iloc[user_idx, :] > 0).values
 
+        # Only consider items the user has NOT seen
+        candidate_indices = np.where(user_history == False)[0]
+
         dpp_indices = dpp_model.dpp(
             user_id=user_idx,
             user_history=user_history,
+            candidate_indices=candidate_indices,
             top_k=top_k
         )
 
