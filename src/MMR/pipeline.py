@@ -123,7 +123,7 @@ def prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids
 
     # Create user histories aligned to top-N items
     user_history_top_n = []
-    num_top_items = len(top_n_items)  # should be 21 in your case
+    num_top_items = len(top_n_items) 
 
     for user_idx, user_id in enumerate(filtered_user_ids):
         items_user_has_rated = np.where(R_filtered[user_idx, :] > 0)[0]
