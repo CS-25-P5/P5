@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=recommend_movies_with_NN_genres		            #Name of the job
+#SBATCH --job-name=recommend_100Kmovies_with_NN_genres		            #Name of the job
 #SBATCH  --partition=l4						                        #GPU partition
 #SBATCH --gres=gpu:4							                    #Ask for one GPU
 
