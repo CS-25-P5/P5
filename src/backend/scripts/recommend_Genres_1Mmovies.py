@@ -458,7 +458,7 @@ def run_program(optim,
 
 inputforall = "data/TEST_RECOMMEND_inputfile/ratingsandgenres_1M_movies.csv"
 
-
+'''
 a1 = run_program( 
                 optim = torch.optim.Adam,
                 weightdecay = 1e-5,
@@ -552,7 +552,7 @@ a7 = run_program(
                 recommend_input=inputforall,
                 recommend_output = "data/Recommend_test_1M_movies(MLPwithGenres)/NNgenres_OneLayer_embed64_lr00003_batch128.csv")
 
-
+'''
 
 
 a8 =  run_program( 
