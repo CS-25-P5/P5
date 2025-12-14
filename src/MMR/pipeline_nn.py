@@ -4,12 +4,12 @@ from MMR import mmr_builder_factory, tune_mmr_lambda, run_mmr, process_save_mmr
 from helperFunctions import (
     generate_run_id, align_matrix_to_items, 
     prepare_train_val_matrices, get_filtered_predictions, 
-    prepare_top_n_data, log_experiment, log_loss_history)
+    prepare_top_n_data, log_experiment, log_loss_history, 
+    build_nn_mmr_input)
 import os
 import pandas as pd
 import time
 import tracemalloc
-
 
 
 def run_train_pipeline(
@@ -82,10 +82,10 @@ def run_train_pipeline(
 
     #val_rmse = mf.compute_rmse(R_filtered_val, predicted_ratings)
 
-    # Attach filtered item titles to MF model
+    #Attach filtered item titles to MF model
     mf.item_ids = filtered_item_ids
 
-    # Get top-N candidates for MF
+    #Get top-N candidates for MF
     # get_top_n_recommendations_MF(
     #     genre_map=genre_map,
     #     predicted_ratings=predicted_ratings,
@@ -95,6 +95,8 @@ def run_train_pipeline(
     #     top_n=top_n,
     #     id_to_title = id_to_title,
     #     save_path = os.path.join(output_dir,f"{run_id}/mf_train_{chunksize}_top_{top_n}.csv"))
+    
+
 
 
 
@@ -267,6 +269,7 @@ def run_test_pipeline(
     ratings_path,
     item_path,
     output_dir=None,
+    nn_candidates_csv = None,
     dataset=None,
     top_n=10,
     chunksize=10000,
@@ -283,10 +286,10 @@ def run_test_pipeline(
     os.makedirs(output_dir, exist_ok=True)
 
     # Load and prepare data
-    item_user_rating, genre_map, all_genres, id_to_title = load_and_prepare_matrix(
+    item_user_rating, genre_map, all_genres, id_to_title  = load_and_prepare_matrix(
         ratings_path, item_path)
     
-    # Use your existing function to align the matrix!
+    # # Use your existing function to align the matrix!
     R_filtered, filtered_df = align_matrix_to_items(
         matrix_df=item_user_rating,
         filtered_item_ids=train_filtered_item_ids,
@@ -298,35 +301,46 @@ def run_test_pipeline(
         trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids)
 
 
-    # Get top-N candidates for MMR
-    mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
+    # # Get top-N candidates for MMR
+    # mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
 
-    all_recommendations = get_top_n_recommendations_MF(
-        genre_map=genre_map,
-        predicted_ratings=predicted_ratings,
-        R_filtered=R_filtered,
-        filtered_user_ids=filtered_user_ids,
-        filtered_item_ids=filtered_item_ids,
-        id_to_title=id_to_title,
-        top_n=top_n,
-        save_path=mf_top_n_path)
+    # all_recommendations = get_top_n_recommendations_MF(
+    #     genre_map=genre_map,
+    #     predicted_ratings=predicted_ratings,
+    #     R_filtered=R_filtered,
+    #     filtered_user_ids=filtered_user_ids,
+    #     filtered_item_ids=filtered_item_ids,
+    #     id_to_title=id_to_title,
+    #     top_n=top_n,
+    #     save_path=mf_top_n_path)
     
-    predicted_ratings_top_n, user_history_top_n = prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered)           
 
-    # Define output path for MF predictions
-    dataset_root = os.path.dirname(output_dir)
-    mf_predictions_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
-    ground_truth_path = os.path.join(dataset_root, f"{dataset}_ratings_{chunksize}_test.csv")
+    # predicted_ratings_top_n, user_history_top_n = prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered)  
+    # 
+    
+    predicted_ratings_top_n, user_history_top_n = build_nn_mmr_input(
+    nn_candidates_csv = nn_candidates_csv,
+    R_filtered = R_filtered,
+    filtered_user_ids = filtered_user_ids,
+    filtered_item_ids = filtered_item_ids)         
 
-    # Save MF predictions
-    save_mf_predictions(
-        trained_mf_model=trained_mf_model,
-        train_user_ids=train_filtered_user_ids,
-        train_item_ids=train_filtered_item_ids,
-        ground_truth_path=ground_truth_path,
-        output_path=mf_predictions_path
-    )
+    # # Define output path for MF predictions
+    # dataset_root = os.path.dirname(output_dir)
+    # mf_predictions_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
+    # ground_truth_path = os.path.join(dataset_root, f"{dataset}_ratings_{chunksize}_test.csv")
+
+    # # Save MF predictions
+    # save_mf_predictions(
+    #     trained_mf_model=trained_mf_model,
+    #     train_user_ids=train_filtered_user_ids,
+    #     train_item_ids=train_filtered_item_ids,
+    #     ground_truth_path=ground_truth_path,
+    #     output_path=mf_predictions_path
+    # )
+
+
+    
 
     # Create a builder for cosine similarity
     builder_cosine = mmr_builder_factory(
@@ -446,14 +460,19 @@ if __name__ == "__main__":
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
+
     #load MovieLens data
     dataset_movie = "movies"
     folder_movie = "MovieLens"
+    output_folder = "NN"
     movies_ratings_train_file= os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_train.csv")
     movies_ratings_val_file = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_val.csv")
     movies_ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
     movies_item_file_path = os.path.join(base_dir, f"../datasets/{folder_movie}", f"{dataset_movie}.csv")
-    movies_output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_movie}")
+    movies_output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{output_folder}")
+
+    #load NN candidate list
+    nn_candidate_list_path =  os.path.join(base_dir, f"../datasets/mmr_data/{dataset_movie}/2025-12-14_17-30-32", "mf_test_5000_top_50.csv")
 
     #load GOODBooks data
     dataset_books = "books"
@@ -502,6 +521,7 @@ if __name__ == "__main__":
 
         run_test_pipeline(
             run_id = run_movie_id,
+            nn_candidates_csv = nn_candidate_list_path,
             ratings_path=movies_ratings_test_path,
             item_path=movies_item_file_path,
             output_dir=movies_output_dir,
