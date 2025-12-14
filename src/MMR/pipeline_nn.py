@@ -52,20 +52,12 @@ def run_train_pipeline(
         id_to_title=id_to_title
     )
 
-
-
-
     # TRAIN MF
     # Tune MF parameters
-
     best_params = tune_mf(
         R_train = R_filtered_train,
         R_val = R_filtered_val,
         n_epochs = n_epochs)
-
-
-
-
     # Train MF with best hyperparameters
     tracemalloc.start()
     start_time_mf = time.time()
@@ -80,24 +72,8 @@ def run_train_pipeline(
     mem_mf = tracemalloc.get_traced_memory()[1] / 1024**2
     tracemalloc.stop()
 
-    #val_rmse = mf.compute_rmse(R_filtered_val, predicted_ratings)
-
     #Attach filtered item titles to MF model
     mf.item_ids = filtered_item_ids
-
-    #Get top-N candidates for MF
-    # get_top_n_recommendations_MF(
-    #     genre_map=genre_map,
-    #     predicted_ratings=predicted_ratings,
-    #     R_filtered=R_filtered_train,
-    #     filtered_user_ids=filtered_user_ids,
-    #     filtered_item_ids=filtered_item_ids,
-    #     top_n=top_n,
-    #     id_to_title = id_to_title,
-    #     save_path = os.path.join(output_dir,f"{run_id}/mf_train_{chunksize}_top_{top_n}.csv"))
-    
-
-
 
 
     #TUNE MMR lambda
@@ -109,7 +85,6 @@ def run_train_pipeline(
         predicted_ratings=predicted_ratings,
         similarity_type="cosine"
     )
-
 
     best_lambda_cosine, best_score_cosine = tune_mmr_lambda(
         mmr_builder = builder_cosine,
@@ -300,24 +275,6 @@ def run_test_pipeline(
     filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
         trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids)
 
-
-    # # Get top-N candidates for MMR
-    # mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
-
-
-    # all_recommendations = get_top_n_recommendations_MF(
-    #     genre_map=genre_map,
-    #     predicted_ratings=predicted_ratings,
-    #     R_filtered=R_filtered,
-    #     filtered_user_ids=filtered_user_ids,
-    #     filtered_item_ids=filtered_item_ids,
-    #     id_to_title=id_to_title,
-    #     top_n=top_n,
-    #     save_path=mf_top_n_path)
-    
-
-    # predicted_ratings_top_n, user_history_top_n = prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered)  
-    # 
     
     predicted_ratings_top_n, user_history_top_n = build_nn_mmr_input(
     nn_candidates_csv = nn_candidates_csv,
@@ -325,22 +282,6 @@ def run_test_pipeline(
     filtered_user_ids = filtered_user_ids,
     filtered_item_ids = filtered_item_ids)         
 
-    # # Define output path for MF predictions
-    # dataset_root = os.path.dirname(output_dir)
-    # mf_predictions_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
-    # ground_truth_path = os.path.join(dataset_root, f"{dataset}_ratings_{chunksize}_test.csv")
-
-    # # Save MF predictions
-    # save_mf_predictions(
-    #     trained_mf_model=trained_mf_model,
-    #     train_user_ids=train_filtered_user_ids,
-    #     train_item_ids=train_filtered_item_ids,
-    #     ground_truth_path=ground_truth_path,
-    #     output_path=mf_predictions_path
-    # )
-
-
-    
 
     # Create a builder for cosine similarity
     builder_cosine = mmr_builder_factory(

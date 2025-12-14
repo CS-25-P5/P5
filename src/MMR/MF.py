@@ -259,12 +259,13 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path):
 def process_save_mf(all_recommendations, user_ids, item_ids, predicted_ratings, genre_map, id_to_title, top_n=10, output_file_path="mf_predictions.csv"):
     results = []
 
-    for user_idx, user_id in enumerate(user_ids):
-        user_recs = all_recommendations[user_id]
+    for user_idx, item_indices  in all_recommendations.items():
+        raw_user_id  = user_ids[user_idx]
+
         process_mf(
-            user_id=user_id,
+            user_id=raw_user_id,
             user_idx=user_idx,
-            mf_indices=user_recs,
+            mf_indices=item_indices,
             item_ids=item_ids,
             genre_map=genre_map,
             id_to_title=id_to_title,
@@ -316,7 +317,7 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
     # store all recomendations for all users
     all_recommendations = {}
 
-    for user_idx, user_id in enumerate(filtered_user_ids):
+    for user_idx, _ in enumerate(filtered_user_ids):
         # Get all predicted movie ratings for user
         user_ratings = predicted_ratings[user_idx, :]
 
@@ -341,7 +342,7 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
 
         #store a list of (movie, predicted rating)
         #all_recommendations[user_id] = list(zip(top_items, top_scores))
-        all_recommendations[user_id] = top_indices.tolist()
+        all_recommendations[user_idx] = top_indices.tolist()
 
         #print(f"User {user_id}: {np.sum(~already_rated)} candidate items, top_n requested={top_n}")
 
