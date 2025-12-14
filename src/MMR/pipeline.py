@@ -4,7 +4,7 @@ from MMR import mmr_builder_factory, tune_mmr_lambda, run_mmr, process_save_mmr
 from helperFunctions import (
     generate_run_id, align_matrix_to_items, 
     prepare_train_val_matrices, get_filtered_predictions, 
-    prepare_top_n_data, log_experiment, log_loss_history)
+    prepare_top_n_data, log_experiment, log_loss_history, build_mmr_input)
 import os
 import pandas as pd
 import time
@@ -312,7 +312,16 @@ def run_test_pipeline(
         top_n=top_n,
         save_path=mf_top_n_path)
     
-    predicted_ratings_top_n, user_history_top_n = prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered)           
+    #predicted_ratings_top_n, user_history_top_n = prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered)           
+    
+
+    candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
+
+    predicted_ratings_top_n, user_history_top_n = build_mmr_input(
+    candidate_list_csv = candidate_path,
+    R_filtered = R_filtered,
+    filtered_user_ids = filtered_user_ids,
+    filtered_item_ids = filtered_item_ids)
 
     # Define output path for MF predictions
     dataset_root = os.path.dirname(output_dir)
@@ -381,7 +390,7 @@ def run_test_pipeline(
     process_save_mmr(all_recs = all_recs_cosine,
                     item_user_rating=item_user_rating,
                     item_ids=filtered_item_ids,
-                    predicted_ratings=predicted_ratings_top_n,
+                    predicted_ratings=predicted_ratings,
                     genre_map=genre_map,
                     id_to_title=id_to_title,
                     top_n=top_n,
@@ -391,7 +400,7 @@ def run_test_pipeline(
     process_save_mmr(all_recs = all_recs_jaccard,
                     item_user_rating=item_user_rating,
                     item_ids=filtered_item_ids,
-                    predicted_ratings=predicted_ratings_top_n,
+                    predicted_ratings=predicted_ratings,
                     genre_map=genre_map,
                     id_to_title=id_to_title,
                     top_n=top_n,

@@ -146,13 +146,13 @@ def prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids
     return predicted_ratings_top_n, user_history_top_n
 
 
-def build_nn_mmr_input(
-    nn_candidates_csv,
+def build_mmr_input(
+    candidate_list_csv,
     R_filtered,
     filtered_user_ids,
     filtered_item_ids,
 ):
-    df = pd.read_csv(nn_candidates_csv)
+    df = pd.read_csv(candidate_list_csv)
     df = df[df["userId"].isin(filtered_user_ids)]
 
     candidate_items = []

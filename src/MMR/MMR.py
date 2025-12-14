@@ -120,6 +120,9 @@ def run_mmr(mmr_model, R_filtered, top_k, user_history = None):
 
 def process_save_mmr(all_recs, item_user_rating, item_ids, predicted_ratings, genre_map, id_to_title, top_n = 10, output_file_path = None):
     results = []
+
+    # Mapping item_id -> column index
+    itemid_to_col = {item_id: idx for idx, item_id in enumerate(item_ids)}
     for user_idx, rec_indices in enumerate(all_recs):
         user_id = item_user_rating.index[user_idx]
         process_mmr(
@@ -130,6 +133,7 @@ def process_save_mmr(all_recs, item_user_rating, item_ids, predicted_ratings, ge
             genre_map=genre_map,
             predicted_ratings=predicted_ratings,
             mmr_recommendations_list=results,
+            itemid_to_col=itemid_to_col,
             id_to_title=id_to_title)
 
     # save result as csv
@@ -146,15 +150,21 @@ def process_save_mmr(all_recs, item_user_rating, item_ids, predicted_ratings, ge
 
 
 
-def process_mmr(user_id, user_idx, mmr_indices, item_ids, genre_map, predicted_ratings, mmr_recommendations_list, id_to_title, top_n=10):
+def process_mmr(user_id, user_idx, mmr_indices, item_ids, genre_map, predicted_ratings, mmr_recommendations_list, id_to_title,itemid_to_col, top_n=10):
 
-    for rank, idx in enumerate(mmr_indices[:top_n], start = 1):
-        item_id = item_ids[idx]
+    for rank, col_idx in enumerate(mmr_indices[:top_n], start = 1):
+        item_id = item_ids[col_idx]
+        actual_col_idx = itemid_to_col[item_id]
         title = id_to_title.get(item_id, "")
         # handle missing genres
         item_genres = genre_map.get(item_id, set())
         genres = ",".join(item_genres)
-        score =  predicted_ratings[user_idx, idx]
+        score =  predicted_ratings[user_idx, col_idx]
+
+        # Debug: check if the mapping was causing issues
+        actual_col_idx = itemid_to_col.get(item_id)
+        if actual_col_idx != col_idx:
+            print(f"Warning: Mapping mismatch for item {item_id}: col_idx={col_idx}, actual_col_idx={actual_col_idx}")
 
 
         mmr_recommendations_list.append({
