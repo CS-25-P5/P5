@@ -67,7 +67,7 @@ def plot_rating_distribution(ground_truth_path, items_path, output_dir="rating_c
     rating_percentages = (rating_counts / len(gt) * 100).round(1)
 
     # Calculate rating sparsity
-    num_users = gt["userId"].nunique()
+    num_users = gt["user_id"].nunique()
     item_col = "itemId" if "itemId" in gt.columns else "movieId"
     num_items = gt[item_col].nunique()
     total_ratings = len(gt)
@@ -97,7 +97,7 @@ def plot_rating_distribution(ground_truth_path, items_path, output_dir="rating_c
 
     # Styling
     dataset_name = "Books" if "book" in items_path.lower() else "Movies"
-    ax.set_title(f'Rating Distribution - 1M MovieLens Ground Truth', fontsize=16, fontweight='bold', pad=20)
+    ax.set_title(f'Rating Distribution - 100k GoodBooks Ground Truth', fontsize=16, fontweight='bold', pad=20)
     ax.set_xlabel('Rating', fontsize=12)
     ax.set_ylabel('Count', fontsize=12)
     ax.grid(axis='y', alpha=0.3, linestyle='--')

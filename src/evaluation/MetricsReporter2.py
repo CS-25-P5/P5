@@ -181,7 +181,6 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
     pred_items = data_handler.recommendations["item_id"].unique()
     catalog = np.union1d(gt_items, pred_items)
     catalog_size = len(catalog)
-    print(f"Catalog size is: {catalog_size}")
 
     metrics = {
         f'Precision@{k}': Precision(k=k),
@@ -237,6 +236,7 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
     top_k_recos = data_handler.recommendations[data_handler.recommendations['rank'] <= k]
 
     print(f"Calculating Reverse Gini for {model_name}")
+    print(f"")
     results['Reverse Gini'] = _calculate_reverse_gini(top_k_recos)
 
     return results
@@ -344,8 +344,6 @@ def _calculate_reverse_gini(recommendations):
 
     gini = np.clip(gini, 0.0, 1.0)
     result = 1 - gini
-
-    print(f"Reverse Gini: {result:.6f}")
     return result
 
 
@@ -467,12 +465,16 @@ if __name__ == "__main__":
         ITEM_FEATURES_PATH
     )
 
-    ##Optional: plot rating distribution (not captured)
-    plot_rating_distribution(
-        ground_truth_path=GROUND_TRUTH,
-        items_path=CATALOG_PATH,
-        output_dir="rating_charts"
-    )
+    # #Optional: plot rating distribution (not captured)
+    # plot_rating_distribution(
+    #     ground_truth_path=GROUND_TRUTH,
+    #     items_path=CATALOG_PATH,
+    #     output_dir="rating_charts"
+    # )
+
+    # Start capturing output for validation, diagnostics, and comparison
+    stdout_buffer = StringIO()
+    tee_stdout = Tee(sys.stdout, stdout_buffer)
 
     # Conditionally load item features (not captured)
     if CALCULATE_ILD:
@@ -482,9 +484,7 @@ if __name__ == "__main__":
         print("Skipping item feature loading (ILD disabled)")
         ITEM_FEATURES = None
 
-    # Start capturing output for validation, diagnostics, and comparison
-    stdout_buffer = StringIO()
-    tee_stdout = Tee(sys.stdout, stdout_buffer)
+
 
     with contextlib.redirect_stdout(tee_stdout):
         # Create config dict for validation
@@ -514,10 +514,11 @@ if __name__ == "__main__":
             threshold=THRESHOLD,
             k=K,
             item_features=ITEM_FEATURES,
-            output_prefix=f"Diana, 1M Movielens (MLPwithBPR, Total), top{K}_comparison",
+            output_prefix=f"Johannes, 100k MovieLens, top{K}_comparison",
             calculate_ild=CALCULATE_ILD,
             catalog=CATALOG,
             dataset_type="movies"
+            #dataset_type="books"
         )
 
     # Get captured terminal output (includes validation, diagnostics, and results)
