@@ -514,7 +514,7 @@ if __name__ == "__main__":
             threshold=THRESHOLD,
             k=K,
             item_features=ITEM_FEATURES,
-            output_prefix=f"Johannes, 100k MovieLens, top{K}_comparison",
+            output_prefix=f"Johannes, 100k MovieLens,Total, top{K}_comparison",
             calculate_ild=CALCULATE_ILD,
             catalog=CATALOG,
             dataset_type="movies"
