@@ -552,7 +552,6 @@ a7 = run_program(
                 recommend_input=inputforall,
                 recommend_output = "data/Recommend_test_1M_movies(MLPwithGenres)/NNgenres_OneLayer_embed64_lr00003_batch128.csv")
 
-'''
 
 
 a8 =  run_program( 
@@ -669,7 +668,7 @@ b7 = run_program(
                 recommend_input=inputforall,
                 recommend_output = "data/Recommend_test_1M_movies(MLPwithGenres)/NNgenres_TwoLayers_embed64_lr00003_batch128.csv")
 
-
+'''
 
 
 b8 =  run_program( 
