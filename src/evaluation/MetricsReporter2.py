@@ -465,7 +465,7 @@ if __name__ == "__main__":
         ITEM_FEATURES_PATH
     )
 
-    # #Optional: plot rating distribution (not captured)
+    #Optional: plot rating distribution (not captured)
     # plot_rating_distribution(
     #     ground_truth_path=GROUND_TRUTH,
     #     items_path=CATALOG_PATH,
@@ -479,7 +479,7 @@ if __name__ == "__main__":
     # Conditionally load item features (not captured)
     if CALCULATE_ILD:
         print("Loading item features for ILD calculation")
-        ITEM_FEATURES = load_item_features(ITEM_FEATURES_PATH, dataset_type="books")
+        ITEM_FEATURES = load_item_features(ITEM_FEATURES_PATH, dataset_type="movies")
     else:
         print("Skipping item feature loading (ILD disabled)")
         ITEM_FEATURES = None
@@ -494,7 +494,7 @@ if __name__ == "__main__":
             'CALCULATE_ILD': CALCULATE_ILD,
             'ITEM_FEATURES_PATH': ITEM_FEATURES_PATH,
             'MODELS': MODELS,
-            'dataset_type': "books"
+            'dataset_type': "movies"
         }
 
         # Validate all files (now captured)
@@ -514,11 +514,11 @@ if __name__ == "__main__":
             threshold=THRESHOLD,
             k=K,
             item_features=ITEM_FEATURES,
-            output_prefix=f"Johannes, 100k Goodbooks,Total, top{K}_comparison",
+            output_prefix=f"Kasia test, top{K}_comparison",
             calculate_ild=CALCULATE_ILD,
             catalog=CATALOG,
-            #dataset_type="movies"
-            dataset_type="books"
+            dataset_type="movies"
+            #dataset_type="books"
         )
 
     # Get captured terminal output (includes validation, diagnostics, and results)
