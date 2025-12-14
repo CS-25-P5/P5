@@ -666,9 +666,7 @@ b7 = run_program(
                 prediction_val_save = None,
                 prediction_test_save = None,
                 recommend_input=inputforall,
-                recommend_output = "data/Recommend_test_1M_movies(MLPwithGenres)/NNgenres_TwoLayers_embed64_lr00003_batch128.csv")
-
-'''
+                recommend_output = "data/Recommend_test_1M_movies(MLPwithGenres)/NNgenres_TwoLayers_embed64_lr00003_batch128.csv"
 
 
 b8 =  run_program( 
@@ -802,7 +800,7 @@ c7 = run_program(
                 recommend_output = "data/Recommend_test_1M_movies(MLPwithGenres)/NNgenres_ThreeLayers_embed64_lr00003_batch128.csv")
 
 
-
+'''
 
 c8 =  run_program( 
                 optim = torch.optim.Adam,
