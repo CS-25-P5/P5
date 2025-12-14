@@ -32,11 +32,16 @@ def align_matrix_to_items(matrix_df, filtered_item_ids, filtered_user_ids):
 def prepare_train_val_matrices(train_df, val_df, id_to_title=None):
 
     # Align train and val to common users/items
-    common_users = train_df.index.intersection(val_df.index)
-    common_items = train_df.columns.intersection(val_df.columns)
+    # common_users = train_df.index.intersection(val_df.index)
+    # common_items = train_df.columns.intersection(val_df.columns)
 
-    train_aligned = train_df.loc[common_users, common_items]
-    val_aligned = val_df.loc[common_users, common_items]
+    # train_aligned = train_df.loc[common_users, common_items]
+    # val_aligned = val_df.loc[common_users, common_items]
+
+    #filter out users with no training interactions
+    common_items = train_df.columns.intersection(val_df.columns)
+    train_aligned = train_df[common_items]
+    val_aligned = val_df[common_items]
 
     # Convert to numpy and remove users with no interactions
     R_train = train_aligned.values
