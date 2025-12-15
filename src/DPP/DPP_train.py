@@ -421,7 +421,7 @@ def run_dpp_pipeline_test(
         filtered_user_ids=train_filtered_user_ids
     )
 
-    filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
+    filtered_user_ids, filtered_item_ids, _ = get_filtered_predictions(
         trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids)
 
 
@@ -430,7 +430,7 @@ def run_dpp_pipeline_test(
     mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
 
-    all_recommendations = get_top_n_recommendations_MF(
+    get_top_n_recommendations_MF(
                                 predicted_ratings=predicted_ratings,
                                 R_filtered=R_filtered,
                                 filtered_user_ids=filtered_user_ids,
@@ -441,7 +441,8 @@ def run_dpp_pipeline_test(
     #predicted_ratings_top_n, user_history_top_n = prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered)
     candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
-    predicted_ratings_top_n, user_history_top_n = build_mmr_input(
+    predicted_ratings_top_n, user_history_top_n, candidate_items = build_mmr_input(
+        #predicted_ratings = predicted_ratings,
         candidate_list_csv = candidate_path,
         R_filtered = R_filtered,
         filtered_user_ids = filtered_user_ids,
@@ -472,23 +473,9 @@ def run_dpp_pipeline_test(
     dpp_jaccard = build_dpp_models(filtered_item_ids, genre_map, all_genres_test, predicted_ratings_top_n, 'jaccard')
 
 
-    # Build candidate item set (union of all MF top-N results)
-    top_n_items = sorted({
-        filtered_item_ids[idx]
-        for user_items in all_recommendations.values()
-        for idx in user_items
-    })
-
     #filtered_df_top_n = filtered_df[top_n_items]
     # Prepare top-N items per user for DPP (only unseen)
     filtered_df_top_n = pd.DataFrame(index=filtered_user_ids)
-
-    for user_idx, user_id in enumerate(filtered_user_ids):
-        unseen_mask = ~user_history_top_n[user_idx]  # True = unseen
-        unseen_items = [top_n_items[i] for i, keep in enumerate(unseen_mask) if keep]
-        filtered_df_top_n.loc[user_id, unseen_items] = filtered_df.loc[user_id, unseen_items]
-
-
 
 
     # Run DPP recommendations on test
