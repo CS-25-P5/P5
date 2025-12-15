@@ -66,7 +66,7 @@ def prepare_train_val_matrices(train_df, val_df):
 
 # ==========================
 # PREDICTION FUNCTIONS
-# ==========================
+#==========================
 def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_ids, filtered_item_ids=None):     
     # Get the filtered user and item IDs from the aligned DataFrame
     filtered_user_ids = filtered_df.index.tolist()
@@ -106,6 +106,8 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
     return filtered_user_ids, filtered_item_ids, predicted_ratings
 
 
+
+
 # ==========================
 # CANDIDATE LIST / MMR INPUT FUNCTIONS
 # ==========================
@@ -117,6 +119,7 @@ def build_mmr_input(
 ):
     df = pd.read_csv(candidate_list_csv)
     df = df[df["userId"].isin(filtered_user_ids)]
+    #df = df[df["itemId"].isin(filtered_item_ids)]
 
     candidate_items = []
     seen = set()
@@ -152,6 +155,38 @@ def build_mmr_input(
         user_history_top_n.append(mask)
 
     return predicted_ratings_top_n, user_history_top_n, candidate_items
+
+# def build_mmr_input(candidate_list_csv, R_filtered, filtered_user_ids, filtered_item_ids):
+#     # Load candidate CSV and filter for known users/items
+#     df = pd.read_csv(candidate_list_csv)
+#     df = df[df["userId"].isin(filtered_user_ids) & df["itemId"].isin(filtered_item_ids)]
+
+#     # Build unique candidate items
+#     candidate_items = df["itemId"].unique().tolist()
+#     num_users = len(filtered_user_ids)
+#     num_items = len(candidate_items)
+
+#     # Map user/item IDs to matrix indices
+#     user_to_row = {u: i for i, u in enumerate(filtered_user_ids)}
+#     item_to_col = {i: j for j, i in enumerate(candidate_items)}
+
+#     # Vectorized relevance matrix
+#     user_indices = df["userId"].map(user_to_row).to_numpy(dtype=int)
+#     item_indices = df["itemId"].map(item_to_col).to_numpy(dtype=int)
+#     predicted_ratings_top_n = np.zeros((num_users, num_items))
+#     predicted_ratings_top_n[user_indices, item_indices] = df["predictedRating"].to_numpy()
+
+#     # Vectorized user history mask
+#     user_history_top_n = []
+#     filtered_item_array = np.array(filtered_item_ids)
+#     for user_idx in range(num_users):
+#         rated_item_indices = np.where(R_filtered[user_idx] > 0)[0]
+#         rated_item_ids = set(filtered_item_array[rated_item_indices])
+#         mask = np.isin(candidate_items, list(rated_item_ids))
+#         user_history_top_n.append(mask)
+
+#     return predicted_ratings_top_n, user_history_top_n, candidate_items
+
 
 # ==========================
 # LOGGING FUNCTIONS

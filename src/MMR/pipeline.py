@@ -257,6 +257,14 @@ def run_test_pipeline(
         trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids)
 
 
+    print(f"[DEBUG] Filtered users: {len(filtered_user_ids)}")
+    print(f"[DEBUG] Filtered items: {len(filtered_item_ids)}")
+    print(f"[DEBUG] Sample users: {filtered_user_ids[:5]}")
+    print(f"[DEBUG] Sample items: {filtered_item_ids[:5]}")
+
+    print(f"[DEBUG] Predicted ratings shape: {predicted_ratings.shape}")
+    print(f"[DEBUG] Min/max predicted rating: {predicted_ratings.min()}/{predicted_ratings.max()}")
+
     # Get top-N candidates for MMR
     mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
@@ -268,15 +276,29 @@ def run_test_pipeline(
         top_n=top_n,
         save_path=mf_top_n_path)
     
+    mf_top_n_df = pd.read_csv(mf_top_n_path)
+    print(f"[DEBUG] Top-N CSV rows: {len(mf_top_n_df)}")
+    print(f"[DEBUG] Unique users in CSV: {mf_top_n_df['userId'].nunique()}")
+    print(f"[DEBUG] Unique items in CSV: {mf_top_n_df['itemId'].nunique()}")
+    print(f"[DEBUG] Sample rows:\n{mf_top_n_df.head()}")
+        
     
     candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
     predicted_ratings_top_n, user_history_top_n, candidate_items = build_mmr_input(
-    #predicted_ratings = predicted_ratings,
     candidate_list_csv = candidate_path,
     R_filtered = R_filtered,
     filtered_user_ids = filtered_user_ids,
     filtered_item_ids = filtered_item_ids)
+
+    print(f"[DEBUG] Number of candidate items: {len(candidate_items)}")
+    print(f"[DEBUG] Sample candidate items: {candidate_items[:5]}")
+
+    print(f"[DEBUG] predicted_ratings_top_n shape: {predicted_ratings_top_n.shape}")
+    print(f"[DEBUG] Non-zero entries: {np.count_nonzero(predicted_ratings_top_n)}")
+    print(f"[DEBUG] Max predicted rating: {predicted_ratings_top_n.max()}")
+
+
 
     # Define output path for MF predictions
     dataset_root = os.path.dirname(output_dir)
@@ -294,7 +316,7 @@ def run_test_pipeline(
 
     # Create a builder for cosine similarity
     builder_cosine = mmr_builder_factory(
-        item_ids=filtered_item_ids,
+        item_ids=candidate_items,
         genre_map=genre_map,
         all_genres=all_genres,
         predicted_ratings=predicted_ratings_top_n,
@@ -349,7 +371,7 @@ def run_test_pipeline(
 if __name__ == "__main__":
     # PARAMETER
     TOP_N = 50
-    CHUNK_SIZE = 5000
+    CHUNK_SIZE = 100000
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1
@@ -382,9 +404,9 @@ if __name__ == "__main__":
 
 
     weight_pairs = [
-    (1.0, 0.0),
+    # (1.0, 0.0),
     # (0.8, 0.2),
-    # (0.6, 0.4),
+    (0.6, 0.4),
     # (0.5, 0.5),
     # (0.4, 0.6),
     # (0.2, 0.8),

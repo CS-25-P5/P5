@@ -196,9 +196,16 @@ def process_save_mf(all_recommendations, user_ids, item_ids, predicted_ratings, 
 
 def process_mf(user_id, user_idx, mf_indices, item_ids, predicted_ratings,  mf_recommendations_list, top_n=10):
 
-    for rank, idx in enumerate(mf_indices[:top_n], start=1):
-        item_id = item_ids[idx]
-        score =  predicted_ratings[user_idx, idx]
+    # mf_item_ids now contains actual item IDs (not indices)
+    item_id_to_col = {i: j for j, i in enumerate(item_ids)}
+
+    for rank, item_id in enumerate(mf_indices[:top_n], start=1):
+        # item_id = item_ids[idx]
+        # score =  predicted_ratings[user_idx, idx]
+
+        col_idx = item_id_to_col[item_id]
+        score = predicted_ratings[user_idx, col_idx]
+
         mf_recommendations_list.append({
             "userId": user_id, 
             "rank": rank,
@@ -222,8 +229,12 @@ def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_id
 
         # Boolean series of movie rating status
         already_rated = R_filtered[user_idx, :]> 0
+        valid_mask = user_ratings > 0
+        
+
         # Filter out already rated items
-        user_ratings_filtered = np.where(already_rated, -np.inf, user_ratings)
+        #user_ratings_filtered = np.where(already_rated, -np.inf, user_ratings)
+        user_ratings_filtered = np.where(already_rated | ~valid_mask, -np.inf, user_ratings)
 
         # get indicies sorted descending 
         #sorted_indices = np.argsort(user_ratings_filtered)[::-1]
@@ -241,7 +252,10 @@ def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_id
 
         #store a list of (movie, predicted rating)
         #all_recommendations[user_id] = list(zip(top_items, top_scores))
-        all_recommendations[user_idx] = top_indices.tolist()
+        # Map indices to actual item IDs
+        top_items = [filtered_item_ids[i] for i in top_indices]
+        all_recommendations[user_idx] = top_items
+        #all_recommendations[user_idx] = top_indices.tolist()
 
         #print(f"User {user_id}: {np.sum(~already_rated)} candidate items, top_n requested={top_n}")
 
