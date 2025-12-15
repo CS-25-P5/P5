@@ -4,8 +4,8 @@ from MMR import mmr_builder_factory, tune_mmr_lambda, run_mmr, process_save_mmr
 from helperFunctions import (
     generate_run_id, align_matrix_to_items, 
     prepare_train_val_matrices, get_filtered_predictions, 
-    prepare_top_n_data, log_experiment, log_loss_history, 
-    build_nn_mmr_input)
+    log_experiment, log_loss_history, 
+    build_mmr_input)
 import os
 import pandas as pd
 import time
@@ -276,8 +276,8 @@ def run_test_pipeline(
         trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids)
 
     
-    predicted_ratings_top_n, user_history_top_n = build_nn_mmr_input(
-    nn_candidates_csv = nn_candidates_csv,
+    predicted_ratings_top_n, user_history_top_n = build_mmr_input(
+    candidate_list_csv = nn_candidates_csv,
     R_filtered = R_filtered,
     filtered_user_ids = filtered_user_ids,
     filtered_item_ids = filtered_item_ids)         
@@ -336,7 +336,7 @@ def run_test_pipeline(
     process_save_mmr(all_recs = all_recs_cosine,
                     item_user_rating=item_user_rating,
                     item_ids=filtered_item_ids,
-                    predicted_ratings=predicted_ratings_top_n,
+                    predicted_ratings=predicted_ratings,
                     genre_map=genre_map,
                     id_to_title=id_to_title,
                     top_n=top_n,
@@ -346,7 +346,7 @@ def run_test_pipeline(
     process_save_mmr(all_recs = all_recs_jaccard,
                     item_user_rating=item_user_rating,
                     item_ids=filtered_item_ids,
-                    predicted_ratings=predicted_ratings_top_n,
+                    predicted_ratings=predicted_ratings,
                     genre_map=genre_map,
                     id_to_title=id_to_title,
                     top_n=top_n,
@@ -413,7 +413,7 @@ if __name__ == "__main__":
     movies_output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{output_folder}")
 
     #load NN candidate list
-    nn_candidate_list_path =  os.path.join(base_dir, f"../datasets/mmr_data/{dataset_movie}/2025-12-14_17-30-32", "mf_test_5000_top_50.csv")
+    nn_candidate_list_path =  os.path.join(base_dir, f"../datasets/mmr_data/{output_folder}", "mf_test_5000_top_50.csv")
 
     #load GOODBooks data
     dataset_books = "books"

@@ -117,38 +117,38 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
 # ==========================
 # CANDIDATE LIST / MMR INPUT FUNCTIONS
 # ==========================
-def prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered):
-    #Keep order, remove duplicates
-    top_n_items = []
-    seen_items = set()
-    for user_id, indices in all_recommendations.items():
-        for idx in indices:
-            item_id = filtered_item_ids[idx]
-            if item_id not in seen_items:
-                top_n_items.append(item_id)
-                seen_items.add(item_id)
+# def prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered):
+#     #Keep order, remove duplicates
+#     top_n_items = []
+#     seen_items = set()
+#     for user_id, indices in all_recommendations.items():
+#         for idx in indices:
+#             item_id = filtered_item_ids[idx]
+#             if item_id not in seen_items:
+#                 top_n_items.append(item_id)
+#                 seen_items.add(item_id)
 
-    # Map top_n_items to columns in predicted_ratings
-    item_idx_map = [filtered_item_ids.index(i) for i in top_n_items]
-    predicted_ratings_top_n = predicted_ratings[:, item_idx_map]
+#     # Map top_n_items to columns in predicted_ratings
+#     item_idx_map = [filtered_item_ids.index(i) for i in top_n_items]
+#     predicted_ratings_top_n = predicted_ratings[:, item_idx_map]
 
-    # Create user histories aligned to top-N items
-    user_history_top_n = []
-    num_top_items = len(top_n_items) 
+#     # Create user histories aligned to top-N items
+#     user_history_top_n = []
+#     num_top_items = len(top_n_items) 
 
-    for user_idx, user_id in enumerate(filtered_user_ids):
-        rated_item_indices  = np.where(R_filtered[user_idx, :] > 0)[0]
-        rated_item_ids = [filtered_item_ids[i] for i in rated_item_indices ]
+#     for user_idx, user_id in enumerate(filtered_user_ids):
+#         rated_item_indices  = np.where(R_filtered[user_idx, :] > 0)[0]
+#         rated_item_ids = [filtered_item_ids[i] for i in rated_item_indices ]
 
-        # Boolean mask aligned to top_n_items
-        mask = np.zeros(num_top_items, dtype=bool)
-        for i, item_id in enumerate(top_n_items):
-            if item_id in rated_item_ids:
-                mask[i] = True
+#         # Boolean mask aligned to top_n_items
+#         mask = np.zeros(num_top_items, dtype=bool)
+#         for i, item_id in enumerate(top_n_items):
+#             if item_id in rated_item_ids:
+#                 mask[i] = True
 
-        user_history_top_n.append(mask)
+#         user_history_top_n.append(mask)
 
-    return predicted_ratings_top_n, user_history_top_n
+#     return predicted_ratings_top_n, user_history_top_n
 
 
 def build_mmr_input(
@@ -194,6 +194,8 @@ def build_mmr_input(
         user_history_top_n.append(mask)
 
     return predicted_ratings_top_n, user_history_top_n
+
+
 
 # ==========================
 # LOGGING FUNCTIONS
