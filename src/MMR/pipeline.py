@@ -31,14 +31,11 @@ def run_train_pipeline(
 
     os.makedirs(output_dir, exist_ok=True)
 
-    item_user_rating_train, genre_map, all_genres, id_to_title = load_and_prepare_matrix(
+    item_user_rating_train, genre_map, all_genres = load_and_prepare_matrix(
         ratings_train_path, item_path)
 
-    item_user_rating_val, _, _, _  = load_and_prepare_matrix(
+    item_user_rating_val, _, _ = load_and_prepare_matrix(
     ratings_val_path, item_path,)
-
-
-
 
     (
         R_filtered_train,
@@ -49,27 +46,27 @@ def run_train_pipeline(
     )= prepare_train_val_matrices(
         item_user_rating_train, 
         item_user_rating_val,
-        id_to_title=id_to_title
     )
-
-
 
 
     # TRAIN MF
     # Tune MF parameters
-
     best_params = tune_mf(
         R_train = R_filtered_train,
         R_val = R_filtered_val,
         n_epochs = n_epochs)
 
 
-
-
     # Train MF with best hyperparameters
     tracemalloc.start()
     start_time_mf = time.time()
-    mf, predicted_ratings, train_mse_history, train_rmse_final, val_mse_history, val_rmse_final = train_mf_with_best_params(
+    (
+        mf, predicted_ratings, 
+        train_mse_history, 
+        train_rmse_final, 
+        val_mse_history, 
+        val_rmse_final
+    ) = train_mf_with_best_params(
         R_filtered = R_filtered_train,
         R_val = R_filtered_val,        
         best_params = best_params,
@@ -80,23 +77,9 @@ def run_train_pipeline(
     mem_mf = tracemalloc.get_traced_memory()[1] / 1024**2
     tracemalloc.stop()
 
-    #val_rmse = mf.compute_rmse(R_filtered_val, predicted_ratings)
 
     # Attach filtered item titles to MF model
     mf.item_ids = filtered_item_ids
-
-    # Get top-N candidates for MF
-    # get_top_n_recommendations_MF(
-    #     genre_map=genre_map,
-    #     predicted_ratings=predicted_ratings,
-    #     R_filtered=R_filtered_train,
-    #     filtered_user_ids=filtered_user_ids,
-    #     filtered_item_ids=filtered_item_ids,
-    #     top_n=top_n,
-    #     id_to_title = id_to_title,
-    #     save_path = os.path.join(output_dir,f"{run_id}/mf_train_{chunksize}_top_{top_n}.csv"))
-
-
 
     #TUNE MMR lambda
     # Create a builder for cosine similarity
@@ -144,7 +127,6 @@ def run_train_pipeline(
     )
 
 
-
     # Build Final MMR models with best lambda and run MMR
     tracemalloc.start()
     start_time_cos = time.time()
@@ -168,29 +150,6 @@ def run_train_pipeline(
     time_jac = end_time_jac - start_time_jac
     mem_jac = tracemalloc.get_traced_memory()[1] / 1024**2
     tracemalloc.stop()
-
-
-
-    # Process and Save MMR result
-    # process_save_mmr(all_recs = all_recs_cosine,
-    #                 item_user_rating = item_user_rating_train,
-    #                 item_ids = filtered_item_ids,
-    #                 predicted_ratings = predicted_ratings,
-    #                 genre_map = genre_map,
-    #                 id_to_title = id_to_title,
-    #                 top_n = top_n,
-    #                 output_file_path = os.path.join(output_dir,f"{run_id}/mmr_train_{chunksize}_cosine_top_{top_n}.csv"))
-
-
-    # process_save_mmr(all_recs = all_recs_jaccard,
-    #                 item_user_rating = item_user_rating_train,
-    #                 item_ids = filtered_item_ids,
-    #                 predicted_ratings = predicted_ratings,
-    #                 genre_map = genre_map,
-    #                 id_to_title = id_to_title,
-    #                 top_n = top_n,
-    #                 output_file_path = os.path.join(output_dir,f"{run_id}/mmr_train_{chunksize}_jaccard_top_{top_n}.csv"))
-
 
     #LOG MF DATA
     log_experiment(
@@ -283,7 +242,7 @@ def run_test_pipeline(
     os.makedirs(output_dir, exist_ok=True)
 
     # Load and prepare data
-    item_user_rating, genre_map, all_genres, id_to_title = load_and_prepare_matrix(
+    item_user_rating, genre_map, all_genres= load_and_prepare_matrix(
         ratings_path, item_path)
     
     # Use your existing function to align the matrix!
@@ -301,20 +260,15 @@ def run_test_pipeline(
     # Get top-N candidates for MMR
     mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
-
     get_top_n_recommendations_MF(
-        genre_map=genre_map,
         predicted_ratings=predicted_ratings,
         R_filtered=R_filtered,
         filtered_user_ids=filtered_user_ids,
         filtered_item_ids=filtered_item_ids,
-        id_to_title=id_to_title,
         top_n=top_n,
         save_path=mf_top_n_path)
     
-    #predicted_ratings_top_n, user_history_top_n = prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered)           
     
-
     candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
     predicted_ratings_top_n, user_history_top_n, candidate_items = build_mmr_input(
@@ -360,41 +314,24 @@ def run_test_pipeline(
     mmr_jaccard = builder_jaccard(best_lambda_jaccard)
 
     # Run MMR
-    # tracemalloc.start()
-    # start_time_cos = time.time()
     all_recs_cosine = run_mmr(
         mmr_model = mmr_cosine,
         R_filtered = R_filtered ,
         user_history = user_history_top_n,
         top_k = top_k)
     
-    # end_time_cos = time.time()
-    # time_cos = end_time_cos - start_time_cos
-    # mem_cos = tracemalloc.get_traced_memory()[1] / 1024**2
-    # tracemalloc.stop()
-
-    # tracemalloc.start()
-    # start_time_jac = time.time()
     all_recs_jaccard = run_mmr(
         mmr_model = mmr_jaccard,
         R_filtered = R_filtered ,
         user_history = user_history_top_n,
         top_k = top_k)
     
-    # end_time_jac = time.time()
-    # time_jac = end_time_jac - start_time_jac
-    # mem_jac = tracemalloc.get_traced_memory()[1] / 1024**2
-    # tracemalloc.stop()
-
 
     # Process and Save MMR result
     process_save_mmr(all_recs = all_recs_cosine,
                     item_user_rating=item_user_rating,
                     item_ids=candidate_items,
                     predicted_ratings=predicted_ratings_top_n,
-                    genre_map=genre_map,
-                    id_to_title=id_to_title,
-                    top_n=top_n,
                     output_file_path = os.path.join(output_dir,f"{run_id}/mmr_test_{chunksize}_cosine_top_{top_n}.csv"))
 
 
@@ -402,48 +339,15 @@ def run_test_pipeline(
                     item_user_rating=item_user_rating,
                     item_ids=candidate_items,
                     predicted_ratings=predicted_ratings_top_n,
-                    genre_map=genre_map,
-                    id_to_title=id_to_title,
-                    top_n=top_n,
                     output_file_path = os.path.join(output_dir,f"{run_id}/mmr_test_{chunksize}_jaccard_top_{top_n}.csv"))
     
-
-    print(f"Log MMR data")
-
-    # LOG MMR DATA
-    # log_experiment(
-    #     output_dir = output_dir,
-    #     file_name="mmr_test_experiment_log.csv",
-    #     params={ "Run_id": run_id,
-    #             "Dataset_name": dataset,
-    #             "Datasize": chunksize,
-    #             "Similarity_type": "cosine",
-    #             "Benchmark_time": time_cos,
-    #             "Max_Memory_MB": mem_cos
-    #             }
-
-    # )
-
-
-    # log_experiment(
-    #     output_dir = output_dir,
-    #     file_name="mmr_test_experiment_log.csv",
-    #     params={ "Run_id": run_id,
-    #             "Dataset_name": dataset,
-    #             "Datasize": chunksize,
-    #             "Similarity_type": "jaccard",
-    #             "Benchmark_time": time_jac,
-    #             "Max_Memory_MB": mem_jac
-    #             }
-    # )
-
     print(f"Pipeline for {dataset} test finished successfully!")
 
 
 if __name__ == "__main__":
     # PARAMETER
     TOP_N = 50
-    CHUNK_SIZE = 100000
+    CHUNK_SIZE = 5000
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1
@@ -476,13 +380,13 @@ if __name__ == "__main__":
 
 
     weight_pairs = [
-    # (1.0, 0.0),
+    (1.0, 0.0),
     # (0.8, 0.2),
     # (0.6, 0.4),
-    (0.5, 0.5),
-    (0.4, 0.6),
-    (0.2, 0.8),
-    (0.0, 1.0),
+    # (0.5, 0.5),
+    # (0.4, 0.6),
+    # (0.2, 0.8),
+    # (0.0, 1.0),
     ]
 
     for REL_WEIGHT, DIV_WEIGHT in weight_pairs:
@@ -528,39 +432,39 @@ if __name__ == "__main__":
 
 
         # #RUN pipeline for books
-        run_book_id = generate_run_id()
-        (
-            books_best_lambda_cosine, 
-            books_best_lambda_jaccard, 
-            books_mf_trained, 
-            books_train_user_ids, 
-            books_train_item_ids
-            ) = run_train_pipeline (
-            run_id = run_book_id,
-            ratings_train_path = books_ratings_train_file,
-            ratings_val_path= books_ratings_val_file,
-            item_path = books_item_file_path,
-            output_dir = books_output_dir,
-            top_k = TOP_K,
-            chunksize= CHUNK_SIZE,
-            n_epochs= N_EPOCHS,
-            relevance_weight=REL_WEIGHT,
-            diversity_weight=DIV_WEIGHT,
-            dataset=dataset_books,
-            random_state=RANDOM_STATE)
+        # run_book_id = generate_run_id()
+        # (
+        #     books_best_lambda_cosine, 
+        #     books_best_lambda_jaccard, 
+        #     books_mf_trained, 
+        #     books_train_user_ids, 
+        #     books_train_item_ids
+        #     ) = run_train_pipeline (
+        #     run_id = run_book_id,
+        #     ratings_train_path = books_ratings_train_file,
+        #     ratings_val_path= books_ratings_val_file,
+        #     item_path = books_item_file_path,
+        #     output_dir = books_output_dir,
+        #     top_k = TOP_K,
+        #     chunksize= CHUNK_SIZE,
+        #     n_epochs= N_EPOCHS,
+        #     relevance_weight=REL_WEIGHT,
+        #     diversity_weight=DIV_WEIGHT,
+        #     dataset=dataset_books,
+        #     random_state=RANDOM_STATE)
 
-        run_test_pipeline(
-            run_id = run_book_id,
-            ratings_path=books_ratings_test_path,
-            item_path=books_item_file_path,
-            output_dir=books_output_dir,
-            dataset=dataset_books,
-            top_n=TOP_N,
-            top_k=TOP_K,
-            chunksize=CHUNK_SIZE,
-            best_lambda_cosine = books_best_lambda_cosine,
-            best_lambda_jaccard = books_best_lambda_jaccard,
-            trained_mf_model = books_mf_trained,
-            train_filtered_user_ids=books_train_user_ids,
-            train_filtered_item_ids=books_train_item_ids
-        )
+        # run_test_pipeline(
+        #     run_id = run_book_id,
+        #     ratings_path=books_ratings_test_path,
+        #     item_path=books_item_file_path,
+        #     output_dir=books_output_dir,
+        #     dataset=dataset_books,
+        #     top_n=TOP_N,
+        #     top_k=TOP_K,
+        #     chunksize=CHUNK_SIZE,
+        #     best_lambda_cosine = books_best_lambda_cosine,
+        #     best_lambda_jaccard = books_best_lambda_jaccard,
+        #     trained_mf_model = books_mf_trained,
+        #     train_filtered_user_ids=books_train_user_ids,
+        #     train_filtered_item_ids=books_train_item_ids
+        # )

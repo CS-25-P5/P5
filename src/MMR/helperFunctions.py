@@ -29,7 +29,7 @@ def align_matrix_to_items(matrix_df, filtered_item_ids, filtered_user_ids):
 
 
 
-def prepare_train_val_matrices(train_df, val_df, id_to_title=None):
+def prepare_train_val_matrices(train_df, val_df):
 
     # Align train and val to common users/items
     # common_users = train_df.index.intersection(val_df.index)
@@ -80,14 +80,6 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
     item_mask = np.isin(trained_items, filtered_item_ids_str)
     item_indices_in_mf = np.where(item_mask)[0]
     
-    # item_indices_in_mf = []
-    # for item_id in filtered_item_ids_str:
-    #     # Check if the item exists in trained MF
-    #     if item_id in trained_items:
-    #         index = np.where(trained_items == item_id)[0][0]
-    #         item_indices_in_mf.append(index)
-        
-
     # Get the predicted ratings for the filtered items
     predicted_ratings_all = trained_mf_model.full_prediction()[:, item_indices_in_mf]
     
@@ -117,40 +109,6 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
 # ==========================
 # CANDIDATE LIST / MMR INPUT FUNCTIONS
 # ==========================
-# def prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered):
-#     #Keep order, remove duplicates
-#     top_n_items = []
-#     seen_items = set()
-#     for user_id, indices in all_recommendations.items():
-#         for idx in indices:
-#             item_id = filtered_item_ids[idx]
-#             if item_id not in seen_items:
-#                 top_n_items.append(item_id)
-#                 seen_items.add(item_id)
-
-#     # Map top_n_items to columns in predicted_ratings
-#     item_idx_map = [filtered_item_ids.index(i) for i in top_n_items]
-#     predicted_ratings_top_n = predicted_ratings[:, item_idx_map]
-
-#     # Create user histories aligned to top-N items
-#     user_history_top_n = []
-#     num_top_items = len(top_n_items) 
-
-#     for user_idx, user_id in enumerate(filtered_user_ids):
-#         rated_item_indices  = np.where(R_filtered[user_idx, :] > 0)[0]
-#         rated_item_ids = [filtered_item_ids[i] for i in rated_item_indices ]
-
-#         # Boolean mask aligned to top_n_items
-#         mask = np.zeros(num_top_items, dtype=bool)
-#         for i, item_id in enumerate(top_n_items):
-#             if item_id in rated_item_ids:
-#                 mask[i] = True
-
-#         user_history_top_n.append(mask)
-
-#     return predicted_ratings_top_n, user_history_top_n
-
-
 def build_mmr_input(
     candidate_list_csv,
     R_filtered,
@@ -194,94 +152,6 @@ def build_mmr_input(
         user_history_top_n.append(mask)
 
     return predicted_ratings_top_n, user_history_top_n, candidate_items
-
-# def build_mmr_input(
-#     candidate_list_csv,
-#     predicted_ratings,      
-#     R_filtered,
-#     filtered_user_ids,
-#     filtered_item_ids,
-# ):
-
-#     # Load candidate list
-#     df = pd.read_csv(candidate_list_csv)
-#     df = df[df["userId"].isin(filtered_user_ids)]
-
-#     # Mapping from userId/itemId to MF matrix indices
-#     user_to_row = {u: i for i, u in enumerate(filtered_user_ids)}
-#     item_to_col = {i: j for j, i in enumerate(filtered_item_ids)}
-
-#     # Keep only items in candidate list
-#     candidate_items_set = set(df["itemId"].unique())
-#     candidate_item_indices = [item_to_col[i] for i in filtered_item_ids if i in candidate_items_set]
-
-#     num_users = len(filtered_user_ids)
-#     num_candidate_items = len(candidate_item_indices)
-
-#     # Initialize top-n predicted ratings matrix
-#     predicted_ratings_top_n = np.zeros((num_users, num_candidate_items))
-
-#     # Fill from MF predictions
-#     for u_idx, user_id in enumerate(filtered_user_ids):
-#         for j_idx, item_idx in enumerate(candidate_item_indices):
-#             predicted_ratings_top_n[u_idx, j_idx] = predicted_ratings[u_idx, item_idx]
-
-#     # Build user history mask for MMR
-#     user_history_top_n = []
-#     for u_idx in range(num_users):
-#         rated_item_indices = np.where(R_filtered[u_idx] > 0)[0]
-#         rated_item_ids = {filtered_item_ids[i] for i in rated_item_indices}
-
-#         mask = np.zeros(num_candidate_items, dtype=bool)
-#         for j_idx, item_idx in enumerate(candidate_item_indices):
-#             item_id = filtered_item_ids[item_idx]
-#             if item_id in rated_item_ids:
-#                 mask[j_idx] = True
-
-#         user_history_top_n.append(mask)
-
-#     return predicted_ratings_top_n, user_history_top_n
-
-# def build_mmr_input(
-#     candidate_list_csv,
-#     predicted_ratings,      
-#     R_filtered,
-#     filtered_user_ids,
-#     filtered_item_ids,
-# ):
-#     # Load candidate list
-#     df = pd.read_csv(candidate_list_csv)
-#     df = df[df["userId"].isin(filtered_user_ids)]
-
-#     # Mapping from userId/itemId to MF matrix indices
-#     user_to_row = {u: i for i, u in enumerate(filtered_user_ids)}
-#     item_to_col = {i: j for j, i in enumerate(filtered_item_ids)}
-
-#     # Keep only candidate items that exist in filtered_item_ids
-#     candidate_items = [i for i in filtered_item_ids if i in set(df["itemId"].unique())]
-#     candidate_item_indices = [item_to_col[i] for i in candidate_items]
-
-#     num_users = len(filtered_user_ids)
-#     num_candidate_items = len(candidate_items)
-
-#     # Initialize top-n predicted ratings matrix
-#     predicted_ratings_top_n = np.zeros((num_users, num_candidate_items))
-
-#     # Fill from MF predictions
-#     for u_idx, user_id in enumerate(filtered_user_ids):
-#         predicted_ratings_top_n[u_idx, :] = predicted_ratings[u_idx, candidate_item_indices]
-
-#     # Build user history mask for MMR
-#     user_history_top_n = []
-#     for u_idx in range(num_users):
-#         rated_item_indices = np.where(R_filtered[u_idx] > 0)[0]
-#         rated_item_ids = {filtered_item_ids[i] for i in rated_item_indices}
-
-#         mask = np.array([item_id in rated_item_ids for item_id in candidate_items])
-#         user_history_top_n.append(mask)
-
-#     return predicted_ratings_top_n, user_history_top_n
-
 
 # ==========================
 # LOGGING FUNCTIONS

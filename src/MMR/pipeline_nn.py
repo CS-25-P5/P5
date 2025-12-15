@@ -1,5 +1,5 @@
 import numpy as np
-from MF import load_and_prepare_matrix, get_top_n_recommendations_MF, tune_mf, train_mf_with_best_params, save_mf_predictions
+from MF import load_and_prepare_matrix, tune_mf, train_mf_with_best_params
 from MMR import mmr_builder_factory, tune_mmr_lambda, run_mmr, process_save_mmr
 from helperFunctions import (
     generate_run_id, align_matrix_to_items, 
@@ -31,13 +31,11 @@ def run_train_pipeline(
 
     os.makedirs(output_dir, exist_ok=True)
 
-    item_user_rating_train, genre_map, all_genres, id_to_title = load_and_prepare_matrix(
+    item_user_rating_train, genre_map, all_genres = load_and_prepare_matrix(
         ratings_train_path, item_path)
 
-    item_user_rating_val, _, _, _  = load_and_prepare_matrix(
+    item_user_rating_val, _, _ = load_and_prepare_matrix(
     ratings_val_path, item_path,)
-
-
 
 
     (
@@ -49,7 +47,6 @@ def run_train_pipeline(
     )= prepare_train_val_matrices(
         item_user_rating_train, 
         item_user_rating_val,
-        id_to_title=id_to_title
     )
 
     # TRAIN MF
@@ -61,12 +58,20 @@ def run_train_pipeline(
     # Train MF with best hyperparameters
     tracemalloc.start()
     start_time_mf = time.time()
-    mf, predicted_ratings, train_mse_history, train_rmse_final, val_mse_history, val_rmse_final = train_mf_with_best_params(
+    
+    (
+        mf, predicted_ratings, 
+        train_mse_history, 
+        train_rmse_final, 
+        val_mse_history, 
+        val_rmse_final
+    ) = train_mf_with_best_params(
         R_filtered = R_filtered_train,
         R_val = R_filtered_val,        
         best_params = best_params,
         n_epochs=n_epochs,
         random_state = random_state)
+    
     end_time_mf = time.time()
     time_mf = end_time_mf - start_time_mf
     mem_mf = tracemalloc.get_traced_memory()[1] / 1024**2
@@ -145,29 +150,6 @@ def run_train_pipeline(
     time_jac = end_time_jac - start_time_jac
     mem_jac = tracemalloc.get_traced_memory()[1] / 1024**2
     tracemalloc.stop()
-
-
-
-    # Process and Save MMR result
-    # process_save_mmr(all_recs = all_recs_cosine,
-    #                 item_user_rating = item_user_rating_train,
-    #                 item_ids = filtered_item_ids,
-    #                 predicted_ratings = predicted_ratings,
-    #                 genre_map = genre_map,
-    #                 id_to_title = id_to_title,
-    #                 top_n = top_n,
-    #                 output_file_path = os.path.join(output_dir,f"{run_id}/mmr_train_{chunksize}_cosine_top_{top_n}.csv"))
-
-
-    # process_save_mmr(all_recs = all_recs_jaccard,
-    #                 item_user_rating = item_user_rating_train,
-    #                 item_ids = filtered_item_ids,
-    #                 predicted_ratings = predicted_ratings,
-    #                 genre_map = genre_map,
-    #                 id_to_title = id_to_title,
-    #                 top_n = top_n,
-    #                 output_file_path = os.path.join(output_dir,f"{run_id}/mmr_train_{chunksize}_jaccard_top_{top_n}.csv"))
-
 
     #LOG MF DATA
     log_experiment(
@@ -261,7 +243,7 @@ def run_test_pipeline(
     os.makedirs(output_dir, exist_ok=True)
 
     # Load and prepare data
-    item_user_rating, genre_map, all_genres, id_to_title  = load_and_prepare_matrix(
+    item_user_rating, genre_map, all_genres = load_and_prepare_matrix(
         ratings_path, item_path)
     
     # # Use your existing function to align the matrix!
@@ -272,11 +254,11 @@ def run_test_pipeline(
     )
     
 
-    filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
+    filtered_user_ids, filtered_item_ids, _ = get_filtered_predictions(
         trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids)
 
     
-    predicted_ratings_top_n, user_history_top_n = build_mmr_input(
+    predicted_ratings_top_n, user_history_top_n, candidate_items = build_mmr_input(
     candidate_list_csv = nn_candidates_csv,
     R_filtered = R_filtered,
     filtered_user_ids = filtered_user_ids,
@@ -285,7 +267,7 @@ def run_test_pipeline(
 
     # Create a builder for cosine similarity
     builder_cosine = mmr_builder_factory(
-        item_ids=filtered_item_ids,
+        item_ids=candidate_items,
         genre_map=genre_map,
         all_genres=all_genres,
         predicted_ratings=predicted_ratings_top_n,
@@ -295,7 +277,7 @@ def run_test_pipeline(
     mmr_cosine = builder_cosine(best_lambda_cosine)
 
     builder_jaccard = mmr_builder_factory(
-        item_ids=filtered_item_ids,
+        item_ids=candidate_items,
         genre_map=genre_map,
         all_genres=all_genres,
         predicted_ratings=predicted_ratings_top_n,
@@ -335,52 +317,17 @@ def run_test_pipeline(
     # Process and Save MMR result
     process_save_mmr(all_recs = all_recs_cosine,
                     item_user_rating=item_user_rating,
-                    item_ids=filtered_item_ids,
-                    predicted_ratings=predicted_ratings,
-                    genre_map=genre_map,
-                    id_to_title=id_to_title,
-                    top_n=top_n,
+                    item_ids=candidate_items,
+                    predicted_ratings=predicted_ratings_top_n,
                     output_file_path = os.path.join(output_dir,f"{run_id}/mmr_test_{chunksize}_cosine_top_{top_n}.csv"))
 
 
     process_save_mmr(all_recs = all_recs_jaccard,
                     item_user_rating=item_user_rating,
-                    item_ids=filtered_item_ids,
-                    predicted_ratings=predicted_ratings,
-                    genre_map=genre_map,
-                    id_to_title=id_to_title,
-                    top_n=top_n,
+                    item_ids=candidate_items,
+                    predicted_ratings=predicted_ratings_top_n,
                     output_file_path = os.path.join(output_dir,f"{run_id}/mmr_test_{chunksize}_jaccard_top_{top_n}.csv"))
     
-
-    print(f"Log MMR data")
-
-    # LOG MMR DATA
-    # log_experiment(
-    #     output_dir = output_dir,
-    #     file_name="mmr_test_experiment_log.csv",
-    #     params={ "Run_id": run_id,
-    #             "Dataset_name": dataset,
-    #             "Datasize": chunksize,
-    #             "Similarity_type": "cosine",
-    #             "Benchmark_time": time_cos,
-    #             "Max_Memory_MB": mem_cos
-    #             }
-
-    # )
-
-
-    # log_experiment(
-    #     output_dir = output_dir,
-    #     file_name="mmr_test_experiment_log.csv",
-    #     params={ "Run_id": run_id,
-    #             "Dataset_name": dataset,
-    #             "Datasize": chunksize,
-    #             "Similarity_type": "jaccard",
-    #             "Benchmark_time": time_jac,
-    #             "Max_Memory_MB": mem_jac
-    #             }
-    # )
 
     print(f"Pipeline for {dataset} test finished successfully!")
 
