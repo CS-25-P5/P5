@@ -285,11 +285,18 @@ def run_dpp_pipeline(
     item_user_rating_val, _, _, _ = load_and_prepare_matrix(ratings_val_path, item_path)
 
     # Use MMR helper to prepare aligned and filtered matrices
-    R_filtered_train, R_filtered_val, val_data_filtered, filtered_user_ids, filtered_item_ids, filtered_item_titles = prepare_train_val_matrices(
-        train_df = item_user_rating_train,
-        val_df = item_user_rating_val,
-        id_to_title = id_to_title
+    (
+        R_filtered_train,
+        R_filtered_val,
+        val_data_filtered,
+        filtered_user_ids,
+        filtered_item_ids,
+    )= prepare_train_val_matrices(
+        item_user_rating_train,
+        item_user_rating_val,
+        id_to_title=id_to_title
     )
+
 
     # Tune MF hyperparameters
     best_params = tune_mf(R_filtered_train, R_filtered_val, n_epochs=n_epochs)
@@ -324,9 +331,9 @@ def run_dpp_pipeline(
     t0 = time.time()
     # Create a builder for cosine similarity
     build_start = time.time()
-    build_dpp_cosine = build_dpp_models(filtered_item_titles, genre_map, all_genres, predicted_ratings, 'cosine')
+    build_dpp_cosine = build_dpp_models(filtered_item_ids, genre_map, all_genres, predicted_ratings, 'cosine')
 
-    build_dpp_jaccard = build_dpp_models(filtered_item_titles, genre_map, all_genres, predicted_ratings, 'jaccard')
+    build_dpp_jaccard = build_dpp_models(filtered_item_ids, genre_map, all_genres, predicted_ratings, 'jaccard')
     build_end = time.time()
     print(f"DPP model build time: {build_end - build_start:.2f} sec")
 
@@ -347,7 +354,7 @@ def run_dpp_pipeline(
     # Run DPP recommendations
     cos_start = time.time()
     get_recommendations_for_dpp(
-        build_dpp_cosine, item_user_rating_filtered_df, filtered_item_titles,
+        build_dpp_cosine, item_user_rating_filtered_df, filtered_item_ids,
         genre_map, predicted_ratings, id_to_title, top_k, top_n, output_dir,  "cosine")
 
     cos_end = time.time()
@@ -356,7 +363,7 @@ def run_dpp_pipeline(
 
     jac_start = time.time()
     get_recommendations_for_dpp(
-        build_dpp_jaccard, item_user_rating_filtered_df, filtered_item_titles,
+        build_dpp_jaccard, item_user_rating_filtered_df, filtered_item_ids,
         genre_map, predicted_ratings, id_to_title, top_k, top_n,
         output_dir, "jaccard"
     )
