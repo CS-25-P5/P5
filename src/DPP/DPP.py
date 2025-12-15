@@ -111,6 +111,9 @@ class DPP:
             # If not provided, consider all items
             candidate_indices = np.arange(len(user_history))
 
+        if len(candidate_indices) == 0:
+            return np.array([], dtype=int)
+
         # relevance only for candidate items
         relevance = self.predicted_ratings[user_id, candidate_indices]
 
