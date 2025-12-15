@@ -18,7 +18,7 @@ tune_mf, train_mf_with_best_params,
 
 #from MMR.helperFunctions import ( generate_run_id, align_matrix_to_items,
  #                                 prepare_train_val_matrices, get_filtered_predictions,
-  #                                prepare_top_n_data, log_experiment, log_loss_history, build_mmr_input
+  #                                prepare_top_n_data, log_experiment, log_loss_history, build_mmr_input, align_predicted_ratings
    #                               )
 
 
@@ -272,6 +272,27 @@ def log_loss_history(output_dir, filename, train_mse, val_mse):
 
     print(f"Logged experiment to {loss_file}")
 
+def align_predicted_ratings(predicted_ratings, train_user_ids, train_item_ids,
+                            test_user_ids, test_item_ids):
+
+    user_idx_map = {uid: i for i, uid in enumerate(train_user_ids)}
+    item_idx_map = {iid: i for i, iid in enumerate(train_item_ids)}
+
+    aligned_ratings = np.zeros((len(test_user_ids), len(test_item_ids)), dtype=float)
+
+    for u_idx, u_id in enumerate(test_user_ids):
+        if u_id not in user_idx_map:
+            raise ValueError(f"Test user {u_id} not in training MF model")
+        train_u_idx = user_idx_map[u_id]
+        for i_idx, i_id in enumerate(test_item_ids):
+            if i_id in item_idx_map:
+                train_i_idx = item_idx_map[i_id]
+                aligned_ratings[u_idx, i_idx] = predicted_ratings[train_u_idx, train_i_idx]
+            else:
+                # Item not in MF model
+                aligned_ratings[u_idx, i_idx] = 0  # or np.nan
+    return aligned_ratings
+
 def run_dpp_pipeline(
         run_id, ratings_train_path, ratings_val_path, item_path, output_dir, dataset=None, datasize=None,
         top_n=10, top_k=20, chunksize = 10000 , n_epochs=50, random_state = 42
@@ -429,15 +450,22 @@ def run_dpp_pipeline_test(
     # Get top-N candidates for MMR
     mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
+    predicted_ratings_test_aligned = align_predicted_ratings(
+        predicted_ratings=predicted_ratings,
+        train_user_ids=train_filtered_user_ids,
+        train_item_ids=train_filtered_item_ids,
+        test_user_ids=filtered_user_ids,
+        test_item_ids=filtered_item_ids
+    )
 
-    get_top_n_recommendations_MF(
-                                predicted_ratings=predicted_ratings,
-                                R_filtered=R_filtered,
-                                filtered_user_ids=filtered_user_ids,
-                                filtered_item_ids=filtered_item_ids,
-                                top_n=top_n,
-                                save_path=mf_top_n_path)
-
+    all_recommendations = get_top_n_recommendations_MF(
+        predicted_ratings=predicted_ratings_test_aligned,
+        R_filtered=R_filtered,
+        filtered_user_ids=filtered_user_ids,
+        filtered_item_ids=filtered_item_ids,
+        top_n=top_n,
+        save_path=mf_top_n_path
+    )
     #predicted_ratings_top_n, user_history_top_n = prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered)
     candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
