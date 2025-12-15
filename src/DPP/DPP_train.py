@@ -86,7 +86,7 @@ def prepare_train_val_matrices(train_df, val_df, id_to_title=None):
     filtered_item_ids = train_aligned.columns.tolist()
     #filtered_item_titles = [id_to_title[i] for i in filtered_item_ids]
 
-    R_filtered_val, val_data_filtered = align_matrix_to_items(
+    R_filtered_val, val_data_filtered, _ = align_matrix_to_items(
         val_aligned,
         filtered_item_ids,
         filtered_user_ids
@@ -281,8 +281,12 @@ def run_dpp_pipeline(
     os.makedirs(output_dir, exist_ok=True)
 
     # Load train/validation matrices (dataframes)
-    item_user_rating_train, genre_map, all_genres, id_to_title = load_and_prepare_matrix(ratings_train_path, item_path)
-    item_user_rating_val, _, _, _ = load_and_prepare_matrix(ratings_val_path, item_path)
+    item_user_rating_train, genre_map, all_genres = load_and_prepare_matrix(
+        ratings_train_path, item_path)
+
+    item_user_rating_val, _, _ = load_and_prepare_matrix(
+        ratings_val_path, item_path,)
+
 
     # Use MMR helper to prepare aligned and filtered matrices
     (
@@ -294,7 +298,6 @@ def run_dpp_pipeline(
     )= prepare_train_val_matrices(
         item_user_rating_train,
         item_user_rating_val,
-        id_to_title=id_to_title
     )
 
 
@@ -364,7 +367,7 @@ def run_dpp_pipeline(
     cos_start = time.time()
     get_recommendations_for_dpp(
         build_dpp_cosine, item_user_rating_filtered_df, filtered_item_ids,
-        genre_map, predicted_ratings, id_to_title, top_k, top_n, output_dir,  "cosine")
+        genre_map, predicted_ratings,  top_k, top_n,  "cosine")
 
     cos_end = time.time()
     print(f"DPP cosine runtime: {cos_end - cos_start:.2f} sec")
@@ -373,8 +376,7 @@ def run_dpp_pipeline(
     jac_start = time.time()
     get_recommendations_for_dpp(
         build_dpp_jaccard, item_user_rating_filtered_df, filtered_item_ids,
-        genre_map, predicted_ratings, id_to_title, top_k, top_n,
-        output_dir, "jaccard"
+        genre_map, predicted_ratings, top_k, top_n, "jaccard"
     )
     jac_end = time.time()
 
@@ -471,9 +473,6 @@ def run_dpp_pipeline_test(
     dpp_cosine = build_dpp_models(filtered_item_ids, genre_map, all_genres_test, predicted_ratings_top_n, 'cosine')
     dpp_jaccard = build_dpp_models(filtered_item_ids, genre_map, all_genres_test, predicted_ratings_top_n, 'jaccard')
 
-    dpp_path_cosine = os.path.join(output_dir,f"{run_id}/dpp_test_{chunksize}_cosine_top_{top_n}.csv")
-    dpp_path_jaccard = os.path.join(output_dir,f"{run_id}/dpp_test_{chunksize}_jaccard_top_{top_n}.csv")
-
 
     # Build candidate item set (union of all MF top-N results)
     top_n_items = sorted({
@@ -496,13 +495,13 @@ def run_dpp_pipeline_test(
 
     # Run DPP recommendations on test
     cosine_reco =  get_recommendations_for_dpp(
-        dpp_cosine, filtered_df_top_n, filtered_item_ids, genre_map, predicted_ratings, id_to_title,
-        top_k, top_n, dpp_path_cosine, "cosine"
+        dpp_cosine, filtered_df_top_n, filtered_item_ids, genre_map, predicted_ratings,
+        top_k, top_n, "cosine"
     )
 
     jaccard_rec = get_recommendations_for_dpp(
-        dpp_jaccard, filtered_df_top_n, filtered_item_ids, genre_map, predicted_ratings, id_to_title,
-        top_k, top_n, dpp_path_jaccard, "jaccard"
+        dpp_jaccard, filtered_df_top_n, filtered_item_ids, genre_map, predicted_ratings,
+        top_k, top_n, "jaccard"
     )
 
 

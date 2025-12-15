@@ -148,14 +148,12 @@ def build_dpp_models(movie_titles, genre_map, all_features, predicted_ratings, s
 
 # Add DPP results to list
 def process_dpp(user_id, user_idx, dpp_indices, item_ids, feature_map,
-                predicted_ratings, dpp_recommendations_list, itemid_to_col,
-                id_to_title, top_n=10):
+                predicted_ratings, dpp_recommendations_list, itemid_to_col, top_n=10):
 
     for rank, col_idx in enumerate(dpp_indices[:top_n], start=1):
-        item_ids = item_ids[col_idx]
-        title = id_to_title.get(item_ids, "")
+        item_ids = int(item_ids[col_idx])
         # handle missing genres
-        item_genres = genre_map.get(item_ids, set())
+        item_genres = feature_map.get(item_ids, set())
         genres = ",".join(item_genres)
         score =  predicted_ratings[user_idx, col_idx]
 
@@ -168,10 +166,9 @@ def process_dpp(user_id, user_idx, dpp_indices, item_ids, feature_map,
         dpp_recommendations_list.append({
             'userId': user_id,
             'rank': rank,
-            "itemId": item_ids,
-            'title': title,
-            'predictedRating': predicted_ratings[user_idx, col_idx],
-            'features': feature
+            "itemId": str(item_ids),
+            'predictedRating': score,
+            'features': genres
         })
 
 
@@ -179,7 +176,7 @@ def process_dpp(user_id, user_idx, dpp_indices, item_ids, feature_map,
 # Run DPP for all users
 
 def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_map,
-                                predicted_ratings, id_to_title,
+                                predicted_ratings,
                                 top_k, top_n, similarity_type):
 
     results = []
@@ -206,7 +203,6 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
             predicted_ratings=predicted_ratings,
             dpp_recommendations_list=results,
             itemid_to_col=itemid_to_col,
-            id_to_title=id_to_title,
             top_n=top_n
         )
 
