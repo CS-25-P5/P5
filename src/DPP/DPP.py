@@ -153,13 +153,13 @@ def process_dpp(user_id, user_idx, dpp_indices, item_ids, feature_map,
     for rank, col_idx in enumerate(dpp_indices[:top_n], start=1):
         item_id = item_ids[col_idx]
         # handle missing genres
-        item_genres = feature_map.get(item_ids, set())
+        item_genres = feature_map.get(item_id, set())
         genres = ",".join(item_genres)
         score =  predicted_ratings[user_idx, col_idx]
 
-        actual_col_idx = itemid_to_col.get(item_ids)
+        actual_col_idx = itemid_to_col.get(item_id)
         if actual_col_idx != col_idx:
-            print(f"Warning: Mapping mismatch for item {item_ids}: col_idx={col_idx}, actual_col_idx={actual_col_idx}")
+            print(f"Warning: Mapping mismatch for item {item_id}: col_idx={col_idx}, actual_col_idx={actual_col_idx}")
 
 
 
