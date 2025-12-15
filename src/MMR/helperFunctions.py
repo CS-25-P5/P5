@@ -119,7 +119,10 @@ def build_mmr_input(
 ):
     df = pd.read_csv(candidate_list_csv)
     df = df[df["userId"].isin(filtered_user_ids)]
-    #df = df[df["itemId"].isin(filtered_item_ids)]
+
+    filtered_item_ids = list(map(str, filtered_item_ids))
+    df["itemId"] = df["itemId"].astype(str)
+    df = df[df["itemId"].isin(filtered_item_ids)]
 
     candidate_items = []
     seen = set()
@@ -127,6 +130,9 @@ def build_mmr_input(
         if row["itemId"] not in seen:
             candidate_items.append(row["itemId"])
             seen.add(row["itemId"])
+
+
+    print(f"[DEBUG] Candidate items after filtering: {len(candidate_items)}")
 
     num_items = len(candidate_items)
     predicted_ratings_top_n = np.zeros((len(filtered_user_ids), num_items))
