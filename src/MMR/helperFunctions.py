@@ -196,7 +196,7 @@ def build_mmr_input(
 
         user_history_top_n.append(mask)
 
-    return predicted_ratings_top_n, user_history_top_n
+    return predicted_ratings_top_n, user_history_top_n, candidate_items
 
 # ==========================
 # LOGGING FUNCTIONS
