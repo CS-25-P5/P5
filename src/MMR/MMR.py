@@ -89,7 +89,7 @@ class MMR:
             else:
                 # get similarity bewteen remaning[i] and selected[j]
                 # np.idx_ builds a grid
-                diversity = self.sim_matrix[np.ix_(remaining, selected)].mean(axis=1)
+                diversity = self.sim_matrix[np.ix_(remaining, selected)].max(axis=1)
                 diversity_norm = (diversity - diversity.min()) / (diversity.max() - diversity.min() + 1e-8)
                 diversity_penalty = diversity_norm 
                 mmr_scores = self.lambda_param * relevance[remaining] - (1- self.lambda_param) * diversity_penalty

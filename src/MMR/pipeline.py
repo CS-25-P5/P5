@@ -299,6 +299,11 @@ def run_test_pipeline(
     print(f"[DEBUG] Max predicted rating: {predicted_ratings_top_n.max()}")
 
 
+    all_filtered_items = set(filtered_item_ids)
+    missing_items = all_filtered_items - set(candidate_items)
+    print("Missing items:", missing_items)
+
+
 
     # Define output path for MF predictions
     dataset_root = os.path.dirname(output_dir)
