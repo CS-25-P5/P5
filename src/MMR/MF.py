@@ -223,15 +223,11 @@ def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_id
     # store all recomendations for all users
     all_recommendations = {}
 
-    if predicted_ratings.shape[1] != R_filtered.shape[1]:
-        raise ValueError(f"Shape mismatch: predicted_ratings {predicted_ratings.shape} vs R_filtered {R_filtered.shape}")
-
     for user_idx, _ in enumerate(filtered_user_ids):
         # Get all predicted movie ratings for user
         user_ratings = predicted_ratings[user_idx, :]
 
-
-    # Boolean series of movie rating status
+        # Boolean series of movie rating status
         already_rated = R_filtered[user_idx, :]> 0
         valid_mask = user_ratings > 0
 
@@ -279,7 +275,6 @@ def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_id
         output_file_path=save_path,
         top_n = top_n
     )
-
 
 
 

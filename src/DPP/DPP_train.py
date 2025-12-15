@@ -37,26 +37,6 @@ import csv
 import numpy as np
 import os
 
-def align_predicted_ratings(predicted_ratings, train_user_ids, train_item_ids,
-                            test_user_ids, test_item_ids):
-
-    user_idx_map = {uid: i for i, uid in enumerate(train_user_ids)}
-    item_idx_map = {iid: i for i, iid in enumerate(train_item_ids)}
-
-    aligned_ratings = np.zeros((len(test_user_ids), len(test_item_ids)), dtype=float)
-
-    for u_idx, u_id in enumerate(test_user_ids):
-        if u_id not in user_idx_map:
-            raise ValueError(f"Test user {u_id} not in training MF model")
-        train_u_idx = user_idx_map[u_id]
-        for i_idx, i_id in enumerate(test_item_ids):
-            if i_id in item_idx_map:
-                train_i_idx = item_idx_map[i_id]
-                aligned_ratings[u_idx, i_idx] = predicted_ratings[train_u_idx, train_i_idx]
-            else:
-                # Item not in MF model
-                aligned_ratings[u_idx, i_idx] = 0  # or np.nan
-    return aligned_ratings
 
 
 #pipeline start
@@ -209,7 +189,7 @@ def run_dpp_pipeline_test(
         filtered_user_ids=train_filtered_user_ids
     )
 
-    filtered_user_ids, filtered_item_ids, _ = get_filtered_predictions(
+    filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
         trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids)
 
 
@@ -217,22 +197,16 @@ def run_dpp_pipeline_test(
     # Get top-N candidates for MMR
     mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
-    predicted_ratings_test_aligned = align_predicted_ratings(
-        predicted_ratings=predicted_ratings,
-        train_user_ids=train_filtered_user_ids,
-        train_item_ids=train_filtered_item_ids,
-        test_user_ids=filtered_user_ids,
-        test_item_ids=filtered_item_ids
-    )
 
-    all_recommendations = get_top_n_recommendations_MF(
-        predicted_ratings=predicted_ratings_test_aligned,
+    get_top_n_recommendations_MF(
+        predicted_ratings=predicted_ratings,
         R_filtered=R_filtered,
         filtered_user_ids=filtered_user_ids,
         filtered_item_ids=filtered_item_ids,
         top_n=top_n,
         save_path=mf_top_n_path
     )
+
     #predicted_ratings_top_n, user_history_top_n = prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered)
     candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
