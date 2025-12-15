@@ -117,8 +117,6 @@ class DPP:
         # kernel only for candidate items
         K = self.build_kernel(relevance, candidate_indices)
 
-        print("Candidates:", len(candidate_indices))
-        print("K shape:", K.shape)
 
 
         # map global → local indices
