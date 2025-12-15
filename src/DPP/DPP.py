@@ -39,11 +39,11 @@ class DPP:
      # Jaccard similarity
 
     def jaccard_matrix(self):
-     row_sums = self.feature_matrix.sum(axis=1, keepdims=True)
-     intersection = self.feature_matrix @ self.feature_matrix.T
-     union = row_sums + row_sums.T - intersection
+         row_sums = self.feature_matrix.sum(axis=1, keepdims=True)
+         intersection = self.feature_matrix @ self.feature_matrix.T
+         union = row_sums + row_sums.T - intersection
 
-     return intersection / (union + 1e-12)
+         return intersection / (union + 1e-12)
 
     #Cosine similarity
     def cosine_matrix(self):
@@ -147,27 +147,28 @@ def build_dpp_models(movie_titles, genre_map, all_features, predicted_ratings, s
 
 
 # Add DPP results to list
-def process_dpp(user_id, user_idx, dpp_indices, item_id, feature_map,
-                predicted_ratings, dpp_recommendations_list, item_to_id,  top_n=10):
+def process_dpp(user_id, user_idx, dpp_indices, item_ids, feature_map,
+                predicted_ratings, dpp_recommendations_list, itemid_to_col,
+                id_to_title, top_n=10):
 
     for rank, col_idx in enumerate(dpp_indices[:top_n], start=1):
-        item_id = item_ids[col_idx]
-        title = id_to_title.get(item_id, "")
+        item_ids = item_ids[col_idx]
+        title = id_to_title.get(item_ids, "")
         # handle missing genres
-        item_genres = genre_map.get(item_id, set())
+        item_genres = genre_map.get(item_ids, set())
         genres = ",".join(item_genres)
         score =  predicted_ratings[user_idx, col_idx]
 
-        actual_col_idx = itemid_to_col.get(item_id)
+        actual_col_idx = itemid_to_col.get(item_ids)
         if actual_col_idx != col_idx:
-            print(f"Warning: Mapping mismatch for item {item_id}: col_idx={col_idx}, actual_col_idx={actual_col_idx}")
+            print(f"Warning: Mapping mismatch for item {item_ids}: col_idx={col_idx}, actual_col_idx={actual_col_idx}")
 
 
 
         dpp_recommendations_list.append({
             'userId': user_id,
             'rank': rank,
-            "itemId": item_id,
+            "itemId": item_ids,
             'title': title,
             'predictedRating': predicted_ratings[user_idx, col_idx],
             'features': feature
@@ -178,16 +179,16 @@ def process_dpp(user_id, user_idx, dpp_indices, item_id, feature_map,
 # Run DPP for all users
 
 def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_map,
-                                predicted_ratings, item_to_id, top_k, top_n,output_dir, similarity_type):
+                                predicted_ratings, id_to_title,
+                                top_k, top_n, similarity_type):
 
     results = []
     itemid_to_col = {item_id: idx for idx, item_id in enumerate(item_ids)}
+
     for user_idx, user_id in enumerate(movie_user_rating.index):
         user_history = (movie_user_rating.iloc[user_idx, :] > 0).values
-        user_id = movie_user_rating.index[user_idx]
 
-        # Only consider items the user has NOT seen
-        candidate_indices = np.where(user_history == False)[0]
+        candidate_indices = np.where(~user_history)[0]
 
         dpp_indices = dpp_model.dpp(
             user_id=user_idx,
@@ -200,11 +201,12 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
             user_id=user_id,
             user_idx=user_idx,
             dpp_indices=dpp_indices,
-            item_names = item_ids,
+            item_ids=item_ids,
             feature_map=genre_map,
             predicted_ratings=predicted_ratings,
             dpp_recommendations_list=results,
-            item_to_id=item_to_id,
+            itemid_to_col=itemid_to_col,
+            id_to_title=id_to_title,
             top_n=top_n
         )
 
