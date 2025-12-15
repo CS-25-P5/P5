@@ -151,7 +151,7 @@ def process_dpp(user_id, user_idx, dpp_indices, item_ids, feature_map,
                 predicted_ratings, dpp_recommendations_list, itemid_to_col, top_n=10):
 
     for rank, col_idx in enumerate(dpp_indices[:top_n], start=1):
-        item_ids = int(item_ids[col_idx])
+        item_ids = item_ids[col_idx]
         # handle missing genres
         item_genres = feature_map.get(item_ids, set())
         genres = ",".join(item_genres)
@@ -166,7 +166,7 @@ def process_dpp(user_id, user_idx, dpp_indices, item_ids, feature_map,
         dpp_recommendations_list.append({
             'userId': user_id,
             'rank': rank,
-            "itemId": str(item_ids),
+            "itemId": item_ids,
             'predictedRating': score,
             'features': genres
         })
