@@ -412,7 +412,7 @@ def run_dpp_pipeline_test(
     os.makedirs(output_dir, exist_ok=True)
 
     # Load test data (dataframe)
-    item_user_rating, genre_map, all_genres, id_to_title = load_and_prepare_matrix(
+    item_user_rating, genre_map, all_genres = load_and_prepare_matrix(
         ratings_path, item_path)
 
     R_filtered, filtered_df = align_matrix_to_items(
@@ -436,7 +436,6 @@ def run_dpp_pipeline_test(
                                 R_filtered=R_filtered,
                                 filtered_user_ids=filtered_user_ids,
                                 filtered_item_ids=filtered_item_ids,
-                                id_to_title=id_to_title,
                                 top_n=top_n,
                                 save_path=mf_top_n_path)
 
