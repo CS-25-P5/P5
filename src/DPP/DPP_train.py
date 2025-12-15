@@ -299,18 +299,25 @@ def run_dpp_pipeline(
 
 
     # Tune MF hyperparameters
-    best_params = tune_mf(R_filtered_train, R_filtered_val, n_epochs=n_epochs)
-
+    best_params = tune_mf(
+        R_train = R_filtered_train,
+        R_val = R_filtered_val,
+        n_epochs = n_epochs)
     print("→ Training Matrix Factorization...")
 
     # Train MF with best hyperparameters
-    mf, predicted_ratings, train_mse_history, train_rmse_final, val_mse_history, val_rmse_final = train_mf_with_best_params(
+    (
+        mf, predicted_ratings,
+        train_mse_history,
+        train_rmse_final,
+        val_mse_history,
+        val_rmse_final
+    ) = train_mf_with_best_params(
         R_filtered = R_filtered_train,
         R_val = R_filtered_val,
         best_params = best_params,
         n_epochs=n_epochs,
         random_state = random_state)
-
 
     # Validation RMSE (if R_filtered_val available)
    # val_rmse = mf.compute_rmse(R_filtered_val, predicted_ratings)
