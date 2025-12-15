@@ -14,8 +14,6 @@ def generate_run_id():
     return run_id
 
 
-
-
 # ==========================
 # MATRIX ALIGNMENT FUNCTIONS
 # ==========================
@@ -31,7 +29,7 @@ def align_matrix_to_items(matrix_df, filtered_item_ids, filtered_user_ids):
 
 
 
-def prepare_train_val_matrices(train_df, val_df, id_to_title=None):
+def prepare_train_val_matrices(train_df, val_df):
 
     # Align train and val to common users/items
     # common_users = train_df.index.intersection(val_df.index)
@@ -66,10 +64,9 @@ def prepare_train_val_matrices(train_df, val_df, id_to_title=None):
 
 
 
-
 # ==========================
 # PREDICTION FUNCTIONS
-# ==========================
+#==========================
 def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_ids, filtered_item_ids=None):
     # Get the filtered user and item IDs from the aligned DataFrame
     filtered_user_ids = filtered_df.index.tolist()
@@ -82,14 +79,6 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
 
     item_mask = np.isin(trained_items, filtered_item_ids_str)
     item_indices_in_mf = np.where(item_mask)[0]
-
-    # item_indices_in_mf = []
-    # for item_id in filtered_item_ids_str:
-    #     # Check if the item exists in trained MF
-    #     if item_id in trained_items:
-    #         index = np.where(trained_items == item_id)[0][0]
-    #         item_indices_in_mf.append(index)
-
 
     # Get the predicted ratings for the filtered items
     predicted_ratings_all = trained_mf_model.full_prediction()[:, item_indices_in_mf]
@@ -117,43 +106,11 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
     return filtered_user_ids, filtered_item_ids, predicted_ratings
 
 
+
+
 # ==========================
 # CANDIDATE LIST / MMR INPUT FUNCTIONS
 # ==========================
-def prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered):
-    #Keep order, remove duplicates
-    top_n_items = []
-    seen_items = set()
-    for user_id, indices in all_recommendations.items():
-        for idx in indices:
-            item_id = filtered_item_ids[idx]
-            if item_id not in seen_items:
-                top_n_items.append(item_id)
-                seen_items.add(item_id)
-
-    # Map top_n_items to columns in predicted_ratings
-    item_idx_map = [filtered_item_ids.index(i) for i in top_n_items]
-    predicted_ratings_top_n = predicted_ratings[:, item_idx_map]
-
-    # Create user histories aligned to top-N items
-    user_history_top_n = []
-    num_top_items = len(top_n_items)
-
-    for user_idx, user_id in enumerate(filtered_user_ids):
-        rated_item_indices  = np.where(R_filtered[user_idx, :] > 0)[0]
-        rated_item_ids = [filtered_item_ids[i] for i in rated_item_indices ]
-
-        # Boolean mask aligned to top_n_items
-        mask = np.zeros(num_top_items, dtype=bool)
-        for i, item_id in enumerate(top_n_items):
-            if item_id in rated_item_ids:
-                mask[i] = True
-
-        user_history_top_n.append(mask)
-
-    return predicted_ratings_top_n, user_history_top_n
-
-
 def build_mmr_input(
         candidate_list_csv,
         R_filtered,
@@ -162,6 +119,7 @@ def build_mmr_input(
 ):
     df = pd.read_csv(candidate_list_csv)
     df = df[df["userId"].isin(filtered_user_ids)]
+    #df = df[df["itemId"].isin(filtered_item_ids)]
 
     candidate_items = []
     seen = set()
@@ -197,6 +155,38 @@ def build_mmr_input(
         user_history_top_n.append(mask)
 
     return predicted_ratings_top_n, user_history_top_n, candidate_items
+
+# def build_mmr_input(candidate_list_csv, R_filtered, filtered_user_ids, filtered_item_ids):
+#     # Load candidate CSV and filter for known users/items
+#     df = pd.read_csv(candidate_list_csv)
+#     df = df[df["userId"].isin(filtered_user_ids) & df["itemId"].isin(filtered_item_ids)]
+
+#     # Build unique candidate items
+#     candidate_items = df["itemId"].unique().tolist()
+#     num_users = len(filtered_user_ids)
+#     num_items = len(candidate_items)
+
+#     # Map user/item IDs to matrix indices
+#     user_to_row = {u: i for i, u in enumerate(filtered_user_ids)}
+#     item_to_col = {i: j for j, i in enumerate(candidate_items)}
+
+#     # Vectorized relevance matrix
+#     user_indices = df["userId"].map(user_to_row).to_numpy(dtype=int)
+#     item_indices = df["itemId"].map(item_to_col).to_numpy(dtype=int)
+#     predicted_ratings_top_n = np.zeros((num_users, num_items))
+#     predicted_ratings_top_n[user_indices, item_indices] = df["predictedRating"].to_numpy()
+
+#     # Vectorized user history mask
+#     user_history_top_n = []
+#     filtered_item_array = np.array(filtered_item_ids)
+#     for user_idx in range(num_users):
+#         rated_item_indices = np.where(R_filtered[user_idx] > 0)[0]
+#         rated_item_ids = set(filtered_item_array[rated_item_indices])
+#         mask = np.isin(candidate_items, list(rated_item_ids))
+#         user_history_top_n.append(mask)
+
+#     return predicted_ratings_top_n, user_history_top_n, candidate_items
+
 
 # ==========================
 # LOGGING FUNCTIONS
@@ -239,24 +229,3 @@ def log_loss_history(output_dir, filename, train_mse, val_mse):
 
 
     print(f"Logged experiment to {loss_file}")
-
-def align_predicted_ratings(predicted_ratings, train_user_ids, train_item_ids,
-                            test_user_ids, test_item_ids):
-
-    user_idx_map = {uid: i for i, uid in enumerate(train_user_ids)}
-    item_idx_map = {iid: i for i, iid in enumerate(train_item_ids)}
-
-    aligned_ratings = np.zeros((len(test_user_ids), len(test_item_ids)), dtype=float)
-
-    for u_idx, u_id in enumerate(test_user_ids):
-        if u_id not in user_idx_map:
-            raise ValueError(f"Test user {u_id} not in training MF model")
-        train_u_idx = user_idx_map[u_id]
-        for i_idx, i_id in enumerate(test_item_ids):
-            if i_id in item_idx_map:
-                train_i_idx = item_idx_map[i_id]
-                aligned_ratings[u_idx, i_idx] = predicted_ratings[train_u_idx, train_i_idx]
-            else:
-                # Item not in MF model
-                aligned_ratings[u_idx, i_idx] = 0  # or np.nan
-    return aligned_ratings
