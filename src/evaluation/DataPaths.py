@@ -23,9 +23,10 @@ ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens
 #GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\grount_truth_test2.csv"
 
 
-#MF - li movies
-#GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movies_ratings_100000_test.csv")
-#GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movie\movies_ratings_100000_test.csv")
+#MF/MMR - li movies
+#R=06
+GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\Movies - R = 0.6 - 2025-12-12_22-18-32\movies_groundtruth.csv")
+
 
 #MF - li books
 #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\books_ratings_100000_train.csv")
@@ -33,7 +34,7 @@ ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens
 #NN - diana
 
 #movies 100k - Diana
-GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\TEST_GROUNDTRUTH\ratings_100K_movies_test.csv")
+#GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\TEST_GROUNDTRUTH\ratings_100K_movies_test.csv")
 
 #movies 1m - Diana
 #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\TEST_GROUNDTRUTH\ratings_1M_movies_test.csv")
@@ -67,23 +68,28 @@ MODELS = [
     #test2
     #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\test2_predictions.csv", "Test2"),
 
-    #mf
-    #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\movie\ALIGNED_mf_test_predictions.csv", "mf"),
+    #MMR - li movies 100k
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\Movies - R = 0.6 - 2025-12-12_22-18-32\mf_test_100000_top_50.csv", "R=1,MF"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\Movies - R = 0.6 - 2025-12-12_22-18-32\mmr_test_100000_cosine_top_50.csv", "R=1,MMR_cosine"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\Movies - R = 0.6 - 2025-12-12_22-18-32\mmr_test_100000_jaccard_top_50.csv", "R=1,MMR_jaccard"),
 
-    #MMR - li movies
-    #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movie\mf_test_100000_predictions.csv", "MF"),
-    #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movie\mmr_test_100000_cosine_predictions.csv", "MMR_cosine"),
-    #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movie\mmr_test_100000_jaccard_predictions.csv", "MMR_jaccard"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\Movies - R = 0.6 - 2025-12-12_22-18-32\mf_test_100000_top_50.csv",
+    "R=0.6,MF"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\Movies - R = 0.6 - 2025-12-12_22-18-32\mmr_test_100000_cosine_top_50.csv",
+    "R=0.6,MMR_cosine"),
+    (
+    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\Movies - R = 0.6 - 2025-12-12_22-18-32\mmr_test_100000_jaccard_top_50.csv",
+    "R=0.6,MMR_jaccard"),
 
-    #MMR - li books
-    #r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\mf_test_100000_predictions.csv", "MF"),
-    #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\mmr_test_100000_cosine_predictions.csv", "MMR_cosine"),
-    #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\book\mmr_test_100000_jaccard_predictions.csv", "MMR_jaccard"),
+    #MMR - li books - 100k
 
-    #DPP - movies
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\dpp_test_100000_jaccard_top_10_with_genres.csv", "dpp_Jaccard"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\dpp_test_100000_cosine_top_10_with_genres.csv", "dpp_cosine"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\mf_test_100000_top_10_with_genres.csv", "MF"),
+
+    # #DPP - movies
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\dpp_test_100000_jaccard_top_10_with_genres.csv", "dpp_Jaccard"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\dpp_test_100000_cosine_top_10_with_genres.csv", "dpp_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\mf_test_100000_top_10_with_genres.csv", "MF"),
 
     # DPP - books
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\dpp_test_100000_jaccard_top_10.csv", "dpp_Jaccard"),

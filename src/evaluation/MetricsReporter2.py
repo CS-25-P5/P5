@@ -5,7 +5,7 @@ from rectools.metrics import (
     Precision, Recall, F1Beta, MAP, NDCG, MRR, HitRate,
     IntraListDiversity, CatalogCoverage, calc_metrics
 )
-from rectools.metrics.distances import PairwiseHammingDistanceCalculator
+
 from DataHandler2 import load_and_process_data
 import os
 import tempfile
@@ -225,11 +225,11 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
 
     if calculate_ild and item_features is not None and not item_features.empty:
         print(f"Calculating ILD@{k} for {model_name}")
-        results[f"ILD@{k}_Hamming"] = _calculate_ild(data_handler, item_features, k, metric='hamming')
+      #  results[f"ILD@{k}_Hamming"] = _calculate_ild(data_handler, item_features, k, metric='hamming')
         results[f"ILD@{k}_Jaccard"] = _calculate_ild(data_handler, item_features, k, metric='jaccard')
         results[f"ILD@{k}_Cosine"] = _calculate_ild(data_handler, item_features, k, metric='cosine')
     else:
-        results[f"ILD@{k}_Hamming"] = np.nan
+      #  results[f"ILD@{k}_Hamming"] = np.nan
         results[f"ILD@{k}_Jaccard"] = np.nan
         results[f"ILD@{k}_Cosine"] = np.nan
 
@@ -273,7 +273,7 @@ def _calculate_rating_metrics(data_handler, model_name="Unknown"):
         return np.nan, np.nan
 
 
-def _calculate_ild(data_handler, item_features, k, metric='hamming'):
+def _calculate_ild(data_handler, item_features, k, metric="cosine"):
     try:
         recos = data_handler.recommendations.copy()
         recos['item_id'] = recos['item_id'].astype(str)
@@ -358,7 +358,7 @@ def display_metrics_table(metrics_dict, source_name="Model", k=5):
         f"MAP@{k}",
         f"MRR@{k}",
         f"Coverage@{k}",
-        f"ILD@{k}_Hamming",
+#        f"ILD@{k}_Hamming",
         f"ILD@{k}_Jaccard",
         f"ILD@{k}_Cosine"
     ]
@@ -514,7 +514,7 @@ if __name__ == "__main__":
             threshold=THRESHOLD,
             k=K,
             item_features=ITEM_FEATURES,
-            output_prefix=f"Kasia test, top{K}_comparison",
+            output_prefix=f"Li MovieLens 100k, R = 0.6, top{K}_comparison",
             calculate_ild=CALCULATE_ILD,
             catalog=CATALOG,
             dataset_type="movies"
