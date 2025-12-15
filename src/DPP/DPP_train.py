@@ -431,7 +431,6 @@ def run_dpp_pipeline_test(
 
 
     all_recommendations = get_top_n_recommendations_MF(
-                                genre_map=genre_map,
                                 predicted_ratings=predicted_ratings,
                                 R_filtered=R_filtered,
                                 filtered_user_ids=filtered_user_ids,
