@@ -86,7 +86,7 @@ def prepare_train_val_matrices(train_df, val_df, id_to_title=None):
     filtered_item_ids = train_aligned.columns.tolist()
     #filtered_item_titles = [id_to_title[i] for i in filtered_item_ids]
 
-    R_filtered_val, val_data_filtered, _ = align_matrix_to_items(
+    R_filtered_val, val_data_filtered= align_matrix_to_items(
         val_aligned,
         filtered_item_ids,
         filtered_user_ids
