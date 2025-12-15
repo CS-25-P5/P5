@@ -153,27 +153,28 @@ def process_save_mmr(all_recs, item_user_rating, item_ids, predicted_ratings, ge
 def process_mmr(user_id, user_idx, mmr_indices, item_ids, genre_map, predicted_ratings, mmr_recommendations_list, id_to_title,itemid_to_col, top_n=10):
 
     for rank, col_idx in enumerate(mmr_indices[:top_n], start = 1):
-        item_id = item_ids[col_idx]
-        actual_col_idx = itemid_to_col[item_id]
-        title = id_to_title.get(item_id, "")
+        #item_id = item_ids[col_idx]
+        item_id = int(item_ids[col_idx])
+        #actual_col_idx = itemid_to_col[item_id]
+        #title = id_to_title.get(item_id, "")
         # handle missing genres
-        item_genres = genre_map.get(item_id, set())
-        genres = ",".join(item_genres)
+        #item_genres = genre_map.get(item_id, set())
+        #genres = ",".join(item_genres)
         score =  predicted_ratings[user_idx, col_idx]
 
         # Debug: check if the mapping was causing issues
-        actual_col_idx = itemid_to_col.get(item_id)
-        if actual_col_idx != col_idx:
-            print(f"Warning: Mapping mismatch for item {item_id}: col_idx={col_idx}, actual_col_idx={actual_col_idx}")
+        # actual_col_idx = itemid_to_col.get(item_id)
+        # if actual_col_idx != col_idx:
+        #     print(f"Warning: Mapping mismatch for item {item_id}: col_idx={col_idx}, actual_col_idx={actual_col_idx}")
 
 
         mmr_recommendations_list.append({
             'userId': user_id,
             'rank': rank,
-            'itemId': item_id ,
-            'title': title,
+            'itemId': str(item_id),
+            #'title': title,
             'predictedRating': score,
-            'genres':genres
+            #'genres':genres
 
         })
     

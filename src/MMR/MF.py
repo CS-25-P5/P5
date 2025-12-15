@@ -288,20 +288,20 @@ def process_mf(user_id, user_idx, mf_indices, item_ids, genre_map, id_to_title, 
 
     for rank, idx in enumerate(mf_indices[:top_n], start=1):
         item_id = item_ids[idx]
-        title = id_to_title.get(item_id, "")
+        #title = id_to_title.get(item_id, "")
         score =  predicted_ratings[user_idx, idx]
 
         # handle missing genres
-        item_genres = genre_map.get(item_id, set())
-        genres = ",".join(item_genres)
+        #item_genres = genre_map.get(item_id, set())
+        #genres = ",".join(item_genres)
 
         mf_recommendations_list.append({
             "userId": user_id, 
             "rank": rank,
             "itemId": item_id,
-            "title": title, 
+            #"title": title, 
             "predictedRating":score,
-            "genres": genres
+            #"genres": genres
             })
 
     # df = pd.DataFrame(rows)
@@ -365,7 +365,7 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
         top_n = top_n
     )
 
-    return all_recommendations
+
 
     
 

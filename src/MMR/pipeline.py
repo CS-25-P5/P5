@@ -302,7 +302,7 @@ def run_test_pipeline(
     mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
 
-    all_recommendations = get_top_n_recommendations_MF(
+    get_top_n_recommendations_MF(
         genre_map=genre_map,
         predicted_ratings=predicted_ratings,
         R_filtered=R_filtered,
@@ -317,7 +317,8 @@ def run_test_pipeline(
 
     candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
-    predicted_ratings_top_n, user_history_top_n = build_mmr_input(
+    predicted_ratings_top_n, user_history_top_n, candidate_items = build_mmr_input(
+    #predicted_ratings = predicted_ratings,
     candidate_list_csv = candidate_path,
     R_filtered = R_filtered,
     filtered_user_ids = filtered_user_ids,
@@ -349,7 +350,7 @@ def run_test_pipeline(
     mmr_cosine = builder_cosine(best_lambda_cosine)
 
     builder_jaccard = mmr_builder_factory(
-        item_ids=filtered_item_ids,
+        item_ids=candidate_items,
         genre_map=genre_map,
         all_genres=all_genres,
         predicted_ratings=predicted_ratings_top_n,
@@ -389,8 +390,8 @@ def run_test_pipeline(
     # Process and Save MMR result
     process_save_mmr(all_recs = all_recs_cosine,
                     item_user_rating=item_user_rating,
-                    item_ids=filtered_item_ids,
-                    predicted_ratings=predicted_ratings,
+                    item_ids=candidate_items,
+                    predicted_ratings=predicted_ratings_top_n,
                     genre_map=genre_map,
                     id_to_title=id_to_title,
                     top_n=top_n,
@@ -399,8 +400,8 @@ def run_test_pipeline(
 
     process_save_mmr(all_recs = all_recs_jaccard,
                     item_user_rating=item_user_rating,
-                    item_ids=filtered_item_ids,
-                    predicted_ratings=predicted_ratings,
+                    item_ids=candidate_items,
+                    predicted_ratings=predicted_ratings_top_n,
                     genre_map=genre_map,
                     id_to_title=id_to_title,
                     top_n=top_n,
@@ -475,12 +476,12 @@ if __name__ == "__main__":
 
 
     weight_pairs = [
-    # (1.0, 0.0),
+    (1.0, 0.0),
     (0.8, 0.2),
     (0.6, 0.4),
-    (0.5, 0.5),
-    (0.4, 0.6),
-    (0.2, 0.8),
+    # (0.5, 0.5),
+    # (0.4, 0.6),
+    # (0.2, 0.8),
     # (0.0, 1.0),
     ]
 
@@ -527,39 +528,39 @@ if __name__ == "__main__":
 
 
         # #RUN pipeline for books
-        # run_book_id = generate_run_id()
-        # (
-        #     books_best_lambda_cosine, 
-        #     books_best_lambda_jaccard, 
-        #     books_mf_trained, 
-        #     books_train_user_ids, 
-        #     books_train_item_ids
-        #     ) = run_train_pipeline (
-        #     run_id = run_book_id,
-        #     ratings_train_path = books_ratings_train_file,
-        #     ratings_val_path= books_ratings_val_file,
-        #     item_path = books_item_file_path,
-        #     output_dir = books_output_dir,
-        #     top_k = TOP_K,
-        #     chunksize= CHUNK_SIZE,
-        #     n_epochs= N_EPOCHS,
-        #     relevance_weight=REL_WEIGHT,
-        #     diversity_weight=DIV_WEIGHT,
-        #     dataset=dataset_books,
-        #     random_state=RANDOM_STATE)
+        run_book_id = generate_run_id()
+        (
+            books_best_lambda_cosine, 
+            books_best_lambda_jaccard, 
+            books_mf_trained, 
+            books_train_user_ids, 
+            books_train_item_ids
+            ) = run_train_pipeline (
+            run_id = run_book_id,
+            ratings_train_path = books_ratings_train_file,
+            ratings_val_path= books_ratings_val_file,
+            item_path = books_item_file_path,
+            output_dir = books_output_dir,
+            top_k = TOP_K,
+            chunksize= CHUNK_SIZE,
+            n_epochs= N_EPOCHS,
+            relevance_weight=REL_WEIGHT,
+            diversity_weight=DIV_WEIGHT,
+            dataset=dataset_books,
+            random_state=RANDOM_STATE)
 
-        # run_test_pipeline(
-        #     run_id = run_book_id,
-        #     ratings_path=books_ratings_test_path,
-        #     item_path=books_item_file_path,
-        #     output_dir=books_output_dir,
-        #     dataset=dataset_books,
-        #     top_n=TOP_N,
-        #     top_k=TOP_K,
-        #     chunksize=CHUNK_SIZE,
-        #     best_lambda_cosine = books_best_lambda_cosine,
-        #     best_lambda_jaccard = books_best_lambda_jaccard,
-        #     trained_mf_model = books_mf_trained,
-        #     train_filtered_user_ids=books_train_user_ids,
-        #     train_filtered_item_ids=books_train_item_ids
-        # )
+        run_test_pipeline(
+            run_id = run_book_id,
+            ratings_path=books_ratings_test_path,
+            item_path=books_item_file_path,
+            output_dir=books_output_dir,
+            dataset=dataset_books,
+            top_n=TOP_N,
+            top_k=TOP_K,
+            chunksize=CHUNK_SIZE,
+            best_lambda_cosine = books_best_lambda_cosine,
+            best_lambda_jaccard = books_best_lambda_jaccard,
+            trained_mf_model = books_mf_trained,
+            train_filtered_user_ids=books_train_user_ids,
+            train_filtered_item_ids=books_train_item_ids
+        )
