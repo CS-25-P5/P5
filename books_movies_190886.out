@@ -1,0 +1,53 @@
+Running on ailab-l4-05
+Start time: Tue Dec 16 00:22:29 CET 2025
+Activating virtual environment...
+Python path: /ceph/home/student.aau.dk/vo55zp/projects/P5/venv/bin/python3
+Python version: Python 3.10.12
+Running on ailab-l4-05
+Start time: Tue Dec 16 00:22:29 CET 2025
+Starting pipeline...
+
+=== Running pipeline with weights: relevance=0.5, diversity=0.5 ===
+Starting pipeline for movies train
+Train matrix: (671, 1242), Val matrix: (610, 1242)
+Best MF params: {'k': 60, 'alpha': 0.005, 'lambda_': 0.2}, RMSE=1.0411
+Validation data: 4394 ratings
+Item IDs length: 1242
+Max column index: 1241
+Best lambda: 0.0 with score 0.6894
+Validation data: 4394 ratings
+Item IDs length: 1242
+Max column index: 1241
+Best lambda: 0.0 with score 0.7076
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mf_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-16_00-22-35/mf_train_100000_loss_history.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mmr_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mmr_train_experiment_log.csv
+Pipeline for movies train finished successfully!
+Start movies test pipeline 
+[DEBUG] Filtered users: 613
+[DEBUG] Filtered items: 868
+[DEBUG] Sample users: [2, 3, 4, 5, 6]
+[DEBUG] Sample items: ['101', '102', '104', '1049', '105']
+[DEBUG] Predicted ratings shape: (613, 868)
+[DEBUG] Min/max predicted rating: 0.8305390614491499/5.705492834516667
+MF predictions saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-16_00-22-35/mf_test_100000_top_50.csv
+[DEBUG] Top-N CSV rows: 30650
+[DEBUG] Unique users in CSV: 613
+[DEBUG] Unique items in CSV: 92
+[DEBUG] Sample rows:
+   userId  rank  itemId  predictedRating
+0       2     1     549         4.414122
+1       2     2    1945         4.358058
+2       2     3     858         4.341724
+3       2     4     318         4.337373
+4       2     5     905         4.319272
+[DEBUG] Number of candidate items: 92
+[DEBUG] Sample candidate items: ['549', '1945', '858', '318', '905']
+[DEBUG] predicted_ratings_top_n shape: (613, 92)
+[DEBUG] Non-zero entries: 30650
+[DEBUG] Max predicted rating: 5.705492834516667
+MF test predictions saved to: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-16_00-22-35/mf_test_100000_predictions.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-16_00-22-35/mmr_test_100000_cosine_top_50.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-16_00-22-35/mmr_test_100000_jaccard_top_50.csv
+Pipeline for movies test finished successfully!
