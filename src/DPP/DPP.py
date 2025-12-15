@@ -149,20 +149,30 @@ def build_dpp_models(movie_titles, genre_map, all_features, predicted_ratings, s
 
 
 # Add DPP results to list
-def process_dpp(user_id, user_idx, dpp_indices, item_names, feature_map,
+def process_dpp(user_id, user_idx, dpp_indices, item_id, feature_map,
                 predicted_ratings, dpp_recommendations_list, item_to_id,  top_n=10):
 
-    for rank, idx in enumerate(dpp_indices[:top_n], start=1):
-        item = item_names[idx]
-        title = item_to_id.get(item, "")
-        feature = ",".join(feature_map.get(item, set()))
+    for rank, col_idx in enumerate(dpp_indices[:top_n], start=1):
+        item_id = item_ids[col_idx]
+        actual_col_idx = itemid_to_col[item_id]
+        title = id_to_title.get(item_id, "")
+        # handle missing genres
+        item_genres = genre_map.get(item_id, set())
+        genres = ",".join(item_genres)
+        score =  predicted_ratings[user_idx, col_idx]
+
+        actual_col_idx = itemid_to_col.get(item_id)
+        if actual_col_idx != col_idx:
+            print(f"Warning: Mapping mismatch for item {item_id}: col_idx={col_idx}, actual_col_idx={actual_col_idx}")
+
+
 
         dpp_recommendations_list.append({
             'userId': user_id,
             'rank': rank,
-            "itemId": item,
+            "itemId": item_id,
             'title': title,
-            'predictedRating': predicted_ratings[user_idx, idx],
+            'predictedRating': predicted_ratings[user_idx, col_idx],
             'features': feature
         })
 
@@ -171,12 +181,13 @@ def process_dpp(user_id, user_idx, dpp_indices, item_names, feature_map,
 # Run DPP for all users
 
 def get_recommendations_for_dpp(dpp_model, movie_user_rating, movie_titles, genre_map,
-                                predicted_ratings, item_to_id, top_k, top_n,output_dir, similarity_type):
+                                predicted_ratings, item_to_id, top_k, top_n,user_history, similarity_type):
 
     results = []
-
-    for user_idx, user_id in enumerate(movie_user_rating.index):
+    itemid_to_col = {item_id: idx for idx, item_id in enumerate(item_ids)}
+    for user_idx, rec_indices in enumerate(dpp_model):
         user_history = (movie_user_rating.iloc[user_idx, :] > 0).values
+        user_id = movie_user_rating.index[user_idx]
 
         # Only consider items the user has NOT seen
         candidate_indices = np.where(user_history == False)[0]

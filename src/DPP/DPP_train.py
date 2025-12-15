@@ -16,7 +16,10 @@ tune_mf, train_mf_with_best_params,
     save_mf_predictions
 )
 
-
+from MMR.helperFunctions import ( generate_run_id, align_matrix_to_items,
+                                  prepare_train_val_matrices, get_filtered_predictions,
+                                  prepare_top_n_data, log_experiment, log_loss_history, build_mmr_input
+                                  )
 
 
 from DPP import (
@@ -26,153 +29,6 @@ from DPP import (
 import os
 import pandas as pd
 import numpy as np
-
-def generate_run_id():
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    run_id = f"{timestamp}"
-    return run_id
-
-
-def align_matrix_to_items(matrix_df, filtered_item_ids, filtered_user_ids):
-    # Filter users that exist in matrix_df
-    user_indices = [matrix_df.index.get_loc(u) for u in filtered_user_ids if u in matrix_df.index]
-    # Filter items that exist in matrix_df
-    item_indices = [matrix_df.columns.get_loc(i) for i in filtered_item_ids if i in matrix_df.columns]
-
-    aligned_matrix = matrix_df.values[np.ix_(user_indices, item_indices)]
-    aligned_df = matrix_df.iloc[user_indices, item_indices]
-
-    return aligned_matrix, aligned_df
-
-
-def prepare_train_val_matrices(train_df, val_df, id_to_title=None):
-
-    # Align train and val to common users/items
-    common_users = train_df.index.intersection(val_df.index)
-    common_items = train_df.columns.intersection(val_df.columns)
-
-    train_aligned = train_df.loc[common_users, common_items]
-    val_aligned = val_df.loc[common_users, common_items]
-
-    # Convert to numpy and remove users with no interactions
-    R_train = train_aligned.values
-    user_filter = R_train.sum(axis=1) > 0
-    R_filtered_train = R_train[user_filter, :]
-    filtered_user_ids = train_aligned.index[user_filter].tolist()
-    filtered_item_ids = train_aligned.columns.tolist()
-    filtered_item_titles = [id_to_title[i] for i in filtered_item_ids]
-
-    R_filtered_val, val_data_filtered = align_matrix_to_items(
-        val_aligned,
-        filtered_item_ids,
-        filtered_user_ids
-    )
-
-    # Log shapes for debugging
-    print(f"Train matrix: {R_filtered_train.shape}, Val matrix: {R_filtered_val.shape}")
-
-    return R_filtered_train, R_filtered_val,  val_data_filtered, filtered_user_ids, filtered_item_ids, filtered_item_titles
-
-def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_ids, filtered_item_ids=None):
-    # Get the filtered user and item IDs from the aligned DataFrame
-    filtered_user_ids = filtered_df.index.tolist()
-    filtered_item_ids = filtered_df.columns.tolist()
-    print(f"Filtered users: {len(filtered_user_ids)}, Filtered items: {len(filtered_item_ids)}")
-
-    # Align filtered items to MF model
-    trained_items = np.array([str(i) for i in trained_mf_model.item_ids])
-    filtered_item_ids_str = np.array([str(i) for i in filtered_item_ids])
-
-    item_mask = np.isin(trained_items, filtered_item_ids_str)
-    item_indices_in_mf = np.where(item_mask)[0]
-
-    # item_indices_in_mf = []
-    # for item_id in filtered_item_ids_str:
-    #     # Check if the item exists in trained MF
-    #     if item_id in trained_items:
-    #         index = np.where(trained_items == item_id)[0][0]
-    #         item_indices_in_mf.append(index)
-
-
-    # Get the predicted ratings for the filtered items
-    predicted_ratings_all = trained_mf_model.full_prediction()[:, item_indices_in_mf]
-
-
-    # Map training user IDs to MF model indices
-    mf_user_to_idx = {}
-    for idx, user_id in enumerate(train_filtered_user_ids):
-        user_str = str(user_id)   # convert user ID to string
-        mf_user_to_idx[user_str] = idx
-
-    # Get indices of test users in MF predictions
-    test_user_indices = []
-    for user_id in filtered_user_ids:
-        user_str = str(user_id)
-        if user_str in mf_user_to_idx:
-            test_user_indices.append(mf_user_to_idx[user_str])
-        else:
-            #test_user_indices.append(0)  #
-            raise ValueError(f"User {user_id} not in MF model")
-
-    # Extract only predictions for test users
-    predicted_ratings = predicted_ratings_all[test_user_indices, :]
-
-    return filtered_user_ids, filtered_item_ids, predicted_ratings
-
-
-def prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered):
-    #Keep order, remove duplicates
-    top_n_items = []
-    seen_items = set()
-    for user_id, indices in all_recommendations.items():
-        for idx in indices:
-            item_id = filtered_item_ids[idx]
-            if item_id not in seen_items:
-                top_n_items.append(item_id)
-                seen_items.add(item_id)
-
-    # Map top_n_items to columns in predicted_ratings
-    item_idx_map = [filtered_item_ids.index(i) for i in top_n_items]
-    predicted_ratings_top_n = predicted_ratings[:, item_idx_map]
-
-    # sanity check
-    #assert predicted_ratings_top_n.shape[1] == len(top_n_items), "Predicted ratings and items mismatch!"
-
-    # Create user histories aligned to top-N items
-    user_history_top_n = []
-    num_top_items = len(top_n_items)  # should be 21 in your case
-
-    for user_idx, user_id in enumerate(filtered_user_ids):
-        items_user_has_rated = np.where(R_filtered[user_idx, :] > 0)[0]
-        item_ids_user_has_rated = [filtered_item_ids[i] for i in items_user_has_rated]
-
-        # Boolean mask aligned to top_n_items
-        mask = np.zeros(num_top_items, dtype=bool)
-        for i, item_id in enumerate(top_n_items):
-            if item_id in item_ids_user_has_rated:
-                mask[i] = True
-
-        user_history_top_n.append(mask)
-
-    return predicted_ratings_top_n, user_history_top_n
-
-
-
-def log_experiment(output_dir, file_name, params):
-    os.makedirs(output_dir, exist_ok=True)
-    log_file = os.path.join(output_dir,file_name)
-
-    #Cheeck if file exists
-    file_exists = os.path.isfile(log_file)
-
-    #Write to Csv
-    with open(log_file, mode='a', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=params.keys())
-        if not file_exists:
-            writer.writeheader()
-        writer.writerow(params)
-
-    print(f"Logged experiment to {log_file}")
 
 
 
@@ -252,9 +108,8 @@ def run_dpp_pipeline(
     cos_start = time.time()
     get_recommendations_for_dpp(
         build_dpp_cosine, item_user_rating_filtered_df, filtered_item_titles,
-        genre_map, predicted_ratings, id_to_title, top_k, top_n,
-        output_dir, "cosine"
-    )
+        genre_map, predicted_ratings, id_to_title, top_k, top_n, output_dir,  "cosine")
+
     cos_end = time.time()
     print(f"DPP cosine runtime: {cos_end - cos_start:.2f} sec")
 
@@ -327,7 +182,14 @@ def run_dpp_pipeline_test(
                                 top_n=top_n,
                                 save_path=mf_top_n_path)
 
-    predicted_ratings_top_n, user_history_top_n = prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered)
+    #predicted_ratings_top_n, user_history_top_n = prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered)
+    candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
+
+    predicted_ratings_top_n, user_history_top_n = build_mmr_input(
+        candidate_list_csv = candidate_path,
+        R_filtered = R_filtered,
+        filtered_user_ids = filtered_user_ids,
+        filtered_item_ids = filtered_item_ids)
 
     # Define output path for MF predictions
     dataset_root = os.path.dirname(output_dir)
@@ -378,12 +240,12 @@ def run_dpp_pipeline_test(
 
     # Run DPP recommendations on test
     cosine_reco =  get_recommendations_for_dpp(
-        dpp_cosine, filtered_df_top_n, filtered_item_ids, genre_map, predicted_ratings_top_n, id_to_title,
+        dpp_cosine, filtered_df_top_n, filtered_item_ids, genre_map, predicted_ratings, id_to_title,
         top_k, top_n, dpp_path_cosine, "cosine"
     )
 
     jaccard_rec = get_recommendations_for_dpp(
-        dpp_jaccard, filtered_df_top_n, filtered_item_ids, genre_map, predicted_ratings_top_n, id_to_title,
+        dpp_jaccard, filtered_df_top_n, filtered_item_ids, genre_map, predicted_ratings, id_to_title,
         top_k, top_n, dpp_path_jaccard, "jaccard"
     )
 

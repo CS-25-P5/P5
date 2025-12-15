@@ -17,7 +17,7 @@ class MatrixFactorization:
         self.item_ids  = item_ids if item_ids is not None else np.arange(self.num_items)
         np.random.seed(self.random_state)
 
-    def train(self):
+    def train(self, R_val=None):
         #initialize latent factors and biases
         # scale = 0.1 -> genreated valued will be close to 0, given matrix shape u x k and i xk
         self.P = np.random.normal(scale=0.1, size=(self.num_users,self.k))
@@ -26,11 +26,14 @@ class MatrixFactorization:
         self.b_i = np.zeros(self.num_items)
         self.mu = np.mean(self.R[self.R>0])
 
-
         # Precompute the indices of known ratings
         known_ratings = np.array(np.where(self.R > 0)).T
 
-        loss_history = []
+
+        #loss_history = []
+
+        train_mse_history = []
+        val_mse_history = []
 
         for epoch in range(self.n_epochs):
             np.random.seed(self.random_state + epoch)
@@ -55,48 +58,73 @@ class MatrixFactorization:
                 self.P[u, :] += self.alpha * (error * Qi_old - self.lambda_ * Pu_old)
                 self.Q[i, :] += self.alpha * (error * Pu_old - self.lambda_ * Qi_old)
 
+            # Compute average training loss for the epoch
+            train_epoch_mse = np.mean(epoch_errors)
+            train_mse_history.append(train_epoch_mse)
+
+
+            # Compute validation metrics if validation matrix is provided
+            if R_val is not None:
+                R_val_pred = self.full_prediction()
+                val_epoch_mse = self.compute_mse(R_val, R_val_pred)
+                val_mse_history.append(val_epoch_mse)
 
             # compute average loss for the epoch
-            epoch_loss = np.mean(epoch_errors)
-            rmse = np.sqrt(epoch_loss)
-            loss_history.append(epoch_loss)
+            # epoch_loss = np.mean(epoch_errors)
+            # rmse = np.sqrt(epoch_loss)
+            # loss_history.append(epoch_loss)
 
-            full_loss = self.compute_loss()
+            #full_loss = self.compute_loss()
             #print(f"Epoch {epoch+1}/{self.n_epochs}, RMSE: {rmse:.4f}, Fullloss: {full_loss: .4f}")
 
-        return rmse, self.random_state
+            # Compute final RMSE values
+            train_rmse_final = np.sqrt(train_mse_history[-1])
+            val_rmse_final = np.sqrt(val_mse_history[-1]) if R_val is not None else None
+
+        return train_mse_history, train_rmse_final, val_mse_history, val_rmse_final
 
 
     def predict_single(self, u, i):
         return self.mu + self.b_u[u] + self.b_i[i] + np.dot(self.P[u, :], self.Q[i, :].T)
 
-
     def full_prediction(self):
         return self.mu + self.b_u[:, np.newaxis] + self.b_i[np.newaxis: , ] + self.P.dot(self.Q.T)
 
+    # def compute_loss(self):
+    #     loss = 0
 
-    def compute_loss(self):
-        loss = 0
-
-        #iterate over all users and items
-        for u in range(self.num_users):
-            for i in range(self.num_items):
-                # check if rating exist
-                if self.R[u,i] > 0:
-                    # adds the squared error for each observed rating
-                    loss += (self.R[u,i] - self.predict_single(u,i)) ** 2
+    #     #iterate over all users and items
+    #     for u in range(self.num_users):
+    #         for i in range(self.num_items):
+    #             # check if rating exist
+    #             if self.R[u,i] > 0:
+    #                 # adds the squared error for each observed rating
+    #                 loss += (self.R[u,i] - self.predict_single(u,i)) ** 2
 
 
-        # Regularization
-        loss += self.lambda_ * (np.sum(self.P**2) + np.sum(self.Q**2) + np.sum(self.b_u**2) + np.sum(self.b_i**2))
+    #     # Regularization
+    #     loss += self.lambda_ * (np.sum(self.P**2) + np.sum(self.Q**2) + np.sum(self.b_u**2) + np.sum(self.b_i**2))
 
-        return loss
+    #     return loss
 
 
     def compute_rmse(self, R_eval, R_pred):
-        users, items = np.where(R_eval > 0)
-        squared_errors = (R_eval[users,items] - R_pred[users, items])**2
-        return np.sqrt(np.mean(squared_errors))
+        rmse = np.sqrt(self.compute_mse(R_eval, R_pred))
+        return rmse
+
+
+    def compute_mse(self, R_true, R_pred):
+        # Find indices of observed ratings
+        users, items = np.where(R_true > 0)
+        # Compute squared errors only for observed ratings
+        squared_errors = (R_true[users, items] - R_pred[users, items]) ** 2
+        # Return mean squared error
+        mse = np.mean(squared_errors)
+
+        return mse
+
+
+
 
 
 
@@ -231,12 +259,13 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path):
 def process_save_mf(all_recommendations, user_ids, item_ids, predicted_ratings, genre_map, id_to_title, top_n=10, output_file_path="mf_predictions.csv"):
     results = []
 
-    for user_idx, user_id in enumerate(user_ids):
-        user_recs = all_recommendations[user_id]
+    for user_idx, item_indices  in all_recommendations.items():
+        raw_user_id  = user_ids[user_idx]
+
         process_mf(
-            user_id=user_id,
+            user_id=raw_user_id,
             user_idx=user_idx,
-            mf_indices=user_recs,
+            mf_indices=item_indices,
             item_ids=item_ids,
             genre_map=genre_map,
             id_to_title=id_to_title,
@@ -288,15 +317,12 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
     # store all recomendations for all users
     all_recommendations = {}
 
-    for user_idx, user_id in enumerate(filtered_user_ids):
+    for user_idx, _ in enumerate(filtered_user_ids):
         # Get all predicted movie ratings for user
         user_ratings = predicted_ratings[user_idx, :]
 
         # Boolean series of movie rating status
         already_rated = R_filtered[user_idx, :]> 0
-
-
-
         # Filter out already rated items
         user_ratings_filtered = np.where(already_rated, -np.inf, user_ratings)
 
@@ -316,7 +342,9 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
 
         #store a list of (movie, predicted rating)
         #all_recommendations[user_id] = list(zip(top_items, top_scores))
-        all_recommendations[user_id] = top_indices.tolist()
+        all_recommendations[user_idx] = top_indices.tolist()
+
+        #print(f"User {user_id}: {np.sum(~already_rated)} candidate items, top_n requested={top_n}")
 
         # MMR-style output for this user
     #     print("--------------------------------------------------------------------")
@@ -333,7 +361,8 @@ def get_top_n_recommendations_MF(genre_map, predicted_ratings, R_filtered, filte
         predicted_ratings=predicted_ratings,
         genre_map=genre_map,
         id_to_title=id_to_title,
-        output_file_path=save_path
+        output_file_path=save_path,
+        top_n = top_n
     )
 
     return all_recommendations
@@ -383,12 +412,12 @@ def tune_mf( R_train, R_val,
     return best_params
 
 
-def train_mf_with_best_params(R_filtered, best_params, n_epochs=50,  random_state= 42):
+def train_mf_with_best_params(R_filtered, best_params, R_val=None, n_epochs=50,  random_state= 42):
     mf= MatrixFactorization(R_filtered, best_params["k"],  best_params["alpha"], best_params["lambda_"], n_epochs, random_state)
-    train_rmse, random_state = mf.train()
+    train_mse_history, train_rmse_final, val_mse_history, val_rmse_final = mf.train(R_val=R_val)
     predicted_ratings = mf.full_prediction()
 
-    return mf, predicted_ratings, train_rmse, random_state
+    return mf, predicted_ratings,  train_mse_history, train_rmse_final, val_mse_history, val_rmse_final
 
 
 def save_mf_predictions(trained_mf_model, train_user_ids, train_item_ids, ground_truth_path, output_path="mf_rating_predictions.csv"):
