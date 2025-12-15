@@ -179,7 +179,7 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
                                 top_k, top_n, similarity_type):
 
     results = []
-    itemid_to_col = {item_id: idx for idx, item_id in enumerate(item_ids)}
+    itemid_to_col = {item_id: idx for idx, item_id in enumerate(predicted_ratings.columns)}
 
     for user_idx, user_id in enumerate(movie_user_rating.index):
         user_history = (movie_user_rating.iloc[user_idx, :] > 0).values
