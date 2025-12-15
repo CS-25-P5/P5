@@ -157,11 +157,6 @@ def process_dpp(user_id, user_idx, dpp_indices, item_ids, feature_map,
         item_id = int(item_ids[col_idx])
         score =  predicted_ratings[user_idx, col_idx]
 
-        actual_col_idx = itemid_to_col.get(item_id)
-        if actual_col_idx != col_idx:
-            print(f"Warning: Mapping mismatch for item {item_id}: col_idx={col_idx}, actual_col_idx={actual_col_idx}")
-
-
 
         dpp_recommendations_list.append({
             'userId': user_id,
@@ -179,7 +174,7 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
                                 top_k, top_n, similarity_type):
 
     results = []
-    itemid_to_col = {item_id: idx for idx, item_id in enumerate(predicted_ratings.columns)}
+    itemid_to_col = {item_id: idx for idx, item_id in enumerate(item_ids)}
 
     for user_idx, user_id in enumerate(movie_user_rating.index):
         user_history = (movie_user_rating.iloc[user_idx, :] > 0).values
