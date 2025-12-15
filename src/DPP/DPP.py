@@ -152,7 +152,6 @@ def process_dpp(user_id, user_idx, dpp_indices, item_id, feature_map,
 
     for rank, col_idx in enumerate(dpp_indices[:top_n], start=1):
         item_id = item_ids[col_idx]
-        actual_col_idx = itemid_to_col[item_id]
         title = id_to_title.get(item_id, "")
         # handle missing genres
         item_genres = genre_map.get(item_id, set())
@@ -179,11 +178,11 @@ def process_dpp(user_id, user_idx, dpp_indices, item_id, feature_map,
 # Run DPP for all users
 
 def get_recommendations_for_dpp(dpp_model, movie_user_rating, movie_titles, genre_map,
-                                predicted_ratings, item_to_id, top_k, top_n,user_history, similarity_type):
+                                predicted_ratings, item_to_id, top_k, top_n,output_dir, similarity_type):
 
     results = []
     itemid_to_col = {item_id: idx for idx, item_id in enumerate(item_ids)}
-    for user_idx, rec_indices in enumerate(dpp_model):
+    for user_idx, user_id in enumerate(movie_user_rating.index):
         user_history = (movie_user_rating.iloc[user_idx, :] > 0).values
         user_id = movie_user_rating.index[user_idx]
 
