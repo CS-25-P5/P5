@@ -91,9 +91,7 @@ class MMR:
                 # get similarity bewteen remaning[i] and selected[j]
                 # np.idx_ builds a grid
                 diversity = self.sim_matrix[np.ix_(remaining, selected)].max(axis=1)
-                diversity_norm = (diversity - diversity.min()) / (diversity.max() - diversity.min() + 1e-8)
-                diversity_penalty = diversity_norm 
-                mmr_scores = self.lambda_param * relevance[remaining] - (1- self.lambda_param) * diversity_penalty
+                mmr_scores = self.lambda_param * relevance[remaining] - (1- self.lambda_param) * diversity
 
             # select item with highest relvance/diversity score
             best_idx = np.argmax(mmr_scores)
@@ -109,38 +107,38 @@ class MMR:
         return selected
 
 
-# def run_mmr(mmr_model, R_filtered, top_k, user_history = None):
-#     all_recs = []
-#     for user_idx in range(R_filtered.shape[0]):
-#         user_histories = np.atleast_1d(
-#             user_history[user_idx] if user_history is not None else (R_filtered[user_idx, :] > 0)
-#         )
-
-#         rec_indices = mmr_model.mmr(user_idx, user_histories, top_k)
-#         all_recs.append(rec_indices)
-    
-#     return all_recs
-
-
-def run_mmr(mmr_model, ratings_matrix, top_k, user_history=None):
+def run_mmr(mmr_model, R_filtered, top_k, user_history = None):
     all_recs = []
-    num_users, num_items = ratings_matrix.shape
-
-    for user_idx in range(num_users):
-        # Use provided user history or derive from ratings_matrix
+    for user_idx in range(R_filtered.shape[0]):
         user_histories = np.atleast_1d(
-            user_history[user_idx] if user_history is not None else (ratings_matrix[user_idx, :] > 0)
+            user_history[user_idx] if user_history is not None else (R_filtered[user_idx, :] > 0)
         )
 
-        # Call MMR model for this user
         rec_indices = mmr_model.mmr(user_idx, user_histories, top_k)
-
-        # Clip indices to valid range
-        rec_indices = [i for i in rec_indices if i < num_items]
-
         all_recs.append(rec_indices)
     
     return all_recs
+
+
+# def run_mmr(mmr_model, ratings_matrix, top_k, user_history=None):
+#     all_recs = []
+#     num_users, num_items = ratings_matrix.shape
+
+#     for user_idx in range(num_users):
+#         # Use provided user history or derive from ratings_matrix
+#         user_histories = np.atleast_1d(
+#             user_history[user_idx] if user_history is not None else (ratings_matrix[user_idx, :] > 0)
+#         )
+
+#         # Call MMR model for this user
+#         rec_indices = mmr_model.mmr(user_idx, user_histories, top_k)
+
+#         # Clip indices to valid range
+#         rec_indices = [i for i in rec_indices if i < num_items]
+
+#         all_recs.append(rec_indices)
+    
+#     return all_recs
 
 def process_save_mmr(all_recs, user_ids, item_ids, predicted_ratings, top_n = 10, output_file_path = None):
     results = []

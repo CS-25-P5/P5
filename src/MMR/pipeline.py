@@ -132,7 +132,7 @@ def run_train_pipeline(
     start_time_cos = time.time()
     mmr_cosine = builder_cosine(best_lambda_cosine)
     run_mmr(mmr_model = mmr_cosine,
-            ratings_matrix = R_filtered_train ,
+            R_filtered = R_filtered_train ,
             top_k = top_k)
     end_time_cos = time.time()
     time_cos = end_time_cos - start_time_cos
@@ -144,7 +144,7 @@ def run_train_pipeline(
     start_time_jac = time.time()
     mmr_jaccard = builder_jaccard(best_lambda_jaccard)
     run_mmr(mmr_model = mmr_jaccard,
-        ratings_matrix = R_filtered_train,
+        R_filtered = R_filtered_train,
         top_k = top_k)
     end_time_jac = time.time()
     time_jac = end_time_jac - start_time_jac
@@ -285,7 +285,7 @@ def run_test_pipeline(
     
     candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
-    predicted_ratings_top_n, user_history_top_n, candidate_items,filtered_user_ids_actual = build_mmr_input(
+    predicted_ratings_top_n, user_history_top_n, candidate_items = build_mmr_input(
     candidate_list_csv = candidate_path,
     R_filtered = R_filtered,
     filtered_user_ids = filtered_user_ids,
@@ -343,27 +343,27 @@ def run_test_pipeline(
     # Run MMR
     all_recs_cosine = run_mmr(
         mmr_model = mmr_cosine,
-        ratings_matrix = predicted_ratings_top_n,
+        R_filtered = R_filtered,
         user_history = user_history_top_n,
         top_k = top_k)
     
     all_recs_jaccard = run_mmr(
         mmr_model = mmr_jaccard,
-        ratings_matrix = predicted_ratings_top_n,
+        R_filtered = R_filtered,
         user_history = user_history_top_n,
         top_k = top_k)
     
 
     # Process and Save MMR result
     process_save_mmr(all_recs = all_recs_cosine,
-                    user_ids=filtered_user_ids_actual,
+                    user_ids=filtered_user_ids,
                     item_ids=candidate_items,
                     predicted_ratings=predicted_ratings_top_n,
                     output_file_path = os.path.join(output_dir,f"{run_id}/mmr_test_{chunksize}_cosine_top_{top_n}.csv"))
 
 
     process_save_mmr(all_recs = all_recs_jaccard,
-                    user_ids=filtered_user_ids_actual,
+                    user_ids=filtered_user_ids,
                     item_ids=candidate_items,
                     predicted_ratings=predicted_ratings_top_n,
                     output_file_path = os.path.join(output_dir,f"{run_id}/mmr_test_{chunksize}_jaccard_top_{top_n}.csv"))
