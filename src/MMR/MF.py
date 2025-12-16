@@ -228,14 +228,34 @@ def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_id
         # Get all predicted movie ratings for user
         user_ratings = predicted_ratings[user_idx, :]
 
+        #already_rated = R_filtered[user_idx, :predicted_ratings.shape[1]] > 0
+
+        #already_rated = R_filtered[user_idx, :user_ratings.shape[0]] > 0
+
+        num_pred_items = user_ratings.shape[0]
+        num_rated_items = R_filtered.shape[1]
+
+        # Create already_rated mask aligned with predicted_ratings
+        already_rated = np.zeros(num_pred_items, dtype=bool)
+        # Only fill for items that exist in R_filtered
+        items_to_check = min(num_pred_items, num_rated_items)
+        already_rated[:items_to_check] = R_filtered[user_idx, :items_to_check] > 0
+
+        ratings_mask = user_ratings <= 0
+
+        # Ensure R_filtered row aligns with predicted_ratings
+        # Filter out already rated items
+        user_ratings_filtered = np.where(already_rated | ratings_mask, -np.inf, user_ratings)
+
+
         # Boolean series of movie rating status
-        already_rated = R_filtered[user_idx, :]> 0
-        valid_mask = user_ratings > 0
+        # already_rated = R_filtered[user_idx, :]> 0
+        # valid_mask = user_ratings > 0
 
 
         # Filter out already rated items
         #user_ratings_filtered = np.where(already_rated, -np.inf, user_ratings)
-        user_ratings_filtered = np.where(already_rated | ~valid_mask, -np.inf, user_ratings)
+        # user_ratings_filtered = np.where(already_rated | ~valid_mask, -np.inf, user_ratings)
 
         # get indicies sorted descending
         #sorted_indices = np.argsort(user_ratings_filtered)[::-1]
@@ -276,6 +296,7 @@ def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_id
         output_file_path=save_path,
         top_n = top_n
     )
+
 
 
 
