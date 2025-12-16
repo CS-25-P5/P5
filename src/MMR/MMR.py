@@ -77,7 +77,8 @@ class MMR:
         relevance = self.predicted_ratings[user_id]
         # items the user hasn't seen
         user_history = np.array(user_history, dtype=bool)
-        remaining = np.where(~user_history)[0].copy()  #~user_history flips True/False
+        #remaining = np.where(~user_history)[0].copy()  #~user_history flips True/False
+        remaining = np.where((~user_history) & (relevance > 0))[0].copy()
         # store all indices of items chosen by MMR
         selected = []
 
