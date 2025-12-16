@@ -492,17 +492,21 @@ if __name__ == "__main__":
                     'CALCULATE_ILD': CALCULATE_ILD,
                     'ITEM_FEATURES_PATH': ITEM_FEATURES_PATH,
                     'MODELS': MODELS,
-                    'dataset_type': "books"
+                    'dataset_type': "movies"
                 }
                 validate_files(config_for_validation)
 
                 # Run diagnostics
                 _print_data_diagnostics(GROUND_TRUTH, file_label="Ground Truth",
                                         threshold=THRESHOLD, is_ground_truth=True)
+
+                # For predictions (add ground_truth_path parameter)
                 for predictions_path, source_name in MODELS:
                     _print_data_diagnostics(predictions_path,
                                             file_label=f"Model '{source_name}'",
-                                            threshold=THRESHOLD, is_ground_truth=False)
+                                            threshold=THRESHOLD,
+                                            is_ground_truth=False,
+                                            ground_truth_path=GROUND_TRUTH)
 
                 # Run comparison
                 results, filename = run_model_comparison(
@@ -511,10 +515,10 @@ if __name__ == "__main__":
                     threshold=THRESHOLD,
                     k=current_k,
                     item_features=ITEM_FEATURES,
-                    output_prefix=f"Diane Genres val, goodbooks 100k, top{current_k}_comparison",
+                    output_prefix=f"Li, ml 100k, R=1,0.6, top{current_k}_comparison",
                     calculate_ild=CALCULATE_ILD,
                     catalog=CATALOG,
-                    dataset_type="books"
+                    dataset_type="movies"
                 )
 
                 # Generate metric charts

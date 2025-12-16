@@ -1,10 +1,18 @@
 import pandas as pd
 import os
 
-def _print_data_diagnostics(file_path, file_label="Data", threshold=4.0, is_ground_truth=False):
+
+def _print_data_diagnostics(file_path, file_label="Data", threshold=4.0, is_ground_truth=False, ground_truth_path=None):
     """
     Comprehensive diagnostics for either ground truth or predictions files.
     Works with both rating prediction and recommendation formats.
+
+    Args:
+        file_path: Path to the file being diagnosed
+        file_label: Label for display purposes
+        threshold: Rating threshold for ground truth analysis
+        is_ground_truth: Whether this is a ground truth file
+        ground_truth_path: Path to ground truth file (optional, for overlap checking with predictions)
     """
     try:
         df = pd.read_csv(file_path, encoding='latin1')
@@ -83,12 +91,67 @@ def _print_data_diagnostics(file_path, file_label="Data", threshold=4.0, is_grou
         else:
             print(f"✓ No duplicate rows")
 
+        # OVERLAP CHECKING WITH GROUND TRUTH
+        if not is_ground_truth and ground_truth_path and os.path.exists(ground_truth_path):
+            try:
+                print(f"\n{'-' * 40}")
+                print("OVERLAP ANALYSIS WITH GROUND TRUTH")
+                print(f"{'-' * 40}")
+
+                # Load ground truth
+                gt_df = pd.read_csv(ground_truth_path, encoding='latin1')
+
+                # Normalize column names for comparison
+                gt_user_col = next((col for col in gt_df.columns if 'user' in col.lower()), None)
+                gt_item_col = next((col for col in gt_df.columns if 'item' in col.lower() or 'movie' in col.lower()),
+                                   None)
+
+                # Detect prediction columns
+                pred_user_col = user_col
+                pred_item_col = item_col
+
+                if gt_user_col and gt_item_col and pred_user_col and pred_item_col:
+                    # Create sets of user-item pairs
+                    gt_pairs = set(zip(gt_df[gt_user_col].astype(str), gt_df[gt_item_col].astype(str)))
+                    pred_pairs = set(zip(df[pred_user_col].astype(str), df[pred_item_col].astype(str)))
+
+                    # Calculate overlap
+                    common_pairs = gt_pairs & pred_pairs
+                    overlap_count = len(common_pairs)
+                    gt_total = len(gt_pairs)
+                    pred_total = len(pred_pairs)
+
+                    print(f"Ground truth pairs: {gt_total:,}")
+                    print(f"Prediction pairs: {pred_total:,}")
+                    print(f"Common pairs: {overlap_count:,}")
+
+                    if pred_total > 0:
+                        overlap_percentage = (overlap_count / pred_total) * 100
+                        print(f"Overlap: {overlap_count}/{pred_total} ({overlap_percentage:.1f}% of predictions)")
+
+                    if gt_total > 0:
+                        coverage_percentage = (overlap_count / gt_total) * 100
+                        print(f"Coverage: {overlap_count}/{gt_total} ({coverage_percentage:.1f}% of ground truth)")
+
+                    # Show sample overlapping pairs
+                    if overlap_count > 0:
+                        print(f"\nSample overlapping pairs (first 5):")
+                        sample_pairs = list(common_pairs)[:5]
+                        for i, (user, item) in enumerate(sample_pairs, 1):
+                            print(f"  {i}. User: {user}, Item: {item}")
+
+                    # Warning for very low overlap
+                    if pred_total > 0 and overlap_count / pred_total < 0.1:
+                        print("⚠️ WARNING: Very low overlap (< 10%) - predictions may not align with ground truth!")
+
+            except Exception as e:
+                print(f"⚠️ Could not perform overlap analysis: {e}")
+
         # Sample data
         print(f"\nFirst 5 rows:")
         print(df.head().to_string())
 
         print(f"{'=' * 60}")
-
 
     except Exception as e:
         print(f"Error reading {file_path}: {e}")
