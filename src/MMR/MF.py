@@ -229,8 +229,17 @@ def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_id
 
         #already_rated = R_filtered[user_idx, :predicted_ratings.shape[1]] > 0
 
-        already_rated = R_filtered[user_idx, :user_ratings.shape[0]] > 0
-        
+        #already_rated = R_filtered[user_idx, :user_ratings.shape[0]] > 0
+
+        num_pred_items = user_ratings.shape[0]
+        num_rated_items = R_filtered.shape[1]
+
+        # Create already_rated mask aligned with predicted_ratings
+        already_rated = np.zeros(num_pred_items, dtype=bool)
+        # Only fill for items that exist in R_filtered
+        items_to_check = min(num_pred_items, num_rated_items)
+        already_rated[:items_to_check] = R_filtered[user_idx, :items_to_check] > 0
+            
         ratings_mask = user_ratings <= 0
 
         # Ensure R_filtered row aligns with predicted_ratings
