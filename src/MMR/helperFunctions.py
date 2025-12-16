@@ -177,10 +177,10 @@ def build_mmr_input(
 
     # Ensure type consistency for filtering
     df["itemId"] = df["itemId"].astype(str)
-    filtered_item_ids_str = [str(i) for i in filtered_item_ids]
+    # filtered_item_ids_str = [str(i) for i in filtered_item_ids]
 
-    # Filter items that are in filtered_item_ids
-    df = df[df["itemId"].isin(filtered_item_ids_str)]
+    # # Filter items that are in filtered_item_ids
+    # df = df[df["itemId"].isin(filtered_item_ids_str)]
 
     # --- Build candidate items list from CSV only ---
     candidate_items = df["itemId"].drop_duplicates().tolist()
