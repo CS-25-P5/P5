@@ -36,7 +36,7 @@ def align_matrix_to_user(matrix_df, filtered_user_ids):
     ]
 
     aligned_df = matrix_df.iloc[user_indices, :]
-    return aligned_df.values, aligned_df
+    return aligned_df.values, aligned_df,user_indices
 
 
 def prepare_train_val_matrices(train_df, val_df):

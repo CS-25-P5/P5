@@ -246,10 +246,12 @@ def run_test_pipeline(
         ratings_path, item_path)
     
     # Use your existing function to align the matrix!
-    R_filtered, filtered_df = align_matrix_to_user(
+    R_filtered, filtered_df, user_indices = align_matrix_to_user(
         matrix_df=item_user_rating,
         filtered_user_ids=train_filtered_user_ids
     )
+
+    filtered_user_ids = user_indices
     
 
     filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
@@ -387,7 +389,7 @@ def run_test_pipeline(
 if __name__ == "__main__":
     # PARAMETER
     TOP_N = 50
-    CHUNK_SIZE = 100000
+    CHUNK_SIZE = 10000
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1
