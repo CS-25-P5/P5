@@ -375,7 +375,7 @@ def run_test_pipeline(
 
 if __name__ == "__main__":
     # PARAMETER
-    TOP_N = 50
+    TOP_N = 100
     CHUNK_SIZE = 100000
     K = 20
     ALPHA = 0.01
@@ -409,13 +409,13 @@ if __name__ == "__main__":
 
 
     weight_pairs = [
-    #(1.0, 0.0),
+    (1.0, 0.0),
     #(0.8, 0.2),
     #(0.6, 0.4),
     #(0.5, 0.5),
     #(0.4, 0.6),
     #(0.2, 0.8),
-    (0.0, 1.0),
+    # (0.0, 1.0),
     ]
 
     for REL_WEIGHT, DIV_WEIGHT in weight_pairs:
