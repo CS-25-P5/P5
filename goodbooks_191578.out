@@ -1,0 +1,34 @@
+Running on ailab-l4-06
+Start time: Tue Dec 16 16:47:02 CET 2025
+Activating virtual environment...
+Python path: /ceph/home/student.aau.dk/la15yk/p5_env/bin/python3
+Python version: Python 3.10.12
+Running on ailab-l4-06
+Start time: Tue Dec 16 16:47:02 CET 2025
+Starting pipeline...
+Starting pipeline for books train
+Train matrix: (12, 11), Val matrix: (6, 11)
+Best MF params: {'k': 20, 'alpha': 0.005, 'lambda_': 0.05}, RMSE=0.8232
+→ Training Matrix Factorization...
+→ Building DPP models...
+DPP model build time: 0.00 sec
+Matrix alignment time: 0.00 sec
+Done DPP for cosine
+DPP cosine runtime: 0.02 sec
+Done DPP for jaccard
+DPP jaccard runtime: 0.02 sec
+TOTAL DPP pipeline time: 0.04 sec
+DPP TRAIN pipeline completed successfully!
+Start books test pipeline 
+Number of test users: 13
+Number of common items with training: 11
+MF predictions saved: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/books/2025-12-16_16-47-16/mf_test_1000_top_10.csv
+MF test predictions saved to: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/books/2025-12-16_16-47-16/mf_test_1000_predictions.csv
+Done DPP for cosine
+Done DPP for jaccard
+MF test predictions saved to: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/books/2025-12-16_16-47-16/dpp_test_1000_cosine_top_10.csv
+DONE with DPP :)
+MF test predictions saved to: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/books/2025-12-16_16-47-16/dpp_test_1000_jaccard_top_10.csv
+DONE with DPP :)
+DPP TEST pipeline completed successfully!
+End time: Tue Dec 16 16:47:19 CET 2025
