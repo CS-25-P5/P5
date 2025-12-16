@@ -186,14 +186,14 @@ def run_dpp_pipeline_test(
 
     R_filtered, filtered_df, user_indices = align_matrix_to_user(
         matrix_df=item_user_rating,
-        filtered_user_ids= train_filtered_user_ids
+        filtered_user_ids=train_filtered_user_ids  # train users only to map to MF
     )
 
     filtered_user_ids = user_indices
 
     filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
-        trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids)
-
+        trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids
+    )
 
 
     # Get top-N candidates for MMR
@@ -203,7 +203,7 @@ def run_dpp_pipeline_test(
     get_top_n_recommendations_MF(
         predicted_ratings=predicted_ratings,
         R_filtered=R_filtered,
-        filtered_user_ids=filtered_user_ids,
+        filtered_user_ids=filtered_user_ids,  # rows match predicted_ratings
         filtered_item_ids=filtered_item_ids,
         top_n=top_n,
         save_path=mf_top_n_path

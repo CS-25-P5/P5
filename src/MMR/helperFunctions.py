@@ -85,6 +85,7 @@ def prepare_train_val_matrices(train_df, val_df):
 def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_ids, filtered_item_ids=None):
     # Get the filtered user and item IDs from the aligned DataFrame
     filtered_user_ids = filtered_df.index.tolist()
+    filtered_item_ids = filtered_df.columns.tolist()
 
 
     #filtered_item_ids = filtered_df.columns.tolist()
@@ -101,25 +102,21 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
     # Get the predicted ratings for the filtered items
     predicted_ratings_all = trained_mf_model.full_prediction()[:, item_indices_in_mf]
 
-
     # Map training user IDs to MF model indices
-    mf_user_to_idx = {}
-    for idx, user_id in enumerate(train_filtered_user_ids):
-        user_str = str(user_id)   # convert user ID to string
-        mf_user_to_idx[user_str] = idx
+    mf_user_to_idx = {str(u): idx for idx, u in enumerate(train_filtered_user_ids)}
 
-    # Get indices of test users in MF predictions
-    test_user_indices = []
+
+
+    ## Build predicted_ratings for test users
+    predicted_ratings = []
     for user_id in filtered_user_ids:
-        user_str = str(user_id)
-        if user_str in mf_user_to_idx:
-            test_user_indices.append(mf_user_to_idx[user_str])
+        if str(user_id) in mf_user_to_idx:
+            predicted_ratings.append(predicted_ratings_all[mf_user_to_idx[str(user_id)]])
         else:
-            #test_user_indices.append(0)  #
-            raise ValueError(f"User {user_id} not in MF model")
+            # unseen user → fill with global mean
+            predicted_ratings.append(np.full(len(item_indices_in_mf), trained_mf_model.mu))
 
-    # Extract only predictions for test users
-    predicted_ratings = predicted_ratings_all[test_user_indices, :]
+    predicted_ratings = np.vstack(predicted_ratings)
 
     return filtered_user_ids, filtered_item_ids, predicted_ratings
 
