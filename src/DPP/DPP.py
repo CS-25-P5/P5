@@ -126,7 +126,9 @@ class DPP:
         selected_local = self.dpp_greedy(K, local_indices, top_k)
 
         # map back to global indices
+        candidate_indices = np.asarray(candidate_indices)
         selected = candidate_indices[selected_local]
+
         return selected
 
 
