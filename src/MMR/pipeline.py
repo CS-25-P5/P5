@@ -356,14 +356,14 @@ def run_test_pipeline(
 
     # Process and Save MMR result
     process_save_mmr(all_recs = all_recs_cosine,
-                    item_user_rating=item_user_rating,
+                    item_user_rating=filtered_user_ids,
                     item_ids=candidate_items,
                     predicted_ratings=predicted_ratings_top_n,
                     output_file_path = os.path.join(output_dir,f"{run_id}/mmr_test_{chunksize}_cosine_top_{top_n}.csv"))
 
 
     process_save_mmr(all_recs = all_recs_jaccard,
-                    item_user_rating=item_user_rating,
+                    item_user_rating=filtered_user_ids,
                     item_ids=candidate_items,
                     predicted_ratings=predicted_ratings_top_n,
                     output_file_path = os.path.join(output_dir,f"{run_id}/mmr_test_{chunksize}_jaccard_top_{top_n}.csv"))

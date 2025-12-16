@@ -123,7 +123,7 @@ def run_mmr(mmr_model, R_filtered, top_k, user_history = None):
 def process_save_mmr(all_recs, item_user_rating, item_ids, predicted_ratings, top_n = 10, output_file_path = None):
     results = []
     for user_idx, rec_indices in enumerate(all_recs):
-        user_id = item_user_rating.index[user_idx]
+        user_id = item_user_rating[user_idx]
         process_mmr(
             user_id=user_id,
             user_idx=user_idx,
