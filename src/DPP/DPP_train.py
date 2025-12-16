@@ -183,20 +183,22 @@ def run_dpp_pipeline_test(
     item_user_rating, genre_map, all_genres = load_and_prepare_matrix(
         ratings_path, item_path)
 
-    R_filtered, filtered_df, common_user, common_items = align_matrix_to_items(
+    # Convert test user/item IDs to strings (consistent with MF model)
+    test_user_ids = item_user_rating.index.tolist()
+    test_item_ids = item_user_rating.columns.tolist()
+
+    R_filtered, filtered_df = align_matrix_to_items(
         matrix_df=item_user_rating,
         filtered_item_ids=train_filtered_item_ids,
-        filtered_user_ids= item_user_rating.index.tolist()
+        filtered_user_ids= test_user_ids
     )
-    print(f"the commen user:-{len(common_user)}")
-    print(f"the commen items:{len(common_items)}")
+    print(f"Number of test users: {len(test_user_ids)}")
+    print(f"Number of common items with training: {len(trained_mf_model.item_ids)}")
 
-    filtered_user_ids_test = [str(u) for u in train_filtered_user_ids]
-    filtered_item_ids_test = [str(i) for i in train_filtered_item_ids]
 
 
     filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
-        trained_mf_model, filtered_df, filtered_user_ids_test, filtered_item_ids_test)
+        trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids)
 
 
 
@@ -255,6 +257,10 @@ def run_dpp_pipeline_test(
         filtered_item_ids=candidate_items,
         filtered_user_ids=filtered_user_ids
     )
+
+    filtered_df_top_n = filtered_df_top_n[candidate_items]
+
+    assert list(filtered_df_top_n.columns) == candidate_items
 
 
     # Run DPP recommendations on test

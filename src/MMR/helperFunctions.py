@@ -25,7 +25,7 @@ def align_matrix_to_items(matrix_df, filtered_item_ids, filtered_user_ids):
     aligned_df = matrix_df.loc[common_users, common_items]
     aligned_matrix = aligned_df.values
 
-    return aligned_matrix, aligned_df, list(common_users), list(common_items)
+    return aligned_matrix, aligned_df
 
 
 
@@ -97,11 +97,22 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
         if user_str in mf_user_to_idx:
             test_user_indices.append(mf_user_to_idx[user_str])
         else:
-            #test_user_indices.append(0)  #
-            raise ValueError(f"User {user_id} not in MF model")
+            #allow unseen (test-only) users
+            test_user_indices.append(None)
 
-    # Extract only predictions for test users
-    predicted_ratings = predicted_ratings_all[test_user_indices, :]
+
+    global_mean = trained_mf_model.mu
+    predicted_ratings = []
+
+    for idx in test_user_indices:
+        if idx is None:
+            predicted_ratings.append(
+                np.full(len(item_indices_in_mf), global_mean)
+            )
+        else:
+            predicted_ratings.append(predicted_ratings_all[idx])
+
+    predicted_ratings = np.vstack(predicted_ratings)
 
     return filtered_user_ids, filtered_item_ids, predicted_ratings
 
