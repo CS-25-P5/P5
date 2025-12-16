@@ -237,26 +237,18 @@ def run_dpp_pipeline_test(
     genre_map_test = {item: genre_map[item] for item in candidate_items if item in genre_map}
     all_genres_test = sorted({g for genres in genre_map_test.values() for g in genres})
 
-    item_to_idx = {item: idx for idx, item in enumerate(filtered_item_ids)}
-    candidate_indices = [item_to_idx[i] for i in candidate_items if i in item_to_idx]
+    dpp_cosine = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings, 'cosine')
+    dpp_jaccard = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings, 'jaccard')
 
-    #  build DPP model
-    dpp_cosine = build_dpp_models(candidate_items, genre_map_test, all_genres_test,
-                                  predicted_ratings[:, candidate_indices], 'cosine')
-
-    dpp_jaccard = build_dpp_models(candidate_items, genre_map_test, all_genres_test,
-                                   predicted_ratings[:, candidate_indices], 'jaccard')
     # Run DPP recommendations
     cosine_reco = get_recommendations_for_dpp(
-        dpp_cosine, filtered_df, candidate_items, genre_map_test, predicted_ratings_top_n,
+        dpp_cosine, filtered_df, candidate_items, genre_map_test, predicted_ratings,
         top_k, top_n, "cosine"
     )
-
     jaccard_reco = get_recommendations_for_dpp(
-        dpp_jaccard, filtered_df, candidate_items, genre_map_test, predicted_ratings_top_n,
+        dpp_jaccard, filtered_df, candidate_items, genre_map_test, predicted_ratings,
         top_k, top_n, "jaccard"
     )
-
     # Save DPP results
     cosine_path = os.path.join(output_dir, f"{run_id}/dpp_test_{chunksize}_cosine_top_{top_n}.csv")
     save_DPP(cosine_reco, cosine_path)
