@@ -252,7 +252,7 @@ def run_dpp_pipeline_test(
 
     #filtered_df_top_n = filtered_df[top_n_items]
     # Prepare top-N items per user for DPP (only unseen)
-    filtered_df_top_n, _ = align_matrix_to_items(
+    _, filtered_df_top_n = align_matrix_to_items(
         matrix_df=item_user_rating,
         filtered_item_ids=candidate_items,
         filtered_user_ids=filtered_user_ids
