@@ -343,13 +343,13 @@ def run_test_pipeline(
     # Run MMR
     all_recs_cosine = run_mmr(
         mmr_model = mmr_cosine,
-        ratings_matrix = R_filtered ,
+        ratings_matrix = predicted_ratings_top_n,
         user_history = user_history_top_n,
         top_k = top_k)
     
     all_recs_jaccard = run_mmr(
         mmr_model = mmr_jaccard,
-        ratings_matrix = R_filtered ,
+        ratings_matrix = predicted_ratings_top_n,
         user_history = user_history_top_n,
         top_k = top_k)
     
