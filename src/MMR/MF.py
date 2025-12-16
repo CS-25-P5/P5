@@ -227,9 +227,13 @@ def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_id
         # Get all predicted movie ratings for user
         user_ratings = predicted_ratings[user_idx, :]
 
-        # Ensure R_filtered row aligns with predicted_ratings
-        already_rated = R_filtered[user_idx, :predicted_ratings.shape[1]] > 0
+        #already_rated = R_filtered[user_idx, :predicted_ratings.shape[1]] > 0
+
+        already_rated = R_filtered[user_idx, :user_ratings.shape[0]] > 0
+        
         ratings_mask = user_ratings <= 0
+
+        # Ensure R_filtered row aligns with predicted_ratings
         # Filter out already rated items
         user_ratings_filtered = np.where(already_rated | ratings_mask, -np.inf, user_ratings)
 
