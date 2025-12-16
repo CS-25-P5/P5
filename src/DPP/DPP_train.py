@@ -176,23 +176,29 @@ def run_dpp_pipeline_test(
         train_filtered_item_ids=None
 ):
     print(f"Start {dataset} test pipeline ")
-
+    # Create output directory for this run
     os.makedirs(output_dir, exist_ok=True)
 
-    # Load test data (dataframe)
-    item_user_rating, genre_map, all_genres = load_and_prepare_matrix(
+    # Load and prepare data
+    item_user_rating, genre_map, all_genres= load_and_prepare_matrix(
         ratings_path, item_path)
 
-
+    # Use your existing function to align the matrix!
     R_filtered, filtered_df = align_matrix_to_user(
         matrix_df=item_user_rating,
-        filtered_user_ids=train_filtered_user_ids  # train users only to map to MF
+        filtered_user_ids=train_filtered_user_ids
     )
+
 
 
     filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
-        trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids
+        trained_mf_model,
+        filtered_df,
+        train_filtered_user_ids,
+        train_filtered_item_ids
     )
+
+
 
 
     # Get top-N candidates for MMR
@@ -202,22 +208,22 @@ def run_dpp_pipeline_test(
     get_top_n_recommendations_MF(
         predicted_ratings=predicted_ratings,
         R_filtered=R_filtered,
-        filtered_user_ids=filtered_user_ids,  # rows match predicted_ratings
+        filtered_user_ids=filtered_user_ids,
         filtered_item_ids=filtered_item_ids,
         top_n=top_n,
-        save_path=mf_top_n_path
-    )
+        save_path=mf_top_n_path)
+
 
 
     #predicted_ratings_top_n, user_history_top_n = prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered)
     candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
     predicted_ratings_top_n, user_history_top_n, candidate_items = build_mmr_input(
-        #predicted_ratings = predicted_ratings,
         candidate_list_csv = candidate_path,
         R_filtered = R_filtered,
         filtered_user_ids = filtered_user_ids,
-        filtered_item_ids = filtered_item_ids)
+        filtered_item_ids = filtered_item_ids
+    )
 
     all_filtered_items = set(filtered_item_ids)
     missing_items = all_filtered_items - set(candidate_items)
