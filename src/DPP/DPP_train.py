@@ -237,16 +237,25 @@ def run_dpp_pipeline_test(
     genre_map_test = {item: genre_map[item] for item in candidate_items if item in genre_map}
     all_genres_test = sorted({g for genres in genre_map_test.values() for g in genres})
 
-    dpp_cosine = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings, 'cosine')
-    dpp_jaccard = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings, 'jaccard')
+    filtered_item_ids_str = np.array([str(i) for i in filtered_item_ids])
+    candidate_items_str = np.array([str(i) for i in candidate_items])
+    candidate_indices = np.where(np.isin(filtered_item_ids_str, candidate_items_str))[0]
+
+    # Subset predicted_ratings to only candidate items
+    predicted_ratings_subset = predicted_ratings[:, candidate_indices]
+
+
+
+    dpp_cosine = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings_subset, 'cosine')
+    dpp_jaccard = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings_subset, 'jaccard')
 
     # Run DPP recommendations
     cosine_reco = get_recommendations_for_dpp(
-        dpp_cosine, filtered_df, candidate_items, genre_map_test, predicted_ratings,
+        dpp_cosine, filtered_df, candidate_items, genre_map_test, predicted_ratings_subset,
         top_k, top_n, "cosine"
     )
     jaccard_reco = get_recommendations_for_dpp(
-        dpp_jaccard, filtered_df, candidate_items, genre_map_test, predicted_ratings,
+        dpp_jaccard, filtered_df, candidate_items, genre_map_test, predicted_ratings_subset,
         top_k, top_n, "jaccard"
     )
     # Save DPP results

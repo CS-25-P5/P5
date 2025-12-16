@@ -175,9 +175,18 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
     itemid_to_col = {item_id: idx for idx, item_id in enumerate(item_ids)}
 
     for user_idx, user_id in enumerate(movie_user_rating.index):
+        # Map item IDs in filtered_df to predicted_ratings columns
+        itemid_to_col = {item_id: idx for idx, item_id in enumerate(item_ids)}
+
+        # Boolean vector: items the user has already rated
         user_history = (movie_user_rating.iloc[user_idx, :] > 0).values
 
-        candidate_indices = np.where(~user_history)[0]
+        # Only keep candidate items that exist in predicted_ratings
+        candidate_indices = [
+            itemid_to_col[item_id]
+            for idx, item_id in enumerate(movie_user_rating.columns)
+            if not user_history[idx] and item_id in itemid_to_col
+        ]
 
         dpp_indices = dpp_model.dpp(
             user_id=user_idx,
