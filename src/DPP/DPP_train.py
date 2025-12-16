@@ -184,12 +184,11 @@ def run_dpp_pipeline_test(
         ratings_path, item_path)
 
 
-    R_filtered, filtered_df, user_indices = align_matrix_to_user(
+    R_filtered, filtered_df = align_matrix_to_user(
         matrix_df=item_user_rating,
         filtered_user_ids=train_filtered_user_ids  # train users only to map to MF
     )
 
-    filtered_user_ids = user_indices
 
     filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
         trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids
