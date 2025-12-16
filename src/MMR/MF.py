@@ -130,7 +130,6 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path):
     ratings = pd.read_csv(ratings_file_path)
     items = pd.read_csv(item_file_path)
 
-    ratings['userId'] = ratings['userId'].astype(str)
     ratings['itemId'] = ratings['itemId'].astype(str)
     items['itemId'] = items['itemId'].astype(str)
 
@@ -304,7 +303,6 @@ def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_id
 
 
 
-
 def tune_mf( R_train, R_val,
              n_epochs=50,
              hyperparams_grid = {
@@ -366,8 +364,6 @@ def save_mf_predictions(trained_mf_model, train_user_ids, train_item_ids, ground
     user_id_to_idx = {user_id: idx for idx, user_id in enumerate(train_user_ids)}
     item_id_to_idx = {item_id: idx for idx, item_id in enumerate(train_item_ids)}
 
-    test_df = test_df[test_df["userId"].isin(train_user_ids)]
-
     # Get all MF predictions
     all_predictions = trained_mf_model.full_prediction()
 
@@ -377,24 +373,13 @@ def save_mf_predictions(trained_mf_model, train_user_ids, train_item_ids, ground
         user_str = row['userId']
         item_str = row['itemId']
 
-        global_mean = trained_mf_model.mu
-
-        #Both user and item are known -> use standard MF prediction.
         if user_str in user_id_to_idx and item_str in item_id_to_idx:
             user_idx = user_id_to_idx[user_str]
             item_idx = item_id_to_idx[item_str]
             mf_prediction = all_predictions[user_idx, item_idx]
-        elif user_str in user_id_to_idx:
-            #Only user known -> use user bias + global mean.
-            user_idx = user_id_to_idx[user_str]
-            mf_prediction = global_mean + trained_mf_model.b_u[user_idx]
-        elif item_str in item_id_to_idx:
-            #Only item known -> use item bias + global mean.
-            item_idx = item_id_to_idx[item_str]
-            mf_prediction = global_mean + trained_mf_model.b_i[item_idx]
         else:
-            #Neither known -> set it to global mean.
-            mf_prediction = global_mean
+            # Cold-start user/item fallback
+            mf_prediction = 0.0
 
         results.append({
             'userId': row['userId'],
