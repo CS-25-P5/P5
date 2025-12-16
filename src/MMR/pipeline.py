@@ -420,7 +420,6 @@ if __name__ == "__main__":
     books_item_file_path = os.path.join(base_dir, f"../datasets/{folder_books}", f"{dataset_books}.csv")
     books_output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_books}")
 
-
     weight_pairs = [
     (1.0, 0.0),
     #(0.8, 0.2),
@@ -430,6 +429,7 @@ if __name__ == "__main__":
     #(0.2, 0.8),
     #(0.0, 1.0),
     ]
+
 
     for REL_WEIGHT, DIV_WEIGHT in weight_pairs:
         print(f"\n=== Running pipeline with weights: "f"relevance={REL_WEIGHT}, diversity={DIV_WEIGHT} ===")
