@@ -272,6 +272,10 @@ def run_test_pipeline(
     # Get top-N candidates for MMR
     mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
+    print("predicted_ratings.shape:", predicted_ratings.shape)
+    print("R_filtered.shape:", R_filtered.shape)
+
+
     get_top_n_recommendations_MF(
         predicted_ratings=predicted_ratings,
         R_filtered=R_filtered,
@@ -279,6 +283,8 @@ def run_test_pipeline(
         filtered_item_ids=filtered_item_ids,
         top_n=top_n,
         save_path=mf_top_n_path)
+    
+
     
     mf_top_n_df = pd.read_csv(mf_top_n_path)
     print(f"[DEBUG] Top-N CSV rows: {len(mf_top_n_df)}")
