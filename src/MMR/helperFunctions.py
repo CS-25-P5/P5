@@ -17,15 +17,29 @@ def generate_run_id():
 # ==========================
 # MATRIX ALIGNMENT FUNCTIONS
 # ==========================
-def align_matrix_to_items(matrix_df, filtered_item_ids, filtered_user_ids):
+def align_matrix_to_user_items(matrix_df, filtered_item_ids, filtered_user_ids):
     # Get indices of users/items that exist in matrix
-    common_users = matrix_df.index.intersection(filtered_user_ids)
-    common_items = matrix_df.columns.intersection(filtered_item_ids)
+    user_indices = [matrix_df.index.get_loc(u) for u in filtered_user_ids if u in matrix_df.index]
+    item_indices = [matrix_df.columns.get_loc(i) for i in filtered_item_ids if i in matrix_df.columns]
 
-    aligned_df = matrix_df.loc[common_users, common_items]
-    aligned_matrix = aligned_df.values
+    aligned_matrix = matrix_df.values[np.ix_(user_indices, item_indices)]
+    aligned_df = matrix_df.iloc[user_indices, item_indices]
 
     return aligned_matrix, aligned_df
+
+
+def align_matrix_to_user(matrix_df, filtered_user_ids):
+    user_indices = [
+        matrix_df.index.get_loc(u)
+        for u in filtered_user_ids
+        if u in matrix_df.index
+    ]
+
+    filtered_user_ids_aligned = [filtered_user_ids[i] for i in user_indices]
+
+
+    aligned_df = matrix_df.iloc[user_indices, :]
+    return aligned_df.values, aligned_df, filtered_user_ids_aligned
 
 
 
@@ -70,7 +84,10 @@ def prepare_train_val_matrices(train_df, val_df):
 def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_ids, filtered_item_ids=None):
     # Get the filtered user and item IDs from the aligned DataFrame
     filtered_user_ids = filtered_df.index.tolist()
-    filtered_item_ids = filtered_df.columns.tolist()
+
+
+    #filtered_item_ids = filtered_df.columns.tolist()
+
     #print(f"Filtered users: {len(filtered_user_ids)}, Filtered items: {len(filtered_item_ids)}")
 
     # Align filtered items to MF model
@@ -97,24 +114,14 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
         if user_str in mf_user_to_idx:
             test_user_indices.append(mf_user_to_idx[user_str])
         else:
-            #allow unseen (test-only) users
-            test_user_indices.append(None)
+            #test_user_indices.append(0)  #
+            raise ValueError(f"User {user_id} not in MF model")
 
-
-    global_mean = trained_mf_model.mu
-    predicted_ratings = []
-
-    for idx in test_user_indices:
-        if idx is None:
-            predicted_ratings.append(
-                np.full(len(item_indices_in_mf), global_mean)
-            )
-        else:
-            predicted_ratings.append(predicted_ratings_all[idx])
-
-    predicted_ratings = np.vstack(predicted_ratings)
+    # Extract only predictions for test users
+    predicted_ratings = predicted_ratings_all[test_user_indices, :]
 
     return filtered_user_ids, filtered_item_ids, predicted_ratings
+
 
 
 

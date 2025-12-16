@@ -16,7 +16,7 @@ tune_mf, train_mf_with_best_params,
     save_mf_predictions
 )
 
-from MMR.helperFunctions import ( generate_run_id, align_matrix_to_items,
+from MMR.helperFunctions import ( generate_run_id, align_matrix_to_user_items, align_matrix_to_user,
                                   prepare_train_val_matrices, get_filtered_predictions,
                                    log_experiment, log_loss_history, build_mmr_input
                                   )
@@ -121,7 +121,7 @@ def run_dpp_pipeline(
     align_start = time.time()
     # Prepare item_user_rating_filtered aligned to filtered_item_ids and filtered_user_ids
     # align_matrix_to_items returns (aligned_matrix_numpy, aligned_df)
-    _, item_user_rating_filtered_df = align_matrix_to_items(
+    _, item_user_rating_filtered_df = align_matrix_to_user_items(
         matrix_df = item_user_rating_train,
         filtered_item_ids = filtered_item_ids,
         filtered_user_ids = filtered_user_ids
@@ -183,19 +183,13 @@ def run_dpp_pipeline_test(
     item_user_rating, genre_map, all_genres = load_and_prepare_matrix(
         ratings_path, item_path)
 
-    # Convert test user/item IDs to strings (consistent with MF model)
-    test_user_ids = item_user_rating.index.tolist()
-    test_item_ids = item_user_rating.columns.tolist()
 
-    R_filtered, filtered_df = align_matrix_to_items(
+    R_filtered, filtered_df, user_indices = align_matrix_to_user(
         matrix_df=item_user_rating,
-        filtered_item_ids=train_filtered_item_ids,
-        filtered_user_ids= test_user_ids
+        filtered_user_ids= train_filtered_user_ids
     )
-    print(f"Number of test users: {len(test_user_ids)}")
-    print(f"Number of common items with training: {len(trained_mf_model.item_ids)}")
 
-
+    filtered_user_ids = user_indices
 
     filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
         trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids)
@@ -225,6 +219,10 @@ def run_dpp_pipeline_test(
         filtered_user_ids = filtered_user_ids,
         filtered_item_ids = filtered_item_ids)
 
+    all_filtered_items = set(filtered_item_ids)
+    missing_items = all_filtered_items - set(candidate_items)
+    print("Missing items:", missing_items)
+
     # Define output path for MF predictions
     dataset_root = os.path.dirname(output_dir)
     mf_predictions_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
@@ -250,27 +248,16 @@ def run_dpp_pipeline_test(
     dpp_jaccard = build_dpp_models(candidate_items, genre_map, all_genres_test, predicted_ratings_top_n, 'jaccard')
 
 
-    #filtered_df_top_n = filtered_df[top_n_items]
-    # Prepare top-N items per user for DPP (only unseen)
-    _, filtered_df_top_n = align_matrix_to_items(
-        matrix_df=item_user_rating,
-        filtered_item_ids=candidate_items,
-        filtered_user_ids=filtered_user_ids
-    )
-
-    filtered_df_top_n = filtered_df_top_n[candidate_items]
-
-    assert list(filtered_df_top_n.columns) == candidate_items
 
 
     # Run DPP recommendations on test
     cosine_reco =  get_recommendations_for_dpp(
-        dpp_cosine, filtered_df_top_n, candidate_items, genre_map, predicted_ratings_top_n,
+        dpp_cosine, filtered_df, candidate_items, genre_map, predicted_ratings_top_n,
         top_k, top_n, "cosine"
     )
 
     jaccard_rec = get_recommendations_for_dpp(
-        dpp_jaccard, filtered_df_top_n, candidate_items, genre_map, predicted_ratings_top_n,
+        dpp_jaccard, filtered_df, candidate_items, genre_map, predicted_ratings_top_n,
         top_k, top_n, "jaccard"
     )
 
