@@ -12,7 +12,7 @@ dups = final_dataset[
 print(dups.sort_values(["userId", "movieId"]).head(10))
 '''
 
-
+'''
 def remove_training_from_recommendation(recommendation_dir_path, training_file_path, output_dir_path):
     # Output directory
     os.makedirs(output_dir_path, exist_ok=True)
@@ -48,7 +48,7 @@ def remove_training_from_recommendation(recommendation_dir_path, training_file_p
 
         filter_me_out.to_csv(output_file_path, index=False)
 
-
+'''
 
 
 '''
@@ -70,7 +70,7 @@ remove_training_from_recommendation(recommendation_dir_path = "data/OUTPUT_datas
                                     output_dir_path = "data/OUTPUT_datasets/NN/Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)")
 '''
 
-
+'''
 def reorderfiltered(input_folder):
 
     for filename in os.listdir(input_folder):
@@ -84,7 +84,7 @@ def reorderfiltered(input_folder):
             #Sorty by userId first, then descend
 
             sort_by_id = pred_dataset.sort_values(
-                by = ["userId", "recommendation_score"],
+                by = ["user_id", "recommendation_score"],
                 ascending=[True, False]
             )
 
@@ -96,6 +96,32 @@ def reorderfiltered(input_folder):
             #Save
             sort_by_id.to_csv(input_path, index = False)
 
-            
+
 reorderfiltered("data/OUTPUT_datasets/NN/Recommend_test_1M_movies_TOTAL(MLPwithBPR)")
 reorderfiltered("data/OUTPUT_datasets/NN/Recommend_test_100K_movies_TOTAL(MLPwithBPR)")
+
+reorderfiltered("data/OUTPUT_datasets/NN/Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)")
+
+
+def check_overlap(df1, df2, name1="df1", name2="df2"):
+    overlap = pandas.merge(
+        df1[["userId", "movieId"]],
+        df2[["userId", "movieId"]],
+        on=["userId", "movieId"],
+        how="inner"
+    )
+
+    if len(overlap) == 0:
+        print(f"No overlap between {name1} and {name2}")
+    else:
+        print(f"{len(overlap)} overlapping interactions between {name1} and {name2}")
+        print(overlap.head())
+
+train = pandas.read_csv("data/INPUT_TRAIN/ratings_100K_movies_train.csv", encoding="utf8")
+test = pandas.read_csv("data/INPUT_TEST/ratings_100K_movies_test.csv", encoding="utf8")
+val = pandas.read_csv("data/INPUT_VAL/ratings_100K_movies_val.csv", encoding="utf8")
+
+check_overlap(train, test, "train", "test")
+check_overlap(train, val, "train", "val")
+check_overlap(val, test, "val", "test")
+'''
