@@ -205,6 +205,11 @@ def build_mmr_input(
         if user_id in user_to_row and item_id in item_to_col:
             predicted_ratings_top_n[user_to_row[user_id], item_to_col[item_id]] = rating
 
+    # --- Remove items that have zero prediction for all users ---
+    non_zero_cols = np.any(predicted_ratings_top_n > 0, axis=0)
+    candidate_items = [item for keep, item in zip(non_zero_cols, candidate_items) if keep]
+    predicted_ratings_top_n = predicted_ratings_top_n[:, non_zero_cols]
+
     # --- Build user history masks ---
     user_history_top_n = []
     for user_idx in range(num_users):
