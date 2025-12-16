@@ -81,42 +81,42 @@ def prepare_train_val_matrices(train_df, val_df):
 # PREDICTION FUNCTIONS
 #==========================
 def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_ids, filtered_item_ids=None):
-    # Get the filtered user and item IDs from the aligned DataFrame
+    # Test users and items
     filtered_user_ids = filtered_df.index.tolist()
-    filtered_item_ids = filtered_df.columns.tolist()
-
-
-    #filtered_item_ids = filtered_df.columns.tolist()
-
-    #print(f"Filtered users: {len(filtered_user_ids)}, Filtered items: {len(filtered_item_ids)}")
+    filtered_item_ids_all = filtered_df.columns.tolist()
 
     # Align filtered items to MF model
     trained_items = np.array([str(i) for i in trained_mf_model.item_ids])
-    filtered_item_ids_str = np.array([str(i) for i in filtered_item_ids])
+    filtered_item_ids_str = np.array([str(i) for i in filtered_item_ids_all])
 
     item_mask = np.isin(trained_items, filtered_item_ids_str)
     item_indices_in_mf = np.where(item_mask)[0]
 
-    # Get the predicted ratings for the filtered items
+    if len(item_indices_in_mf) == 0:
+        raise ValueError("No test items are present in the trained MF model!")
+
+    # Items that will actually be used
+    common_item_ids = [filtered_item_ids_all[i] for i in item_indices_in_mf]
+
+    # Predicted ratings for all MF items
     predicted_ratings_all = trained_mf_model.full_prediction()[:, item_indices_in_mf]
 
-    # Map training user IDs to MF model indices
+    # Map training users to indices
     mf_user_to_idx = {str(u): idx for idx, u in enumerate(train_filtered_user_ids)}
 
-
-
-    ## Build predicted_ratings for test users
+    # Build predicted_ratings for test users
     predicted_ratings = []
     for user_id in filtered_user_ids:
-        if str(user_id) in mf_user_to_idx:
-            predicted_ratings.append(predicted_ratings_all[mf_user_to_idx[str(user_id)]])
+        user_str = str(user_id)
+        if user_str in mf_user_to_idx:
+            predicted_ratings.append(predicted_ratings_all[mf_user_to_idx[user_str]])
         else:
             # unseen user → fill with global mean
             predicted_ratings.append(np.full(len(item_indices_in_mf), trained_mf_model.mu))
 
     predicted_ratings = np.vstack(predicted_ratings)
 
-    return filtered_user_ids, filtered_item_ids, predicted_ratings
+    return filtered_user_ids, common_item_ids, predicted_ratings
 
 
 
