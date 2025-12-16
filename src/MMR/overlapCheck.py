@@ -55,10 +55,9 @@ def check_overlap(ground_truth_file, mf_test_file, user_col='userId', item_col='
 
 # Paths
 base_dir = os.path.dirname(os.path.abspath(__file__))
-ground_truth = os.path.join(base_dir, "../datasets/mmr_data", "movies_ratings_100000_test.csv")
-mf_test = os.path.join(base_dir, "../datasets/mmr_data/movies/2025-12-16_15-44-39/mf_test_100000_predictions.csv")
+ground_truth = os.path.join(base_dir, "../datasets/mmr_data", "books_ratings_100000_test.csv")
+mf_test = os.path.join(base_dir, "../datasets/mmr_data/books/2025-12-16_16-26-52/mf_test_100000_predictions.csv")
 #mf_test = "mf_rating_predictions.csv"
-
 # mf_test = os.path.join(base_dir, "../evaluation/movie/mf_test_100000_predictions.csv")
 
 
