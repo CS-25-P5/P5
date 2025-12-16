@@ -170,7 +170,7 @@ def run_dpp_pipeline_test(
         item_path,
         output_dir=None,
         dataset=None,
-        chunksize=10000,
+        chunksize = 10000,
         top_n=10, top_k=20, trained_mf_model=None,
         train_filtered_user_ids=None,
         train_filtered_item_ids=None
@@ -183,20 +183,23 @@ def run_dpp_pipeline_test(
     item_user_rating, genre_map, all_genres = load_and_prepare_matrix(
         ratings_path, item_path)
 
-    # Align both test users and training items
-    R_filtered, filtered_df = align_matrix_to_user_items(
+
+    R_filtered, filtered_df, user_indices = align_matrix_to_user(
         matrix_df=item_user_rating,
-        filtered_user_ids=train_filtered_user_ids,
-        filtered_item_ids=train_filtered_item_ids
+        filtered_user_ids= train_filtered_user_ids
     )
 
-    # Get predictions
+    filtered_user_ids = user_indices
+
     filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
-        trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids
-    )
+        trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids)
 
-    # Top-N MF recommendations
+
+
+    # Get top-N candidates for MMR
     mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
+
+
     get_top_n_recommendations_MF(
         predicted_ratings=predicted_ratings,
         R_filtered=R_filtered,
@@ -206,45 +209,72 @@ def run_dpp_pipeline_test(
         save_path=mf_top_n_path
     )
 
-    # Build MMR/DPP inputs
+
+    #predicted_ratings_top_n, user_history_top_n = prepare_top_n_data(all_recommendations, filtered_item_ids, filtered_user_ids, predicted_ratings, R_filtered)
+    candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
+
     predicted_ratings_top_n, user_history_top_n, candidate_items = build_mmr_input(
-        candidate_list_csv=mf_top_n_path,
-        R_filtered=R_filtered,
-        filtered_user_ids=filtered_user_ids,
-        filtered_item_ids=filtered_item_ids
+        #predicted_ratings = predicted_ratings,
+        candidate_list_csv = candidate_path,
+        R_filtered = R_filtered,
+        filtered_user_ids = filtered_user_ids,
+        filtered_item_ids = filtered_item_ids)
+
+    all_filtered_items = set(filtered_item_ids)
+    missing_items = all_filtered_items - set(candidate_items)
+    print("Missing items:", missing_items)
+
+    # Define output path for MF predictions
+    dataset_root = os.path.dirname(output_dir)
+    mf_predictions_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
+    ground_truth_path = os.path.join(dataset_root, f"{dataset}_ratings_{chunksize}_test.csv")
+
+    # Save MF predictions
+    save_mf_predictions(
+        trained_mf_model=trained_mf_model,
+        train_user_ids=train_filtered_user_ids,
+        train_item_ids=train_filtered_item_ids,
+        ground_truth_path=ground_truth_path,
+        output_path=mf_predictions_path
     )
 
-    # Build DPP models
+
+
+    # Build DPP models using test predictions
     genre_map_test = {item: genre_map[item] for item in filtered_item_ids if item in genre_map}
+
     all_genres_test = sorted({g for genres in genre_map_test.values() for g in genres})
 
     dpp_cosine = build_dpp_models(candidate_items, genre_map, all_genres_test, predicted_ratings_top_n, 'cosine')
     dpp_jaccard = build_dpp_models(candidate_items, genre_map, all_genres_test, predicted_ratings_top_n, 'jaccard')
 
-    # Align filtered_df to candidate items for DPP
-    _, filtered_df_top_n = align_matrix_to_user_items(
-        matrix_df=item_user_rating,
-        filtered_user_ids=train_filtered_user_ids,
-        filtered_item_ids=candidate_items
-    )
 
-    # Run DPP
-    cosine_reco = get_recommendations_for_dpp(
-        dpp_cosine, filtered_df_top_n, candidate_items, genre_map, predicted_ratings_top_n,
+
+
+    # Run DPP recommendations on test
+    cosine_reco =  get_recommendations_for_dpp(
+        dpp_cosine, filtered_df, candidate_items, genre_map, predicted_ratings_top_n,
         top_k, top_n, "cosine"
     )
 
     jaccard_rec = get_recommendations_for_dpp(
-        dpp_jaccard, filtered_df_top_n, candidate_items, genre_map, predicted_ratings_top_n,
+        dpp_jaccard, filtered_df, candidate_items, genre_map, predicted_ratings_top_n,
         top_k, top_n, "jaccard"
     )
 
-    # Save DPP
+
+
     os.makedirs(os.path.dirname(output_dir), exist_ok=True)
-    save_DPP(cosine_reco, os.path.join(output_dir, f"{run_id}/dpp_test_{chunksize}_cosine_top_{top_n}.csv"))
-    save_DPP(jaccard_rec, os.path.join(output_dir, f"{run_id}/dpp_test_{chunksize}_jaccard_top_{top_n}.csv"))
+    test_path = os.path.join(output_dir,f"{run_id}/dpp_test_{chunksize}_cosine_top_{top_n}.csv")
+    save_DPP(cosine_reco, test_path)
+
+    test_path = os.path.join(output_dir,f"{run_id}/dpp_test_{chunksize}_jaccard_top_{top_n}.csv")
+    save_DPP(jaccard_rec, test_path)
+
+
 
     print("DPP TEST pipeline completed successfully!")
+
 
 
 
