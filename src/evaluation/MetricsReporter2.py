@@ -22,7 +22,7 @@ import re
 warnings.filterwarnings("ignore", category=DataConversionWarning, module="sklearn.metrics.pairwise")
 
 # Import from your custom modules
-from Plotting import plot_individual_metric_charts, plot_rating_distribution
+from Plotting import plot_individual_metric_charts, plot_rating_distribution,  plot_metrics_vs_k_from_directory
 from Diagnostics import _print_data_diagnostics
 
 
@@ -465,18 +465,7 @@ if __name__ == "__main__":
         ITEM_FEATURES_PATH
     )
 
-    #Optional: plot rating distribution (not captured)
-    # plot_rating_distribution(
-    #     ground_truth_path=GROUND_TRUTH,
-    #     items_path=CATALOG_PATH,
-    #     output_dir="rating_charts"
-    # )
-
-    # Start capturing output for validation, diagnostics, and comparison
-    stdout_buffer = StringIO()
-    tee_stdout = Tee(sys.stdout, stdout_buffer)
-
-    # Conditionally load item features (not captured)
+    # Load item features ONCE before the loop
     if CALCULATE_ILD:
         print("Loading item features for ILD calculation")
         ITEM_FEATURES = load_item_features(ITEM_FEATURES_PATH, dataset_type="movies")
@@ -484,67 +473,86 @@ if __name__ == "__main__":
         print("Skipping item feature loading (ILD disabled)")
         ITEM_FEATURES = None
 
+    # Process K values from 10 down to 1
+    for current_k in range(10, 9, -1):
+        print(f"\n{'=' * 60}")
+        print(f"Processing with k={current_k}")
+        print(f"{'=' * 60}\n")
 
+        # Capture output for this iteration
+        stdout_buffer = StringIO()
+        tee_stdout = Tee(sys.stdout, stdout_buffer)
 
-    with contextlib.redirect_stdout(tee_stdout):
-        # Create config dict for validation
-        config_for_validation = {
-            'CATALOG_PATH': CATALOG_PATH,
-            'GROUND_TRUTH': GROUND_TRUTH,
-            'CALCULATE_ILD': CALCULATE_ILD,
-            'ITEM_FEATURES_PATH': ITEM_FEATURES_PATH,
-            'MODELS': MODELS,
-            'dataset_type': "movies"
-        }
+        try:
+            with contextlib.redirect_stdout(tee_stdout):
+                # Validate files
+                config_for_validation = {
+                    'CATALOG_PATH': CATALOG_PATH,
+                    'GROUND_TRUTH': GROUND_TRUTH,
+                    'CALCULATE_ILD': CALCULATE_ILD,
+                    'ITEM_FEATURES_PATH': ITEM_FEATURES_PATH,
+                    'MODELS': MODELS,
+                    'dataset_type': "books"
+                }
+                validate_files(config_for_validation)
 
-        # Validate all files (now captured)
-        validate_files(config_for_validation)
+                # Run diagnostics
+                _print_data_diagnostics(GROUND_TRUTH, file_label="Ground Truth",
+                                        threshold=THRESHOLD, is_ground_truth=True)
+                for predictions_path, source_name in MODELS:
+                    _print_data_diagnostics(predictions_path,
+                                            file_label=f"Model '{source_name}'",
+                                            threshold=THRESHOLD, is_ground_truth=False)
 
-        # UNIFIED DIAGNOSTICS (captured)
-        _print_data_diagnostics(GROUND_TRUTH, file_label="Ground Truth", threshold=THRESHOLD, is_ground_truth=True)
+                # Run comparison
+                results, filename = run_model_comparison(
+                    ground_truth_path=GROUND_TRUTH,
+                    sources=MODELS,
+                    threshold=THRESHOLD,
+                    k=current_k,
+                    item_features=ITEM_FEATURES,
+                    output_prefix=f"Diane Genres val, goodbooks 100k, top{current_k}_comparison",
+                    calculate_ild=CALCULATE_ILD,
+                    catalog=CATALOG,
+                    dataset_type="books"
+                )
 
-        for predictions_path, source_name in MODELS:
-            _print_data_diagnostics(predictions_path, file_label=f"Model '{source_name}'", threshold=THRESHOLD,
-                                    is_ground_truth=False)
+                # Generate metric charts
+                # charts_dir = f"{filename}_metric_charts"
+                # plot_individual_metric_charts(results, output_dir=charts_dir)
+                # print(f"Metric charts saved to {charts_dir}/")
 
-        # Run comparison (captured)
-        results, filename = run_model_comparison(
-            ground_truth_path=GROUND_TRUTH,
-            sources=MODELS,
-            threshold=THRESHOLD,
-            k=K,
-            item_features=ITEM_FEATURES,
-            output_prefix=f"Li MovieLens 100k, R = 0.6, top{K}_comparison",
-            calculate_ild=CALCULATE_ILD,
-            catalog=CATALOG,
-            dataset_type="movies"
-            #dataset_type="books"
-        )
+            # Save terminal output to Excel
+            terminal_output = stdout_buffer.getvalue()
+            excel_file = f"{filename}.xlsx"
+            wb = load_workbook(excel_file)
 
-    # Get captured terminal output (includes validation, diagnostics, and results)
-    terminal_output = stdout_buffer.getvalue()
+            if "Terminal Output" in wb.sheetnames:
+                wb.remove(wb["Terminal Output"])
 
-    try:
-        excel_file = f"{filename}.xlsx"
-        wb = load_workbook(excel_file)
+            ws = wb.create_sheet("Terminal Output")
+            for i, line in enumerate(terminal_output.split('\n'), 1):
+                ws.cell(row=i, column=1, value=sanitize_for_excel(line))
 
-        if "Terminal Output" in wb.sheetnames:
-            wb.remove(wb["Terminal Output"])
+            ws.column_dimensions['A'].width = 100
+            ws.freeze_panes = 'A2'
+            wb.save(excel_file)
+            print(f"✅ Terminal output saved to {excel_file}")
 
-        ws = wb.create_sheet("Terminal Output")
+        except Exception as e:
+            print(f"\n❌ Error processing k={current_k}: {e}")
+            print("   Continuing with next K value...")
+            continue  # Continue to next K instead of crashing
 
-        # Write sanitized output line by line
-        for i, line in enumerate(terminal_output.split('\n'), 1):
-            sanitized_line = sanitize_for_excel(line)
-            ws.cell(row=i, column=1, value=sanitized_line)
+    print(f"\n{'=' * 60}")
+    print("All K values processed! Creating K-comparison plots...")
+    print(f"{'=' * 60}")
 
-        ws.column_dimensions['A'].width = 100
-        ws.freeze_panes = 'A2'
-        wb.save(excel_file)
-        print(f"\n✅ Full terminal output (validation + diagnostics) saved as new sheet in {excel_file}")
+    # plot_metrics_vs_k_from_directory(
+    #     results_dir=".",  # Directory containing your Excel files
+    #     metrics_to_plot=['NDCG', 'HitRate', 'ILD_Cosine']
+    # )
 
-    except Exception as e:
-        print(f"\n⚠ Could not add terminal output to Excel: {e}")
-        with open(f"{filename}_terminal_output.txt", "w", encoding="utf-8") as f:
-            f.write(terminal_output)
-        print(f"✅ Full terminal output saved to {filename}_terminal_output.txt")
+    print(f"\n{'=' * 60}")
+    print("✅ Complete! All files and charts generated.")
+    print(f"{'=' * 60}")
