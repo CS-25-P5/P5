@@ -147,6 +147,9 @@ def process_save_mmr(all_recs, item_user_rating, item_ids, predicted_ratings, to
 def process_mmr(user_id, user_idx, mmr_indices, item_ids, predicted_ratings, mmr_recommendations_list, top_n=10):
 
     for rank, col_idx in enumerate(mmr_indices[:top_n], start = 1):
+        if col_idx >= len(item_ids):
+            print(f"Warning: col_idx {col_idx} out of bounds for user {user_id}, skipping")
+            continue  # skip invalid index
         item_id = int(item_ids[col_idx])
         score =  predicted_ratings[user_idx, col_idx]
 
