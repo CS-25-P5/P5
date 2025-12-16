@@ -131,7 +131,7 @@ def _to_rectools_format(df, is_ground_truth, dataset_type):
         rating_col = "rating"
     else:
         possible_cols = [
-            'recommendation_score',"rating_pred", "predictedRating", "prediction",
+            "val_rating","val_score",'recommendation_score',"rating_pred", "predictedRating", "prediction",
             "predicted_rating", "mf_score",
             "test_predicted_rating", "predictedRating", "rating"
         ]
