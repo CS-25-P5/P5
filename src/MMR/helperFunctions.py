@@ -28,6 +28,25 @@ def align_matrix_to_items(matrix_df, filtered_item_ids, filtered_user_ids):
     return aligned_matrix, aligned_df
 
 
+def align_matrix(matrix_df, filtered_user_ids, filtered_item_ids=None):
+    user_indices = [
+        matrix_df.index.get_loc(u)
+        for u in filtered_user_ids
+        if u in matrix_df.index
+    ]
+
+    if filtered_item_ids is None:
+        item_indices = range(matrix_df.shape[1])
+    else:
+        item_indices = [
+            matrix_df.columns.get_loc(i)
+            for i in filtered_item_ids
+            if i in matrix_df.columns
+        ]
+
+    aligned_df = matrix_df.iloc[user_indices, item_indices]
+    return aligned_df.values, aligned_df
+
 
 def prepare_train_val_matrices(train_df, val_df):
 
@@ -70,7 +89,10 @@ def prepare_train_val_matrices(train_df, val_df):
 def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_ids, filtered_item_ids=None):     
     # Get the filtered user and item IDs from the aligned DataFrame
     filtered_user_ids = filtered_df.index.tolist()
-    filtered_item_ids = filtered_df.columns.tolist()
+
+
+    #filtered_item_ids = filtered_df.columns.tolist()
+
     #print(f"Filtered users: {len(filtered_user_ids)}, Filtered items: {len(filtered_item_ids)}")
     
     # Align filtered items to MF model
@@ -210,7 +232,7 @@ def build_mmr_input(
     user_history_top_n = []
     for user_idx in range(num_users):
         rated_indices = np.where(R_filtered[user_idx] > 0)[0]
-        rated_item_ids = {str(filtered_item_ids[i]) for i in rated_indices}
+        rated_item_ids = {str(filtered_item_ids[i]) for i in rated_indices if i < len(filtered_item_ids)}
 
         mask = np.zeros(num_items, dtype=bool)
         for j, item_id in enumerate(candidate_items):

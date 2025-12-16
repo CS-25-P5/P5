@@ -55,37 +55,14 @@ def check_overlap(ground_truth_file, mf_test_file, user_col='userId', item_col='
 
 # Paths
 base_dir = os.path.dirname(os.path.abspath(__file__))
-ground_truth = os.path.join(base_dir, "../datasets/mmr_data", "books_ratings_100000_test.csv")
-mf_test = os.path.join(base_dir, "../datasets/mmr_data/books/2025-12-09_05-08-32/mf_test_100000_predictions.csv")
+ground_truth = os.path.join(base_dir, "../datasets/mmr_data", "movies_ratings_10000_test.csv")
+mf_test = os.path.join(base_dir, "../datasets/mmr_data/movies/2025-12-16_12-26-52/mf_test_10000_predictions.csv")
 #mf_test = "mf_rating_predictions.csv"
 
 # mf_test = os.path.join(base_dir, "../evaluation/movie/mf_test_100000_predictions.csv")
 
 
-# overlap_df = check_overlap(ground_truth, mf_test)
-# print(overlap_df.head())
+overlap_df = check_overlap(ground_truth, mf_test)
+print(overlap_df.head())
 
 
-# mf_test = os.path.join(base_dir, "../datasets/mmr_data/books/2025-12-09_05-08-32/mf_test_100000_predictions.csv")
-
-# result  = os.path.join(base_dir, "../datasets/mmr_data/books/2025-12-09_05-08-32/mf_test_100000_predictions_ranked.csv")
-# df = pd.read_csv(result)
-
-# df["rank"] = df.groupby("userId").cumcount() + 1
-
-# # Reorder columns: put rank after userId
-# cols = df.columns.tolist()
-
-# # Ensure "rank" comes right after "userId"
-# cols.insert(1, cols.pop(cols.index("rank")))
-
-# df = df[cols]
-
-
-# df.to_csv(result, index=False)
-
-# Remove rank if it exists
-# if "rank" in df.columns:
-#     df = df.drop(columns=["rank"])
-
-# df.to_csv(result, index=False)
