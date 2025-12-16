@@ -183,14 +183,20 @@ def run_dpp_pipeline_test(
     item_user_rating, genre_map, all_genres = load_and_prepare_matrix(
         ratings_path, item_path)
 
-    R_filtered, filtered_df = align_matrix_to_items(
+    R_filtered, filtered_df, common_user, common_items = align_matrix_to_items(
         matrix_df=item_user_rating,
         filtered_item_ids=train_filtered_item_ids,
-        filtered_user_ids=train_filtered_user_ids
+        filtered_user_ids= item_user_rating.index.tolist()
     )
+    print(f"the commen user:-{len(common_user)}")
+    print(f"the commen items:{len(common_items)}")
+
+    filtered_user_ids_test = [str(u) for u in train_filtered_user_ids]
+    filtered_item_ids_test = [str(i) for i in train_filtered_item_ids]
+
 
     filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
-        trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids)
+        trained_mf_model, filtered_df, filtered_user_ids_test, filtered_item_ids_test)
 
 
 
@@ -238,23 +244,27 @@ def run_dpp_pipeline_test(
 
     all_genres_test = sorted({g for genres in genre_map_test.values() for g in genres})
 
-    dpp_cosine = build_dpp_models(filtered_item_ids, genre_map, all_genres_test, predicted_ratings_top_n, 'cosine')
-    dpp_jaccard = build_dpp_models(filtered_item_ids, genre_map, all_genres_test, predicted_ratings_top_n, 'jaccard')
+    dpp_cosine = build_dpp_models(candidate_items, genre_map, all_genres_test, predicted_ratings_top_n, 'cosine')
+    dpp_jaccard = build_dpp_models(candidate_items, genre_map, all_genres_test, predicted_ratings_top_n, 'jaccard')
 
 
     #filtered_df_top_n = filtered_df[top_n_items]
     # Prepare top-N items per user for DPP (only unseen)
-    filtered_df_top_n = pd.DataFrame(index=filtered_user_ids)
+    filtered_df_top_n, _ = align_matrix_to_items(
+        matrix_df=item_user_rating,
+        filtered_item_ids=candidate_items,
+        filtered_user_ids=filtered_user_ids
+    )
 
 
     # Run DPP recommendations on test
     cosine_reco =  get_recommendations_for_dpp(
-        dpp_cosine, filtered_df_top_n, filtered_item_ids, genre_map, predicted_ratings,
+        dpp_cosine, filtered_df_top_n, candidate_items, genre_map, predicted_ratings_top_n,
         top_k, top_n, "cosine"
     )
 
     jaccard_rec = get_recommendations_for_dpp(
-        dpp_jaccard, filtered_df_top_n, filtered_item_ids, genre_map, predicted_ratings,
+        dpp_jaccard, filtered_df_top_n, candidate_items, genre_map, predicted_ratings_top_n,
         top_k, top_n, "jaccard"
     )
 
@@ -335,18 +345,18 @@ if __name__ == "__main__":
     )
 
     #load data
-    dataset_movie = "movies"
-    folder_movie = "MovieLens"
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_train.csv")
-    ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_val.csv")
-    ratings_test_path = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
-    item_file_path = os.path.join(base_dir, f"../datasets/{folder_movie}", f"{dataset_movie}.csv")
+    #dataset_movie = "movies"
+    #folder_movie = "MovieLens"
+    #base_dir = os.path.dirname(os.path.abspath(__file__))
+    #ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_train.csv")
+    #ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_val.csv")
+    #ratings_test_path = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
+    #item_file_path = os.path.join(base_dir, f"../datasets/{folder_movie}", f"{dataset_movie}.csv")
 
-    output_dir = os.path.join(base_dir,f"../datasets/dpp_data/{dataset_movie}")
+    #output_dir = os.path.join(base_dir,f"../datasets/dpp_data/{dataset_movie}")
 
-    run_movie_id = generate_run_id()
-
+    #run_movie_id = generate_run_id()
+    '''
     best_params, predicted_ratings, filtered_item_ids, filtered_user_ids, mf = run_dpp_pipeline(
         run_id = run_movie_id,
         ratings_train_path = ratings_train_file,
@@ -374,4 +384,4 @@ if __name__ == "__main__":
         trained_mf_model = mf,
         train_filtered_user_ids=filtered_user_ids,
         train_filtered_item_ids=filtered_item_ids
-    )
+    )'''

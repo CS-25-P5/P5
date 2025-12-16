@@ -19,13 +19,13 @@ def generate_run_id():
 # ==========================
 def align_matrix_to_items(matrix_df, filtered_item_ids, filtered_user_ids):
     # Get indices of users/items that exist in matrix
-    user_indices = [matrix_df.index.get_loc(u) for u in filtered_user_ids if u in matrix_df.index]
-    item_indices = [matrix_df.columns.get_loc(i) for i in filtered_item_ids if i in matrix_df.columns]
+    common_users = matrix_df.index.intersection(filtered_user_ids)
+    common_items = matrix_df.columns.intersection(filtered_item_ids)
 
-    aligned_matrix = matrix_df.values[np.ix_(user_indices, item_indices)]
-    aligned_df = matrix_df.iloc[user_indices, item_indices]
+    aligned_df = matrix_df.loc[common_users, common_items]
+    aligned_matrix = aligned_df.values
 
-    return aligned_matrix, aligned_df
+    return aligned_matrix, aligned_df, list(common_users), list(common_items)
 
 
 

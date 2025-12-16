@@ -75,26 +75,24 @@ class DPP:
         #Greedy MAP approximation for DPP subset selection.
 
         selected = []
-        remaining = list(candidate_indices)
+        remaining = list(range(K.shape[0]))
 
         for _ in range(min(top_k, len(remaining))):
             best_idx = None
             best_logdet = -np.inf
 
             for i in remaining:
-                if not selected:
-                    val = K[i, i]
-                    sign, logdet = np.linalg.slogdet(np.array([[val]]))
-                else:
-                    subset = selected + [i]
-                    subK = K[np.ix_(subset, subset)]
-                    sign, logdet = np.linalg.slogdet(subK)
+                subset = selected + [i]
+                subK = K[np.ix_(subset, subset)]
+                sign, logdet = np.linalg.slogdet(subK)
+
                 if sign > 0 and logdet > best_logdet:
                     best_logdet = logdet
                     best_idx = i
 
             if best_idx is None:
                 best_idx = remaining[0]
+
             selected.append(best_idx)
             remaining.remove(best_idx)
 
