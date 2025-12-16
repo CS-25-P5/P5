@@ -131,41 +131,52 @@ def build_mmr_input(
         filtered_user_ids,
         filtered_item_ids,
 ):
+
+    # --- Load and filter CSV ---
     df = pd.read_csv(candidate_list_csv)
     df = df[df["userId"].isin(filtered_user_ids)]
-    #df = df[df["itemId"].isin(filtered_item_ids)]
 
-    candidate_items = []
-    seen = set()
-    for _, row in df.iterrows():
-        if row["itemId"] not in seen:
-            candidate_items.append(row["itemId"])
-            seen.add(row["itemId"])
+    # Ensure type consistency for filtering
+    df["itemId"] = df["itemId"].astype(str)
+    # filtered_item_ids_str = [str(i) for i in filtered_item_ids]
 
+    # # Filter items that are in filtered_item_ids
+    # df = df[df["itemId"].isin(filtered_item_ids_str)]
+
+    # --- Build candidate items list from CSV only ---
+    candidate_items = df["itemId"].drop_duplicates().tolist()
+    if not candidate_items:
+        raise ValueError("No candidate items after filtering! Check your item IDs.")
+
+    # --- Initialize predicted ratings matrix ---
     num_items = len(candidate_items)
-    predicted_ratings_top_n = np.zeros((len(filtered_user_ids), num_items))
+    num_users = len(filtered_user_ids)
+    predicted_ratings_top_n = np.zeros((num_users, num_items))
 
     user_to_row = {u: i for i, u in enumerate(filtered_user_ids)}
     item_to_col = {i: j for j, i in enumerate(candidate_items)}
 
+    # Fill matrix with predicted rating
     for _, row in df.iterrows():
-        if row["userId"] in user_to_row and row["itemId"] in item_to_col:
-            predicted_ratings_top_n[
-                user_to_row[row["userId"]],
-                item_to_col[row["itemId"]]
-            ] = row["predictedRating"]
+        user_id, item_id, rating = row["userId"], row["itemId"], row["predictedRating"]
+        if user_id in user_to_row and item_id in item_to_col:
+            predicted_ratings_top_n[user_to_row[user_id], item_to_col[item_id]] = rating
 
+    # --- Remove items that have zero prediction for all users ---
+    non_zero_cols = np.any(predicted_ratings_top_n > 0, axis=0)
+    candidate_items = [item for keep, item in zip(non_zero_cols, candidate_items) if keep]
+    predicted_ratings_top_n = predicted_ratings_top_n[:, non_zero_cols]
+
+    # --- Build user history masks ---
     user_history_top_n = []
-
-    for user_idx in range(len(filtered_user_ids)):
-        rated_item_indices = np.where(R_filtered[user_idx] > 0)[0]
-        rated_item_ids = {filtered_item_ids[i] for i in rated_item_indices}
+    for user_idx in range(num_users):
+        rated_indices = np.where(R_filtered[user_idx] > 0)[0]
+        rated_item_ids = {str(filtered_item_ids[i]) for i in rated_indices if i < len(filtered_item_ids)}
 
         mask = np.zeros(num_items, dtype=bool)
         for j, item_id in enumerate(candidate_items):
             if item_id in rated_item_ids:
                 mask[j] = True
-
         user_history_top_n.append(mask)
 
     return predicted_ratings_top_n, user_history_top_n, candidate_items
