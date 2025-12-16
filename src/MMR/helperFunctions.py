@@ -182,14 +182,8 @@ def build_mmr_input(
     # Filter items that are in filtered_item_ids
     df = df[df["itemId"].isin(filtered_item_ids_str)]
 
-    # --- Build candidate items list ---
-    candidate_items = []
-    seen = set()
-    for item_id in df["itemId"]:
-        if item_id not in seen:
-            candidate_items.append(item_id)
-            seen.add(item_id)
-
+    # --- Build candidate items list from CSV only ---
+    candidate_items = df["itemId"].drop_duplicates().tolist()
     if not candidate_items:
         raise ValueError("No candidate items after filtering! Check your item IDs.")
 
@@ -201,6 +195,7 @@ def build_mmr_input(
     user_to_row = {u: i for i, u in enumerate(filtered_user_ids)}
     item_to_col = {i: j for j, i in enumerate(candidate_items)}
 
+    # Fill matrix with predicted rating
     for _, row in df.iterrows():
         user_id, item_id, rating = row["userId"], row["itemId"], row["predictedRating"]
         if user_id in user_to_row and item_id in item_to_col:
