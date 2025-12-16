@@ -132,7 +132,7 @@ def run_train_pipeline(
     start_time_cos = time.time()
     mmr_cosine = builder_cosine(best_lambda_cosine)
     run_mmr(mmr_model = mmr_cosine,
-            R_filtered = R_filtered_train ,
+            ratings_matrix = R_filtered_train ,
             top_k = top_k)
     end_time_cos = time.time()
     time_cos = end_time_cos - start_time_cos
@@ -144,7 +144,7 @@ def run_train_pipeline(
     start_time_jac = time.time()
     mmr_jaccard = builder_jaccard(best_lambda_jaccard)
     run_mmr(mmr_model = mmr_jaccard,
-        R_filtered = R_filtered_train,
+        ratings_matrix = R_filtered_train,
         top_k = top_k)
     end_time_jac = time.time()
     time_jac = end_time_jac - start_time_jac
@@ -343,13 +343,13 @@ def run_test_pipeline(
     # Run MMR
     all_recs_cosine = run_mmr(
         mmr_model = mmr_cosine,
-        R_filtered = R_filtered ,
+        ratings_matrix = R_filtered ,
         user_history = user_history_top_n,
         top_k = top_k)
     
     all_recs_jaccard = run_mmr(
         mmr_model = mmr_jaccard,
-        R_filtered = R_filtered ,
+        ratings_matrix = R_filtered ,
         user_history = user_history_top_n,
         top_k = top_k)
     
@@ -376,7 +376,7 @@ def run_test_pipeline(
 if __name__ == "__main__":
     # PARAMETER
     TOP_N = 50
-    CHUNK_SIZE = 100000
+    CHUNK_SIZE = 10000
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1
