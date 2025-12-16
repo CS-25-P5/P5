@@ -229,9 +229,9 @@ def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_id
 
         # Ensure R_filtered row aligns with predicted_ratings
         already_rated = R_filtered[user_idx, :predicted_ratings.shape[1]] > 0
-
+        ratings_mask = user_ratings <= 0
         # Filter out already rated items
-        user_ratings_filtered = np.where(already_rated | (user_ratings <= 0), -np.inf, user_ratings)
+        user_ratings_filtered = np.where(already_rated | ratings_mask, -np.inf, user_ratings)
 
         
         # Boolean series of movie rating status

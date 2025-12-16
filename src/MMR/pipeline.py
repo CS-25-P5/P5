@@ -2,7 +2,7 @@ import numpy as np
 from MF import load_and_prepare_matrix, get_top_n_recommendations_MF, tune_mf, train_mf_with_best_params, save_mf_predictions
 from MMR import mmr_builder_factory, tune_mmr_lambda, run_mmr, process_save_mmr
 from helperFunctions import (
-    generate_run_id, align_matrix, 
+    generate_run_id, align_matrix_to_user, 
     prepare_train_val_matrices, get_filtered_predictions, 
     log_experiment, log_loss_history, build_mmr_input)
 import os
@@ -246,9 +246,8 @@ def run_test_pipeline(
         ratings_path, item_path)
     
     # Use your existing function to align the matrix!
-    R_filtered, filtered_df = align_matrix(
+    R_filtered, filtered_df = align_matrix_to_user(
         matrix_df=item_user_rating,
-        #filtered_item_ids=train_filtered_item_ids,
         filtered_user_ids=train_filtered_user_ids
     )
     
@@ -382,7 +381,7 @@ def run_test_pipeline(
 if __name__ == "__main__":
     # PARAMETER
     TOP_N = 50
-    CHUNK_SIZE = 100000
+    CHUNK_SIZE = 10000
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1

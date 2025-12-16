@@ -17,7 +17,7 @@ def generate_run_id():
 # ==========================
 # MATRIX ALIGNMENT FUNCTIONS
 # ==========================
-def align_matrix_to_items(matrix_df, filtered_item_ids, filtered_user_ids):    
+def align_matrix_to_user_items(matrix_df, filtered_item_ids, filtered_user_ids):    
     # Get indices of users/items that exist in matrix
     user_indices = [matrix_df.index.get_loc(u) for u in filtered_user_ids if u in matrix_df.index]
     item_indices = [matrix_df.columns.get_loc(i) for i in filtered_item_ids if i in matrix_df.columns]
@@ -28,23 +28,14 @@ def align_matrix_to_items(matrix_df, filtered_item_ids, filtered_user_ids):
     return aligned_matrix, aligned_df
 
 
-def align_matrix(matrix_df, filtered_user_ids, filtered_item_ids=None):
+def align_matrix_to_user(matrix_df, filtered_user_ids):
     user_indices = [
         matrix_df.index.get_loc(u)
         for u in filtered_user_ids
         if u in matrix_df.index
     ]
 
-    if filtered_item_ids is None:
-        item_indices = range(matrix_df.shape[1])
-    else:
-        item_indices = [
-            matrix_df.columns.get_loc(i)
-            for i in filtered_item_ids
-            if i in matrix_df.columns
-        ]
-
-    aligned_df = matrix_df.iloc[user_indices, item_indices]
+    aligned_df = matrix_df.iloc[user_indices, :]
     return aligned_df.values, aligned_df
 
 
@@ -70,7 +61,7 @@ def prepare_train_val_matrices(train_df, val_df):
     filtered_item_ids = train_aligned.columns.tolist()
     #filtered_item_titles = [id_to_title[i] for i in filtered_item_ids]
 
-    R_filtered_val, val_data_filtered = align_matrix_to_items(
+    R_filtered_val, val_data_filtered = align_matrix_to_user_items(
         val_aligned,
         filtered_item_ids,
         filtered_user_ids
