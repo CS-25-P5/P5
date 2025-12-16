@@ -409,10 +409,10 @@ if __name__ == "__main__":
 
 
     weight_pairs = [
-    #(1.0, 0.0),
+    (1.0, 0.0),
     #(0.8, 0.2),
     #(0.6, 0.4),
-    (0.5, 0.5),
+    # (0.5, 0.5),
     #(0.4, 0.6),
     #(0.2, 0.8),
     #(0.0, 1.0),
@@ -461,39 +461,39 @@ if __name__ == "__main__":
 
 
         #RUN pipeline for books
-        # run_book_id = generate_run_id()
-        # (
-        #     books_best_lambda_cosine, 
-        #     books_best_lambda_jaccard, 
-        #     books_mf_trained, 
-        #     books_train_user_ids, 
-        #     books_train_item_ids
-        #     ) = run_train_pipeline (
-        #     run_id = run_book_id,
-        #     ratings_train_path = books_ratings_train_file,
-        #     ratings_val_path= books_ratings_val_file,
-        #     item_path = books_item_file_path,
-        #     output_dir = books_output_dir,
-        #     top_k = TOP_K,
-        #     chunksize= CHUNK_SIZE,
-        #     n_epochs= N_EPOCHS,
-        #     relevance_weight=REL_WEIGHT,
-        #     diversity_weight=DIV_WEIGHT,
-        #     dataset=dataset_books,
-        #     random_state=RANDOM_STATE)
+        run_book_id = generate_run_id()
+        (
+            books_best_lambda_cosine, 
+            books_best_lambda_jaccard, 
+            books_mf_trained, 
+            books_train_user_ids, 
+            books_train_item_ids
+            ) = run_train_pipeline (
+            run_id = run_book_id,
+            ratings_train_path = books_ratings_train_file,
+            ratings_val_path= books_ratings_val_file,
+            item_path = books_item_file_path,
+            output_dir = books_output_dir,
+            top_k = TOP_K,
+            chunksize= CHUNK_SIZE,
+            n_epochs= N_EPOCHS,
+            relevance_weight=REL_WEIGHT,
+            diversity_weight=DIV_WEIGHT,
+            dataset=dataset_books,
+            random_state=RANDOM_STATE)
 
-        # run_test_pipeline(
-        #     run_id = run_book_id,
-        #     ratings_path=books_ratings_test_path,
-        #     item_path=books_item_file_path,
-        #     output_dir=books_output_dir,
-        #     dataset=dataset_books,
-        #     top_n=TOP_N,
-        #     top_k=TOP_K,
-        #     chunksize=CHUNK_SIZE,
-        #     best_lambda_cosine = books_best_lambda_cosine,
-        #     best_lambda_jaccard = books_best_lambda_jaccard,
-        #     trained_mf_model = books_mf_trained,
-        #     train_filtered_user_ids=books_train_user_ids,
-        #     train_filtered_item_ids=books_train_item_ids
-        # )
+        run_test_pipeline(
+            run_id = run_book_id,
+            ratings_path=books_ratings_test_path,
+            item_path=books_item_file_path,
+            output_dir=books_output_dir,
+            dataset=dataset_books,
+            top_n=TOP_N,
+            top_k=TOP_K,
+            chunksize=CHUNK_SIZE,
+            best_lambda_cosine = books_best_lambda_cosine,
+            best_lambda_jaccard = books_best_lambda_jaccard,
+            trained_mf_model = books_mf_trained,
+            train_filtered_user_ids=books_train_user_ids,
+            train_filtered_item_ids=books_train_item_ids
+        )

@@ -82,6 +82,10 @@ class MMR:
         # store all indices of items chosen by MMR
         selected = []
 
+        # scales relvance to [0,1]
+        relevance = (relevance - relevance.min()) / (relevance.max() - relevance.min() + 1e-8)
+
+
         #Repeat up to top_k times or until no remaining items left.
         for _ in range(min(top_k, len(remaining))):
             # if no items are selected 
