@@ -187,6 +187,10 @@ def build_mmr_input(
     if not candidate_items:
         raise ValueError("No candidate items after filtering! Check your item IDs.")
 
+
+    # --- Determine actual filtered users present in the CSV ---
+    filtered_user_ids_actual = sorted(df["userId"].drop_duplicates().tolist())
+
     # --- Initialize predicted ratings matrix ---
     num_items = len(candidate_items)
     num_users = len(filtered_user_ids)
@@ -213,7 +217,7 @@ def build_mmr_input(
                 mask[j] = True
         user_history_top_n.append(mask)
 
-    return predicted_ratings_top_n, user_history_top_n, candidate_items
+    return predicted_ratings_top_n, user_history_top_n, candidate_items, filtered_user_ids_actual
 
 # ==========================
 # LOGGING FUNCTIONS
