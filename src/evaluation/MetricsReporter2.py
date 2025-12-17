@@ -474,7 +474,7 @@ if __name__ == "__main__":
         ITEM_FEATURES = None
 
     # Process K values from 10 down to 1
-    for current_k in range(10, 9, -1):
+    for current_k in range(5, 4, -1):
         print(f"\n{'=' * 60}")
         print(f"Processing with k={current_k}")
         print(f"{'=' * 60}\n")
@@ -515,10 +515,11 @@ if __name__ == "__main__":
                     threshold=THRESHOLD,
                     k=current_k,
                     item_features=ITEM_FEATURES,
-                    output_prefix=f"Li, ml 100k, R=1,0.6, top{current_k}_comparison",
+                    output_prefix=f"Test2, top{current_k}_comparison",
                     calculate_ild=CALCULATE_ILD,
                     catalog=CATALOG,
-                    dataset_type="movies"
+                    #dataset_type="books"
+                    dataset_type = "movies"
                 )
 
                 # Generate metric charts
