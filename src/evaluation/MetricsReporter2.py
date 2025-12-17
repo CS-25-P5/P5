@@ -290,10 +290,6 @@ def _calculate_ild(data_handler, item_features, k, metric="cosine"):
         # Calculate ILD per user
         ild_values = []
 
-        # ========== ADD DEBUG HERE ==========
-        print(f"\nPer-user ILD ({metric}):")
-        # ====================================
-
         for user_id, user_recos in recos.groupby('user_id'):
             user_items = user_recos['item_id'].astype(str).tolist()
             user_items = [item for item in user_items if item in item_to_idx]
@@ -306,10 +302,6 @@ def _calculate_ild(data_handler, item_features, k, metric="cosine"):
                 if len(upper_tri) > 0:
                     user_ild = upper_tri.mean()
                     ild_values.append(user_ild)
-
-                    # ========== ADD DEBUG HERE ==========
-                    print(f"  User {user_id}: items={user_items}, ILD={user_ild:.4f}")
-                    # ====================================
 
         final_ild = np.mean(ild_values) if ild_values else np.nan
 
@@ -487,7 +479,7 @@ if __name__ == "__main__":
                     'CALCULATE_ILD': CALCULATE_ILD,
                     'ITEM_FEATURES_PATH': ITEM_FEATURES_PATH,
                     'MODELS': MODELS,
-                    'dataset_type': "movies"
+                    'dataset_type': "books"
                 }
                 validate_files(config_for_validation)
 
@@ -510,10 +502,10 @@ if __name__ == "__main__":
                     threshold=THRESHOLD,
                     k=current_k,
                     item_features=ITEM_FEATURES,
-                    output_prefix=f"Random, movies top{current_k}_comparison",
+                    output_prefix=f"kasia, 100k books top{current_k}_comparison",
                     calculate_ild=CALCULATE_ILD,
                     catalog=CATALOG,
-                    dataset_type="movies"
+                    dataset_type="books"
                 )
 
             # Save terminal output to Excel
