@@ -59,6 +59,8 @@ ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens
 
 #validation ground truth
 
+GROUND_TRUTH = (r"E:\Data\Diana-NN\Output_Predictions_val_100K_movies(MLPwithBPR)\VAL_GROUNDTRUTH.csv")
+
 #Books 100k
 #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\VAL_GROUNDTRUTH.csv")
 
@@ -138,38 +140,38 @@ MODELS = [
 
     # #NN johannes - movies ml100k
     # #1layer
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-
-    #2 layers
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-
-
-    #3 layers
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    #
+    # #3 layers
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
 
     # NN johannes - books
     # 1layer
@@ -240,39 +242,239 @@ MODELS = [
 
 #### Diana #####
 
-    # # #diana val data 100K movies with BPR
+    # # #diana val total data 100K movies with BPR new
     # # # #1 LAYER
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr0001_batch64.csv" ,"One-32-0001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr0001_batch128.csv" ,"One-32-0001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr00003_batch64.csv" ,"One-32-00003-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr00003_batch128.csv" ,"One-32-00003-b128"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed32_lr0001_batch64_filtered.csv" ,"One-32-0001-b64"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed32_lr0001_batch128_filtered.csv" ,"One-32-0001-b128"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed32_lr00003_batch64_filtered.csv" ,"One-32-00003-b64"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed32_lr00003_batch128_filtered.csv" ,"One-32-00003-b128"),
+
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommend_BPRnn_OneLayer_embed64_lr0001_batch64_filtered.csv","One-64-0001-b64"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed64_lr0001_batch128_filtered.csv","One-64-0001-128"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed64_lr00003_batch64_filtered.csv","One-64-00003-b64"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed64_lr00003_batch128_filtered.csv","One-64-00003-b128"),
+
+    #2 LAYER
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed32_lr0001_batch64_filtered.csv","Two-32-0001-b64"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed32_lr0001_batch128_filtered.csv","Two-32-0001-b128"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed32_lr00003_batch64_filtered.csv","Two-32-00003-b64"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed32_lr00003_batch128_filtered.csv","Two-32-00003-b128"),
+
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed64_lr0001_batch64_filtered.csv","Two-64-0001-b64"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed64_lr0001_batch128_filtered.csv","Two-64-0001-b128"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed64_lr00003_batch64_filtered.csv","Two-64-00003-b64"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed64_lr00003_batch128_filtered.csv","Two-64-00003-b128"),
+
+    # 3 LAYER
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed32_lr0001_batch64_filtered.csv","Three-32-0001-b64"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed32_lr0001_batch128_filtered.csv","Three-32-0001-b128"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed32_lr00003_batch64_filtered.csv","Three-32-00003-b64"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed32_lr00003_batch128_filtered.csv","Three-32-00003-b128"),
+
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed64_lr0001_batch64_filtered.csv","Three-64-0001-b64"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed64_lr0001_batch128_filtered.csv","Three-64-0001-b128"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed64_lr00003_batch64_filtered.csv","Three-64-00003-b64"),
+    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed64_lr00003_batch128_filtered.csv","Three-64-00003-b128"),
+
+
+    # # # #diana total data 100K goodbooks with BPR new
+    # # # # #1 LAYER
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch64_filtered.csv",
+    #     "One-32-0001-b64"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128_filtered.csv",
+    #     "One-32-0001-b128"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64_filtered.csv",
+    #     "One-32-00003-b64"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128_filtered.csv",
+    #     "One-32-00003-b128"),
     #
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr0001_batch64.csv","One-64-0001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr0001_batch128.csv","One-64-0001-128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr00003_batch64.csv","One-64-00003-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr00003_batch128.csv","One-64-00003-b128"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64_filtered.csv",
+    #     "One-64-0001-b64"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128_filtered.csv",
+    #     "One-64-0001-128"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64_filtered.csv",
+    #     "One-64-00003-b64"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128_filtered.csv",
+    #     "One-64-00003-b128"),
     #
-    # #2 LAYER
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr0001_batch64.csv","Two-32-0001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr0001_batch128.csv","Two-32-0001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr00003_batch64.csv","Two-32-00003-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr00003_batch128.csv","Two-32-00003-b128"),
+    # # 2 LAYER
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch64_filtered.csv",
+    #     "Two-32-0001-b64"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch128_filtered.csv",
+    #     "Two-32-0001-b128"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch64_filtered.csv",
+    #     "Two-32-00003-b64"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128_filtered.csv",
+    #     "Two-32-00003-b128"),
     #
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr0001_batch64.csv","Two-64-0001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr0001_batch128.csv","Two-64-0001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr00003_batch64.csv","Two-64-00003-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr00003_batch128.csv","Two-64-00003-b128"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch64_filtered.csv",
+    #     "Two-64-0001-b64"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch128_filtered.csv",
+    #     "Two-64-0001-b128"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch64_filtered.csv",
+    #     "Two-64-00003-b64"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch128_filtered.csv",
+    #     "Two-64-00003-b128"),
     #
     # # 3 LAYER
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr0001_batch64.csv","Three-32-0001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr0001_batch128.csv","Three-32-0001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr00003_batch64.csv","Three-32-00003-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr00003_batch128.csv","Three-32-00003-b128"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64_filtered.csv",
+    #     "Three-32-0001-b64"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128_filtered.csv",
+    #     "Three-32-0001-b128"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64_filtered.csv",
+    #     "Three-32-00003-b64"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128_filtered.csv",
+    #     "Three-32-00003-b128"),
     #
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr0001_batch64.csv","Three-64-0001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr0001_batch128.csv","Three-64-0001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr00003_batch64.csv","Three-64-00003-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr00003_batch128.csv","Three-64-00003-b128"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64_filtered.csv",
+    #     "Three-64-0001-b64"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128_filtered.csv",
+    #     "Three-64-0001-b128"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64_filtered.csv",
+    #     "Three-64-00003-b64"),
+    # (
+    #     r"E:\Data\Diana-NN\Recommend_test_100K_goodbooks_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128_filtered.csv",
+    #     "Three-64-00003-b128"),
+
+
+    # # #diana total data 1M movies with BPR new
+    # # # # #1 LAYER
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch64_filtered.csv",
+    # "One-32-0001-b64"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128_filtered.csv",
+    # "One-32-0001-b128"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64_filtered.csv",
+    # "One-32-00003-b64"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128_filtered.csv",
+    # "One-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64_filtered.csv",
+    # "One-64-0001-b64"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128_filtered.csv",
+    # "One-64-0001-128"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64_filtered.csv",
+    # "One-64-00003-b64"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128_filtered.csv",
+    # "One-64-00003-b128"),
+    #
+    # # 2 LAYER
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch64_filtered.csv",
+    # "Two-32-0001-b64"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch128_filtered.csv",
+    # "Two-32-0001-b128"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch64_filtered.csv",
+    # "Two-32-00003-b64"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128_filtered.csv",
+    # "Two-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch64_filtered.csv",
+    # "Two-64-0001-b64"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch128_filtered.csv",
+    # "Two-64-0001-b128"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch64_filtered.csv",
+    # "Two-64-00003-b64"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch128_filtered.csv",
+    # "Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64_filtered.csv",
+    # "Three-32-0001-b64"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128_filtered.csv",
+    # "Three-32-0001-b128"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64_filtered.csv",
+    # "Three-32-00003-b64"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128_filtered.csv",
+    # "Three-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64_filtered.csv",
+    # "Three-64-0001-b64"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128_filtered.csv",
+    # "Three-64-0001-b128"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64_filtered.csv",
+    # "Three-64-00003-b64"),
+    # (
+    # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128_filtered.csv",
+    # "Three-64-00003-b128"),
+
+    # # #diana total data 100K movies with BPR new
+    # # # #1 LAYER
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch64_filtered.csv" ,"One-32-0001-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128_filtered.csv" ,"One-32-0001-b128"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64_filtered.csv" ,"One-32-00003-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128_filtered.csv" ,"One-32-00003-b128"),
+    #
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64_filtered.csv","One-64-0001-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128_filtered.csv","One-64-0001-128"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64_filtered.csv","One-64-00003-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128_filtered.csv","One-64-00003-b128"),
+    #
+    # #2 LAYER
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch64_filtered.csv","Two-32-0001-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch128_filtered.csv","Two-32-0001-b128"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch64_filtered.csv","Two-32-00003-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128_filtered.csv","Two-32-00003-b128"),
+    #
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch64_filtered.csv","Two-64-0001-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch128_filtered.csv","Two-64-0001-b128"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch64_filtered.csv","Two-64-00003-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch128_filtered.csv","Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64_filtered.csv","Three-32-0001-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128_filtered.csv","Three-32-0001-b128"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64_filtered.csv","Three-32-00003-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128_filtered.csv","Three-32-00003-b128"),
+    #
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64_filtered.csv","Three-64-0001-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128_filtered.csv","Three-64-0001-b128"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64_filtered.csv","Three-64-00003-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128_filtered.csv","Three-64-00003-b128"),
 
     # #diana validation data 1M movies with BPR
     # 1 LAYER

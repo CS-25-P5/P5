@@ -473,8 +473,8 @@ if __name__ == "__main__":
         print("Skipping item feature loading (ILD disabled)")
         ITEM_FEATURES = None
 
-    # Process K values from 10 down to 1
-    for current_k in range(5, 4, -1):
+    # Process K values x to y
+    for current_k in range(10, 9, -1):
         print(f"\n{'=' * 60}")
         print(f"Processing with k={current_k}")
         print(f"{'=' * 60}\n")
@@ -515,7 +515,7 @@ if __name__ == "__main__":
                     threshold=THRESHOLD,
                     k=current_k,
                     item_features=ITEM_FEATURES,
-                    output_prefix=f"Test2, top{current_k}_comparison",
+                    output_prefix=f"Diana val test, 100k movieLens total, top{current_k}_comparison",
                     calculate_ild=CALCULATE_ILD,
                     catalog=CATALOG,
                     #dataset_type="books"
