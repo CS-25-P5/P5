@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/pipeline.py", line 549, in <module>
+    run_test_pipeline(
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/pipeline.py", line 247, in run_test_pipeline
+    item_user_rating, genre_map, all_genres= load_and_prepare_matrix(
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/MF.py", line 154, in load_and_prepare_matrix
+    raise FileNotFoundError(f"Ratings file not found: {ratings_file_path}")
+FileNotFoundError: Ratings file not found: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/ratings_1M_movies_test
+/var/spool/slurm/job192598/slurm_script: line 31: unexpected EOF while looking for matching `"'
+/var/spool/slurm/job192598/slurm_script: line 32: syntax error: unexpected end of file
