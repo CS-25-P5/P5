@@ -63,6 +63,7 @@ class DPP:
         S = self.sim_matrix[np.ix_(candidate_indices, candidate_indices)]
 
         assert q.shape[0] == S.shape[0], "q and S dimension mismatch"
+        assert S.shape[0] == len(scores), "Kernel size mismatch — wrong indices"
 
 
         L = np.outer(q, q) * S
@@ -116,11 +117,9 @@ class DPP:
             candidate_indices = [candidate_indices[i] for i in top_m_idx]
             relevance = self.predicted_ratings[user_id, candidate_indices]
 
-        # map global → local indices
-        local_indices = np.arange(len(candidate_indices))
 
         # kernel only for candidate items
-        L = self.build_kernel(relevance, local_indices)
+        L = self.build_kernel(relevance, candidate_indices)
 
 
         selected_local = self.dpp_greedy(L, top_k)
@@ -191,8 +190,6 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
         ]
 
 
-        if len(candidate_indices) == 0:
-            return np.array([], dtype=int)
 
         dpp_indices = dpp_model.dpp(
             user_id=user_idx,
@@ -214,6 +211,10 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
             top_n=top_n
         )
 
+    print("DPP diagnostics:")
+    print("Users with recommendations:", len(set(r['userId'] for r in results)))
+    print("Unique recommended items:", len(set(r['itemId'] for r in results)))
+    print("Total recommendations:", len(results))
     print(f"Done DPP for {similarity_type}")
     return results
 
