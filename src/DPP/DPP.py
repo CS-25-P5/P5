@@ -189,6 +189,7 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
             if not user_history[idx] and item_id in itemid_to_col
         ]
 
+        top_m = min(100, len(candidate_indices))
 
 
         dpp_indices = dpp_model.dpp(
@@ -196,7 +197,7 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
             user_history=user_history,
             candidate_indices=candidate_indices,
             top_k=top_k,
-            top_m=200
+            top_m=top_m
         )
 
         process_dpp(

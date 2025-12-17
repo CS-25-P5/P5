@@ -247,8 +247,16 @@ def run_dpp_pipeline_test(
     # Subset predicted_ratings to only candidate items
     #predicted_ratings_subset = predicted_ratings[:, candidate_indices]
 
-    # Candidate items = MF-known items
+    # Candidate items for DPP = all MF-known items
     candidate_items_dpp = [i for i in filtered_item_ids if i in trained_mf_model.item_ids]
+
+    # ---- SANITY CHECK ----
+    gt_items_test = item_user_rating.columns[item_user_rating.sum(axis=0) > 0]  # all items with any ratings in test
+    num_gt_in_candidates = sum(item in candidate_items_dpp for item in gt_items_test)
+    print(f"Candidate items for DPP: {len(candidate_items_dpp)}")
+    print(f"Number of GT items included in candidates: {num_gt_in_candidates}")
+    if num_gt_in_candidates == 0:
+        print("Warning: No GT items in DPP candidate pool! GT metrics will be zero.")
 
     # Use full predicted ratings (not top-N)
     predicted_ratings_dpp = predicted_ratings
