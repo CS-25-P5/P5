@@ -31,11 +31,9 @@ def run_test_pipeline(
     #Load user-history
     ratings_df = pd.read_csv(ratings_path)[["userId", "itemId"]]
 
-    
     predicted_ratings_top_n, user_history_top_n, user_ids, candidate_items = build_mmr_input_from_nn(
     candidate_list_csv = nn_candidates_csv,
     interactions_df=ratings_df)         
-
 
     # Create a builder for cosine similarity
     builder_cosine = mmr_builder_factory(

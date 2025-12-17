@@ -42,13 +42,6 @@ def align_matrix_to_user(matrix_df, filtered_user_ids):
 
 def prepare_train_val_matrices(train_df, val_df):
 
-    # Align train and val to common users/items
-    # common_users = train_df.index.intersection(val_df.index)
-    # common_items = train_df.columns.intersection(val_df.columns)
-
-    # train_aligned = train_df.loc[common_users, common_items]
-    # val_aligned = val_df.loc[common_users, common_items]
-
     #filter out users with no training interactions
     common_items = train_df.columns.intersection(val_df.columns)
     train_aligned = train_df[common_items]
@@ -60,7 +53,6 @@ def prepare_train_val_matrices(train_df, val_df):
     R_filtered_train = R_train[user_filter, :]
     filtered_user_ids = train_aligned.index[user_filter].tolist()
     filtered_item_ids = train_aligned.columns.tolist()
-    #filtered_item_titles = [id_to_title[i] for i in filtered_item_ids]
 
     R_filtered_val, val_data_filtered = align_matrix_to_user_items(
         val_aligned,
@@ -82,11 +74,6 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
     # Get the filtered user and item IDs from the aligned DataFrame
     filtered_user_ids = filtered_df.index.tolist()
 
-
-    #filtered_item_ids = filtered_df.columns.tolist()
-
-    #print(f"Filtered users: {len(filtered_user_ids)}, Filtered items: {len(filtered_item_ids)}")
-    
     # Align filtered items to MF model
     trained_items = np.array([str(i) for i in trained_mf_model.item_ids])
     filtered_item_ids_str = np.array([str(i) for i in filtered_item_ids])
@@ -125,59 +112,6 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
 # ==========================
 # CANDIDATE LIST / MMR INPUT FUNCTIONS
 # ==========================
-# def build_mmr_input(
-#     candidate_list_csv,
-#     R_filtered,
-#     filtered_user_ids,
-#     filtered_item_ids,
-# ):
-#     df = pd.read_csv(candidate_list_csv)
-#     df = df[df["userId"].isin(filtered_user_ids)]
-
-#     df["itemId"] = df["itemId"].astype(str)
-#     filtered_item_ids = list(map(str, filtered_item_ids))
-#     df = df[df["itemId"].isin(filtered_item_ids)]
-
-#     candidate_items = []
-#     seen = set()
-#     for _, row in df.iterrows():
-#         if row["itemId"] not in seen:
-#             candidate_items.append(row["itemId"])
-#             seen.add(row["itemId"])
-
-
-#     print(f"[DEBUG] Candidate items after filtering: {len(candidate_items)}")
-
-#     num_items = len(candidate_items)
-#     predicted_ratings_top_n = np.zeros((len(filtered_user_ids), num_items))
-
-#     user_to_row = {u: i for i, u in enumerate(filtered_user_ids)}
-#     item_to_col = {i: j for j, i in enumerate(candidate_items)}
-
-#     for _, row in df.iterrows():
-#         if row["userId"] in user_to_row and row["itemId"] in item_to_col:
-#             predicted_ratings_top_n[
-#                 user_to_row[row["userId"]],
-#                 item_to_col[row["itemId"]]
-#             ] = row["predictedRating"]
-
-#     user_history_top_n = []
-
-#     for user_idx in range(len(filtered_user_ids)):
-#         rated_item_indices = np.where(R_filtered[user_idx] > 0)[0]
-#         rated_item_ids = {filtered_item_ids[i] for i in rated_item_indices}
-
-#         mask = np.zeros(num_items, dtype=bool)
-#         for j, item_id in enumerate(candidate_items):
-#             if item_id in rated_item_ids:
-#                 mask[j] = True
-
-#         user_history_top_n.append(mask)
-
-#     return predicted_ratings_top_n, user_history_top_n, candidate_items
-
-
-
 def build_mmr_input(
     candidate_list_csv,
     R_filtered,
@@ -185,23 +119,19 @@ def build_mmr_input(
     filtered_item_ids,
 ):
 
-    # --- Load and filter CSV ---
+    # Load and filter CSV 
     df = pd.read_csv(candidate_list_csv)
     df = df[df["userId"].isin(filtered_user_ids)]
 
     # Ensure type consistency for filtering
     df["itemId"] = df["itemId"].astype(str)
-    # filtered_item_ids_str = [str(i) for i in filtered_item_ids]
 
-    # # Filter items that are in filtered_item_ids
-    # df = df[df["itemId"].isin(filtered_item_ids_str)]
-
-    # --- Build candidate items list from CSV only ---
+    # Build candidate items list from CSV only 
     candidate_items = df["itemId"].drop_duplicates().tolist()
     if not candidate_items:
         raise ValueError("No candidate items after filtering! Check your item IDs.")
 
-    # --- Initialize predicted ratings matrix ---
+    # Initialize predicted ratings matrix 
     num_items = len(candidate_items)
     num_users = len(filtered_user_ids)
     predicted_ratings_top_n = np.zeros((num_users, num_items))
@@ -215,12 +145,12 @@ def build_mmr_input(
         if user_id in user_to_row and item_id in item_to_col:
             predicted_ratings_top_n[user_to_row[user_id], item_to_col[item_id]] = rating
 
-    # --- Remove items that have zero prediction for all users ---
+    # Remove items that have zero prediction for all users 
     non_zero_cols = np.any(predicted_ratings_top_n > 0, axis=0)
     candidate_items = [item for keep, item in zip(non_zero_cols, candidate_items) if keep]
     predicted_ratings_top_n = predicted_ratings_top_n[:, non_zero_cols]
 
-    # --- Build user history masks ---
+    # Build user history masks 
     user_history_top_n = []
     for user_idx in range(num_users):
         rated_indices = np.where(R_filtered[user_idx] > 0)[0]
@@ -305,9 +235,6 @@ def log_experiment(output_dir, file_name, params):
         writer.writerow(params)
 
     print(f"Logged experiment to {log_file}")
-
-
-
 
 
 def log_loss_history(output_dir, filename, train_mse, val_mse):

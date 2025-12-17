@@ -78,10 +78,6 @@ def run_train_pipeline(
     mem_mf = tracemalloc.get_traced_memory()[1] / 1024**2
     tracemalloc.stop()
 
-
-    # Attach filtered item titles to MF model
-    mf.item_ids = filtered_item_ids
-
     #TUNE MMR lambda
     # Create a builder for cosine similarity
     builder_cosine = mmr_builder_factory(

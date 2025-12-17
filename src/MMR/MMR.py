@@ -124,26 +124,6 @@ def run_mmr(mmr_model, R_filtered, top_k, user_history = None):
     return all_recs
 
 
-# def run_mmr(mmr_model, ratings_matrix, top_k, user_history=None):
-#     all_recs = []
-#     num_users, num_items = ratings_matrix.shape
-
-#     for user_idx in range(num_users):
-#         # Use provided user history or derive from ratings_matrix
-#         user_histories = np.atleast_1d(
-#             user_history[user_idx] if user_history is not None else (ratings_matrix[user_idx, :] > 0)
-#         )
-
-#         # Call MMR model for this user
-#         rec_indices = mmr_model.mmr(user_idx, user_histories, top_k)
-
-#         # Clip indices to valid range
-#         rec_indices = [i for i in rec_indices if i < num_items]
-
-#         all_recs.append(rec_indices)
-    
-#     return all_recs
-
 def process_save_mmr(all_recs, user_ids, item_ids, predicted_ratings, top_n = 10, output_file_path = None):
     results = []
     for user_idx, rec_indices in enumerate(all_recs):
@@ -277,8 +257,7 @@ def tune_mmr_lambda(
         for user_idx in range(predicted_ratings.shape[0]):
             user_history = (R_filtered[user_idx, :] > 0)
             rec_indices = mmr_model.mmr(user_idx, user_history, top_k =k_eval)
-            
-       
+
             recs = []
             for idx in rec_indices:
                 if idx < len(item_ids):  # Safety check
