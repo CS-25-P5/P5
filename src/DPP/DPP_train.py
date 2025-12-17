@@ -18,7 +18,7 @@ tune_mf, train_mf_with_best_params,
 
 from MMR.helperFunctions import ( generate_run_id, align_matrix_to_user_items, align_matrix_to_user,
                                   prepare_train_val_matrices, get_filtered_predictions,
-                                   log_experiment, log_loss_history, build_mmr_input
+                                   log_experiment, log_loss_history, build_mmr_input, build_dpp_input_per_user
                                   )
 
 
@@ -214,7 +214,7 @@ def run_dpp_pipeline_test(
     )
 
     # Build MMR input
-    predicted_ratings_top_n, user_history_top_n, candidate_items = build_mmr_input(
+    predicted_ratings_top_n, user_history_top_n, candidate_items = build_dpp_input_per_user(
         candidate_list_csv=mf_top_n_path,
         R_filtered=R_filtered,
         filtered_user_ids=filtered_user_ids,
@@ -261,17 +261,19 @@ def run_dpp_pipeline_test(
     # Use full predicted ratings (not top-N)
     predicted_ratings_dpp = predicted_ratings
 
-    dpp_cosine = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings_dpp, 'cosine')
-    dpp_jaccard = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings_dpp, 'jaccard')
+    dpp_cosine = build_dpp_models(filtered_item_ids, genre_map_test, all_genres_test, predicted_ratings_dpp, 'cosine')
+    dpp_jaccard = build_dpp_models(filtered_item_ids, genre_map_test, all_genres_test, predicted_ratings_dpp, 'jaccard')
 
     # Run DPP recommendations
     cosine_reco = get_recommendations_for_dpp(
-        dpp_cosine, filtered_df, candidate_items, genre_map_test, predicted_ratings_dpp,
-        top_k, top_n, "cosine"
+        dpp_cosine, filtered_df, filtered_item_ids, genre_map_test, predicted_ratings_dpp,
+        top_k, top_n, "cosine", candidate_items_per_user=candidate_items,   # from build_dpp_input()
+        user_history_per_user=user_history_top_n
     )
     jaccard_reco = get_recommendations_for_dpp(
-        dpp_jaccard, filtered_df, candidate_items, genre_map_test, predicted_ratings_dpp,
-        top_k, top_n, "jaccard"
+        dpp_jaccard, filtered_df, filtered_item_ids, genre_map_test, predicted_ratings_dpp,
+        top_k, top_n, "jaccard", candidate_items_per_user=candidate_items,
+        user_history_per_user=user_history_top_n
     )
     # Save DPP results
     cosine_path = os.path.join(output_dir, f"{run_id}/dpp_test_{chunksize}_cosine_top_{top_n}.csv")

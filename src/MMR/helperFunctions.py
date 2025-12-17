@@ -234,6 +234,52 @@ def build_mmr_input(
 
     return predicted_ratings_top_n, user_history_top_n, candidate_items
 
+def build_dpp_input_per_user(
+        candidate_list_csv,
+        R_filtered,
+        filtered_user_ids,
+        filtered_item_ids,
+):
+    # --- Load CSV ---
+    df = pd.read_csv(candidate_list_csv)
+    df = df[df["userId"].isin(filtered_user_ids)]
+
+    # Ensure type consistency
+    df["itemId"] = df["itemId"].astype(str)
+    filtered_item_ids_str = [str(i) for i in filtered_item_ids]
+
+    # Filter items in filtered_item_ids
+    df = df[df["itemId"].isin(filtered_item_ids_str)]
+
+    # --- Build candidate items per user ---
+    candidate_items_per_user = []
+    predicted_ratings_per_user = []
+    user_history_per_user = []
+
+    user_to_row = {u: i for i, u in enumerate(filtered_user_ids)}
+
+    for user_id in filtered_user_ids:
+        user_df = df[df["userId"] == user_id]
+
+        candidate_items = user_df["itemId"].tolist()
+        num_items = len(candidate_items)
+
+        # Build predicted ratings vector for this user
+        predicted_ratings_vec = np.zeros(num_items)
+        for j, item_id in enumerate(candidate_items):
+            rating = user_df[user_df["itemId"] == item_id]["predictedRating"].values[0]
+            predicted_ratings_vec[j] = rating
+
+        # Build history mask for this user
+        rated_indices = np.where(R_filtered[user_to_row[user_id]] > 0)[0]
+        rated_item_ids = {str(filtered_item_ids[i]) for i in rated_indices if i < len(filtered_item_ids)}
+        mask = np.array([item in rated_item_ids for item in candidate_items])
+
+        candidate_items_per_user.append(candidate_items)
+        predicted_ratings_per_user.append(predicted_ratings_vec)
+        user_history_per_user.append(mask)
+
+    return predicted_ratings_per_user, user_history_per_user, candidate_items_per_user
 # ==========================
 # LOGGING FUNCTIONS
 # ==========================
