@@ -234,6 +234,59 @@ def build_mmr_input(
 
     return predicted_ratings_top_n, user_history_top_n, candidate_items
 
+
+def build_mmr_input_from_nn(
+    candidate_list_csv,
+    interactions_df=None, 
+):
+
+    df = pd.read_csv(candidate_list_csv)
+    df["userId"] = df["userId"].astype(str)
+    df["itemId"] = df["itemId"].astype(str)
+
+    # Users & items from NN output
+    user_ids = df["userId"].unique().tolist()
+    candidate_items = df["itemId"].unique().tolist()
+
+    user_to_row = {u: i for i, u in enumerate(user_ids)}
+    item_to_col = {i: j for j, i in enumerate(candidate_items)}
+
+    num_users = len(user_ids)
+    num_items = len(candidate_items)
+
+    # Relevance matrix
+    predicted_ratings = np.zeros((num_users, num_items))
+
+    for _, row in df.iterrows():
+        predicted_ratings[
+            user_to_row[row["userId"]],
+            item_to_col[row["itemId"]],
+        ] = row["predictedRating"]
+
+    # build user history mask
+    user_history = None
+
+    if interactions_df is not None:
+        interactions_df["userId"] = interactions_df["userId"].astype(str)
+        interactions_df["itemId"] = interactions_df["itemId"].astype(str)
+
+        user_history = []
+
+        for u in user_ids:
+            seen_items = set(
+                interactions_df.loc[
+                    interactions_df["userId"] == u, "itemId"
+                ]
+            )
+            mask = np.array(
+                [item in seen_items for item in candidate_items],
+                dtype=bool,
+            )
+            user_history.append(mask)
+
+    return predicted_ratings, user_history, user_ids, candidate_items
+
+
 # ==========================
 # LOGGING FUNCTIONS
 # ==========================
@@ -252,6 +305,9 @@ def log_experiment(output_dir, file_name, params):
         writer.writerow(params)
 
     print(f"Logged experiment to {log_file}")
+
+
+
 
 
 def log_loss_history(output_dir, filename, train_mse, val_mse):
