@@ -492,7 +492,7 @@ if __name__ == "__main__":
                     'CALCULATE_ILD': CALCULATE_ILD,
                     'ITEM_FEATURES_PATH': ITEM_FEATURES_PATH,
                     'MODELS': MODELS,
-                    'dataset_type': "movies"
+                    'dataset_type': "books"
                 }
                 validate_files(config_for_validation)
 
@@ -515,11 +515,11 @@ if __name__ == "__main__":
                     threshold=THRESHOLD,
                     k=current_k,
                     item_features=ITEM_FEATURES,
-                    output_prefix=f"Diana val test, 100k movieLens total, top{current_k}_comparison",
+                    output_prefix=f"Kasia DPP, 100k books, top{current_k}_comparison",
                     calculate_ild=CALCULATE_ILD,
                     catalog=CATALOG,
                     #dataset_type="books"
-                    dataset_type = "movies"
+                    dataset_type = "books"
                 )
 
                 # Generate metric charts

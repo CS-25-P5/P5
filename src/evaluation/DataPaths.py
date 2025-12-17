@@ -2,19 +2,19 @@ import pandas as pd
 
 # Configuration
 THRESHOLD = 4.0
-K = 5
+K = 10
 CALCULATE_ILD = True  # Set to False to skip ILD calculation
 
 # Catalog paths
-#CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
-CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+#CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
 
 CATALOG = pd.read_csv(CATALOG_PATH)
 CATALOG = CATALOG.rename(columns={"itemId": "item_id"})
 
 # Item features path (for ILD calculation)
-ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
-#ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+#ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
 
 #Test1
 #GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
@@ -28,7 +28,7 @@ ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens
 #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies_groundtruth.csv")
 
 #MF - li books
-#GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books_groundtruth.csv")
+GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books_groundtruth.csv")
 
 #NN - diana
 
@@ -59,7 +59,7 @@ ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens
 
 #validation ground truth
 
-GROUND_TRUTH = (r"E:\Data\Diana-NN\Output_Predictions_val_100K_movies(MLPwithBPR)\VAL_GROUNDTRUTH.csv")
+#GROUND_TRUTH = (r"E:\Data\Diana-NN\Output_Predictions_val_100K_movies(MLPwithBPR)\VAL_GROUNDTRUTH.csv")
 
 #Books 100k
 #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\VAL_GROUNDTRUTH.csv")
@@ -125,15 +125,15 @@ MODELS = [
 
     ###### Kasia #######
 
-    # #DPP - movies
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\dpp_test_100000_jaccard_top_10_with_genres.csv", "dpp_Jaccard"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\dpp_test_100000_cosine_top_10_with_genres.csv", "dpp_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\mf_test_100000_top_10_with_genres.csv", "MF"),
+    # # #DPP - movies
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_00-49-51\dpp_test_100000_jaccard_top_10.csv", "dpp_Jaccard"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_00-49-51\dpp_test_100000_cosine_top_10.csv", "dpp_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_00-49-51\mf_test_100000_top_10.csv", "MF"),
 
     # DPP - books
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\dpp_test_100000_jaccard_top_10.csv", "dpp_Jaccard"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\dpp_test_100000_cosine_top_10.csv", "dpp_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\mf_test_100000_top_10.csv", "MF"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-16_21-42-31\dpp_test_100000_cosine_top_10.csv", "dpp_Jaccard"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-16_21-42-31\dpp_test_100000_jaccard_top_10.csv", "dpp_cosine"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-16_21-42-31\mf_test_100000_top_10.csv", "MF"),
 
 
 ##### Johannes #######
@@ -244,37 +244,37 @@ MODELS = [
 
     # # #diana val total data 100K movies with BPR new
     # # # #1 LAYER
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed32_lr0001_batch64_filtered.csv" ,"One-32-0001-b64"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed32_lr0001_batch128_filtered.csv" ,"One-32-0001-b128"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed32_lr00003_batch64_filtered.csv" ,"One-32-00003-b64"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed32_lr00003_batch128_filtered.csv" ,"One-32-00003-b128"),
-
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommend_BPRnn_OneLayer_embed64_lr0001_batch64_filtered.csv","One-64-0001-b64"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed64_lr0001_batch128_filtered.csv","One-64-0001-128"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed64_lr00003_batch64_filtered.csv","One-64-00003-b64"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed64_lr00003_batch128_filtered.csv","One-64-00003-b128"),
-
-    #2 LAYER
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed32_lr0001_batch64_filtered.csv","Two-32-0001-b64"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed32_lr0001_batch128_filtered.csv","Two-32-0001-b128"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed32_lr00003_batch64_filtered.csv","Two-32-00003-b64"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed32_lr00003_batch128_filtered.csv","Two-32-00003-b128"),
-
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed64_lr0001_batch64_filtered.csv","Two-64-0001-b64"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed64_lr0001_batch128_filtered.csv","Two-64-0001-b128"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed64_lr00003_batch64_filtered.csv","Two-64-00003-b64"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed64_lr00003_batch128_filtered.csv","Two-64-00003-b128"),
-
-    # 3 LAYER
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed32_lr0001_batch64_filtered.csv","Three-32-0001-b64"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed32_lr0001_batch128_filtered.csv","Three-32-0001-b128"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed32_lr00003_batch64_filtered.csv","Three-32-00003-b64"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed32_lr00003_batch128_filtered.csv","Three-32-00003-b128"),
-
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed64_lr0001_batch64_filtered.csv","Three-64-0001-b64"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed64_lr0001_batch128_filtered.csv","Three-64-0001-b128"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed64_lr00003_batch64_filtered.csv","Three-64-00003-b64"),
-    (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed64_lr00003_batch128_filtered.csv","Three-64-00003-b128"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed32_lr0001_batch64_filtered.csv" ,"One-32-0001-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed32_lr0001_batch128_filtered.csv" ,"One-32-0001-b128"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed32_lr00003_batch64_filtered.csv" ,"One-32-00003-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed32_lr00003_batch128_filtered.csv" ,"One-32-00003-b128"),
+    #
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommend_BPRnn_OneLayer_embed64_lr0001_batch64_filtered.csv","One-64-0001-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed64_lr0001_batch128_filtered.csv","One-64-0001-128"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed64_lr00003_batch64_filtered.csv","One-64-00003-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_OneLayer_embed64_lr00003_batch128_filtered.csv","One-64-00003-b128"),
+    #
+    # #2 LAYER
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed32_lr0001_batch64_filtered.csv","Two-32-0001-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed32_lr0001_batch128_filtered.csv","Two-32-0001-b128"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed32_lr00003_batch64_filtered.csv","Two-32-00003-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed32_lr00003_batch128_filtered.csv","Two-32-00003-b128"),
+    #
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed64_lr0001_batch64_filtered.csv","Two-64-0001-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed64_lr0001_batch128_filtered.csv","Two-64-0001-b128"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed64_lr00003_batch64_filtered.csv","Two-64-00003-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_TwoLayers_embed64_lr00003_batch128_filtered.csv","Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed32_lr0001_batch64_filtered.csv","Three-32-0001-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed32_lr0001_batch128_filtered.csv","Three-32-0001-b128"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed32_lr00003_batch64_filtered.csv","Three-32-00003-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed32_lr00003_batch128_filtered.csv","Three-32-00003-b128"),
+    #
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed64_lr0001_batch64_filtered.csv","Three-64-0001-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed64_lr0001_batch128_filtered.csv","Three-64-0001-b128"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed64_lr00003_batch64_filtered.csv","Three-64-00003-b64"),
+    # (r"E:\Data\Diana-NN\Recommend_test_100K_movies_TOTAL(MLPwithBPR)\_val_evalRecommendBPRnn_ThreeLayers_embed64_lr00003_batch128_filtered.csv","Three-64-00003-b128"),
 
 
     # # # #diana total data 100K goodbooks with BPR new
