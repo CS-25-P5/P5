@@ -308,12 +308,12 @@ if __name__ == "__main__":
     #DATASET_NAME = "books"
     RANDOM_STATE = 42
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))
 
-''''
+    '''
     #load data
     dataset_books = "books"
     folder_books = "GoodBooks"
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_train.csv")
     ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_val.csv")
     ratings_test_path = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_test.csv")
@@ -353,12 +353,13 @@ if __name__ == "__main__":
         train_filtered_user_ids=filtered_user_ids,
         train_filtered_item_ids=filtered_item_ids
     )
-
     '''
 
-    #load data
+
+    # Now start movies block at correct indentation
     dataset_movie = "movies"
     folder_movie = "MovieLens"
+
     base_dir = os.path.dirname(os.path.abspath(__file__))
     ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_train.csv")
     ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_val.csv")
