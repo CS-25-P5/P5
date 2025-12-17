@@ -66,7 +66,7 @@ class DPP:
 
 
         L = np.outer(q, q) * S
-        L += np.eye(len(K)) * self.epsilon
+        L += np.eye(len(L)) * self.epsilon
         return L
 
     # DPP Greedy MAP selection
