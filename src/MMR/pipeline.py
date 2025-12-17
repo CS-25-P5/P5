@@ -63,9 +63,10 @@ def run_train_pipeline(
     (
         mf, predicted_ratings, 
         train_mse_history, 
-        train_rmse_final, 
+        best_train_rmse, 
         val_mse_history, 
-        val_rmse_final
+        best_val_rmse,
+        best_epoch
     ) = train_mf_with_best_params(
         R_filtered = R_filtered_train,
         R_val = R_filtered_val,        
@@ -164,8 +165,9 @@ def run_train_pipeline(
             "Lambda": best_params["lambda_"],
             "N_epochs": n_epochs,
             "Random_state": random_state,
-            "Train_rmse": train_rmse_final,
-            "Val_rmse": val_rmse_final,
+            "Best_epoch": best_epoch,
+            "Train_rmse": best_train_rmse,
+            "Val_rmse": best_val_rmse,
             "Benchmark_time": time_mf,
             "Max_Memory_MB": mem_mf
         },
