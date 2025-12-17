@@ -521,7 +521,7 @@ dataset_movie = "movies"
 folder_movie = "MovieLens"
 movies_ratings_train_file= os.path.join(base_dir, "../datasets/mmr_data", "ratings_1M_movies_train.csv")
 movies_ratings_val_file = os.path.join(base_dir, "../datasets/mmr_data", "ratings_1M_movies_val.csv")
-movies_ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data/", "ratings_1M_movies_test")
+movies_ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data/", "ratings_1M_movies_test.csv")
 movies_item_file_path = os.path.join(base_dir, f"../datasets/{folder_movie}/movies1M.csv")
 movies_output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_movie}")
 
