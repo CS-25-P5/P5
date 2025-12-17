@@ -293,7 +293,7 @@ if __name__ == "__main__":
     RANDOM_STATE = 42
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    '''
+
 
     #load data
     dataset_books = "books"
@@ -379,4 +379,4 @@ if __name__ == "__main__":
         trained_mf_model = mf,
         train_filtered_user_ids=filtered_user_ids,
         train_filtered_item_ids=filtered_item_ids
-    )
+    )'''
