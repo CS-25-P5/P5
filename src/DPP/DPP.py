@@ -99,7 +99,7 @@ class DPP:
         return selected
 
     # DPP recommendations for a user
-    def dpp(self, user_id, user_history,candidate_indices=None, top_k=10, top_m=300):
+    def dpp(self, user_id, user_history,candidate_indices=None, top_k=10, top_m=100):
 
         # Ensure user_history matches predicted_ratings length
         if len(user_history) > self.predicted_ratings.shape[1]:
@@ -196,7 +196,7 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
             user_history=user_history,
             candidate_indices=candidate_indices,
             top_k=top_k,
-            top_m=300
+            top_m=200
         )
 
         process_dpp(
