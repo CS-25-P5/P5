@@ -1,0 +1,40 @@
+Running on ailab-l4-11
+Start time: Wed Dec 17 16:06:34 CET 2025
+Activating virtual environment...
+Python path: /ceph/home/student.aau.dk/vo55zp/projects/P5/venv/bin/python3
+Python version: Python 3.10.12
+Running on ailab-l4-11
+Start time: Wed Dec 17 16:06:34 CET 2025
+Starting pipeline...
+Starting pipeline for movies train
+Train matrix: (6040, 3284), Val matrix: (5962, 3284)
+Training complete. Best epoch: 2, Best train RMSE: 0.9236, Best val RMSE: 1.0221
+Training complete. Best epoch: 2, Best train RMSE: 0.9247, Best val RMSE: 1.0210
+Training complete. Best epoch: 2, Best train RMSE: 0.9266, Best val RMSE: 1.0202
+Training complete. Best epoch: 1, Best train RMSE: 0.9568, Best val RMSE: 1.0231
+Training complete. Best epoch: 1, Best train RMSE: 0.9575, Best val RMSE: 1.0219
+Training complete. Best epoch: 1, Best train RMSE: 0.9587, Best val RMSE: 1.0212
+Training complete. Best epoch: 1, Best train RMSE: 0.9408, Best val RMSE: 1.0318
+Training complete. Best epoch: 1, Best train RMSE: 0.9412, Best val RMSE: 1.0294
+Training complete. Best epoch: 1, Best train RMSE: 0.9424, Best val RMSE: 1.0276
+Best (alpha, lambda) from Stage 1: {'alpha': 0.005, 'lambda_': 0.1}, RMSE=1.0202
+Training complete. Best epoch: 2, Best train RMSE: 0.9266, Best val RMSE: 1.0202
+Training complete. Best epoch: 2, Best train RMSE: 0.9258, Best val RMSE: 1.0203
+Training complete. Best epoch: 2, Best train RMSE: 0.9252, Best val RMSE: 1.0207
+Best k from Stage 2: 20, RMSE=1.0202
+Best MF params: {'alpha': 0.005, 'lambda_': 0.1, 'k': 20}, RMSE=1.0202
+Training complete. Best epoch: 2, Best train RMSE: 0.9266, Best val RMSE: 1.0202
+Validation data: 100003 ratings
+Item IDs length: 3284
+Max column index: 3283
+Best lambda: 1.0 with score 0.9923
+Validation data: 100003 ratings
+Item IDs length: 3284
+Max column index: 3283
+Best lambda: 1.0 with score 0.9852
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mf_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-17_16-06-35/mf_train_1M_loss_history.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mmr_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mmr_train_experiment_log.csv
+Pipeline for movies train finished successfully!
+Start movies test pipeline 
