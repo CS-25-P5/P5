@@ -220,6 +220,12 @@ def run_dpp_pipeline_test(
         filtered_user_ids=filtered_user_ids,
         filtered_item_ids=filtered_item_ids
     )
+    _, _, candidate_items_list = build_mmr_input(
+        candidate_list_csv=mf_top_n_path,
+        R_filtered=R_filtered,
+        filtered_user_ids=filtered_user_ids,
+        filtered_item_ids=filtered_item_ids
+    )
 
     print(f"Candidate items: {len(candidate_items)}")
 
@@ -237,7 +243,7 @@ def run_dpp_pipeline_test(
     )
 
     # Build DPP models
-    genre_map_test = {item: genre_map[item] for item in candidate_items if item in genre_map}
+    genre_map_test = {item: genre_map[item] for item in candidate_items_list if item in genre_map}
     all_genres_test = sorted({g for genres in genre_map_test.values() for g in genres})
 
     #filtered_item_ids_str = np.array([str(i) for i in filtered_item_ids])
@@ -252,8 +258,8 @@ def run_dpp_pipeline_test(
 
     # ---- SANITY CHECK ----
     gt_items_test = item_user_rating.columns[item_user_rating.sum(axis=0) > 0]  # all items with any ratings in test
-    num_gt_in_candidates = sum(item in candidate_items for item in gt_items_test)
-    print(f"Candidate items for DPP: {len(candidate_items)}")
+    num_gt_in_candidates = sum(item in candidate_items_list for item in gt_items_test)
+    print(f"Candidate items for DPP: {len(candidate_items_list)}")
     print(f"Number of GT items included in candidates: {num_gt_in_candidates}")
     if num_gt_in_candidates == 0:
         print("Warning: No GT items in DPP candidate pool! GT metrics will be zero.")
