@@ -108,13 +108,6 @@ class DPP:
         if candidate_indices is None:
             candidate_indices = np.arange(len(user_history))
 
-        # Filter out items the user already rated
-        candidate_indices = [
-            i for i in candidate_indices if not user_history[i]
-        ]
-
-        if len(candidate_indices) == 0:
-            return np.array([], dtype=int)
 
         # relevance only for candidate items
         relevance = self.predicted_ratings[user_id, candidate_indices]
@@ -196,6 +189,10 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
             for idx, item_id in enumerate(movie_user_rating.columns)
             if not user_history[idx] and item_id in itemid_to_col
         ]
+
+
+        if len(candidate_indices) == 0:
+            return np.array([], dtype=int)
 
         dpp_indices = dpp_model.dpp(
             user_id=user_idx,
