@@ -319,6 +319,18 @@ def _calculate_ild(data_handler, item_features, k, metric="cosine"):
 
         calc = Calculator(features, metric)
         ild = IntraListDiversity(k=k, distance_calculator=calc).calc_per_user(reco=recos)
+
+        calc = Calculator(features, metric)
+        ild = IntraListDiversity(k=k, distance_calculator=calc).calc_per_user(reco=recos)
+
+        # NEW: Print the per-user ILD values
+        print(f"\nPer-user ILD ({metric}):")
+        for user_id, user_ild in ild.items():
+            print(f"  User {user_id}: {user_ild:.4f}")
+        print(f"Mean: {ild.mean():.4f}")
+
+        return ild.mean()
+
         return ild.mean()
 
     except Exception as e:
@@ -492,7 +504,7 @@ if __name__ == "__main__":
                     'CALCULATE_ILD': CALCULATE_ILD,
                     'ITEM_FEATURES_PATH': ITEM_FEATURES_PATH,
                     'MODELS': MODELS,
-                    'dataset_type': "books"
+                    'dataset_type': "movies"
                 }
                 validate_files(config_for_validation)
 
@@ -515,11 +527,11 @@ if __name__ == "__main__":
                     threshold=THRESHOLD,
                     k=current_k,
                     item_features=ITEM_FEATURES,
-                    output_prefix=f"Kasia DPP, 100k books, top{current_k}_comparison",
+                    output_prefix=f"Test2 metric calculation, top{current_k}_comparison",
                     calculate_ild=CALCULATE_ILD,
                     catalog=CATALOG,
                     #dataset_type="books"
-                    dataset_type = "books"
+                    dataset_type = "movies"
                 )
 
                 # Generate metric charts

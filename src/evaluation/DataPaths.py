@@ -6,21 +6,26 @@ K = 10
 CALCULATE_ILD = True  # Set to False to skip ILD calculation
 
 # Catalog paths
-CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
-#CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+#CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+#test
+CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\movies_test2.csv"
 
 CATALOG = pd.read_csv(CATALOG_PATH)
 CATALOG = CATALOG.rename(columns={"itemId": "item_id"})
 
+
 # Item features path (for ILD calculation)
-#ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
-ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+#ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+
+ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\movies_test2.csv"
 
 #Test1
 #GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
 
 #test2
-#GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\grount_truth_test2.csv"
+GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\grount_truth_test2.csv"
 
 
 #MF/MMR - li movies
@@ -28,7 +33,7 @@ ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks
 #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies_groundtruth.csv")
 
 #MF - li books
-GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books_groundtruth.csv")
+#GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books_groundtruth.csv")
 
 #NN - diana
 
@@ -75,13 +80,64 @@ MODELS = [
 
     ##### Test #####
 
-    #random recommendations
 
-    #test1
-    #(r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\mmr_data\test_predictions.csv", "Test"),
+    #random recommendations
+    #100k movieLens
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run01_Movies.csv", "random Movies 1"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run02_Movies.csv", "random Movies 2"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run03_Movies.csv", "random Movies 3"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run04_Movies.csv", "random Movies 4"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run05_Movies.csv", "random Movies 5"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run06_Movies.csv", "random Movies 6"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run07_Movies.csv", "random Movies 7"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run08_Movies.csv", "random Movies 8"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run09_Movies.csv", "random Movies 9"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run10_Movies.csv", "random Movies 10"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run11_Movies.csv", "random Movies 11"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run12_Movies.csv", "random Movies 12"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run13_Movies.csv", "random Movies 13"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run14_Movies.csv", "random Movies 14"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run15_Movies.csv", "random Movies 15"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run16_Movies.csv", "random Movies 16"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run17_Movies.csv", "random Movies 17"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run18_Movies.csv", "random Movies 18"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run19_Movies.csv", "random Movies 19"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run20_Movies.csv", "random Movies 20"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run21_Movies.csv", "random Movies 21"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run22_Movies.csv", "random Movies 22"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run23_Movies.csv", "random Movies 23"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run24_Movies.csv", "random Movies 24"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run25_Movies.csv", "random Movies 25"),
+
+    #100K goodbooks
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run01_books.csv", "Books 1"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run02_books.csv", "random Books 2"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run03_books.csv", "random Books 3"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run04_books.csv", "random Books 4"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run05_books.csv", "random Books 5"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run06_books.csv", "random Books 6"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run07_books.csv", "random Books 7"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run08_books.csv", "random Books 8"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run09_books.csv", "random Books 9"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run10_books.csv", "random Books 10"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run11_books.csv", "random Books 11"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run12_books.csv", "random Books 12"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run13_books.csv", "random Books 13"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run14_books.csv", "random Books 14"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run15_books.csv", "random Books 15"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run16_books.csv", "random Books 16"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run17_books.csv", "random Books 17"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run18_books.csv", "random Books 18"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run19_books.csv", "random Books 19"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run20_books.csv", "random Books 20"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run21_books.csv", "random Books 21"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run22_books.csv", "random Books 22"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run23_books.csv", "random Books 23"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run24_books.csv", "random Books 24"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run25_books.csv", "random Books 25"),
 
     #test2
-   # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\test2_predictions.csv", "Test2"),
+   (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\test2_predictions.csv", "Test2"),
 
  ##### Li #######
 
@@ -131,9 +187,9 @@ MODELS = [
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_00-49-51\mf_test_100000_top_10.csv", "MF"),
 
     # DPP - books
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-16_21-42-31\dpp_test_100000_cosine_top_10.csv", "dpp_Jaccard"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-16_21-42-31\dpp_test_100000_jaccard_top_10.csv", "dpp_cosine"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-16_21-42-31\mf_test_100000_top_10.csv", "MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-16_21-42-31\dpp_test_100000_cosine_top_10.csv", "dpp_Jaccard"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-16_21-42-31\dpp_test_100000_jaccard_top_10.csv", "dpp_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-16_21-42-31\mf_test_100000_top_10.csv", "MF"),
 
 
 ##### Johannes #######
