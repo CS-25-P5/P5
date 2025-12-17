@@ -194,9 +194,9 @@ def run_dpp_pipeline_test(
     )
 
     # Filter candidate items to only those MF knows
-    candidate_items = [i for i in filtered_item_ids if str(i) in map(str, trained_mf_model.item_ids)]
-    if not candidate_items:
-        raise ValueError("No candidate items after filtering! Check your item IDs.")
+    #candidate_items = [i for i in filtered_item_ids if str(i) in map(str, trained_mf_model.item_ids)]
+    #if not candidate_items:
+    #    raise ValueError("No candidate items after filtering! Check your item IDs.")
 
     # Get top-N MF recommendations
     mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
@@ -205,7 +205,7 @@ def run_dpp_pipeline_test(
         predicted_ratings=predicted_ratings,
         R_filtered=R_filtered,
         filtered_user_ids=filtered_user_ids,
-        filtered_item_ids=candidate_items,
+        filtered_item_ids=filtered_item_ids,
         top_n=top_n,
         save_path=mf_top_n_path
     )
@@ -215,10 +215,10 @@ def run_dpp_pipeline_test(
         candidate_list_csv=mf_top_n_path,
         R_filtered=R_filtered,
         filtered_user_ids=filtered_user_ids,
-        filtered_item_ids=candidate_items
+        filtered_item_ids=filtered_item_ids
     )
 
-    print("Candidate items:", candidate_items)
+    print(f"Candidate items: {len(candidate_items)}")
 
     # Save MF predictions for reference
     dataset_root = os.path.dirname(output_dir)
@@ -275,7 +275,7 @@ if __name__ == "__main__":
 
     # PARAMETER
     TOP_N = 10
-    CHUNK_SIZE = 100000
+    CHUNK_SIZE = 10000
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1
@@ -330,6 +330,7 @@ if __name__ == "__main__":
         train_filtered_item_ids=filtered_item_ids
     )
 
+    '''
     #load data
     dataset_movie = "movies"
     folder_movie = "MovieLens"
@@ -370,4 +371,4 @@ if __name__ == "__main__":
         trained_mf_model = mf,
         train_filtered_user_ids=filtered_user_ids,
         train_filtered_item_ids=filtered_item_ids
-    )
+    )'''

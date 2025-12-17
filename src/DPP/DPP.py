@@ -65,65 +65,72 @@ class DPP:
         assert q.shape[0] == S.shape[0], "q and S dimension mismatch"
 
 
-        K = np.outer(q, q) * S
-        K += np.eye(len(K)) * self.epsilon
-        return K
+        L = np.outer(q, q) * S
+        L += np.eye(len(K)) * self.epsilon
+        return L
 
     # DPP Greedy MAP selection
-    def dpp_greedy(self, K, candidate_indices, top_k):
+    def dpp_greedy(self, L, top_k):
 
         #Greedy MAP approximation for DPP subset selection.
-
+        n = L.shape[0]
+        cis = np.zeros((top_k, n), dtype=L.dtype)
+        di2s = np.diag(L).copy()
         selected = []
-        remaining = list(range(K.shape[0]))
 
-        for _ in range(min(top_k, len(remaining))):
-            best_idx = None
-            best_logdet = -np.inf
+        for t in range(top_k):
+            j = np.argmax(di2s)
+            if di2s[j] <= 1e-12:
+                break
 
-            for i in remaining:
-                subset = selected + [i]
-                subK = K[np.ix_(subset, subset)]
-                sign, logdet = np.linalg.slogdet(subK)
+            selected.append(j)
+            dj = np.sqrt(di2s[j])
 
-                if sign > 0 and logdet > best_logdet:
-                    best_logdet = logdet
-                    best_idx = i
+            if t == 0:
+                cis[t] = L[j] / dj
+            else:
+                proj = cis[:t, j] @ cis[:t]
+                cis[t] = (L[j] - proj) / dj
 
-            if best_idx is None:
-                best_idx = remaining[0]
-
-            selected.append(best_idx)
-            remaining.remove(best_idx)
+            di2s -= cis[t] ** 2
+            di2s[j] = -np.inf
 
         return selected
 
     # DPP recommendations for a user
-    def dpp(self, user_id, user_history,candidate_indices=None, top_k=10):
+    def dpp(self, user_id, user_history,candidate_indices=None, top_k=10, top_m=100):
 
         # Ensure user_history matches predicted_ratings length
         if len(user_history) > self.predicted_ratings.shape[1]:
             user_history = user_history[:self.predicted_ratings.shape[1]]
 
+        # Default: all items
         if candidate_indices is None:
-            # If not provided, consider all items
             candidate_indices = np.arange(len(user_history))
+
+        # Filter out items the user already rated
+        candidate_indices = [
+            i for i in candidate_indices if not user_history[i]
+        ]
 
         if len(candidate_indices) == 0:
             return np.array([], dtype=int)
 
         # relevance only for candidate items
         relevance = self.predicted_ratings[user_id, candidate_indices]
-
-        # kernel only for candidate items
-        K = self.build_kernel(relevance, candidate_indices)
-
-
+        if len(relevance) > top_m:
+            top_m_idx = np.argsort(-relevance)[:top_m]  # descending
+            candidate_indices = [candidate_indices[i] for i in top_m_idx]
+            relevance = self.predicted_ratings[user_id, candidate_indices]
 
         # map global → local indices
         local_indices = np.arange(len(candidate_indices))
 
-        selected_local = self.dpp_greedy(K, local_indices, top_k)
+        # kernel only for candidate items
+        L = self.build_kernel(relevance, local_indices)
+
+
+        selected_local = self.dpp_greedy(L, top_k)
 
         # map back to global indices
         candidate_indices = np.asarray(candidate_indices)
@@ -194,7 +201,8 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
             user_id=user_idx,
             user_history=user_history,
             candidate_indices=candidate_indices,
-            top_k=top_k
+            top_k=top_k,
+            top_m=100
         )
 
         process_dpp(
