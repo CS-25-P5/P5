@@ -10,7 +10,6 @@ from DataHandler2 import load_and_process_data
 import os
 import tempfile
 from datetime import datetime
-from sklearn.metrics.pairwise import pairwise_distances
 import warnings
 from sklearn.exceptions import DataConversionWarning
 import contextlib
@@ -22,12 +21,13 @@ import re
 warnings.filterwarnings("ignore", category=DataConversionWarning, module="sklearn.metrics.pairwise")
 
 # Import from your custom modules
-from Plotting import plot_individual_metric_charts, plot_rating_distribution,  plot_metrics_vs_k_from_directory
+from Plotting import plot_individual_metric_charts, plot_rating_distribution, plot_metrics_vs_k_from_directory
 from Diagnostics import _print_data_diagnostics
 
 
-# NEW: Tee class to capture terminal output while still displaying it
 class Tee:
+    """Capture terminal output while still displaying it"""
+
     def __init__(self, terminal, buffer):
         self.terminal = terminal
         self.buffer = buffer
@@ -41,37 +41,20 @@ class Tee:
         self.buffer.flush()
 
 
-# NEW: Excel sanitization function
 def sanitize_for_excel(text):
-    """
-    Sanitizes text to prevent Excel errors.
-    - Removes/escapes control characters
-    - Prefixes formulas to prevent execution
-    - Truncates extremely long lines
-    """
+    """Sanitize text to prevent Excel errors"""
     if not text:
         return ""
-
-    # Remove control characters (except newline, tab)
     text = re.sub(r'[\x00-\x08\x0B-\x1F\x7F]', '', text)
-
-    # Handle lines that might be interpreted as formulas
     if text.startswith(('=', '+', '-', '@')):
-        text = "'" + text  # Prefix with apostrophe to force text mode
-
-    # Truncate if too long (Excel cell limit is 32,767 characters)
+        text = "'" + text
     if len(text) > 32700:
         text = text[:32700] + " [TRUNCATED]"
-
     return text
 
 
-# NEW: File validation function
 def validate_files(config_dict):
-    """
-    Validates all required files before processing.
-    Stops execution if any files are invalid.
-    """
+    """Validate all required files before processing"""
     errors = []
     print("\n🔍 Validating all input files...")
 
@@ -95,7 +78,7 @@ def validate_files(config_dict):
         except Exception as e:
             errors.append(f"❌ Cannot load ground truth: {config_dict['GROUND_TRUTH']} - {e}")
 
-    # Check item features file if ILD is enabled
+    # Check item features if ILD enabled
     if config_dict.get('CALCULATE_ILD', False):
         item_features_path = config_dict.get('ITEM_FEATURES_PATH')
         if item_features_path and os.path.exists(item_features_path):
@@ -107,7 +90,7 @@ def validate_files(config_dict):
         elif item_features_path:
             errors.append(f"❌ Item features file not found: {item_features_path}")
 
-    # Check all model prediction files
+    # Check model prediction files
     for predictions_path, source_name in config_dict.get('MODELS', []):
         if not os.path.exists(predictions_path):
             errors.append(f"❌ Model file not found for '{source_name}': {predictions_path}")
@@ -117,7 +100,6 @@ def validate_files(config_dict):
                 if dataset_type == "books":
                     pd.read_csv(predictions_path, encoding='latin1', nrows=1)
                 else:
-                    # For movies, use same cleaning logic as actual loading
                     valid_lines = []
                     with open(predictions_path, 'r', encoding='latin1') as f:
                         header_line = None
@@ -127,11 +109,8 @@ def validate_files(config_dict):
                                 header_line = line
                             if stripped != '' and not stripped.startswith('#'):
                                 valid_lines.append(line)
-                            if line_num > 100:  # Sample first 100 lines max
+                            if line_num > 100:
                                 break
-
-                    if not valid_lines:
-                        raise ValueError("No valid data lines found")
 
                     with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='latin1') as temp:
                         if header_line:
@@ -145,11 +124,9 @@ def validate_files(config_dict):
                         os.unlink(temp_path)
 
                 print(f"✅ Model '{source_name}': {predictions_path}")
-
             except Exception as e:
                 errors.append(f"❌ Cannot load model file for '{source_name}': {predictions_path} - {e}")
 
-    # Report errors and stop if any
     if errors:
         print("\n" + "=" * 60)
         print(" FILE VALIDATION ERRORS FOUND - STOPPING EXECUTION ")
@@ -225,18 +202,15 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
 
     if calculate_ild and item_features is not None and not item_features.empty:
         print(f"Calculating ILD@{k} for {model_name}")
-      #  results[f"ILD@{k}_Hamming"] = _calculate_ild(data_handler, item_features, k, metric='hamming')
         results[f"ILD@{k}_Jaccard"] = _calculate_ild(data_handler, item_features, k, metric='jaccard')
         results[f"ILD@{k}_Cosine"] = _calculate_ild(data_handler, item_features, k, metric='cosine')
     else:
-      #  results[f"ILD@{k}_Hamming"] = np.nan
         results[f"ILD@{k}_Jaccard"] = np.nan
         results[f"ILD@{k}_Cosine"] = np.nan
 
     top_k_recos = data_handler.recommendations[data_handler.recommendations['rank'] <= k]
 
     print(f"Calculating Reverse Gini for {model_name}")
-    print(f"")
     results['Reverse Gini'] = _calculate_reverse_gini(top_k_recos)
 
     return results
@@ -270,71 +244,82 @@ def _calculate_rating_metrics(data_handler, model_name="Unknown"):
     except Exception as e:
         print(f"\nError in RMSE/MAE calculation for {model_name}: {e}")
         print("   Returning NaN for RMSE and MAE to allow other metrics to continue.\n")
-        return np.nan, np.nan
+        return np.nan, mae
 
 
 def _calculate_ild(data_handler, item_features, k, metric="cosine"):
+    """
+    Simplified and corrected ILD calculation.
+    Higher values = more diversity (0-1 range).
+    """
     try:
         recos = data_handler.recommendations.copy()
         recos['item_id'] = recos['item_id'].astype(str)
-        available = list(set(recos['item_id'].unique()) & set(item_features.index.astype(str)))
+        recos = recos[recos['rank'] <= k]
 
-        if not available:
+        # Filter to items with features
+        available_items = list(set(recos['item_id'].unique()) & set(item_features.index.astype(str)))
+        if not available_items:
+            print("⚠️  No items have features!")
             return np.nan
 
-        features = item_features.loc[available]
+        # Create distance matrix
+        feature_matrix = item_features.loc[available_items].values
 
-        class Calculator:
-            def __init__(self, f, m):
-                with warnings.catch_warnings():
-                    warnings.filterwarnings(
-                        "ignore",
-                        category=DataConversionWarning,
-                        module="sklearn.metrics.pairwise"
-                    )
-                    self.d = pairwise_distances(f.values, metric=m)
+        if metric == 'cosine':
+            norms = np.linalg.norm(feature_matrix, axis=1, keepdims=True)
+            norms[norms == 0] = 1
+            feature_normalized = feature_matrix / norms
+            similarity = np.dot(feature_normalized, feature_normalized.T)
+            distance_matrix = 1 - np.clip(similarity, 0, 1)
+            np.fill_diagonal(distance_matrix, 0)
 
-                self.ids = f.index.tolist()
-                self.map = {id_: i for i, id_ in enumerate(self.ids)}
+        elif metric == 'jaccard':
+            intersection = feature_matrix @ feature_matrix.T
+            sum_features = feature_matrix.sum(axis=1)
+            union = sum_features[:, np.newaxis] + sum_features[np.newaxis, :] - intersection
+            jaccard_similarity = intersection / np.maximum(union, 1)
+            distance_matrix = 1 - jaccard_similarity
+            np.fill_diagonal(distance_matrix, 0)
 
-            def get_distances(self, ids):
-                if isinstance(ids, tuple) and len(ids) == 2:
-                    item_0, item_1 = ids
-                    item_0 = item_0.values if hasattr(item_0, 'values') else np.asarray(item_0)
-                    item_1 = item_1.values if hasattr(item_1, 'values') else np.asarray(item_1)
-                    result = []
-                    for a, b in zip(item_0, item_1):
-                        a_val = str(a.item() if hasattr(a, 'item') else a)
-                        b_val = str(b.item() if hasattr(b, 'item') else b)
-                        if a_val in self.map and b_val in self.map:
-                            result.append(self.d[self.map[a_val], self.map[b_val]])
-                        else:
-                            result.append(0.0)
-                    return np.array(result)
+        else:
+            raise ValueError(f"Unsupported metric: {metric}")
 
-                return np.array([])
+        item_to_idx = {item: idx for idx, item in enumerate(available_items)}
 
-            def __getitem__(self, ids):
-                return self.get_distances(ids)
+        # Calculate ILD per user
+        ild_values = []
 
-        calc = Calculator(features, metric)
-        ild = IntraListDiversity(k=k, distance_calculator=calc).calc_per_user(reco=recos)
-
-        calc = Calculator(features, metric)
-        ild = IntraListDiversity(k=k, distance_calculator=calc).calc_per_user(reco=recos)
-
-        # NEW: Print the per-user ILD values
+        # ========== ADD DEBUG HERE ==========
         print(f"\nPer-user ILD ({metric}):")
-        for user_id, user_ild in ild.items():
-            print(f"  User {user_id}: {user_ild:.4f}")
-        print(f"Mean: {ild.mean():.4f}")
+        # ====================================
 
-        return ild.mean()
+        for user_id, user_recos in recos.groupby('user_id'):
+            user_items = user_recos['item_id'].astype(str).tolist()
+            user_items = [item for item in user_items if item in item_to_idx]
 
-        return ild.mean()
+            if len(user_items) >= 2:
+                idxs = [item_to_idx[item] for item in user_items]
+                user_distances = distance_matrix[np.ix_(idxs, idxs)]
+                upper_tri = user_distances[np.triu_indices_from(user_distances, k=1)]
+
+                if len(upper_tri) > 0:
+                    user_ild = upper_tri.mean()
+                    ild_values.append(user_ild)
+
+                    # ========== ADD DEBUG HERE ==========
+                    print(f"  User {user_id}: items={user_items}, ILD={user_ild:.4f}")
+                    # ====================================
+
+        final_ild = np.mean(ild_values) if ild_values else np.nan
+
+        if final_ild < 0.5:
+            print(f"WARNING: ILD={final_ild:.3f} is suspiciously low for {metric}")
+
+        return final_ild
 
     except Exception as e:
-        print(f"ILD failed for {metric}: {e}")
+        print(f"ILD calculation failed for {metric}: {e}")
         return np.nan
 
 
@@ -370,7 +355,6 @@ def display_metrics_table(metrics_dict, source_name="Model", k=5):
         f"MAP@{k}",
         f"MRR@{k}",
         f"Coverage@{k}",
-#        f"ILD@{k}_Hamming",
         f"ILD@{k}_Jaccard",
         f"ILD@{k}_Cosine"
     ]
@@ -381,7 +365,6 @@ def display_metrics_table(metrics_dict, source_name="Model", k=5):
     df_display = df.round(4)
 
     print(df_display.to_string())
-
     return df
 
 
@@ -527,17 +510,11 @@ if __name__ == "__main__":
                     threshold=THRESHOLD,
                     k=current_k,
                     item_features=ITEM_FEATURES,
-                    output_prefix=f"Test2 metric calculation, top{current_k}_comparison",
+                    output_prefix=f"Random, movies top{current_k}_comparison",
                     calculate_ild=CALCULATE_ILD,
                     catalog=CATALOG,
-                    #dataset_type="books"
-                    dataset_type = "movies"
+                    dataset_type="movies"
                 )
-
-                # Generate metric charts
-                # charts_dir = f"{filename}_metric_charts"
-                # plot_individual_metric_charts(results, output_dir=charts_dir)
-                # print(f"Metric charts saved to {charts_dir}/")
 
             # Save terminal output to Excel
             terminal_output = stdout_buffer.getvalue()
@@ -559,17 +536,8 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"\n❌ Error processing k={current_k}: {e}")
             print("   Continuing with next K value...")
-            continue  # Continue to next K instead of crashing
+            continue
 
     print(f"\n{'=' * 60}")
-    print("All K values processed! Creating K-comparison plots...")
-    print(f"{'=' * 60}")
-
-    # plot_metrics_vs_k_from_directory(
-    #     results_dir=".",  # Directory containing your Excel files
-    #     metrics_to_plot=['NDCG', 'HitRate', 'ILD_Cosine']
-    # )
-
-    print(f"\n{'=' * 60}")
-    print("✅ Complete! All files and charts generated.")
+    print("All K values processed!")
     print(f"{'=' * 60}")

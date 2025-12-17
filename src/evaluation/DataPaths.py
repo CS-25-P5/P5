@@ -2,7 +2,7 @@ import pandas as pd
 
 # Configuration
 THRESHOLD = 4.0
-K = 10
+K = 3
 CALCULATE_ILD = True  # Set to False to skip ILD calculation
 
 # Catalog paths
@@ -19,18 +19,18 @@ CATALOG = CATALOG.rename(columns={"itemId": "item_id"})
 ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
 #ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
 
-ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\movies_test2.csv"
+#ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\movies_test2.csv"
 
 #Test1
 #GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
 
-#test2
-GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\grount_truth_test2.csv"
+# #test2
+# GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\grount_truth_test2.csv"
 
 
 #MF/MMR - li movies
 #
-#GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies_groundtruth.csv")
+GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies_groundtruth.csv")
 
 #MF - li books
 #GROUND_TRUTH = (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books_groundtruth.csv")
@@ -81,8 +81,8 @@ MODELS = [
     ##### Test #####
 
 
-    #random recommendations
-    #100k movieLens
+    # #random recommendations
+    # # 100k movieLens
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run01_Movies.csv", "random Movies 1"),
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run02_Movies.csv", "random Movies 2"),
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run03_Movies.csv", "random Movies 3"),
@@ -108,6 +108,7 @@ MODELS = [
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run23_Movies.csv", "random Movies 23"),
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run24_Movies.csv", "random Movies 24"),
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run25_Movies.csv", "random Movies 25"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\popularity_top10_20251217_143214.csv", "popularity 25"),
 
     #100K goodbooks
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run01_books.csv", "Books 1"),
@@ -137,7 +138,7 @@ MODELS = [
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run25_books.csv", "random Books 25"),
 
     #test2
-   (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\test2_predictions.csv", "Test2"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\test2_predictions.csv", "Test2"),
 
  ##### Li #######
 

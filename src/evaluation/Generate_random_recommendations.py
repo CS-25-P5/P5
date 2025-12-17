@@ -113,6 +113,55 @@ def generate_random_baseline(ground_truth_path: str, output_dir: str, k: int = 1
     print(f"\n🔷 Generated {len(generated_paths)} random baseline files")
     return generated_paths
 
+def generate_popularity_baseline(ground_truth_path, output_dir, k=10, dataset_type="movies"):
+    """Generate popularity-based recommendations - single deterministic file"""
+    print(f"\n{'=' * 60}")
+    print(f"GENERATING POPULARITY BASELINE (K={k})")
+    print(f"{'=' * 60}")
+
+    gt = pd.read_csv(ground_truth_path, encoding='latin1')
+
+    # Normalize IDs
+    if dataset_type == "books":
+        user_col, item_col = "userId", "itemId"
+    else:
+        user_col = "userId"
+        item_col = "movieId" if "movieId" in gt.columns else "itemId"
+
+    gt[user_col] = gt[user_col].astype(str).str.replace(r'\.0$', '', regex=True)
+    gt[item_col] = gt[item_col].astype(str).str.replace(r'\.0$', '', regex=True)
+
+    # Get top-K most popular items
+    item_popularity = gt[item_col].value_counts().head(k)
+    top_items = item_popularity.index.tolist()
+
+    print(f"Top {k} items: {top_items}")
+    print(f"Popularity counts: {item_popularity.values}")
+
+    unique_users = gt[user_col].unique()
+    print(f"Recommending to {len(unique_users)} users")
+
+    recommendations = []
+    for user in unique_users:
+        for rank, item in enumerate(top_items):
+            recommendations.append({
+                'userId': user,
+                'itemId': item,
+                'recommendation_score': k - rank  # Highest score for most popular
+            })
+
+    recs_df = pd.DataFrame(recommendations)
+    recs_df = recs_df.sort_values(['userId', 'recommendation_score'], ascending=[True, False])
+
+    # Save popularity baseline
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_path = os.path.join(output_dir, f"popularity_top{k}_{timestamp}.csv")
+    os.makedirs(output_dir, exist_ok=True)
+    recs_df.to_csv(output_path, index=False)
+
+    print(f"✅ Saved: {output_path} ({len(recs_df)} rows)")
+    return [output_path]  # Return as list for consistency
+
 
 if __name__ == "__main__":
     # ==================== CONFIGURATION ====================
@@ -131,6 +180,16 @@ if __name__ == "__main__":
 
     K = 10
     NUM_RANDOM_RUNS = 25
+
+    # Generate 1 popularity baseline file
+    print("\nGENERATING POPULARITY BASELINE")
+    pop_paths = generate_popularity_baseline(
+        ground_truth_path=GROUND_TRUTH,
+        output_dir=OUTPUT_DIR,
+        k=K,
+        dataset_type=DATASET_TYPE
+    )
+
 
     # ==================== GENERATE BASELINES ====================
     # Generate 25 random baseline files (using predictions user count + catalog items)
