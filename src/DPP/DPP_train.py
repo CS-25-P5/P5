@@ -248,12 +248,12 @@ def run_dpp_pipeline_test(
     #predicted_ratings_subset = predicted_ratings[:, candidate_indices]
 
     # Candidate items for DPP = all MF-known items
-    candidate_items_dpp = [i for i in filtered_item_ids if i in trained_mf_model.item_ids]
+    #candidate_items_dpp = [i for i in filtered_item_ids if i in trained_mf_model.item_ids]
 
     # ---- SANITY CHECK ----
     gt_items_test = item_user_rating.columns[item_user_rating.sum(axis=0) > 0]  # all items with any ratings in test
-    num_gt_in_candidates = sum(item in candidate_items_dpp for item in gt_items_test)
-    print(f"Candidate items for DPP: {len(candidate_items_dpp)}")
+    num_gt_in_candidates = sum(item in candidate_items for item in gt_items_test)
+    print(f"Candidate items for DPP: {len(candidate_items)}")
     print(f"Number of GT items included in candidates: {num_gt_in_candidates}")
     if num_gt_in_candidates == 0:
         print("Warning: No GT items in DPP candidate pool! GT metrics will be zero.")
@@ -261,16 +261,16 @@ def run_dpp_pipeline_test(
     # Use full predicted ratings (not top-N)
     predicted_ratings_dpp = predicted_ratings
 
-    dpp_cosine = build_dpp_models(candidate_items_dpp, genre_map_test, all_genres_test, predicted_ratings_dpp, 'cosine')
-    dpp_jaccard = build_dpp_models(candidate_items_dpp, genre_map_test, all_genres_test, predicted_ratings_dpp, 'jaccard')
+    dpp_cosine = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings_dpp, 'cosine')
+    dpp_jaccard = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings_dpp, 'jaccard')
 
     # Run DPP recommendations
     cosine_reco = get_recommendations_for_dpp(
-        dpp_cosine, filtered_df, candidate_items_dpp, genre_map_test, predicted_ratings_dpp,
+        dpp_cosine, filtered_df, candidate_items, genre_map_test, predicted_ratings_dpp,
         top_k, top_n, "cosine"
     )
     jaccard_reco = get_recommendations_for_dpp(
-        dpp_jaccard, filtered_df, candidate_items_dpp, genre_map_test, predicted_ratings_dpp,
+        dpp_jaccard, filtered_df, candidate_items, genre_map_test, predicted_ratings_dpp,
         top_k, top_n, "jaccard"
     )
     # Save DPP results
