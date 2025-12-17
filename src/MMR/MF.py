@@ -298,49 +298,109 @@ def get_top_n_recommendations_MF(predicted_ratings, R_filtered, filtered_user_id
 
 
 
+
+def tune_mf(R_train, R_val, n_epochs=50,
+            hyperparams_grid = { 
+                "alpha": [0.005, 0.01, 0.02],
+                "lambda_": [0.01, 0.05, 0.1],
+                "k": [20, 40, 60],
+            }):
     
+    # --- Stage 1: Tune alpha and lambda with fixed k ---
+    fixed_k = hyperparams_grid["k"][0]  # pick first k as fixed for stage 1
+    best_rmse_stage1 = float("inf")
+    best_alpha_lambda = None
 
+    for alpha in hyperparams_grid["alpha"]:
+        for lambda_ in hyperparams_grid["lambda_"]:
+            mf = MatrixFactorization(
+                R_train,
+                k=fixed_k,
+                alpha=alpha,
+                lamda_=lambda_,
+                n_epochs=n_epochs,
+            )
+            mf.train()
+            pred_val = mf.full_prediction()
+            val_rmse = mf.compute_rmse(R_val, pred_val)
 
+            if val_rmse < best_rmse_stage1:
+                best_rmse_stage1 = val_rmse
+                best_alpha_lambda = {"alpha": alpha, "lambda_": lambda_}
 
+    print(f"Best (alpha, lambda) from Stage 1: {best_alpha_lambda}, RMSE={best_rmse_stage1:.4f}")
 
-def tune_mf( R_train, R_val,
-        n_epochs=50,
-        hyperparams_grid = {
-        "k": [20, 40, 60], 
-        "alpha": [0.005, 0.01, 0.02],
-        "lambda_": [0.05, 0.1, 0.2]
-    }
-):
-
-    best_rmse = float('inf')
-    best_params = None
-
+    # --- Stage 2: Tune k with best alpha and lambda ---
+    best_rmse_stage2 = float("inf")
+    best_k = None
     for k in hyperparams_grid["k"]:
-        for alpha in hyperparams_grid["alpha"]:
-            for lambda_ in hyperparams_grid["lambda_"]:
-                mf = MatrixFactorization(R_train, k, alpha, lambda_, n_epochs)
-                mf.train()
+        mf = MatrixFactorization(
+            R_train,
+            k=k,
+            alpha=best_alpha_lambda["alpha"],
+            lamda_=best_alpha_lambda["lambda_"],
+            n_epochs=n_epochs,
+        )
+        mf.train()
+        pred_val = mf.full_prediction()
+        val_rmse = mf.compute_rmse(R_val, pred_val)
 
-                # predict on validation set
-                pred_val = mf.full_prediction()
+        if val_rmse < best_rmse_stage2:
+            best_rmse_stage2 = val_rmse
+            best_k = k
 
-                #Compute RMSE correctly 
-                val_rmse = mf.compute_rmse(R_val,pred_val)
-                
-                #print(f"Testing on k={k}, alpha={alpha}, lambda_={lambda_} -> RMSE={val_rmse:.4f}")
+    print(f"Best k from Stage 2: {best_k}, RMSE={best_rmse_stage2:.4f}")
 
-                #Keep the best configuration
+    # --- Combine best hyperparameters ---
+    best_params = {
+        "alpha": best_alpha_lambda["alpha"],
+        "lambda_": best_alpha_lambda["lambda_"],
+        "k": best_k
+    }
 
-                if val_rmse < best_rmse:
-                    best_rmse = val_rmse
-                    best_params = {
-                        "k":k, 
-                        "alpha": alpha, 
-                        "lambda_": lambda_}
-                    #print(f"New best params found using VAL RMSE: {best_params}, val_rmse={val_rmse:.4f}")
-
-    print(f"Best MF params: {best_params}, RMSE={best_rmse:.4f}")
+    print(f"Best MF params: {best_params}, RMSE={best_rmse_stage2:.4f}")
     return best_params
+
+
+
+# def tune_mf( R_train, R_val,
+#         n_epochs=50,
+#         hyperparams_grid = { 
+#         "alpha": [0.005, 0.01, 0.02],
+#         "k": [20, 40, 60],
+#         "lambda_": [0.01, 0.05, 0.1]
+#     }
+# ):
+
+#     best_rmse = float('inf')
+#     best_params = None
+
+#     for alpha in hyperparams_grid["alpha"]:
+#         for k in hyperparams_grid["k"]:
+#             for lambda_ in hyperparams_grid["lambda_"]:
+#                 mf = MatrixFactorization(R_train, k, alpha, lambda_, n_epochs)
+#                 mf.train()
+
+#                 # predict on validation set
+#                 pred_val = mf.full_prediction()
+
+#                 #Compute RMSE correctly 
+#                 val_rmse = mf.compute_rmse(R_val,pred_val)
+                
+#                 #print(f"Testing on k={k}, alpha={alpha}, lambda_={lambda_} -> RMSE={val_rmse:.4f}")
+
+#                 #Keep the best configuration
+
+#                 if val_rmse < best_rmse:
+#                     best_rmse = val_rmse
+#                     best_params = {
+#                         "k":k, 
+#                         "alpha": alpha, 
+#                         "lambda_": lambda_}
+#                     #print(f"New best params found using VAL RMSE: {best_params}, val_rmse={val_rmse:.4f}")
+
+#     print(f"Best MF params: {best_params}, RMSE={best_rmse:.4f}")
+#     return best_params
 
 
 def train_mf_with_best_params(R_filtered, best_params, R_val=None, n_epochs=50,  random_state= 42):
