@@ -372,6 +372,7 @@ if __name__ == "__main__":
     movies_ratings_test_path = os.path.join(base_dir, "data", "INPUT_TEST","ratings_10K_movies_test.csv")
     movies_item_file_path = os.path.join(base_dir,"data", "INPUT_datasets", "Input_movies_dataset_100k", "movies_100K.csv")
     movies_ground_truth_path = movies_ratings_test_path
+    movies_ground_truth_path = movies_ratings_test_path
     movies_output_dir = os.path.join(base_dir,"data", "OUTPUT_datasets", "MMR", "movies_test")
 
     #load GOODBooks data
@@ -450,6 +451,7 @@ if __name__ == "__main__":
     #         run_id = run_book_id,
     #         ratings_train_path = books_ratings_train_file,
     #         ratings_val_path= books_ratings_val_file,
+    #          ground_truth_path=books_ground_truth_path,
     #         item_path = books_item_file_path,
     #         output_dir = books_output_dir,
     #         top_k = TOP_K,
