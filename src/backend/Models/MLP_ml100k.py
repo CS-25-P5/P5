@@ -248,7 +248,7 @@ def grid_search(h_params, file_paths, epochs, patience):
             f.write(f"Training time: {training_time:.2f} seconds\n")
 
         # Save predictions
-        preds_to_csv(model, x_test, f"{file_paths[1]}_{len(params["layers"])}layers_embed{params["embed_len"]}_lr{params["lr"]}_batch{params["batch_size"]}.csv")
+        preds_to_csv(model, x_test, f"{file_paths[1]}_{len(params['layers'])}layers_embed{params['embed_len']}_lr{params['lr']}_batch{params['batch_size']}.csv")
 
 # Preprocessing
 
