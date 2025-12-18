@@ -38,7 +38,7 @@ def choose_best_config_BPR(recom_directory, val_path,
         output_file = topk[["user_id", "itemId", "rating", "recommendation_score", "label"]]
 
         name, extention = os.path.split(files)
-        output_path = os.path.join(output_dir, f"{name}{"_val_eval"}{extention}")
+        output_path = os.path.join(output_dir, f"{name}{'_val_eval'}{extention}")
         output_file.to_csv(output_path, index=False)
 
 
