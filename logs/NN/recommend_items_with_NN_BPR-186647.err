@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/ceph/home/student.aau.dk/nr38sp/P5/ src/backend/NN/scripts/recommend_BPR_1Mmovies.py", line 463, in <module>
+    a1 = run_program( 
+  File "/ceph/home/student.aau.dk/nr38sp/P5/ src/backend/NN/scripts/recommend_BPR_1Mmovies.py", line 454, in run_program
+    big_scores = predict_ratings(model, big_df, device)
+  File "/ceph/home/student.aau.dk/nr38sp/P5/ src/backend/NN/scripts/recommend_BPR_1Mmovies.py", line 314, in predict_ratings
+    user_em = model.user_emb(user_tensor) #Creating a 64 wentry row for each entry in the user_tensor
+  File "/ceph/home/student.aau.dk/nr38sp/P5/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/ceph/home/student.aau.dk/nr38sp/P5/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/ceph/home/student.aau.dk/nr38sp/P5/venv/lib/python3.10/site-packages/torch/nn/modules/sparse.py", line 192, in forward
+    return F.embedding(
+  File "/ceph/home/student.aau.dk/nr38sp/P5/venv/lib/python3.10/site-packages/torch/nn/functional.py", line 2542, in embedding
+    return torch.embedding(weight, input, padding_idx, scale_grad_by_freq, sparse)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 4.70 GiB. GPU 0 has a total capacity of 22.03 GiB of which 3.59 GiB is free. Process 4015820 has 17.85 GiB memory in use. Including non-PyTorch memory, this process has 584.00 MiB memory in use. Of the allocated memory 330.70 MiB is allocated by PyTorch, and 19.30 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+slurmstepd-ailab-l4-07: error: *** JOB 186647 ON ailab-l4-07 CANCELLED AT 2025-12-08T19:23:30 ***
