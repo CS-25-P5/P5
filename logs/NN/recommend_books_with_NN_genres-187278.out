@@ -1,0 +1,36 @@
+Index(['user_id', 'itemId', 'rating', 'genres', 'genres_list'], dtype='object')
+Epoch 1/3000 : Sum of batch train losses for one epoch 4217.0106 |Avg training loss per batch for one epoch 3.3628 |Avg validation loss per batch for one epoch: 1.0543
+[EarlyStop] val_loss=1.054347, best_loss=1.054347, no_improve_count=0
+Epoch 2/3000 : Sum of batch train losses for one epoch 2039.9270 |Avg training loss per batch for one epoch 1.6267 |Avg validation loss per batch for one epoch: 0.9620
+[EarlyStop] val_loss=0.961976, best_loss=0.961976, no_improve_count=0
+Epoch 3/3000 : Sum of batch train losses for one epoch 1659.0373 |Avg training loss per batch for one epoch 1.3230 |Avg validation loss per batch for one epoch: 0.9092
+[EarlyStop] val_loss=0.909233, best_loss=0.909233, no_improve_count=0
+Epoch 4/3000 : Sum of batch train losses for one epoch 1380.3916 |Avg training loss per batch for one epoch 1.1008 |Avg validation loss per batch for one epoch: 0.8479
+[EarlyStop] val_loss=0.847919, best_loss=0.847919, no_improve_count=0
+Epoch 5/3000 : Sum of batch train losses for one epoch 1195.1215 |Avg training loss per batch for one epoch 0.9530 |Avg validation loss per batch for one epoch: 0.8196
+[EarlyStop] val_loss=0.819640, best_loss=0.819640, no_improve_count=0
+Epoch 6/3000 : Sum of batch train losses for one epoch 1073.0060 |Avg training loss per batch for one epoch 0.8557 |Avg validation loss per batch for one epoch: 0.8035
+[EarlyStop] val_loss=0.803524, best_loss=0.803524, no_improve_count=0
+Epoch 7/3000 : Sum of batch train losses for one epoch 1012.9208 |Avg training loss per batch for one epoch 0.8078 |Avg validation loss per batch for one epoch: 0.8000
+[EarlyStop] val_loss=0.800039, best_loss=0.800039, no_improve_count=0
+Epoch 8/3000 : Sum of batch train losses for one epoch 981.9971 |Avg training loss per batch for one epoch 0.7831 |Avg validation loss per batch for one epoch: 0.7939
+[EarlyStop] val_loss=0.793892, best_loss=0.793892, no_improve_count=0
+Epoch 9/3000 : Sum of batch train losses for one epoch 963.8900 |Avg training loss per batch for one epoch 0.7687 |Avg validation loss per batch for one epoch: 0.7951
+[EarlyStop] val_loss=0.795092, best_loss=0.793892, no_improve_count=1
+Epoch 10/3000 : Sum of batch train losses for one epoch 952.8609 |Avg training loss per batch for one epoch 0.7599 |Avg validation loss per batch for one epoch: 0.7883
+[EarlyStop] val_loss=0.788304, best_loss=0.788304, no_improve_count=0
+Epoch 11/3000 : Sum of batch train losses for one epoch 946.5402 |Avg training loss per batch for one epoch 0.7548 |Avg validation loss per batch for one epoch: 0.7889
+[EarlyStop] val_loss=0.788878, best_loss=0.788304, no_improve_count=1
+Epoch 12/3000 : Sum of batch train losses for one epoch 938.2735 |Avg training loss per batch for one epoch 0.7482 |Avg validation loss per batch for one epoch: 0.7874
+[EarlyStop] val_loss=0.787431, best_loss=0.787431, no_improve_count=0
+Epoch 13/3000 : Sum of batch train losses for one epoch 928.5251 |Avg training loss per batch for one epoch 0.7405 |Avg validation loss per batch for one epoch: 0.7898
+[EarlyStop] val_loss=0.789827, best_loss=0.787431, no_improve_count=1
+Epoch 14/3000 : Sum of batch train losses for one epoch 920.5123 |Avg training loss per batch for one epoch 0.7341 |Avg validation loss per batch for one epoch: 0.7883
+[EarlyStop] val_loss=0.788263, best_loss=0.787431, no_improve_count=2
+Epoch 15/3000 : Sum of batch train losses for one epoch 916.4923 |Avg training loss per batch for one epoch 0.7309 |Avg validation loss per batch for one epoch: 0.7908
+[EarlyStop] val_loss=0.790769, best_loss=0.787431, no_improve_count=3
+Epoch 16/3000 : Sum of batch train losses for one epoch 911.6040 |Avg training loss per batch for one epoch 0.7270 |Avg validation loss per batch for one epoch: 0.7936
+[EarlyStop] val_loss=0.793631, best_loss=0.787431, no_improve_count=4
+Epoch 17/3000 : Sum of batch train losses for one epoch 907.9208 |Avg training loss per batch for one epoch 0.7240 |Avg validation loss per batch for one epoch: 0.7931
+[EarlyStop] val_loss=0.793138, best_loss=0.787431, no_improve_count=5
+Early stopping initialized after 5 epochs without improvement.
