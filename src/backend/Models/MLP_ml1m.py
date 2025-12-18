@@ -240,7 +240,7 @@ def grid_search(h_params, file_paths, epochs, patience):
         training_time = end - start
     
         # Save loss & validation results
-        with open(f"{file_paths[0]}_{len(params["layers"])}layers_embed{params["embed_len"]}_lr{params["lr"]}_batch{params["batch_size"]}.txt", "w") as f:
+        with open(f"{file_paths[0]}_{len(params['layers'])}layers_embed{params['embed_len']}_lr{params['lr']}_batch{params['batch_size']}.txt", "w") as f:
             f.write("trainingLoss, validationLoss\n")
             for r in results:
                 row = f"{r['trainLoss']:.4f}, {r['valLoss']:.4f}\n"
