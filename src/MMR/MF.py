@@ -184,7 +184,8 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path):
 
 
 # ==========================
-# Fine tune MF with hyperparameter alpha, lambda and k and train with best configuration
+# Fine tune MF with hyperparameter alpha, lambda and k with grid-search
+# and train with best configuration
 # ==========================
 def tune_mf(R_train, R_val, n_epochs=50,
             hyperparams_grid = { 

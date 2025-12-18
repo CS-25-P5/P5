@@ -29,14 +29,18 @@ def run_train_pipeline(
 
     print(f"Starting pipeline for {dataset} train")
 
+    # Ensure output directory exist
     os.makedirs(output_dir, exist_ok=True)
 
+    # Load and prepare training and validation user-item matrices
+    # Also extract item genre metadata for later MMR use
     item_user_rating_train, genre_map, all_genres = load_and_prepare_matrix(
         ratings_train_path, item_path)
 
     item_user_rating_val, _, _ = load_and_prepare_matrix(
     ratings_val_path, item_path,)
 
+    # Align train and validation matrices, filter out users/items with no interactions
     (
         R_filtered_train,
         R_filtered_val,
@@ -48,7 +52,7 @@ def run_train_pipeline(
         item_user_rating_val,
     )
 
-    # Tune MF parameters
+    # Tune MF hyperparameters using validation set
     best_params = tune_mf(
         R_train = R_filtered_train,
         R_val = R_filtered_val,
@@ -78,8 +82,7 @@ def run_train_pipeline(
     mem_mf = tracemalloc.get_traced_memory()[1] / 1024**2
     tracemalloc.stop()
 
-    #TUNE MMR lambda
-    # Create a builder for cosine similarity
+    # Build MMR model for cosine using MF predictions
     builder_cosine = mmr_builder_factory(
         item_ids=filtered_item_ids,
         genre_map=genre_map,
@@ -88,19 +91,19 @@ def run_train_pipeline(
         similarity_type="cosine"
     )
 
-
+    # Tune lambda parameter for cosine similarity MMR
     best_lambda_cosine, best_score_cosine = tune_mmr_lambda(
         mmr_builder = builder_cosine,
         predicted_ratings = predicted_ratings,
         R_filtered=R_filtered_train,
         val_data=val_data_filtered,
         item_ids = filtered_item_ids,
-        k_eval = top_k,
+        top_k = top_k,
         relevance_weight=relevance_weight,
         diversity_weight=diversity_weight
     )
 
-    # Repeat for jaccard similarity
+    # Build MMR model for jaccard similaity using MF predictions
     builder_jaccard = mmr_builder_factory(
         item_ids=filtered_item_ids,
         genre_map=genre_map,
@@ -109,7 +112,7 @@ def run_train_pipeline(
         similarity_type="jaccard"
     )
     
-
+    # Tune lambda parameter for jaccard similarity MMR
     best_lambda_jaccard, best_score_jaccard = tune_mmr_lambda(
         mmr_builder=builder_jaccard,
         predicted_ratings=predicted_ratings,
@@ -150,7 +153,7 @@ def run_train_pipeline(
     mem_jac = tracemalloc.get_traced_memory()[1] / 1024**2
     tracemalloc.stop()
 
-    #LOG MF DATA
+    # Log MF experiment results
     log_experiment(
         output_dir = output_dir,
         file_name="mf_train_experiment_log.csv",
@@ -171,13 +174,14 @@ def run_train_pipeline(
         },
     )
 
-    # LOG MMR DATA
+    # Log per-epoch MF loss history
     log_loss_history(
         output_dir = output_dir,
         filename = f"{run_id}/mf_train_{chunksize}_loss_history.csv" , 
         train_mse = train_mse_history, 
         val_mse = val_mse_history)
 
+    # Log MMR experiment results (cosine)
     log_experiment(
         output_dir = output_dir,
         file_name="mmr_train_experiment_log.csv",
@@ -194,6 +198,7 @@ def run_train_pipeline(
                 "Max_Memory_MB": mem_cos},
     )
 
+    # Log MMR experiment results (jaccard)
     log_experiment(
         output_dir = output_dir,
         file_name="mmr_train_experiment_log.csv",
@@ -232,19 +237,21 @@ def run_test_pipeline(
 ):
     
     print(f"Start {dataset} test pipeline ")
-    # Create output directory for this run
+
+    # Ensure the output directory exists for saving results
     os.makedirs(output_dir, exist_ok=True)
 
-    # Load and prepare data
+    # Load the user-item rating matrix and item genre metadata
     item_user_rating, genre_map, all_genres= load_and_prepare_matrix(
         ratings_path, item_path)
     
-    # Use your existing function to align the matrix!
+    # Align the user matrix to only include users seen during training
     R_filtered, filtered_df = align_matrix_to_user(
         matrix_df=item_user_rating,
         filtered_user_ids=train_filtered_user_ids
     )
 
+    # Extract predicted ratings for filtered users and items from the trained MF model
     filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
         trained_mf_model, 
         filtered_df, 
@@ -252,17 +259,17 @@ def run_test_pipeline(
         train_filtered_item_ids 
         )
 
-    # Get top-N candidates for MMR
-    mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
+    # Generate top-N recommendations for each user from MF predictions
     get_top_n_recommendations_MF(
         predicted_ratings=predicted_ratings,
         R_filtered=R_filtered,
         filtered_user_ids=filtered_user_ids,
         filtered_item_ids=filtered_item_ids,
         top_n=top_n,
-        save_path=mf_top_n_path)
+        save_path=os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv"))
     
+    # Use the top-N MF recommendations as the candidate list for MMR
     candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
     predicted_ratings_top_n, user_history_top_n, candidate_items = build_mmr_input(
@@ -272,12 +279,12 @@ def run_test_pipeline(
     filtered_item_ids = filtered_item_ids
     )
 
-    # Define output path for MF predictions
+    # Define paths for saving MF predictions and referencing ground truth
     dataset_root = os.path.dirname(output_dir)
     mf_predictions_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
     ground_truth_path = os.path.join(dataset_root, f"{dataset}_ratings_{chunksize}_test.csv")
 
-    # Save MF predictions
+    # Save the full MF predictions to CSV
     save_mf_predictions(
         trained_mf_model=trained_mf_model,
         train_user_ids=train_filtered_user_ids,
@@ -286,7 +293,7 @@ def run_test_pipeline(
         output_path=mf_predictions_path
     )
 
-    # Create a builder for cosine similarity
+    # Build MMR models using cosine and jaccard similarity based on candidate items
     builder_cosine = mmr_builder_factory(
         item_ids=candidate_items,
         genre_map=genre_map,
@@ -305,7 +312,7 @@ def run_test_pipeline(
     )
     mmr_jaccard = builder_jaccard(best_lambda_jaccard)
 
-    # Run MMR
+    # Run MMR re-ranking for each user to balance relevance and diversity
     all_recs_cosine = run_mmr(
         mmr_model = mmr_cosine,
         R_filtered = R_filtered,
@@ -319,7 +326,7 @@ def run_test_pipeline(
         top_k = top_k)
     
 
-    # Process and Save MMR result
+    # Process and save the final MMR results to CSV
     process_save_mmr(all_recs = all_recs_cosine,
                     user_ids=filtered_user_ids,
                     item_ids=candidate_items,

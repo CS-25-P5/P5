@@ -21,21 +21,23 @@ def run_test_pipeline(
 ):
     
     print(f"Start {dataset} test pipeline ")
+
     # Create output directory for this run
     os.makedirs(output_dir, exist_ok=True)
 
-    # Load and prepare data
+    # Load user-item rating matrix and genre metadata for items
     item_user_rating, genre_map, all_genres = load_and_prepare_matrix(
         ratings_path, item_path)
     
-    #Load user-history
+    # Load basic user-item interaction history from CSV
     ratings_df = pd.read_csv(ratings_path)[["userId", "itemId"]]
 
+    # Build MMR input from neural network candidate recommendations
     predicted_ratings_top_n, user_history_top_n, user_ids, candidate_items = build_mmr_input_from_nn(
     candidate_list_csv = nn_candidates_csv,
     interactions_df=ratings_df)         
 
-    # Create a builder for cosine similarity
+    # Build MMR model using cosine similarity
     builder_cosine = mmr_builder_factory(
         item_ids=candidate_items,
         genre_map=genre_map,
@@ -45,6 +47,7 @@ def run_test_pipeline(
     )
     mmr_cosine = builder_cosine(best_lambda_cosine)
 
+    # Build MMR model using Jaccard similarity
     builder_jaccard = mmr_builder_factory(
         item_ids=candidate_items,
         genre_map=genre_map,
@@ -54,27 +57,28 @@ def run_test_pipeline(
     )
     mmr_jaccard = builder_jaccard(best_lambda_jaccard)
 
-    # Run MMR
+    # Run MMR re-ranking for each user (cosine similarity)
     all_recs_cosine = run_mmr(
         mmr_model = mmr_cosine,
         R_filtered = item_user_rating ,
         user_history = user_history_top_n,
         top_k = top_k)
     
+    # Run MMR re-ranking for each user (Jaccard similarity)
     all_recs_jaccard = run_mmr(
         mmr_model = mmr_jaccard,
         R_filtered = item_user_rating ,
         user_history = user_history_top_n,
         top_k = top_k)
     
-    # Process and Save MMR result
+    # Process and save the MMR results for cosine similarity
     process_save_mmr(all_recs = all_recs_cosine,
                     user_ids=user_ids,
                     item_ids=candidate_items,
                     predicted_ratings=predicted_ratings_top_n,
                     output_file_path = os.path.join(output_dir,f"{run_id}/mmr_test_{chunksize}_cosine_top_{top_n}.csv"))
 
-
+    # Process and save the MMR results for Jaccard similarity
     process_save_mmr(all_recs = all_recs_jaccard,
                     user_ids=user_ids,
                     item_ids=candidate_items,
