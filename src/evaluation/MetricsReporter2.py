@@ -143,9 +143,10 @@ def calculate_all_metrics(catalog, data_handler, threshold=4.0, k=5, item_featur
                           model_name="Unknown", calculate_ild=True):
     results = {}
 
-    print(f"Calculating RMSE and MAE for {model_name}")
-    rmse, mae = _calculate_rating_metrics(data_handler, model_name)
+    print(f"Calculating RMSE, MSE and MAE for {model_name}")
+    rmse, mse, mae = _calculate_rating_metrics(data_handler, model_name)  # CHANGED: Now returns 3 values
     results["RMSE"] = rmse
+    results["MSE"] = mse  # NEW: Added MSE to results
     results["MAE"] = mae
 
     print(f"Calculating top-{k} metrics for {model_name}")
@@ -229,17 +230,27 @@ def _calculate_rating_metrics(data_handler, model_name="Unknown"):
 
         if merged_clean.empty:
             print(f"Warning for {model_name}: After merge, no valid rating pairs found (all NaN).")
-            return np.nan, np.nan
+            return np.nan, np.nan, np.nan  # CHANGED: Return 3 NaN values
 
-        rmse = np.sqrt(mean_squared_error(
+        # Calculate MSE (NEW)
+        mse = mean_squared_error(
             merged_clean['weight_gt'],
             merged_clean['weight_pred']
-        ))
+        )
+
+        rmse = np.sqrt(mse)  # CHANGED: Use pre-calculated MSE
         mae = mean_absolute_error(
             merged_clean['weight_gt'],
             merged_clean['weight_pred']
         )
-        return rmse, mae
+        return rmse, mse, mae  # CHANGED: Return MSE as second value
+
+    except Exception as e:
+        print(f"\nError in RMSE/MSE/MAE calculation for {model_name}: {e}")  # CHANGED: Updated message
+        print(
+            "   Returning NaN for RMSE, MSE and MAE to allow other metrics to continue.\n")  # CHANGED: Updated message
+        return np.nan, np.nan, np.nan  # CHANGED: Return 3 NaN values
+
 
     except Exception as e:
         print(f"\nError in RMSE/MAE calculation for {model_name}: {e}")
@@ -337,7 +348,7 @@ def _calculate_reverse_gini(recommendations):
 
 
 def display_metrics_table(metrics_dict, source_name="Model", k=5):
-    overall_metrics = ["RMSE", "MAE", "Reverse Gini"]
+    overall_metrics = ["RMSE", "MSE", "MAE", "Reverse Gini"]
     topk_metrics = [
         f"HitRate@{k}",
         f"Precision@{k}",
@@ -502,7 +513,7 @@ if __name__ == "__main__":
                     threshold=THRESHOLD,
                     k=current_k,
                     item_features=ITEM_FEATURES,
-                    output_prefix=f"diane missing 1m ml file, final run, dianas gt, Total {current_k}_comparison",
+                    output_prefix=f" random, 100k gb, {current_k}_comparison",
                     calculate_ild=CALCULATE_ILD,
                     catalog=CATALOG,
                     #dataset_type="books"

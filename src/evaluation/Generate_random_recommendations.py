@@ -166,17 +166,17 @@ def generate_popularity_baseline(ground_truth_path, output_dir, k=10, dataset_ty
 if __name__ == "__main__":
     # ==================== CONFIGURATION ====================
     # BOOKS 100k
-    CATALOG = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
-    GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books_groundtruth.csv"
-    PREDICTIONS = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\dpp_train_jaccard_recommendations.csv"
+    # CATALOG = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+    # GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books_groundtruth.csv"
+    # PREDICTIONS = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\dpp_train_jaccard_recommendations.csv"
 
-    #movies 100k
-    # CATALOG = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
-    # GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies_groundtruth.csv"
-    # PREDICTIONS = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_00-49-51\mf_test_100000_top_10.csv"
+    # movies 100k
+    CATALOG = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+    GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies_groundtruth.csv"
+    PREDICTIONS = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_00-49-51\mf_test_100000_top_10.csv"
 
     OUTPUT_DIR = r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\random"
-    DATASET_TYPE = "books"
+    DATASET_TYPE = "movies"
 
     K = 10
     NUM_RANDOM_RUNS = 25
@@ -201,7 +201,7 @@ if __name__ == "__main__":
         output_dir=OUTPUT_DIR,
         k=K,
         dataset_type=DATASET_TYPE,
-        seed=42,
+        seed = 12,
         num_runs=NUM_RANDOM_RUNS
     )
 

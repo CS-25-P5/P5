@@ -55,40 +55,72 @@ def load_and_process_data(ground_truth_path, predictions_path, dataset_type="mov
     )
 
 
-def _load_predictions(predictions_path, dataset_type, verbose):
-    """Load predictions with appropriate cleaning for dataset type."""
-    if dataset_type == "books":
-        if verbose:
-            print(f"Loading predictions (books mode): {predictions_path}")
-        return pd.read_csv(predictions_path, encoding='latin1')
 
+def _load_predictions(predictions_path, dataset_type, verbose):
+    """
+    Load predictions with strict cleaning to prevent Float/Int mismatches.
+    """
+    if verbose:
+        print(f"Loading predictions for {dataset_type}: {predictions_path}")
+
+    # 1. Determine loading method based on type
+    if dataset_type == "books":
+        # 'comment' parameter skips lines starting with # automatically
+        df = pd.read_csv(predictions_path, encoding='latin1', comment='#')
     else:
+        # Manual cleaning for 'movies' or other complex formats
         if verbose:
-            print(f"Cleaning predictions file (movies mode): {predictions_path}")
+            print("Performing manual line filtering...")
 
         valid_lines = []
         with open(predictions_path, 'r', encoding='latin1') as f:
             for line in f:
                 stripped = line.strip()
-                if stripped.startswith('userId') or stripped.startswith('user_id') or (
-                        stripped and stripped[0].isdigit()):
+                # Skip comments (#) and empty lines
+                if not stripped or stripped.startswith('#'):
+                    continue
+                # Keep headers or lines starting with digits
+                if stripped.startswith('userId') or stripped.startswith('user_id') or stripped[0].isdigit():
                     valid_lines.append(line)
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False,
-                                         encoding='latin1') as temp:
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='latin1') as temp:
             temp.writelines(valid_lines)
             temp_path = temp.name
 
         try:
-            pred = pd.read_csv(temp_path, encoding='latin1')
+            df = pd.read_csv(temp_path, encoding='latin1', comment='#')
         finally:
-            os.unlink(temp_path)
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
 
-        if verbose:
-            print(f"Predictions loaded: {len(pred)} rows")
+    # ---------------------------------------------------------
+    # CRITICAL FIX: Clean the Data Types
+    # ---------------------------------------------------------
 
-        return pred
+    # 2. Drop rows where critical IDs are NaN (removes the 3 bad comment rows if they slipped through)
+    original_len = len(df)
+    # Resolve column names dynamically
+    user_col = next((c for c in ['userId', 'user_id'] if c in df.columns), None)
+    item_col = next((c for c in ['itemId', 'item_id', 'movieId'] if c in df.columns), None)
 
+    if user_col is None or item_col is None:
+        raise ValueError(f"Predictions file missing ID columns. Found: {df.columns.tolist()}")
+
+    df = df.dropna(subset=[user_col, item_col])
+
+    if verbose and len(df) < original_len:
+        print(f"Dropped {original_len - len(df)} bad rows (likely comments/footers).")
+
+    # 3. FORCE IDs to Integers (Fixes the 1027.0 vs 1027 mismatch)
+    # Check column names and convert
+    for col in ['userId', 'itemId', 'user_id', 'item_id']:
+        if col in df.columns:
+            df[col] = df[col].astype(int)
+
+    if verbose:
+        print(f"Final predictions loaded: {len(df)} rows. IDs cast to int.")
+
+    return df
 
 def _normalize_ids(df, dataset_type):
     """Normalize ID columns by removing .0 decimals and converting to string."""
@@ -131,9 +163,8 @@ def _to_rectools_format(df, is_ground_truth, dataset_type):
         rating_col = "rating"
     else:
         possible_cols = [
-            "val_rating","val_score",'recommendation_score',"rating_pred", "predictedRating", "prediction",
-            "predicted_rating", "mf_score",
-            "test_predicted_rating", "predictedRating", "rating"
+            "test_rating", "test_score","val_rating","val_score",'recommendation_score',"rating_pred", "predictedRating", "prediction",
+            "predicted_rating", "mf_score", "test_predicted_rating", "predictedRating", "rating"
         ]
         rating_col = next((col for col in possible_cols if col in df.columns), None)
 

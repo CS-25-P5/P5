@@ -5,26 +5,25 @@ THRESHOLD = 4.0
 K = 10
 CALCULATE_ILD = True  # Set to False to skip ILD calculation
 
-# Catalog paths
-#CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+#movies
+ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
 CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
 
-#test
-#CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\movies_test2.csv"
+# Books
+# CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+# ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+
+#test2
+# CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\movies_test2.csv"
+# ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\movies_test2.csv"
 
 
 CATALOG = pd.read_csv(CATALOG_PATH)
 CATALOG = CATALOG.rename(columns={"itemId": "item_id"})
 
 
-# Item features path (for ILD calculation)
-ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
-#ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
-
-#ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\movies_test2.csv"
-
-#Test1
-#GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
+# #Test1
+# GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\ratings_test_titles2.csv"
 
 # #test2
 # GROUND_TRUTH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\grount_truth_test2.csv"
@@ -66,7 +65,7 @@ ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens
 
 #DIANA FINAL 18/12
 #GROUND_TRUTH = (r"E:\Data\GT\ratings_100K_movies_test.csv")
-GROUND_TRUTH = (r"E:\Data\GT\ratings_1M_movies_test.csv")
+# GROUND_TRUTH = (r"E:\Data\GT\ratings_1M_movies_test.csv")
 #GROUND_TRUTH = (r"E:\Data\GT\ratings_100K_goodbooks_test.csv")
 
 #validation ground truth
@@ -82,14 +81,38 @@ GROUND_TRUTH = (r"E:\Data\GT\ratings_1M_movies_test.csv")
 #100k books
 #GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\GT_val.csv")
 
-#final
-#10ok movies
-#GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\GT_test.csv")
-#1m movies
-#GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\GT_test.csv")
-#100k books
-#GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\GT_test.csv")
 
+#########
+#final
+#100 movies
+# GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\GT_test.csv")
+#100k books
+# GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\GT_test.csv")
+# #1m movies
+GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\GT_test.csv")
+############
+
+
+
+#diana val gt
+
+#GROUND_TRUTH = r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\VAL_GROUNDTRUTH.csv"
+#GROUND_TRUTH = r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100K_movies(MLPwithGenres)\VAL_GROUNDTRUTH.csv"
+# GROUND_TRUTH = r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100K_goodbooks(MLPwithGenres)\VAL_GROUNDTRUTH.csv"
+
+#val pbr
+#GROUND_TRUTH = r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\VAL_GROUNDTRUTH.csv"
+# GROUND_TRUTH = r"E:\Data\Output_Predictions_val_100K_movies(MLPwithBPR)\VAL_GROUNDTRUTH.csv"
+# GROUND_TRUTH = r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\VAL_GROUNDTRUTH.csv"
+
+#diana 10% Test GT
+#GROUND_TRUTH = r"E:\Data\INPUT_TEST\ratings_1M_movies_test.csv"
+#GROUND_TRUTH = r"E:\Data\INPUT_TEST\ratings_100k_movies_test.csv"
+# GROUND_TRUTH = r"E:\Data\INPUT_TEST\ratings_100k_goodbooks_test.csv"
+
+
+#1M ground truth
+#GROUND_TRUTH = r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_1M_movies(MLPwithGenres)\Cleaned_CSVs\GROUNDTRUTH_alluserandmovies.csv"
 
 # Models to compare
 MODELS = [
@@ -97,33 +120,33 @@ MODELS = [
     ##### Test #####
 
     # #random recommendations
-    # # 100k movieLens
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run01_Movies.csv", "random Movies 1"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run02_Movies.csv", "random Movies 2"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run03_Movies.csv", "random Movies 3"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run04_Movies.csv", "random Movies 4"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run05_Movies.csv", "random Movies 5"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run06_Movies.csv", "random Movies 6"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run07_Movies.csv", "random Movies 7"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run08_Movies.csv", "random Movies 8"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run09_Movies.csv", "random Movies 9"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run10_Movies.csv", "random Movies 10"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run11_Movies.csv", "random Movies 11"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run12_Movies.csv", "random Movies 12"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run13_Movies.csv", "random Movies 13"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run14_Movies.csv", "random Movies 14"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run15_Movies.csv", "random Movies 15"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run16_Movies.csv", "random Movies 16"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run17_Movies.csv", "random Movies 17"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run18_Movies.csv", "random Movies 18"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run19_Movies.csv", "random Movies 19"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run20_Movies.csv", "random Movies 20"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run21_Movies.csv", "random Movies 21"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run22_Movies.csv", "random Movies 22"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run23_Movies.csv", "random Movies 23"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run24_Movies.csv", "random Movies 24"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run25_Movies.csv", "random Movies 25"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\popularity_top10_20251217_143214.csv", "popularity 25"),
+    # 100k movieLens
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run01_Movies.csv", "random Movies 1"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run02_Movies.csv", "random Movies 2"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run03_Movies.csv", "random Movies 3"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run04_Movies.csv", "random Movies 4"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run05_Movies.csv", "random Movies 5"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run06_Movies.csv", "random Movies 6"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run07_Movies.csv", "random Movies 7"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run08_Movies.csv", "random Movies 8"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run09_Movies.csv", "random Movies 9"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run10_Movies.csv", "random Movies 10"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run11_Movies.csv", "random Movies 11"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run12_Movies.csv", "random Movies 12"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run13_Movies.csv", "random Movies 13"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run14_Movies.csv", "random Movies 14"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run15_Movies.csv", "random Movies 15"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run16_Movies.csv", "random Movies 16"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run17_Movies.csv", "random Movies 17"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run18_Movies.csv", "random Movies 18"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run19_Movies.csv", "random Movies 19"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run20_Movies.csv", "random Movies 20"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run21_Movies.csv", "random Movies 21"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run22_Movies.csv", "random Movies 22"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run23_Movies.csv", "random Movies 23"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run24_Movies.csv", "random Movies 24"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run25_Movies.csv", "random Movies 25"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\popularity_top10_20251217_143214.csv", "popularity 25"),
 
     #100K goodbooks
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run01_books.csv", "Books 1"),
@@ -152,350 +175,1028 @@ MODELS = [
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run24_books.csv", "random Books 24"),
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Random\random_top10_run25_books.csv", "random Books 25"),
 
-    #test2
+    # #test2
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\test2_predictions.csv", "Test2"),
-
- ##### Li #######
-
-    #MMR - li movies 100k R=1 R=0.5
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_05-59-25-(R=1)\mf_test_100000_top_50.csv", "R=1,MF"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_05-59-25-(R=1)\mmr_test_100000_cosine_top_50.csv", "R=1,MMR_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_05-59-25-(R=1)\mmr_test_100000_jaccard_top_50.csv", "R=1,MMR_jaccard"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies - 2025-12-16_06-01-48-(R=0.5)\mf_test_100000_top_50.csv", "R=0.5,MF"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies - 2025-12-16_06-01-48-(R=0.5)\mmr_test_100000_cosine_top_50.csv", "R=0.5,MMR_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies - 2025-12-16_06-01-48-(R=0.5)\mmr_test_100000_jaccard_top_50.csv", "R=0.5,MMR_jaccard"),
-
-    #MMR - li books - 100k R=1, R=0.5, R=0.6
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-11-03-(R=1)\mf_test_100000_top_50.csv", "R=1,MF"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-11-03-(R=1)\mmr_test_100000_cosine_top_50.csv", "R=1,MMR_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-11-03-(R=1)\mmr_test_100000_jaccard_top_50.csv", "R=1,MMR_jaccard"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-13-36-(R=0.5)\mf_test_100000_top_50.csv", "R=0.5,MF"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-13-36-(R=0.5)\mmr_test_100000_cosine_top_50.csv", "R=0.5,MMR_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-13-36-(R=0.5)\mmr_test_100000_jaccard_top_50.csv", "R=0.5,MMR_jaccard"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-12-55-(R=0.6)\mf_test_100000_top_50.csv", "R=0.6,MF"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-12-55-(R=0.6)\mmr_test_100000_cosine_top_50.csv", "R=0.6,MMR_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-12-55-(R=0.6)\mmr_test_100000_jaccard_top_50.csv", "R=0.6,MMR_jaccard"),
-
-    # MMR - li books 100k R=1, R=0.6
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-26-52-(R=1)\mf_test_100000_top_50.csv", "Books, R=1,MF"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-26-52-(R=1)\mmr_test_100000_cosine_top_50.csv", "Books,R=0.5,MMR_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-26-52-(R=1)\mmr_test_100000_jaccard_top_50.csv", "Books, R=0.5,MMR_jaccard"),
-    #
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-35-32-(R=0.6)\mf_test_100000_top_50.csv", "Books, R=0.6,MF"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-35-32-(R=0.6)\mmr_test_100000_cosine_top_50.csv", "Books, R=0.6,MMR_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-35-32-(R=0.6)\mmr_test_100000_jaccard_top_50.csv", "Books, R=0.6,MMR_jaccard"),
-
-    # # MMR - li movies - 100k R=1, R=0.5
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-13-38-(R=1.0)\mf_test_100000_top_50.csv", "Movies, R=1,MF"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-13-38-(R=1.0)\mmr_test_100000_cosine_top_50.csv", "Movies, R=1,MMR_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-13-38-(R=1.0)\mmr_test_100000_jaccard_top_50.csv", "Movies, R=1,MMR_jaccard"),
-    #
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-18-45-(R=0.5)\mf_test_100000_top_50.csv", "Movies, R=0.5,MF"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-18-45-(R=0.5)\mmr_test_100000_cosine_top_50.csv", "Movies, R=0.5,MMR_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-18-45-(R=0.5)\mmr_test_100000_jaccard_top_50.csv", "Movies, R=0.5,MMR_jaccard"),
     #
 
-    ###### Kasia #######
-
-    # #DPP - movies
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_22-02-06\dpp_test_100000_jaccard_top_10.csv", "02, dpp_Jaccard"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_22-02-06\dpp_test_100000_cosine_top_10.csv", "02, dpp_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_22-02-06\mf_test_100000_top_10.csv", "02, MF"),
-
-
-
-
-    # # #DPP - books
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_21-43-05\dpp_test_100000_jaccard_top_10.csv", "43 dpp_Jaccard"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_21-43-05\dpp_test_100000_cosine_top_10.csv", "43 dpp_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_21-43-05\mf_test_100000_top_10.csv", "43MF"),
-
-
-
-##### Johannes #######
-
-    # johannes final runs 100k movies 18/12
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # #
-    # # #3 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-    # #NN johannes - final run movies ml1M 18/12
-    #1layer
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    #
-    # #3 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-    # #NN johannes - gb final run 18/12
-    # #1layer
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    #
-    # #3 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-
-
-    #johannes validation runs 100k movies 18/12
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # #
-    # # #3 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-    # #NN johannes - gb validation 18/12
-    # #1layer
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    #
-    # #3 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-    # #NN johannes - movies ml1M 18/12
-    # #1layer
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    #
-    # #3 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-    # # NN johannes - ml1m final 18/12
-    # # 1layer
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    #
-    # #3 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-
-
-
-    # NN johannes - movies 1m
-    # # 1layer
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv", "1layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # #3 layers
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
 
 #### Diana #####
+
+    # #diana genres movies 100k 18/12 right
+    # # #1 LAYER
+    # (
+    #     r"E:\Data\Recommend_test_100K_movies(MLPwithGenres)\NNgenres_OneLayer_embed32_lr0001_batch64.csv",
+    #     "One-32-0001-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_OneLayer_embed32_lr0001_batch128.csv",
+    #     "One-32-0001-b128"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_OneLayer_embed32_lr00003_batch64.csv",
+    #     "One-32-00003-b64"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_OneLayer_embed32_lr00003_batch128.csv",
+    #     "One-32-00003-b128"),
+    #
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_OneLayer_embed64_lr0001_batch64.csv",
+    #     "One-64-0001-b64"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_OneLayer_embed64_lr0001_batch128.csv",
+    #     "One-64-0001-128"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_OneLayer_embed64_lr00003_batch64.csv",
+    #     "One-64-00003-b64"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_OneLayer_embed64_lr00003_batch128.csv",
+    #     "One-64-00003-b128"),
+    #
+    # # 2 LAYER
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_TwoLayers_embed32_lr0001_batch64.csv",
+    #     "Two-32-0001-b64"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_TwoLayers_embed32_lr0001_batch128.csv",
+    #     "Two-32-0001-b128"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_TwoLayers_embed32_lr00003_batch64.csv",
+    #     "Two-32-00003-b64"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_TwoLayers_embed32_lr00003_batch128.csv",
+    #     "Two-32-00003-b128"),
+    #
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_TwoLayers_embed64_lr0001_batch64.csv",
+    #     "Two-64-0001-b64"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_TwoLayers_embed64_lr0001_batch128.csv",
+    #     "Two-64-0001-b128"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_TwoLayers_embed64_lr00003_batch64.csv",
+    #     "Two-64-00003-b64"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_TwoLayers_embed64_lr00003_batch128.csv",
+    #     "Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_ThreeLayers_embed32_lr0001_batch64.csv",
+    #     "Three-32-0001-b64"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_ThreeLayers_embed32_lr0001_batch128.csv",
+    #     "Three-32-0001-b128"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_ThreeLayers_embed32_lr00003_batch64.csv",
+    #     "Three-32-00003-b64"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_ThreeLayers_embed32_lr00003_batch128.csv",
+    #     "Three-32-00003-b128"),
+    #
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_ThreeLayers_embed64_lr0001_batch64.csv",
+    #     "Three-64-0001-b64"),
+    # (
+    #     r"e:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_ThreeLayers_embed64_lr0001_batch128.csv",
+    #     "Three-64-0001-b128"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_ThreeLayers_embed64_lr00003_batch64.csv",
+    #     "Three-64-00003-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_movies(MLPwithGenres)\nnGenres_ThreeLayers_embed64_lr00003_batch128.csv",
+    #     "Three-64-00003-b128"),
+
+    # # #diana bpr movies 1m 18/12
+    # # # #1 LAYER
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch64.csv",
+    # "One-32-0001-b64"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv",
+    # "One-32-0001-b128"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv",
+    # "One-32-00003-b64"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv",
+    # "One-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Recommend_test_1M_movies(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv",
+    # "One-64-0001-b64"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv",
+    # "One-64-0001-128"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv",
+    # "One-64-00003-b64"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv",
+    # "One-64-00003-b128"),
+    #
+    # # 2 LAYER
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch64.csv",
+    # "Two-32-0001-b64"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch128.csv",
+    # "Two-32-0001-b128"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch64.csv",
+    # "Two-32-00003-b64"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv",
+    # "Two-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch64.csv",
+    # "Two-64-0001-b64"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch128.csv",
+    # "Two-64-0001-b128"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch64.csv",
+    # "Two-64-00003-b64"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch128.csv",
+    # "Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64.csv",
+    # "Three-32-0001-b64"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128.csv",
+    # "Three-32-0001-b128"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64.csv",
+    # "Three-32-00003-b64"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128.csv",
+    # "Three-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64.csv",
+    # "Three-64-0001-b64"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128.csv",
+    # "Three-64-0001-b128"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64.csv",
+    # "Three-64-00003-b64"),
+    # (
+    # r"E:\Data\Recommend_test_1m_movies(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128.csv",
+    # "Three-64-00003-b128"),
+
+    # # #diana genres movies 1m 18/12
+    # # # #1 LAYER
+    # (
+    #     r"E:\Data\Recommend_test_1M_movies(MLPwithGenres)\NNgenres_OneLayer_embed32_lr0001_batch64.csv",
+    #     "One-32-0001-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_OneLayer_embed32_lr0001_batch128.csv",
+    #     "One-32-0001-b128"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_OneLayer_embed32_lr00003_batch64.csv",
+    #     "One-32-00003-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_OneLayer_embed32_lr00003_batch128.csv",
+    #     "One-32-00003-b128"),
+    #
+    # (
+    #     r"E:\Data\Recommend_test_1M_movies(MLPwithGenres)\nngenres_OneLayer_embed64_lr0001_batch64.csv",
+    #     "One-64-0001-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_OneLayer_embed64_lr0001_batch128.csv",
+    #     "One-64-0001-128"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_OneLayer_embed64_lr00003_batch64.csv",
+    #     "One-64-00003-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_OneLayer_embed64_lr00003_batch128.csv",
+    #     "One-64-00003-b128"),
+    #
+    # # 2 LAYER
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_TwoLayers_embed32_lr0001_batch64.csv",
+    #     "Two-32-0001-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_TwoLayers_embed32_lr0001_batch128.csv",
+    #     "Two-32-0001-b128"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_TwoLayers_embed32_lr00003_batch64.csv",
+    #     "Two-32-00003-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_TwoLayers_embed32_lr00003_batch128.csv",
+    #     "Two-32-00003-b128"),
+    #
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_TwoLayers_embed64_lr0001_batch64.csv",
+    #     "Two-64-0001-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_TwoLayers_embed64_lr0001_batch128.csv",
+    #     "Two-64-0001-b128"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_TwoLayers_embed64_lr00003_batch64.csv",
+    #     "Two-64-00003-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_TwoLayers_embed64_lr00003_batch128.csv",
+    #     "Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_ThreeLayers_embed32_lr0001_batch64.csv",
+    #     "Three-32-0001-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_ThreeLayers_embed32_lr0001_batch128.csv",
+    #     "Three-32-0001-b128"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_ThreeLayers_embed32_lr00003_batch64.csv",
+    #     "Three-32-00003-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_ThreeLayers_embed32_lr00003_batch128.csv",
+    #     "Three-32-00003-b128"),
+    #
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_ThreeLayers_embed64_lr0001_batch64.csv",
+    #     "Three-64-0001-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_ThreeLayers_embed64_lr0001_batch128.csv",
+    #     "Three-64-0001-b128"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_ThreeLayers_embed64_lr00003_batch64.csv",
+    #     "Three-64-00003-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_1m_movies(MLPwithGenres)\nngenres_ThreeLayers_embed64_lr00003_batch128.csv",
+    #     "Three-64-00003-b128"),
+
+    # #diana bpr goodbooks 100k 18/12
+    # # #1 LAYER
+    #(
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv",
+    # "One-32-0001-b64"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr0001_batch128.csv",
+    # "One-32-0001-b128"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch64.csv",
+    # "One-32-00003-b64"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_OneLayer_embed32_lr00003_batch128.csv",
+    # "One-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\Recommend_BPRnn_OneLayer_embed64_lr0001_batch64.csv",
+    # "One-64-0001-b64"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr0001_batch128.csv",
+    # "One-64-0001-128"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch64.csv",
+    # "One-64-00003-b64"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_OneLayer_embed64_lr00003_batch128.csv",
+    # "One-64-00003-b128"),
+    #
+    # # 2 LAYER
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch64.csv",
+    # "Two-32-0001-b64"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr0001_batch128.csv",
+    # "Two-32-0001-b128"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch64.csv",
+    # "Two-32-00003-b64"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128.csv",
+    # "Two-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch64.csv",
+    # "Two-64-0001-b64"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch128.csv",
+    # "Two-64-0001-b128"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch64.csv",
+    # "Two-64-00003-b64"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr00003_batch128.csv",
+    # "Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch64.csv",
+    # "Three-32-0001-b64"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr0001_batch128.csv",
+    # "Three-32-0001-b128"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch64.csv",
+    # "Three-32-00003-b64"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed32_lr00003_batch128.csv",
+    # "Three-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch64.csv",
+    # "Three-64-0001-b64"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr0001_batch128.csv",
+    # "Three-64-0001-b128"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch64.csv",
+    # "Three-64-00003-b64"),
+    # (
+    # r"E:\Data\Recommend_test_100K_goodbooks(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128.csv",
+    # "Three-64-00003-b128"),
+
+    # # # #diana genres goodbooks 100k 18/12
+    # # # #1 LAYER
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\NNgenres_OneLayer_embed32_lr0001_batch64.csv",
+    #     "One-32-0001-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_OneLayer_embed32_lr0001_batch128.csv",
+    #     "One-32-0001-b128"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_OneLayer_embed32_lr00003_batch64.csv",
+    #     "One-32-00003-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_OneLayer_embed32_lr00003_batch128.csv",
+    #     "One-32-00003-b128"),
+    #
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_OneLayer_embed64_lr0001_batch64.csv",
+    #     "One-64-0001-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_OneLayer_embed64_lr0001_batch128.csv",
+    #     "One-64-0001-128"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_OneLayer_embed64_lr00003_batch64.csv",
+    #     "One-64-00003-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_OneLayer_embed64_lr00003_batch128.csv",
+    #     "One-64-00003-b128"),
+    #
+    # # 2 LAYER
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_TwoLayers_embed32_lr0001_batch64.csv",
+    #     "Two-32-0001-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_TwoLayers_embed32_lr0001_batch128.csv",
+    #     "Two-32-0001-b128"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_TwoLayers_embed32_lr00003_batch64.csv",
+    #     "Two-32-00003-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_TwoLayers_embed32_lr00003_batch128.csv",
+    #     "Two-32-00003-b128"),
+    #
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_TwoLayers_embed64_lr0001_batch64.csv",
+    #     "Two-64-0001-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_TwoLayers_embed64_lr0001_batch128.csv",
+    #     "Two-64-0001-b128"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_TwoLayers_embed64_lr00003_batch64.csv",
+    #     "Two-64-00003-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_TwoLayers_embed64_lr00003_batch128.csv",
+    #     "Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_ThreeLayers_embed32_lr0001_batch64.csv",
+    #     "Three-32-0001-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_ThreeLayers_embed32_lr0001_batch128.csv",
+    #     "Three-32-0001-b128"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_ThreeLayers_embed32_lr00003_batch64.csv",
+    #     "Three-32-00003-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_ThreeLayers_embed32_lr00003_batch128.csv",
+    #     "Three-32-00003-b128"),
+    #
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_ThreeLayers_embed64_lr0001_batch64.csv",
+    #     "Three-64-0001-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_ThreeLayers_embed64_lr0001_batch128.csv",
+    #     "Three-64-0001-b128"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_ThreeLayers_embed64_lr00003_batch64.csv",
+    #     "Three-64-00003-b64"),
+    # (
+    #     r"E:\Data\Recommend_test_100K_goodbooks(MLPwithGenres)\nngenres_ThreeLayers_embed64_lr00003_batch128.csv",
+    #     "Three-64-00003-b128"),
+
+    # # #diana genres movies 100k 18/12
+    # # # #1 LAYER
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed32_lr0001_batch64.csv",
+    # "One-32-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed32_lr0001_batch128.csv",
+    # "One-32-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed32_lr00003_batch64.csv",
+    # "One-32-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed32_lr00003_batch128.csv",
+    # "One-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed64_lr0001_batch64.csv",
+    # "One-64-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed64_lr0001_batch128.csv",
+    # "One-64-0001-128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed64_lr00003_batch64.csv",
+    # "One-64-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed64_lr00003_batch128.csv",
+    # "One-64-00003-b128"),
+    #
+    # # 2 LAYER
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed32_lr0001_batch64.csv",
+    # "Two-32-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed32_lr0001_batch128.csv",
+    # "Two-32-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed32_lr00003_batch64.csv",
+    # "Two-32-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed32_lr00003_batch128.csv",
+    # "Two-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed64_lr0001_batch64.csv",
+    # "Two-64-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed64_lr0001_batch128.csv",
+    # "Two-64-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed64_lr00003_batch64.csv",
+    # "Two-64-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed64_lr00003_batch128.csv",
+    # "Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed32_lr0001_batch64.csv",
+    # "Three-32-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed32_lr0001_batch128.csv",
+    # "Three-32-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed32_lr00003_batch64.csv",
+    # "Three-32-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed32_lr00003_batch128.csv",
+    # "Three-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed64_lr0001_batch64.csv",
+    # "Three-64-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed64_lr0001_batch128.csv",
+    # "Three-64-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed64_lr00003_batch64.csv",
+    # "Three-64-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_movies(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed64_lr00003_batch128.csv",
+    # "Three-64-00003-b128"),
+
+
+
+    # # #diana pbr books 100k 18/12
+    # # # #1 LAYER
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed32_lr0001_batch64.csv",
+    # "One-32-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed32_lr0001_batch128.csv",
+    # "One-32-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed32_lr00003_batch64.csv",
+    # "One-32-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed32_lr00003_batch128.csv",
+    # "One-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed64_lr0001_batch64.csv",
+    # "One-64-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed64_lr0001_batch128.csv",
+    # "One-64-0001-128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed64_lr00003_batch64.csv",
+    # "One-64-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_OneLayer_embed64_lr00003_batch128.csv",
+    # "One-64-00003-b128"),
+    #
+    # # 2 LAYER
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed32_lr0001_batch64.csv",
+    # "Two-32-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed32_lr0001_batch128.csv",
+    # "Two-32-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed32_lr00003_batch64.csv",
+    # "Two-32-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed32_lr00003_batch128.csv",
+    # "Two-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed64_lr0001_batch64.csv",
+    # "Two-64-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed64_lr0001_batch128.csv",
+    # "Two-64-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed64_lr00003_batch64.csv",
+    # "Two-64-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_TwoLayers_embed64_lr00003_batch128.csv",
+    # "Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed32_lr0001_batch64.csv",
+    # "Three-32-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed32_lr0001_batch128.csv",
+    # "Three-32-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed32_lr00003_batch64.csv",
+    # "Three-32-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed32_lr00003_batch128.csv",
+    # "Three-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed64_lr0001_batch64.csv",
+    # "Three-64-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed64_lr0001_batch128.csv",
+    # "Three-64-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed64_lr00003_batch64.csv",
+    # "Three-64-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithGenres)\cleaned_CSVs\nnattr_ThreeLayers_embed64_lr00003_batch128.csv",
+    # "Three-64-00003-b128"),
+
+    # # #diana pbr books 100k 18/12
+    # # # #1 LAYER
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\Bprnn_OneLayer_embed32_lr0001_batch64.csv" ,"One-32-0001-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_OneLayer_embed32_lr0001_batch128.csv" ,"One-32-0001-b128"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_OneLayer_embed32_lr00003_batch64.csv" ,"One-32-00003-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_OneLayer_embed32_lr00003_batch128.csv" ,"One-32-00003-b128"),
+    #
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_OneLayer_embed64_lr0001_batch64.csv","One-64-0001-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_OneLayer_embed64_lr0001_batch128.csv","One-64-0001-128"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_OneLayer_embed64_lr00003_batch64.csv","One-64-00003-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_OneLayer_embed64_lr00003_batch128.csv","One-64-00003-b128"),
+    #
+    # #2 LAYER
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_TwoLayers_embed32_lr0001_batch64.csv","Two-32-0001-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_TwoLayers_embed32_lr0001_batch128.csv","Two-32-0001-b128"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_TwoLayers_embed32_lr00003_batch64.csv","Two-32-00003-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_TwoLayers_embed32_lr00003_batch128.csv","Two-32-00003-b128"),
+    #
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_TwoLayers_embed64_lr0001_batch64.csv","Two-64-0001-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_TwoLayers_embed64_lr0001_batch128.csv","Two-64-0001-b128"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_TwoLayers_embed64_lr00003_batch64.csv","Two-64-00003-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_TwoLayers_embed64_lr00003_batch128.csv","Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_ThreeLayers_embed32_lr0001_batch64.csv","Three-32-0001-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_ThreeLayers_embed32_lr0001_batch128.csv","Three-32-0001-b128"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_ThreeLayers_embed32_lr00003_batch64.csv","Three-32-00003-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_ThreeLayers_embed32_lr00003_batch128.csv","Three-32-00003-b128"),
+    #
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_ThreeLayers_embed64_lr0001_batch64.csv","Three-64-0001-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_ThreeLayers_embed64_lr0001_batch128.csv","Three-64-0001-b128"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_ThreeLayers_embed64_lr00003_batch64.csv","Three-64-00003-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_100K_goodbooks(MLPwithBPR)\cleaned_CSVs\BPRnn_ThreeLayers_embed64_lr00003_batch128.csv","Three-64-00003-b128"),
+
+    # # #diana val  100k movies with pbr 18/12
+    # # # #1 LAYER
+    # (r"E:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr0001_batch64.csv",
+    # "One-32-0001-b64"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr0001_batch128.csv" ,"One-32-0001-b128"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr00003_batch64.csv" ,"One-32-00003-b64"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr00003_batch128.csv" ,"One-32-00003-b128"),
+    #
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr0001_batch64.csv","One-64-0001-b64"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr0001_batch128.csv","One-64-0001-128"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr00003_batch64.csv","One-64-00003-b64"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr00003_batch128.csv","One-64-00003-b128"),
+    #
+    # #2 LAYER
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr0001_batch64.csv","Two-32-0001-b64"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr0001_batch128.csv","Two-32-0001-b128"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr00003_batch64.csv","Two-32-00003-b64"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr00003_batch128.csv","Two-32-00003-b128"),
+    #
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr0001_batch64.csv","Two-64-0001-b64"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr0001_batch128.csv","Two-64-0001-b128"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr00003_batch64.csv","Two-64-00003-b64"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr00003_batch128.csv","Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr0001_batch64.csv","Three-32-0001-b64"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr0001_batch128.csv","Three-32-0001-b128"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr00003_batch64.csv","Three-32-00003-b64"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr00003_batch128.csv","Three-32-00003-b128"),
+    #
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr0001_batch64.csv","Three-64-0001-b64"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr0001_batch128.csv","Three-64-0001-b128"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr00003_batch64.csv","Three-64-00003-b64"),
+    # (r"e:\Data\Output_Predictions_val_100k_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr00003_batch128.csv","Three-64-00003-b128"),
+
+    # # #diana 1M movies with PBR Val 18/12
+    # # # #1 LAYER
+    #(
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr0001_batch64.csv",
+    # "One-32-0001-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr0001_batch128.csv",
+    # "One-32-0001-b128"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr00003_batch64.csv",
+    # "One-32-00003-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_OneLayer_embed32_lr00003_batch128.csv",
+    # "One-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr0001_batch64.csv",
+    # "One-64-0001-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr0001_batch128.csv",
+    # "One-64-0001-128"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr00003_batch64.csv",
+    # "One-64-00003-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_OneLayer_embed64_lr00003_batch128.csv",
+    # "One-64-00003-b128"),
+    #
+    # # 2 LAYER
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr0001_batch64.csv",
+    # "Two-32-0001-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr0001_batch128.csv",
+    # "Two-32-0001-b128"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr00003_batch64.csv",
+    # "Two-32-00003-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr00003_batch128.csv",
+    # "Two-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr0001_batch64.csv",
+    # "Two-64-0001-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr0001_batch128.csv",
+    # "Two-64-0001-b128"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr00003_batch64.csv",
+    # "Two-64-00003-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr00003_batch128.csv",
+    # "Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr0001_batch64.csv",
+    # "Three-32-0001-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr0001_batch128.csv",
+    # "Three-32-0001-b128"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr00003_batch64.csv",
+    # "Three-32-00003-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr00003_batch128.csv",
+    # "Three-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr0001_batch64.csv",
+    # "Three-64-0001-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr0001_batch128.csv",
+    # "Three-64-0001-b128"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr00003_batch64.csv",
+    # "Three-64-00003-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_1M_movies(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr00003_batch128.csv",
+    # "Three-64-00003-b128"),
+
+    # # #diana 100K BOOKS with BPR 18/12
+    # # # # # #1 LAYER
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_OneLayer_embed32_lr0001_batch64.csv",
+    # "One-32-0001-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_OneLayer_embed32_lr0001_batch128.csv",
+    # "One-32-0001-b128"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_OneLayer_embed32_lr00003_batch64.csv",
+    # "One-32-00003-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_OneLayer_embed32_lr00003_batch128.csv",
+    # "One-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_OneLayer_embed64_lr0001_batch64.csv",
+    # "One-64-0001-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_OneLayer_embed64_lr0001_batch128.csv",
+    # "One-64-0001-128"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_OneLayer_embed64_lr00003_batch64.csv",
+    # "One-64-00003-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_OneLayer_embed64_lr00003_batch128.csv",
+    # "One-64-00003-b128"),
+    #
+    # # 2 LAYER
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr0001_batch64.csv",
+    # "Two-32-0001-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr0001_batch128.csv",
+    # "Two-32-0001-b128"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr00003_batch64.csv",
+    # "Two-32-00003-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_TwoLayers_embed32_lr00003_batch128.csv",
+    # "Two-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr0001_batch64.csv",
+    # "Two-64-0001-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr0001_batch128.csv",
+    # "Two-64-0001-b128"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr00003_batch64.csv",
+    # "Two-64-00003-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_TwoLayers_embed64_lr00003_batch128.csv",
+    # "Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr0001_batch64.csv",
+    # "Three-32-0001-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr0001_batch128.csv",
+    # "Three-32-0001-b128"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr00003_batch64.csv",
+    # "Three-32-00003-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_ThreeLayers_embed32_lr00003_batch128.csv",
+    # "Three-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr0001_batch64.csv",
+    # "Three-64-0001-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr0001_batch128.csv",
+    # "Three-64-0001-b128"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr00003_batch64.csv",
+    # "Three-64-00003-b64"),
+    # (
+    # r"E:\Data\Output_Predictions_val_100K_goodbooks(MLPwithBPR)\BPRnn_ThreeLayers_embed64_lr00003_batch128.csv",
+    # "Three-64-00003-b128"),
+
+
+
+    # # #diana test for best hyper data 1m movies with Genres 18/12
+    # # # #1 LAYER
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_OneLayer_embed32_lr0001_batch64.csv" ,"One-32-0001-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_OneLayer_embed32_lr0001_batch128.csv" ,"One-32-0001-b128"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_OneLayer_embed32_lr00003_batch64.csv" ,"One-32-00003-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_OneLayer_embed32_lr00003_batch128.csv" ,"One-32-00003-b128"),
+    #
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_OneLayer_embed64_lr0001_batch64.csv","One-64-0001-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_OneLayer_embed64_lr0001_batch128.csv","One-64-0001-128"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_OneLayer_embed64_lr00003_batch64.csv","One-64-00003-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_OneLayer_embed64_lr00003_batch128.csv","One-64-00003-b128"),
+    #
+    # #2 LAYER
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_TwoLayers_embed32_lr0001_batch64.csv","Two-32-0001-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_TwoLayers_embed32_lr0001_batch128.csv","Two-32-0001-b128"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_TwoLayers_embed32_lr00003_batch64.csv","Two-32-00003-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_TwoLayers_embed32_lr00003_batch128.csv","Two-32-00003-b128"),
+    #
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_TwoLayers_embed64_lr0001_batch64.csv","Two-64-0001-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_TwoLayers_embed64_lr0001_batch128.csv","Two-64-0001-b128"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_TwoLayers_embed64_lr00003_batch64.csv","Two-64-00003-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_TwoLayers_embed64_lr00003_batch128.csv","Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_ThreeLayers_embed32_lr0001_batch64.csv","Three-32-0001-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_ThreeLayers_embed32_lr0001_batch128.csv","Three-32-0001-b128"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_ThreeLayers_embed32_lr00003_batch64.csv","Three-32-00003-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_ThreeLayers_embed32_lr00003_batch128.csv","Three-32-00003-b128"),
+    #
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_ThreeLayers_embed64_lr0001_batch64.csv","Three-64-0001-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_ThreeLayers_embed64_lr0001_batch128.csv","Three-64-0001-b128"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_ThreeLayers_embed64_lr00003_batch64.csv","Three-64-00003-b64"),
+    # (r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_1M_movies(MLPwithGenres)\NNattr_ThreeLayers_embed64_lr00003_batch128.csv","Three-64-00003-b128"),
+
+    # # #diana test for best hyper data 100K movies with Genres 18/12
+    # # # #1 LAYER
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_OneLayer_embed32_lr0001_batch64.csv",
+    # "One-32-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_OneLayer_embed32_lr0001_batch128.csv",
+    # "One-32-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_OneLayer_embed32_lr00003_batch64.csv",
+    # "One-32-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_OneLayer_embed32_lr00003_batch128.csv",
+    # "One-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_OneLayer_embed64_lr0001_batch64.csv",
+    # "One-64-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_OneLayer_embed64_lr0001_batch128.csv",
+    # "One-64-0001-128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_OneLayer_embed64_lr00003_batch64.csv",
+    # "One-64-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_OneLayer_embed64_lr00003_batch128.csv",
+    # "One-64-00003-b128"),
+    #
+    # # 2 LAYER
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_TwoLayers_embed32_lr0001_batch64.csv",
+    # "Two-32-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_TwoLayers_embed32_lr0001_batch128.csv",
+    # "Two-32-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_TwoLayers_embed32_lr00003_batch64.csv",
+    # "Two-32-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_TwoLayers_embed32_lr00003_batch128.csv",
+    # "Two-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_TwoLayers_embed64_lr0001_batch64.csv",
+    # "Two-64-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_TwoLayers_embed64_lr0001_batch128.csv",
+    # "Two-64-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_TwoLayers_embed64_lr00003_batch64.csv",
+    # "Two-64-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_TwoLayers_embed64_lr00003_batch128.csv",
+    # "Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_ThreeLayers_embed32_lr0001_batch64.csv",
+    # "Three-32-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_ThreeLayers_embed32_lr0001_batch128.csv",
+    # "Three-32-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_ThreeLayers_embed32_lr00003_batch64.csv",
+    # "Three-32-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_ThreeLayers_embed32_lr00003_batch128.csv",
+    # "Three-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_ThreeLayers_embed64_lr0001_batch64.csv",
+    # "Three-64-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_ThreeLayers_embed64_lr0001_batch128.csv",
+    # "Three-64-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_ThreeLayers_embed64_lr00003_batch64.csv",
+    # "Three-64-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_movies(MLPwithGenres)\NNattr_ThreeLayers_embed64_lr00003_batch128.csv",
+    # "Three-64-00003-b128"),
+
+
+    # #diana test best hyper params total data 100K BOOKS with BPR 18/12
+    # # # # #1 LAYER
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_OneLayer_embed32_lr0001_batch64.csv",
+    # "One-32-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_OneLayer_embed32_lr0001_batch128.csv",
+    # "One-32-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_OneLayer_embed32_lr00003_batch64.csv",
+    # "One-32-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_OneLayer_embed32_lr00003_batch128.csv",
+    # "One-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_OneLayer_embed64_lr0001_batch64.csv",
+    # "One-64-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_OneLayer_embed64_lr0001_batch128.csv",
+    # "One-64-0001-128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_OneLayer_embed64_lr00003_batch64.csv",
+    # "One-64-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_OneLayer_embed64_lr00003_batch128.csv",
+    # "One-64-00003-b128"),
+    #
+    # # 2 LAYER
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_TwoLayers_embed32_lr0001_batch64.csv",
+    # "Two-32-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_TwoLayers_embed32_lr0001_batch128.csv",
+    # "Two-32-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_TwoLayers_embed32_lr00003_batch64.csv",
+    # "Two-32-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_TwoLayers_embed32_lr00003_batch128.csv",
+    # "Two-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_TwoLayers_embed64_lr0001_batch64.csv",
+    # "Two-64-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_TwoLayers_embed64_lr0001_batch128.csv",
+    # "Two-64-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_TwoLayers_embed64_lr00003_batch64.csv",
+    # "Two-64-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_TwoLayers_embed64_lr00003_batch128.csv",
+    # "Two-64-00003-b128"),
+    #
+    # # 3 LAYER
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_ThreeLayers_embed32_lr0001_batch64.csv",
+    # "Three-32-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_ThreeLayers_embed32_lr0001_batch128.csv",
+    # "Three-32-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_ThreeLayers_embed32_lr00003_batch64.csv",
+    # "Three-32-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_ThreeLayers_embed32_lr00003_batch128.csv",
+    # "Three-32-00003-b128"),
+    #
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_ThreeLayers_embed64_lr0001_batch64.csv",
+    # "Three-64-0001-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_ThreeLayers_embed64_lr0001_batch128.csv",
+    # "Three-64-0001-b128"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_ThreeLayers_embed64_lr00003_batch64.csv",
+    # "Three-64-00003-b64"),
+    # (
+    # r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_val_100k_goodbooks(MLPwithGenres)\NNattr_ThreeLayers_embed64_lr00003_batch128.csv",
+    # "Three-64-00003-b128"),
+
+
+
+
+
+##
 
     # # #diana total data 100K movies with BPR 18/12
     # # # #1 LAYER
@@ -923,9 +1624,9 @@ MODELS = [
     # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed32_lr00003_batch128_filtered.csv",
     # "Two-32-00003-b128"),
     #
-    (
-    r"E:\Data\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch64_filtered.csv",
-    "Two-64-0001-b64"),
+    # (
+    # r"E:\Data\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch64_filtered.csv",
+    # "Two-64-0001-b64"),
     # (
     # r"E:\Data\Diana-NN\Recommend_test_1M_movies_TOTAL(MLPwithBPR)\RecommendBPRnn_TwoLayers_embed64_lr0001_batch128_filtered.csv",
     # "Two-64-0001-b128"),
@@ -1863,6 +2564,349 @@ MODELS = [
     # (
     # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\dianas_resulter\Recommend_test_100K_goodbooks_Total(MLPwithBPR)\RecommendBPRnn_ThreeLayers_embed64_lr00003_batch128.csv",
     # "Three-64-00003-b128"),
+
+
+
+
+ ##### Li #######
+
+    #MMR - li movies 100k R=1 R=0.5
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_05-59-25-(R=1)\mf_test_100000_top_50.csv", "R=1,MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_05-59-25-(R=1)\mmr_test_100000_cosine_top_50.csv", "R=1,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_05-59-25-(R=1)\mmr_test_100000_jaccard_top_50.csv", "R=1,MMR_jaccard"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies - 2025-12-16_06-01-48-(R=0.5)\mf_test_100000_top_50.csv", "R=0.5,MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies - 2025-12-16_06-01-48-(R=0.5)\mmr_test_100000_cosine_top_50.csv", "R=0.5,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies - 2025-12-16_06-01-48-(R=0.5)\mmr_test_100000_jaccard_top_50.csv", "R=0.5,MMR_jaccard"),
+
+    #MMR - li books - 100k R=1, R=0.5, R=0.6
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-11-03-(R=1)\mf_test_100000_top_50.csv", "R=1,MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-11-03-(R=1)\mmr_test_100000_cosine_top_50.csv", "R=1,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-11-03-(R=1)\mmr_test_100000_jaccard_top_50.csv", "R=1,MMR_jaccard"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-13-36-(R=0.5)\mf_test_100000_top_50.csv", "R=0.5,MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-13-36-(R=0.5)\mmr_test_100000_cosine_top_50.csv", "R=0.5,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-13-36-(R=0.5)\mmr_test_100000_jaccard_top_50.csv", "R=0.5,MMR_jaccard"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-12-55-(R=0.6)\mf_test_100000_top_50.csv", "R=0.6,MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-12-55-(R=0.6)\mmr_test_100000_cosine_top_50.csv", "R=0.6,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_06-12-55-(R=0.6)\mmr_test_100000_jaccard_top_50.csv", "R=0.6,MMR_jaccard"),
+
+    # MMR - li books 100k R=1, R=0.6
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-26-52-(R=1)\mf_test_100000_top_50.csv", "Books, R=1,MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-26-52-(R=1)\mmr_test_100000_cosine_top_50.csv", "Books,R=0.5,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-26-52-(R=1)\mmr_test_100000_jaccard_top_50.csv", "Books, R=0.5,MMR_jaccard"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-35-32-(R=0.6)\mf_test_100000_top_50.csv", "Books, R=0.6,MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-35-32-(R=0.6)\mmr_test_100000_cosine_top_50.csv", "Books, R=0.6,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-35-32-(R=0.6)\mmr_test_100000_jaccard_top_50.csv", "Books, R=0.6,MMR_jaccard"),
+
+    # # MMR - li movies - 100k R=1, R=0.5
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-13-38-(R=1.0)\mf_test_100000_top_50.csv", "Movies, R=1,MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-13-38-(R=1.0)\mmr_test_100000_cosine_top_50.csv", "Movies, R=1,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-13-38-(R=1.0)\mmr_test_100000_jaccard_top_50.csv", "Movies, R=1,MMR_jaccard"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-18-45-(R=0.5)\mf_test_100000_top_50.csv", "Movies, R=0.5,MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-18-45-(R=0.5)\mmr_test_100000_cosine_top_50.csv", "Movies, R=0.5,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-18-45-(R=0.5)\mmr_test_100000_jaccard_top_50.csv", "Movies, R=0.5,MMR_jaccard"),
+    #
+
+    ###### Kasia #######
+
+    # #DPP - movies
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_22-02-06\dpp_test_100000_jaccard_top_10.csv", "02, dpp_Jaccard"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_22-02-06\dpp_test_100000_cosine_top_10.csv", "02, dpp_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_22-02-06\mf_test_100000_top_10.csv", "02, MF"),
+
+
+
+
+    # # #DPP - books
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_21-43-05\dpp_test_100000_jaccard_top_10.csv", "43 dpp_Jaccard"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_21-43-05\dpp_test_100000_cosine_top_10.csv", "43 dpp_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_21-43-05\mf_test_100000_top_10.csv", "43MF"),
+
+
+
+##### Johannes #######
+
+    # johannes final runs 100k movies 18/12
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # #
+    # # #3 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+
+    # #NN johannes - final run movies ml1M 18/12
+    #1layer
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    #
+    # #3 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+
+    # #NN johannes - gb final run 18/12
+    # #1layer
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    #
+    # #3 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+
+
+
+    #johannes validation runs 100k movies 18/12
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # #
+    # # #3 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+
+    # #NN johannes - gb validation 18/12
+    # #1layer
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    #
+    # #3 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+
+    # #NN johannes - movies ml1M 18/12
+    # #1layer
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    #
+    # #3 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+
+    # # NN johannes - ml1m final 18/12
+    # # 1layer
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    #
+    # #3 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+
+
+
+    # NN johannes - movies 1m
+    # # 1layer
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv", "1layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # #3 layers
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
 
 ]
 
