@@ -15,39 +15,41 @@ dups = final_dataset[
 print(dups.sort_values(["userId", "movieId"]).head(10))
 '''
 
-'''
+
 def remove_trainingandval_from_recommendation(recommendation_dir_path, training_file_path, validation_filepath, output_dir_path):
     # Output directory
     os.makedirs(output_dir_path, exist_ok=True)
     train = pandas.read_csv(training_file_path)
     val = pandas.read_csv(validation_filepath)
 
-    train["user_id"] = pandas.to_numeric(train["user_id"], errors="raise").astype(int)
-    train["itemId"] = pandas.to_numeric(train["itemId"], errors="raise").astype(int)
-    val["user_id"] = pandas.to_numeric(val["user_id"], errors="raise").astype(int)
-    val["itemId"] = pandas.to_numeric(val["itemId"], errors="raise").astype(int)
+    train["userId"] = pandas.to_numeric(train["userId"], errors="raise").astype(int)
+    train["movieId"] = pandas.to_numeric(train["movieId"], errors="raise").astype(int)
+    val["userId"] = pandas.to_numeric(val["userId"], errors="raise").astype(int)
+    val["movieId"] = pandas.to_numeric(val["movieId"], errors="raise").astype(int)
 
-    useritems_fromtrain = train[["user_id", "itemId"]].drop_duplicates()
-    useritems_fromval = val[["user_id", "itemId"]].drop_duplicates()
+    useritems_fromtrain = train[["userId", "movieId"]].drop_duplicates()
+    useritems_fromval = val[["userId", "movieId"]].drop_duplicates()
 
 
     #LOOP THRU the FILES
     for myfile in os.listdir(recommendation_dir_path):
 
-        if myfile.startswith("_") or "_filtered" in myfile:
+        #if myfile.startswith("_") or "_filtered" in myfile:
+            #continue
+        if not myfile.endswith("RecommendBPRnn_TwoLayers_embed64_lr0001_batch64.csv"):
             continue
         recommendation_file_path = os.path.join(recommendation_dir_path, myfile)
         recommendations = pandas.read_csv(recommendation_file_path)
 
-        recommendations["user_id"] = pandas.to_numeric(recommendations["user_id"], errors = "raise").astype(int)
-        recommendations["movieId"] = pandas.to_numeric(recommendations["itemId"], errors = "raise").astype(int)
+        recommendations["userId"] = pandas.to_numeric(recommendations["userId"], errors = "raise").astype(int)
+        recommendations["movieId"] = pandas.to_numeric(recommendations["movieId"], errors = "raise").astype(int)
 
 
 
-        filter_train_out = recommendations.merge(useritems_fromtrain, on=["user_id", "itemId"], how="left", 
+        filter_train_out = recommendations.merge(useritems_fromtrain, on=["userId", "movieId"], how="left", 
                                               indicator=True).query('_merge == "left_only"').drop(columns="_merge")
         
-        filter_me_out = filter_train_out.merge(useritems_fromval, on=["user_id", "itemId"], how="left", 
+        filter_me_out = filter_train_out.merge(useritems_fromval, on=["userId", "movieId"], how="left", 
                                               indicator=True).query('_merge == "left_only"').drop(columns="_merge")
         filter_me_out = filter_me_out.reset_index(drop=True)
 
@@ -57,7 +59,7 @@ def remove_trainingandval_from_recommendation(recommendation_dir_path, training_
 
         filter_me_out.to_csv(output_file_path, index=False)
 
-'''
+
 
 '''
 remove_trainingandval_from_recommendation(recommendation_dir_path = "data/OUTPUT_datasets/NN/Recommend_test_100K_movies_TOTAL(MLPwithBPR)",
