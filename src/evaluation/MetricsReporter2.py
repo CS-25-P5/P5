@@ -455,7 +455,7 @@ if __name__ == "__main__":
     # Load item features ONCE before the loop
     if CALCULATE_ILD:
         print("Loading item features for ILD calculation")
-        ITEM_FEATURES = load_item_features(ITEM_FEATURES_PATH, dataset_type="movies")
+        ITEM_FEATURES = load_item_features(ITEM_FEATURES_PATH, dataset_type="books")
     else:
         print("Skipping item feature loading (ILD disabled)")
         ITEM_FEATURES = None
@@ -502,10 +502,11 @@ if __name__ == "__main__":
                     threshold=THRESHOLD,
                     k=current_k,
                     item_features=ITEM_FEATURES,
-                    output_prefix=f"kasia, 100k books top{current_k}_comparison",
+                    output_prefix=f"kasia, 100k movies top{current_k}_comparison",
                     calculate_ild=CALCULATE_ILD,
                     catalog=CATALOG,
                     dataset_type="books"
+                    #dataset_type = "movies"
                 )
 
             # Save terminal output to Excel

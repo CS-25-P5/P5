@@ -8,6 +8,7 @@ CALCULATE_ILD = True  # Set to False to skip ILD calculation
 # Catalog paths
 CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
 #CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+
 #test
 #CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\movies_test2.csv"
 
@@ -184,36 +185,18 @@ MODELS = [
     ###### Kasia #######
 
     # #DPP - movies
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_10-23-41\dpp_test_100000_jaccard_top_10.csv", "dpp_Jaccard"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_10-23-41\dpp_test_100000_cosine_top_10.csv", "dpp_cosine"),
-    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_10-23-41\mf_test_100000_top_10.csv", "MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_22-02-06\dpp_test_100000_jaccard_top_10.csv", "02, dpp_Jaccard"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_22-02-06\dpp_test_100000_cosine_top_10.csv", "02, dpp_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_22-02-06\mf_test_100000_top_10.csv", "02, MF"),
 
-    (
-    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_15-29-50\dpp_test_100000_jaccard_top_10.csv",
-    "38, pp_Jaccard"),
-    (
-    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_15-29-50\dpp_test_100000_cosine_top_10.csv",
-    "38, dpp_cosine"),
-    (
-    r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_15-29-50\mf_test_100000_top_10.csv",
-    "38, MF"),
 
 
 
     # # #DPP - books
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_10-24-53\dpp_test_100000_jaccard_top_10.csv", "53 dpp_Jaccard"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_10-24-53\dpp_test_100000_cosine_top_10.csv", "53dpp_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_10-24-53\mf_test_100000_top_10.csv", "53MF"),
-    #
-    # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_15-29-38\dpp_test_100000_jaccard_top_10.csv",
-    # "38, pp_Jaccard"),
-    # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_15-29-38\dpp_test_100000_cosine_top_10.csv",
-    # "38, dpp_cosine"),
-    # (
-    # r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\movies\2025-12-17_15-29-38\mf_test_100000_top_10.csv",
-    # "38, MF"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_21-43-05\dpp_test_100000_jaccard_top_10.csv", "43 dpp_Jaccard"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_21-43-05\dpp_test_100000_cosine_top_10.csv", "43 dpp_cosine"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\kasia_resultater\books\2025-12-17_21-43-05\mf_test_100000_top_10.csv", "43MF"),
+
 
 
 ##### Johannes #######
