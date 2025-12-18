@@ -86,22 +86,14 @@ def prepare_train_val_matrices(train_df, val_df):
 
 
 # ==========================
-# Extract predicted ratings from a trained MF model for specific filtered users and items.
+# Extract predicted ratings from a trained MF model for specific filtered users
 #==========================
-def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_ids, filtered_item_ids=None):     
+def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_ids):     
     # Get the filtered user IDs from the DataFrame
     filtered_user_ids = filtered_df.index.tolist()
-
-    # Convert MF model items and filtered items to string arrays for alignment
-    trained_items = np.array([str(i) for i in trained_mf_model.item_ids])
-    filtered_item_ids_str = np.array([str(i) for i in filtered_item_ids])
-
-    # Create a mask to find indices of filtered items in the MF model
-    item_mask = np.isin(trained_items, filtered_item_ids_str)
-    item_indices_in_mf = np.where(item_mask)[0]
-    
+   
     # Extract predicted ratings for only the filtered items
-    predicted_ratings_all = trained_mf_model.full_prediction()[:, item_indices_in_mf]
+    predicted_ratings_all = trained_mf_model.full_prediction()
     
     # Map training user IDs to their corresponding indices in the MF model
     mf_user_to_idx = {} 
@@ -122,7 +114,7 @@ def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_
     # Extract predicted ratings for the filtered users only
     predicted_ratings = predicted_ratings_all[test_user_indices, :]
 
-    return filtered_user_ids, filtered_item_ids, predicted_ratings
+    return filtered_user_ids, predicted_ratings
 
 
 

@@ -75,8 +75,8 @@ def run_train_pipeline(
         R_val = R_filtered_val,        
         best_params = best_params,
         n_epochs=n_epochs,
-        random_state = random_state)
-    
+        random_state = random_state) 
+
     end_time_mf = time.time()
     time_mf = end_time_mf - start_time_mf
     mem_mf = tracemalloc.get_traced_memory()[1] / 1024**2
@@ -119,7 +119,7 @@ def run_train_pipeline(
         R_filtered=R_filtered_train,
         val_data=val_data_filtered,
         item_ids = filtered_item_ids,
-        k_eval=top_k,
+        top_k=top_k,
         relevance_weight=relevance_weight,
         diversity_weight=diversity_weight
     )
@@ -251,12 +251,12 @@ def run_test_pipeline(
         filtered_user_ids=train_filtered_user_ids
     )
 
+    filtered_item_ids = train_filtered_item_ids
     # Extract predicted ratings for filtered users and items from the trained MF model
-    filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
+    filtered_user_ids, predicted_ratings = get_filtered_predictions(
         trained_mf_model, 
         filtered_df, 
         train_filtered_user_ids, 
-        train_filtered_item_ids 
         )
 
 
