@@ -24,7 +24,6 @@ def run_train_pipeline(
     run_id,
     ratings_train_path,
     ratings_val_path,
-    ground_truth_path,
     item_path,
     output_dir=None,
     dataset=None,
@@ -235,6 +234,7 @@ def run_test_pipeline(
     ratings_path,
     item_path,
     output_dir=None,
+    ground_truth_path = None,
     dataset=None,
     top_n=10,
     chunksize=10000,
@@ -268,7 +268,6 @@ def run_test_pipeline(
         trained_mf_model, 
         filtered_df, 
         train_filtered_user_ids, 
-        # train_filtered_item_ids 
         )
 
 
@@ -364,7 +363,6 @@ if __name__ == "__main__":
     LAMBDA_PARAM = 0.7
     RANDOM_STATE = 42
 
-    #base_dir = os.path.dirname(os.path.abspath(__file__))
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
 
     #load MovieLens data
@@ -373,17 +371,18 @@ if __name__ == "__main__":
     movies_ratings_val_file = os.path.join(base_dir, "data", "INPUT_VAL","ratings_10K_movies_val.csv")
     movies_ratings_test_path = os.path.join(base_dir, "data", "INPUT_TEST","ratings_10K_movies_test.csv")
     movies_item_file_path = os.path.join(base_dir,"data", "INPUT_datasets", "Input_movies_dataset_100k", "movies_100K.csv")
-    ground_truth_path = movies_ratings_test_path
+    movies_ground_truth_path = movies_ratings_test_path
     movies_output_dir = os.path.join(base_dir,"data", "OUTPUT_datasets", "MMR", "movies_test")
 
     #load GOODBooks data
     dataset_books = "books"
     folder_books = "GoodBooks"
-    books_ratings_train_file= os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_train.csv")
-    books_ratings_val_file = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_val.csv")
-    books_ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_test.csv")
-    books_item_file_path = os.path.join(base_dir, f"../datasets/{folder_books}", f"{dataset_books}.csv")
-    books_output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_books}")
+    books_ratings_train_file= os.path.join(base_dir, "data", "INPUT_TRAIN","ratings_100K_goodbooks_train.csv")
+    books_ratings_val_file = os.path.join(base_dir, "data", "INPUT_VAL","ratings_100K_goodbooks_val.csv")
+    books_ratings_test_path = os.path.join(base_dir, "data", "INPUT_TEST","ratings_100K_goodbooks_test.csv")
+    books_item_file_path = os.path.join(base_dir, "data", "INPUT_datasets","Input_goodbooks_dataset_100k", "books_100K.csv")
+    books_ground_truth_path = books_ratings_test_path
+    books_output_dir = os.path.join(base_dir,"data", "OUTPUT_datasets", "MMR", "books_test")
 
     weight_pairs = [
     #(1.0, 0.0),
@@ -411,7 +410,6 @@ if __name__ == "__main__":
             run_id = run_movie_id,
             ratings_train_path = movies_ratings_train_file,
             ratings_val_path= movies_ratings_val_file,
-            ground_truth_path=ground_truth_path,
             item_path = movies_item_file_path,
             output_dir = movies_output_dir,
             top_k = TOP_K,
@@ -426,6 +424,7 @@ if __name__ == "__main__":
             run_id = run_movie_id,
             ratings_path=movies_ratings_test_path,
             item_path=movies_item_file_path,
+            ground_truth_path=movies_ground_truth_path,
             output_dir=movies_output_dir,
             dataset=dataset_movie,
             top_n=TOP_N,
@@ -466,6 +465,7 @@ if __name__ == "__main__":
     #         ratings_path=books_ratings_test_path,
     #         item_path=books_item_file_path,
     #         output_dir=books_output_dir,
+    #         ground_truth_path=books_ground_truth_path,
     #         dataset=dataset_books,
     #         top_n=TOP_N,
     #         top_k=TOP_K,

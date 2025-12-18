@@ -103,30 +103,27 @@ if __name__ == "__main__":
     DIVERSITY_WEIGHT = 0.0
     RANDOM_STATE = 42
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
 
 
     #load MovieLens data
     dataset_movie = "movies"
-    folder_movie = "MovieLens"
-    output_folder = "NN"
-    movies_ratings_train_file= os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_train.csv")
-    movies_ratings_val_file = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_val.csv")
-    movies_ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
-    movies_item_file_path = os.path.join(base_dir, f"../datasets/{folder_movie}", f"{dataset_movie}.csv")
-    movies_output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{output_folder}")
-
-    #load NN candidate list
-    nn_candidate_list_path =  os.path.join(base_dir, f"../datasets/mmr_data/{output_folder}", "mf_test_10000_top_50.csv")
+    movies_ratings_train_file= os.path.join(base_dir, "data", "INPUT_TRAIN","ratings_10K_movies_train.csv")
+    movies_ratings_val_file = os.path.join(base_dir, "data", "INPUT_VAL","ratings_10K_movies_val.csv")
+    movies_ratings_test_path = os.path.join(base_dir, "data", "INPUT_TEST","ratings_10K_movies_test.csv")
+    movies_item_file_path = os.path.join(base_dir,"data", "INPUT_datasets", "Input_movies_dataset_100k", "movies_100K.csv")
+    movies_output_dir = os.path.join(base_dir,"data", "OUTPUT_datasets", "MMR", "movies_nn")
+    movies_nn_candidate_list_path =  os.path.join(base_dir,"data", "OUTPUT_datasets", "MMR", "movies_test", "2025-12-18_03-09-55", "mf_test_10000_top_50.csv")
 
     #load GOODBooks data
     dataset_books = "books"
-    folder_books = "GoodBooks"
-    books_ratings_train_file= os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_train.csv")
-    books_ratings_val_file = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_val.csv")
-    books_ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_test.csv")
-    books_item_file_path = os.path.join(base_dir, f"../datasets/{folder_books}", f"{dataset_books}.csv")
-    books_output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_books}")
+    books_ratings_train_file= os.path.join(base_dir, "data", "INPUT_TRAIN","ratings_100K_goodbooks_train.csv")
+    books_ratings_val_file = os.path.join(base_dir, "data", "INPUT_VAL","ratings_100K_goodbooks_val.csv")
+    books_ratings_test_path = os.path.join(base_dir, "data", "INPUT_TEST","ratings_100K_goodbooks_test.csv")
+    books_item_file_path = os.path.join(base_dir, "data", "INPUT_datasets","Input_goodbooks_dataset_100k", "books_100K.csv")
+    books_output_dir = os.path.join(base_dir,"data", "OUTPUT_datasets", "MMR", "books_nn")
+    books_nn_candidate_list_path =  os.path.join(base_dir,"data", "OUTPUT_datasets", "MMR", "movies", "2025-12-17_14-23-30-(R=0.5)", "mf_test_100000_top_50.csv")
+
 
 
     weight_pairs = [
@@ -146,7 +143,7 @@ if __name__ == "__main__":
         run_movie_id = generate_run_id()
         run_test_pipeline(
             run_id = run_movie_id,
-            nn_candidates_csv = nn_candidate_list_path,
+            nn_candidates_csv = movies_nn_candidate_list_path,
             ratings_path=movies_ratings_test_path,
             item_path=movies_item_file_path,
             output_dir=movies_output_dir,
