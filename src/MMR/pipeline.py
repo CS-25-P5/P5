@@ -282,8 +282,6 @@ def run_test_pipeline(
 
     # Define paths for saving MF predictions and referencing ground truth
 
-    mf_predictions_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
-
 
     # Save the full MF predictions to CSV
     save_mf_predictions(
@@ -291,7 +289,7 @@ def run_test_pipeline(
         train_user_ids=train_filtered_user_ids,
         train_item_ids=train_filtered_item_ids,
         ground_truth_path=ground_truth_path,
-        output_path=mf_predictions_path
+        output_path=os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
     )
 
     # Build MMR models using cosine and jaccard similarity based on candidate items
@@ -367,7 +365,7 @@ if __name__ == "__main__":
     movies_ratings_train_file= os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_train.csv")
     movies_ratings_val_file = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_val.csv")
     movies_ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data", "ratings_100K_movies.csv")
-    movies_ground_truth = os.path.join(base_dir, "../datasets/mmr_data", "{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
+    movies_ground_truth = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
     movies_item_file_path = os.path.join(base_dir, f"../datasets/{folder_movie}", f"{dataset_movie}.csv")
     movies_output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_movie}")
 
@@ -376,19 +374,19 @@ if __name__ == "__main__":
     folder_books = "GoodBooks"
     books_ratings_train_file= os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_train.csv")
     books_ratings_val_file = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_val.csv")
-    books_ground_truth = os.path.join(base_dir, "../datasets/mmr_data", "{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
+    books_ground_truth = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
     books_ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data", f"ratingsbooks_100K.csv")
     books_item_file_path = os.path.join(base_dir, f"../datasets/{folder_books}", f"{dataset_books}.csv")
     books_output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_books}")
 
     weight_pairs = [
-    #(1.0, 0.0),
+    (1.0, 0.0),
     #(0.8, 0.2),
     #(0.6, 0.4),
     #(0.5, 0.5),
     #(0.4, 0.6),
     #(0.2, 0.8),
-    (0.0, 1.0),
+    # (0.0, 1.0),
     ]
 
 
