@@ -403,7 +403,6 @@ if __name__ == "__main__":
             movies_train_item_ids
         ) = run_train_pipeline (
             run_id = run_movie_id,
-            ground_truth_path = movies_ground_truth,
             ratings_train_path = movies_ratings_train_file,
             ratings_val_path= movies_ratings_val_file,
             item_path = movies_item_file_path,
@@ -419,6 +418,7 @@ if __name__ == "__main__":
         run_test_pipeline(
             run_id = run_movie_id,
             ratings_path=movies_ratings_test_path,
+            ground_truth_path = movies_ground_truth,
             item_path=movies_item_file_path,
             output_dir=movies_output_dir,
             dataset=dataset_movie,
@@ -445,7 +445,6 @@ if __name__ == "__main__":
             run_id = run_book_id,
             ratings_train_path = books_ratings_train_file,
             ratings_val_path= books_ratings_val_file,
-            ground_truth_path = books_ground_truth,
             item_path = books_item_file_path,
             output_dir = books_output_dir,
             top_k = TOP_K,
@@ -460,6 +459,7 @@ if __name__ == "__main__":
             run_id = run_book_id,
             ratings_path=books_ratings_test_path,
             item_path=books_item_file_path,
+            ground_truth_path = books_ground_truth,
             output_dir=books_output_dir,
             dataset=dataset_books,
             top_n=TOP_N,
