@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=goodbooks_experiment   # Job name
-#SBATCH --output=goodbooks_%j.out
-#SBATCH --error=goodbooks_%j.err
+#SBATCH --job-name=dpp_experiment   # Job name
+#SBATCH --output=Slurmscripts/DPP/OUTPUT/dpp_%j.out
+#SBATCH --error=Slurmscripts/DPP/OUTPUT/dpp_%j.err
 #SBATCH --time=12:00:00
 #SBATCH --partition=l4
 #SBATCH --cpus-per-task=8
@@ -27,6 +27,6 @@ cd ~/P5
 echo "Running on $(hostname)"
 echo "Start time: $(date)"
 echo "Starting pipeline..."
-python3 src/DPP/DPP_train.py
+python3 src/DPP/DPP_pipeline.py
 
 echo "End time: $(date)"
