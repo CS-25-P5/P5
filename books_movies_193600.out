@@ -1,0 +1,98 @@
+Running on ailab-l4-01
+Start time: Fri Dec 19 23:40:58 CET 2025
+Activating virtual environment...
+Python path: /ceph/home/student.aau.dk/vo55zp/projects/P5/venv/bin/python3
+Python version: Python 3.10.12
+Running on ailab-l4-01
+Start time: Fri Dec 19 23:40:58 CET 2025
+Starting pipeline...
+
+=== Running pipeline with weights: relevance=0.8, diversity=0.2 ===
+Starting pipeline for movies train
+Train matrix: (671, 1242), Val matrix: (610, 1242)
+Training complete. Best epoch: 3, Best train RMSE: 0.9024, Best val RMSE: 1.0280
+Training complete. Best epoch: 4, Best train RMSE: 0.8818, Best val RMSE: 1.0285
+Training complete. Best epoch: 4, Best train RMSE: 0.8776, Best val RMSE: 1.0307
+Training complete. Best epoch: 4, Best train RMSE: 0.8871, Best val RMSE: 1.0271
+Training complete. Best epoch: 4, Best train RMSE: 0.8836, Best val RMSE: 1.0275
+Training complete. Best epoch: 4, Best train RMSE: 0.8798, Best val RMSE: 1.0294
+Training complete. Best epoch: 4, Best train RMSE: 0.8890, Best val RMSE: 1.0262
+Training complete. Best epoch: 4, Best train RMSE: 0.8858, Best val RMSE: 1.0265
+Training complete. Best epoch: 4, Best train RMSE: 0.8824, Best val RMSE: 1.0281
+Training complete. Best epoch: 2, Best train RMSE: 0.8987, Best val RMSE: 1.0286
+Training complete. Best epoch: 2, Best train RMSE: 0.8964, Best val RMSE: 1.0292
+Training complete. Best epoch: 2, Best train RMSE: 0.8938, Best val RMSE: 1.0314
+Training complete. Best epoch: 2, Best train RMSE: 0.8998, Best val RMSE: 1.0277
+Training complete. Best epoch: 2, Best train RMSE: 0.8976, Best val RMSE: 1.0281
+Training complete. Best epoch: 2, Best train RMSE: 0.8952, Best val RMSE: 1.0300
+Training complete. Best epoch: 2, Best train RMSE: 0.9013, Best val RMSE: 1.0268
+Training complete. Best epoch: 3, Best train RMSE: 0.8736, Best val RMSE: 1.0271
+Training complete. Best epoch: 3, Best train RMSE: 0.8694, Best val RMSE: 1.0285
+Training complete. Best epoch: 1, Best train RMSE: 0.9405, Best val RMSE: 1.0287
+Training complete. Best epoch: 1, Best train RMSE: 0.9418, Best val RMSE: 1.0292
+Training complete. Best epoch: 1, Best train RMSE: 0.9428, Best val RMSE: 1.0313
+Training complete. Best epoch: 1, Best train RMSE: 0.9410, Best val RMSE: 1.0278
+Training complete. Best epoch: 1, Best train RMSE: 0.9421, Best val RMSE: 1.0281
+Training complete. Best epoch: 1, Best train RMSE: 0.9429, Best val RMSE: 1.0299
+Training complete. Best epoch: 1, Best train RMSE: 0.9416, Best val RMSE: 1.0269
+Training complete. Best epoch: 1, Best train RMSE: 0.9426, Best val RMSE: 1.0271
+Training complete. Best epoch: 1, Best train RMSE: 0.9433, Best val RMSE: 1.0286
+Best MF params: {'alpha': 0.005, 'lambda_': 0.1, 'k': 20}, RMSE=1.0262
+Training complete. Best epoch: 4, Best train RMSE: 0.8890, Best val RMSE: 1.0262
+Best lambda: 1.0 with score 0.8315
+Best lambda: 1.0 with score 0.8400
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mf_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-19_23-40-59/mf_train_100K_loss_history.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mmr_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/mmr_train_experiment_log.csv
+Pipeline for movies train finished successfully!
+Start movies test pipeline 
+MF predictions saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-19_23-40-59/mf_test_100K_top_50.csv
+MF test predictions saved to: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-19_23-40-59/mf_test_100K_predictions.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-19_23-40-59/mmr_test_100K_cosine_top_50.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies/2025-12-19_23-40-59/mmr_test_100K_jaccard_top_50.csv
+Pipeline for movies test finished successfully!
+Starting pipeline for books train
+Train matrix: (1797, 2559), Val matrix: (1584, 2559)
+Training complete. Best epoch: 1, Best train RMSE: 0.9815, Best val RMSE: 0.9872
+Training complete. Best epoch: 1, Best train RMSE: 0.9827, Best val RMSE: 0.9889
+Training complete. Best epoch: 1, Best train RMSE: 0.9837, Best val RMSE: 0.9896
+Training complete. Best epoch: 1, Best train RMSE: 0.9817, Best val RMSE: 0.9873
+Training complete. Best epoch: 1, Best train RMSE: 0.9828, Best val RMSE: 0.9889
+Training complete. Best epoch: 1, Best train RMSE: 0.9838, Best val RMSE: 0.9895
+Training complete. Best epoch: 1, Best train RMSE: 0.9818, Best val RMSE: 0.9873
+Training complete. Best epoch: 1, Best train RMSE: 0.9829, Best val RMSE: 0.9888
+Training complete. Best epoch: 1, Best train RMSE: 0.9839, Best val RMSE: 0.9894
+Training complete. Best epoch: 1, Best train RMSE: 0.9638, Best val RMSE: 0.9883
+Training complete. Best epoch: 1, Best train RMSE: 0.9649, Best val RMSE: 0.9900
+Training complete. Best epoch: 1, Best train RMSE: 0.9660, Best val RMSE: 0.9906
+Training complete. Best epoch: 1, Best train RMSE: 0.9640, Best val RMSE: 0.9881
+Training complete. Best epoch: 1, Best train RMSE: 0.9651, Best val RMSE: 0.9897
+Training complete. Best epoch: 1, Best train RMSE: 0.9661, Best val RMSE: 0.9902
+Training complete. Best epoch: 1, Best train RMSE: 0.9643, Best val RMSE: 0.9880
+Training complete. Best epoch: 1, Best train RMSE: 0.9653, Best val RMSE: 0.9894
+Training complete. Best epoch: 1, Best train RMSE: 0.9662, Best val RMSE: 0.9898
+Training complete. Best epoch: 1, Best train RMSE: 0.9449, Best val RMSE: 0.9988
+Training complete. Best epoch: 1, Best train RMSE: 0.9461, Best val RMSE: 1.0005
+Training complete. Best epoch: 1, Best train RMSE: 0.9472, Best val RMSE: 1.0010
+Training complete. Best epoch: 1, Best train RMSE: 0.9452, Best val RMSE: 0.9978
+Training complete. Best epoch: 1, Best train RMSE: 0.9463, Best val RMSE: 0.9993
+Training complete. Best epoch: 1, Best train RMSE: 0.9472, Best val RMSE: 0.9997
+Training complete. Best epoch: 1, Best train RMSE: 0.9456, Best val RMSE: 0.9969
+Training complete. Best epoch: 1, Best train RMSE: 0.9466, Best val RMSE: 0.9981
+Training complete. Best epoch: 1, Best train RMSE: 0.9474, Best val RMSE: 0.9983
+Best MF params: {'alpha': 0.005, 'lambda_': 0.01, 'k': 20}, RMSE=0.9872
+Training complete. Best epoch: 1, Best train RMSE: 0.9815, Best val RMSE: 0.9872
+Best lambda: 0.05 with score 0.9983
+Best lambda: 0.05 with score 0.9991
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/mf_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-19_23-55-05/mf_train_100K_loss_history.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/mmr_train_experiment_log.csv
+Logged experiment to /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/mmr_train_experiment_log.csv
+Pipeline for books train finished successfully!
+Start books test pipeline 
+MF predictions saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-19_23-55-05/mf_test_100K_top_50.csv
+MF test predictions saved to: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-19_23-55-05/mf_test_100K_predictions.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-19_23-55-05/mmr_test_100K_cosine_top_50.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books/2025-12-19_23-55-05/mmr_test_100K_jaccard_top_50.csv
+Pipeline for books test finished successfully!
