@@ -224,6 +224,7 @@ def run_test_pipeline(
     run_id,
     ratings_path,
     item_path,
+    ground_truth_path,
     output_dir=None,
     dataset=None,
     top_n=10,
@@ -280,9 +281,9 @@ def run_test_pipeline(
     )
 
     # Define paths for saving MF predictions and referencing ground truth
-    dataset_root = os.path.dirname(output_dir)
+
     mf_predictions_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
-    ground_truth_path = os.path.join(dataset_root, f"{dataset}_ratings_{chunksize}_test.csv")
+
 
     # Save the full MF predictions to CSV
     save_mf_predictions(
@@ -366,6 +367,7 @@ if __name__ == "__main__":
     movies_ratings_train_file= os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_train.csv")
     movies_ratings_val_file = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_val.csv")
     movies_ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data", "ratings_100K_movies.csv")
+    movies_ground_truth = os.path.join(base_dir, "../datasets/mmr_data", "{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
     movies_item_file_path = os.path.join(base_dir, f"../datasets/{folder_movie}", f"{dataset_movie}.csv")
     movies_output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_movie}")
 
@@ -374,6 +376,7 @@ if __name__ == "__main__":
     folder_books = "GoodBooks"
     books_ratings_train_file= os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_train.csv")
     books_ratings_val_file = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_val.csv")
+    books_ground_truth = os.path.join(base_dir, "../datasets/mmr_data", "{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
     books_ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data", f"ratingsbooks_100K.csv")
     books_item_file_path = os.path.join(base_dir, f"../datasets/{folder_books}", f"{dataset_books}.csv")
     books_output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_books}")
@@ -402,6 +405,7 @@ if __name__ == "__main__":
             movies_train_item_ids
         ) = run_train_pipeline (
             run_id = run_movie_id,
+            ground_truth_path = movies_ground_truth,
             ratings_train_path = movies_ratings_train_file,
             ratings_val_path= movies_ratings_val_file,
             item_path = movies_item_file_path,
@@ -443,6 +447,7 @@ if __name__ == "__main__":
             run_id = run_book_id,
             ratings_train_path = books_ratings_train_file,
             ratings_val_path= books_ratings_val_file,
+            ground_truth_path = books_ground_truth,
             item_path = books_item_file_path,
             output_dir = books_output_dir,
             top_k = TOP_K,
