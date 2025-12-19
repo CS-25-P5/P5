@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name=books_movies_experiment   # Job name
+#SBATCH --job-name=R_1.0_books_movies  # Job name
 #SBATCH --output=books_movies_%j.out
 #SBATCH --error=books_movies_%j.err
-#SBATCH --time=6:00:00
+#SBATCH --time=3:00:00
 #SBATCH --partition=l4
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
