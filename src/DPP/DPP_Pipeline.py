@@ -196,6 +196,7 @@ def run_dpp_pipeline(
 def run_dpp_pipeline_test(
         run_id,
         ratings_path,
+        ground_truth_path,
         item_path,
         output_dir=None,
         dataset=None,
@@ -253,7 +254,6 @@ def run_dpp_pipeline_test(
     # Save MF predictions for reference
     dataset_root = os.path.dirname(output_dir)
     mf_predictions_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
-    ground_truth_path = os.path.join(dataset_root, f"{dataset}_ratings_{chunksize}_test.csv")
 
     save_mf_predictions(
         trained_mf_model=trained_mf_model,
@@ -328,7 +328,8 @@ if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.abspath(__file__))
     ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_train.csv")
     ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_val.csv")
-    ratings_test_path = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_test.csv")
+    ratings_test_path = os.path.join(base_dir, "../datasets/dpp_data", "ratingsbooks_100K.csv")
+    book_ground_truth = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_test.csv")
     item_file_path = os.path.join(base_dir, f"../datasets/{folder_books}", f"{dataset_books}.csv")
 
     output_dir = os.path.join(base_dir,f"../datasets/dpp_data/{dataset_books}")
@@ -355,6 +356,7 @@ if __name__ == "__main__":
     run_dpp_pipeline_test(
         run_id = run_book_id,
         ratings_path=ratings_test_path,
+        ground_truth_path = book_ground_truth,
         item_path=item_file_path,
         output_dir= output_dir,
         dataset= dataset_books,
@@ -375,7 +377,9 @@ if __name__ == "__main__":
     #base_dir = os.path.dirname(os.path.abspath(__file__))
     ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_train.csv")
     ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_val.csv")
-    ratings_test_path = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
+    ratings_test_path = os.path.join(base_dir, "../datasets/dpp_data", "ratings_100K_movies.csv")
+    movies_ground_truth = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
+
     item_file_path = os.path.join(base_dir, f"../datasets/{folder_movie}", f"{dataset_movie}.csv")
 
     output_dir = os.path.join(base_dir,f"../datasets/dpp_data/{dataset_movie}")
@@ -400,6 +404,7 @@ if __name__ == "__main__":
     run_dpp_pipeline_test(
         run_id = run_movie_id,
         ratings_path=ratings_test_path,
+        ground_truth_path = movies_ground_truth,
         item_path=item_file_path,
         output_dir= output_dir,
         dataset= dataset_movie,
