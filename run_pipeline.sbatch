@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=R_1.0_books_movies  # Job name
+#SBATCH --job-name=R_0.0_books_movies  # Job name
 #SBATCH --output=books_movies_%j.out
 #SBATCH --error=books_movies_%j.err
 #SBATCH --time=3:00:00

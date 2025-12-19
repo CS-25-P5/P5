@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/pipeline.py", line 417, in <module>
+    run_test_pipeline(
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/pipeline.py", line 288, in run_test_pipeline
+    save_mf_predictions(
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/MF.py", line 366, in save_mf_predictions
+    test_df = pd.read_csv(ground_truth_path)
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/venv/lib/python3.10/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/venv/lib/python3.10/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/venv/lib/python3.10/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/venv/lib/python3.10/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/venv/lib/python3.10/site-packages/pandas/io/common.py", line 873, in get_handle
+    handle = open(
+FileNotFoundError: [Errno 2] No such file or directory: '/ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies_ratings_100K_test.csv'
+/var/spool/slurm/job193570/slurm_script: line 31: unexpected EOF while looking for matching `"'
+/var/spool/slurm/job193570/slurm_script: line 32: syntax error: unexpected end of file
