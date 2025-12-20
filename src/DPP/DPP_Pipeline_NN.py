@@ -85,6 +85,9 @@ def run_test_pipeline(
     item_user_rating.index = item_user_rating.index.astype(str)
     item_user_rating.columns = item_user_rating.columns.astype(str)
 
+    # --- FIX: Convert all values to numeric to avoid TypeError ---
+    item_user_rating = item_user_rating.apply(pd.to_numeric, errors='coerce').fillna(0)
+
     # Load basic user-item interactions
     ratings_df = pd.read_csv(train_ratings_path)[["userId", "itemId"]]
     ratings_df["userId"] = ratings_df["userId"].astype(str)
