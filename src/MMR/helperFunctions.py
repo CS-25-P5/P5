@@ -35,20 +35,6 @@ def align_matrix_to_user_items(matrix_df, filtered_item_ids, filtered_user_ids):
     return aligned_matrix, aligned_df
 
 
-# Select and return only the rows for specified users from a DataFrame
-def align_matrix_to_user(matrix_df, filtered_user_ids):
-    # Get row indices of filtered users that exist in the DataFrame
-    user_indices = [
-        matrix_df.index.get_loc(u)
-        for u in filtered_user_ids
-        if u in matrix_df.index
-    ]
-
-    # Select only those rows (users) from the DataFrame
-    aligned_df = matrix_df.iloc[user_indices, :]
-
-    return aligned_df.values, aligned_df
-
 #  Aligns training and validation DataFrames to have the same items 
 # filters out users with no interactions
 def prepare_train_val_matrices(train_df, val_df):
