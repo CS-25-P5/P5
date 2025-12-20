@@ -466,7 +466,7 @@ if __name__ == "__main__":
     # Load item features ONCE before the loop
     if CALCULATE_ILD:
         print("Loading item features for ILD calculation")
-        ITEM_FEATURES = load_item_features(ITEM_FEATURES_PATH, dataset_type="movies")
+        ITEM_FEATURES = load_item_features(ITEM_FEATURES_PATH, dataset_type="books")
     else:
         print("Skipping item feature loading (ILD disabled)")
         ITEM_FEATURES = None
@@ -490,13 +490,13 @@ if __name__ == "__main__":
                     'CALCULATE_ILD': CALCULATE_ILD,
                     'ITEM_FEATURES_PATH': ITEM_FEATURES_PATH,
                     'MODELS': MODELS,
-                    'dataset_type': "movies"
+                    'dataset_type': "books"
                 }
                 validate_files(config_for_validation)
 
                 # # Run diagnostics
-                # _print_data_diagnostics(GROUND_TRUTH, file_label="Ground Truth",
-                #                         threshold=THRESHOLD, is_ground_truth=True)
+                _print_data_diagnostics(GROUND_TRUTH, file_label="Ground Truth",
+                                        threshold=THRESHOLD, is_ground_truth=True)
 
                 # For predictions (add ground_truth_path parameter)
                 for predictions_path, source_name in MODELS:
@@ -513,11 +513,11 @@ if __name__ == "__main__":
                     threshold=THRESHOLD,
                     k=current_k,
                     item_features=ITEM_FEATURES,
-                    output_prefix=f"Johannes, test, 1m ml, {current_k}_comparison",
+                    output_prefix=f"li hyper params, 100k, {current_k}_comparison",
                     calculate_ild=CALCULATE_ILD,
                     catalog=CATALOG,
-                    #dataset_type="books"
-                    dataset_type = "movies"
+                    dataset_type="books"
+                    #dataset_type = "movies"
                 )
 
             # Save terminal output to Excel

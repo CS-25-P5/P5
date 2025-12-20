@@ -5,13 +5,13 @@ THRESHOLD = 4.0
 K = 10
 CALCULATE_ILD = True  # Set to False to skip ILD calculation
 
-#movies
-ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
-CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+# #movies
+# ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+# CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
 
 # Books
-# CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
-# ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
 
 #test2
 # CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\movies_test2.csv"
@@ -103,11 +103,11 @@ CATALOG = CATALOG.rename(columns={"itemId": "item_id"})
 
 #johannes test:
 #book
-#GROUND_TRUTH = r"E:\Data\dataaaa\gb100k\predictions\ground_truth"
+GROUND_TRUTH = r"E:\Data\dataaaa\gb100k\predictions\ground_truth"
 #100k movie
-#GROUND_TRUTH = r"E:\Data\dataaaa\ml100k\predictions\ground_truth"
-#1m movie
-GROUND_TRUTH = r"E:\Data\dataaaa\ml1m\predictions\ground_truth"
+# GROUND_TRUTH = r"E:\Data\dataaaa\ml100k\predictions\ground_truth"
+# #1m movie
+# GROUND_TRUTH = r"E:\Data\dataaaa\ml1m\predictions\ground_truth"
 
 #1M ground truth
 #GROUND_TRUTH = r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_1M_movies(MLPwithGenres)\Cleaned_CSVs\GROUNDTRUTH_alluserandmovies.csv"
@@ -139,24 +139,56 @@ MODELS = [
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\evaluation\Books - 2025-12-17_14-30-21-(R=0.5)\mf_test_100000_predictions.csv", "R=0.5,MF"),
     #
 
-    # MMR - li books 100k R=1, R=0.6
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-26-52-(R=1)\mf_test_100000_top_50.csv", "Books, R=1,MF"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-26-52-(R=1)\mmr_test_100000_cosine_top_50.csv", "Books,R=0.5,MMR_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-26-52-(R=1)\mmr_test_100000_jaccard_top_50.csv", "Books, R=0.5,MMR_jaccard"),
-    #
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-35-32-(R=0.6)\mf_test_100000_top_50.csv", "Books, R=0.6,MF"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-35-32-(R=0.6)\mmr_test_100000_cosine_top_50.csv", "Books, R=0.6,MMR_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books - 2025-12-16_16-35-32-(R=0.6)\mmr_test_100000_jaccard_top_50.csv", "Books, R=0.6,MMR_jaccard"),
+    # MMR - li books 100k R=1, R=0.8 0.6 0.5  0.4 0.0
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-53-18-(R=1.0)\mf_test_100K_top_50.csv", "Books, R=1,MF"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-53-18-(R=1.0)\mmr_test_100k_cosine_top_50.csv", "Books,R=1,MMR_cosine"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-53-18-(R=1.0)\mmr_test_100k_jaccard_top_50.csv", "Books, R=1,MMR_jaccard"),
 
-    # # MMR - li movies - 100k R=1, R=0.5
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-13-38-(R=1.0)\mf_test_100000_top_50.csv", "Movies, R=1,MF"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-13-38-(R=1.0)\mmr_test_100000_cosine_top_50.csv", "Movies, R=1,MMR_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-13-38-(R=1.0)\mmr_test_100000_jaccard_top_50.csv", "Movies, R=1,MMR_jaccard"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-55-05-(R=0.8)\mf_test_100K_top_50.csv", "Books, R=0.8,MF"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-55-05-(R=0.8)\mmr_test_100k_cosine_top_50.csv", "Books, R=0.8,MMR_cosine"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-55-05-(R=0.8)\mmr_test_100k_jaccard_top_50.csv", "Books, R=0.8,MMR_jaccard"),
+
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-55-19-(R=0.6)\mf_test_100K_top_50.csv", "Books, R=0.6, MF"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-55-19-(R=0.6)\mmr_test_100k_cosine_top_50.csv", "Books,R=0.6,MMR_cosine"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-55-19-(R=0.6)\mmr_test_100k_jaccard_top_50.csv", "Books, R=0.6,MMR_jaccard"),
+
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-54-00-(R=0.5)\mf_test_100K_top_50.csv", "Books, R=0.5,MF"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-54-00-(R=0.5)\mmr_test_100k_cosine_top_50.csv", "Books, R=0.5,MMR_cosine"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-54-00-(R=0.5)\mmr_test_100k_jaccard_top_50.csv", "Books, R=0.5,MMR_jaccard"),
+
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-55-35-(R=0.4)\mf_test_100K_top_50.csv", "Books, R=0.4,MF"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-55-35-(R=0.4)\mmr_test_100k_cosine_top_50.csv", "Books,R=0.4,MMR_cosine"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-55-35-(R=0.4)\mmr_test_100k_jaccard_top_50.csv", "Books, R=0.4,MMR_jaccard"),
+
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-55-57-(R=0.0)\mf_test_100K_top_50.csv", "Books, R=0.0,MF"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-55-57-(R=0.0)\mmr_test_100k_cosine_top_50.csv", "Books, R=0.0,MMR_cosine"),
+    (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\books\2025-12-19_23-55-57-(R=0.0)\mmr_test_100k_jaccard_top_50.csv", "Books, R=0.0,MMR_jaccard"),
+
+
+    # # MMR - li movies - 100k R=1, R=0.8 0.6 0.5  0.4 0.0
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-40-49-(R=1.0)\mf_test_100K_top_50.csv", "Books, R=1,MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-40-49-(R=1.0)\mmr_test_100k_cosine_top_50.csv", "Books,R=1,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-40-49-(R=1.0)\mmr_test_100k_jaccard_top_50.csv", "Books, R=1,MMR_jaccard"),
     #
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-18-45-(R=0.5)\mf_test_100000_top_50.csv", "Movies, R=0.5,MF"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-18-45-(R=0.5)\mmr_test_100000_cosine_top_50.csv", "Movies, R=0.5,MMR_cosine"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies-2025-12-16_16-18-45-(R=0.5)\mmr_test_100000_jaccard_top_50.csv", "Movies, R=0.5,MMR_jaccard"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-40-59-(R=0.8)\mf_test_100K_top_50.csv", "Books, R=0.8,MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-40-59-(R=0.8)\mmr_test_100k_cosine_top_50.csv", "Books, R=0.8,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-40-59-(R=0.8)\mmr_test_100k_jaccard_top_50.csv", "Books, R=0.8,MMR_jaccard"),
     #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-42-08-(R=0.5)\mf_test_100K_top_50.csv", "Books, R=0.5,MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-42-08-(R=0.5)\mmr_test_100k_cosine_top_50.csv", "Books, R=0.5,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-42-08-(R=0.5)\mmr_test_100k_jaccard_top_50.csv", "Books, R=0.5,MMR_jaccard"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-43-04-(R=0.4)\mf_test_100K_top_50.csv", "Books, R=0.4,MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-43-04-(R=0.4)\mmr_test_100k_cosine_top_50.csv", "Books,R=0.4,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-43-04-(R=0.4)\mmr_test_100k_jaccard_top_50.csv", "Books, R=0.4,MMR_jaccard"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-43-24-(R=0.2)\mf_test_100K_top_50.csv", "Books, R=0.2, MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-43-24-(R=0.2)\mmr_test_100k_cosine_top_50.csv", "Books,R=0.2,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-43-24-(R=0.2)\mmr_test_100k_jaccard_top_50.csv", "Books, R=0.2,MMR_jaccard"),
+    # #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-43-50-(R=0.0)\mf_test_100K_top_50.csv", "Books, R=0.0,MF"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-43-50-(R=0.0)\mmr_test_100k_cosine_top_50.csv", "Books, R=0.0,MMR_cosine"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\li_resultater\movies\2025-12-19_23-43-50-(R=0.0)\mmr_test_100k_jaccard_top_50.csv", "Books, R=0.0,MMR_jaccard"),
 
     ##### Test #####
 
@@ -295,37 +327,37 @@ MODELS = [
 
     # #NN johannes - 1m ml final run 18/12
     # #1layer
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch64.csv", "1layer-em32-lr001-b64"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv", "1layer-em32-lr0003-b64"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv", "1layer-em32-lr0003-b128"),
-
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch64.csv", "1layer-em64-lr001-b64"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch128.csv", "1layer-em64-lr001-b128"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv", "1layer-em64-lr0003-b64"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv", "1layer-em64-lr0003-b128"),
-
-    # 2 layers
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch64.csv", "2layer-em32-lr001-b64"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch128.csv", "2layer-em32-lr001-b128"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv", "2layer-em32-lr0003-b64"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv", "2layer-em32-lr0003-b128"),
-
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch64.csv", "2layer-em64-lr001-b64"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch128.csv", "2layer-em64-lr001-b128"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv", "2layer-em64-lr0003-b64"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv", "2layer-em64-lr0003-b128"),
-
-    # 3 layers
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch64.csv", "3layer-em32-lr001-b64"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch128.csv", "3layer-em32-lr001-b128"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv", "3layer-em32-lr0003-b64"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv", "3layer-em32-lr0003-b128"),
-
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch64.csv", "3layer-em64-lr001-b64"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch128.csv", "3layer-em64-lr001-b128"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em64-lr0003-b64"),
-    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv", "3layer-em64-lr0003-b128"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch64.csv", "1layer-em32-lr001-b64"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv", "1layer-em32-lr0003-b64"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv", "1layer-em32-lr0003-b128"),
+    #
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch64.csv", "1layer-em64-lr001-b64"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch128.csv", "1layer-em64-lr001-b128"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv", "1layer-em64-lr0003-b64"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv", "1layer-em64-lr0003-b128"),
+    #
+    # # 2 layers
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch64.csv", "2layer-em32-lr001-b64"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch128.csv", "2layer-em32-lr001-b128"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv", "2layer-em32-lr0003-b64"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv", "2layer-em32-lr0003-b128"),
+    #
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch64.csv", "2layer-em64-lr001-b64"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch128.csv", "2layer-em64-lr001-b128"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv", "2layer-em64-lr0003-b64"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv", "2layer-em64-lr0003-b128"),
+    #
+    # # 3 layers
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch128.csv", "3layer-em32-lr001-b128"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv", "3layer-em32-lr0003-b64"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv", "3layer-em32-lr0003-b128"),
+    #
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch64.csv", "3layer-em64-lr001-b64"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch128.csv", "3layer-em64-lr001-b128"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em64-lr0003-b64"),
+    # (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv", "3layer-em64-lr0003-b128"),
 
 
 
