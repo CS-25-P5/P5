@@ -193,7 +193,7 @@ def build_mmr_input_from_nn(
         predicted_ratings[
             user_to_row[row["userId"]],
             item_to_col[row["itemId"]],
-        ] = row["predictedRating"]
+        ] = row["rating"]
 
     # build user history mask
     user_history = None
