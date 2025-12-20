@@ -27,6 +27,6 @@ cd ~/P5
 echo "Running on $(hostname)"
 echo "Start time: $(date)"
 echo "Starting pipeline..."
-python3 src/DPP/DPP_pipeline.py
+python3 src/DPP/DPP_Pipeline.py
 
 echo "End time: $(date)"
