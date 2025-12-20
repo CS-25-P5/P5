@@ -62,15 +62,19 @@ def build_dpp_input_from_nn(
 
 def run_test_pipeline(
         run_id,
-        ratings_path,
-        item_path,
-        output_dir=None,
-        nn_candidates_csv = None,
+        nn_candidates_csv,
+        train_ratings_path,
+        item_path=None,
+        output_dir = None,
         dataset=None,
         top_n=10,
+        top_k=20,
         chunksize=10000,
-        top_k=20
+        best_lambda_cosine = None,
+        best_lambda_jaccard = None
+
 ):
+
 
     print(f"Start {dataset} test pipeline ")
 
@@ -79,10 +83,10 @@ def run_test_pipeline(
 
     # Load user-item rating matrix and genre metadata for items
     item_user_rating, genre_map, all_genres = load_and_prepare_matrix(
-        ratings_path, item_path)
+        train_ratings_path, item_path)
 
     # Load basic user-item interaction history from CSV
-    ratings_df = pd.read_csv(ratings_path)[["userId", "itemId"]]
+    ratings_df = pd.read_csv(train_ratings_path)[["userId", "itemId"]]
 
 
     predicted_ratings_top_n, user_history_top_n, user_ids, candidate_items, candidate_items_per_user = build_dpp_input_from_nn(
