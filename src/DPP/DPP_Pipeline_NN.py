@@ -294,9 +294,9 @@ if __name__ == "__main__":
 
 
     #MOVIES - MLP with BPR
-    MLPwithBPR_ml100k_3layer_nn_candidate_list_path =  os.path.join(base_dir, "../datasets/mmr_data/MLPwithBPR", "Movies100K_NNgenres_ThreeLayers_embed64_lr0001_batch64_ranked_final.csv")
+    MLPwithBPR_ml100k_3layer_nn_candidate_list_path =  os.path.join(base_dir, "../datasets/dpp_data/MLPwithBPR", "Movies100K_NNgenres_ThreeLayers_embed64_lr0001_batch64_ranked_final.csv")
     MLPwithBPR_ml100k_3layer = "ml100k_NNgenres_ThreeLayers_embed64_lr0001_batch64"
-    MLPwithBPR_movies_output_dir = os.path.join(base_dir,"../datasets/mmr_data/movies_NN_MLPwithBPR")
+    MLPwithBPR_movies_output_dir = os.path.join(base_dir,"../datasets/dpp_data/movies_NN_MLPwithBPR")
 
     run_movie_id = generate_run_id()
     run_test_pipeline(
