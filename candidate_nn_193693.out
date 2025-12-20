@@ -6,3 +6,19 @@ Python version: Python 3.10.12
 Running on ailab-l4-04
 Start time: Sat Dec 20 07:41:22 CET 2025
 Starting pipeline...
+Start ml100k_1layers_embed64_lr0.001_batch64 test pipeline 
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies_NN_MLP/2025-12-20_07-41-23_ml100k_1layers_embed64_lr0.001_batch64/mmr_test_100K_cosine_top_50.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies_NN_MLP/2025-12-20_07-41-23_ml100k_1layers_embed64_lr0.001_batch64/mmr_test_100K_jaccard_top_50.csv
+Pipeline for ml100k_1layers_embed64_lr0.001_batch64 test finished successfully!
+Start ml1M_OneLayer_embed64_lr00003_batch128 test pipeline 
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies_NN_MLPwithBPR/2025-12-20_07-41-29_ml1M_OneLayer_embed64_lr00003_batch128/mmr_test_1M_cosine_top_50.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies_NN_MLPwithBPR/2025-12-20_07-41-29_ml1M_OneLayer_embed64_lr00003_batch128/mmr_test_1M_jaccard_top_50.csv
+Pipeline for ml1M_OneLayer_embed64_lr00003_batch128 test finished successfully!
+Start ml1M_NNgenres_ThreeLayers_embed64_lr0001_batch64 test pipeline 
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies_NN_MLPwithBPR/2025-12-20_07-41-55_ml1M_NNgenres_ThreeLayers_embed64_lr0001_batch64/mmr_test_1M_cosine_top_50.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/movies_NN_MLPwithBPR/2025-12-20_07-41-55_ml1M_NNgenres_ThreeLayers_embed64_lr0001_batch64/mmr_test_1M_jaccard_top_50.csv
+Pipeline for ml1M_NNgenres_ThreeLayers_embed64_lr0001_batch64 test finished successfully!
+Start gb100k_OneLayer_embed64_lr00003_batch128 test pipeline 
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books_NN_MLPwithBPR/2025-12-20_07-45-37_gb100k_OneLayer_embed64_lr00003_batch128/mmr_test_100K_cosine_top_50.csv
+MMR results saved: /ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/../datasets/mmr_data/books_NN_MLPwithBPR/2025-12-20_07-45-37_gb100k_OneLayer_embed64_lr00003_batch128/mmr_test_100K_jaccard_top_50.csv
+Pipeline for gb100k_OneLayer_embed64_lr00003_batch128 test finished successfully!

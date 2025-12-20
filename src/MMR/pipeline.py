@@ -501,13 +501,13 @@ movies_output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_movie}
 
 
 weight_pairs = [
-(1.0, 0.0),
+#(1.0, 0.0),
 #(0.8, 0.2),
 #(0.6, 0.4),
 #(0.5, 0.5),
 #(0.4, 0.6),
 #(0.2, 0.8),
-#(0.0, 1.0),
+(0.0, 1.0),
 ]
 
 
