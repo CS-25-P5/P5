@@ -36,10 +36,6 @@ def build_dpp_input_from_nn(
         R_filtered = R_filtered.copy()
         R_filtered["userId"] = R_filtered["userId"].astype(str)
         R_filtered["itemId"] = R_filtered["itemId"].astype(str)
-
-    user_history = []
-
-    if R_filtered is not None:
         # For each user, mark items they've already interacted with
         for u in user_ids:
                 seen_items = set(
@@ -85,12 +81,14 @@ def run_test_pipeline(
         train_ratings_path, item_path)
 
 
-# Load basic user-item interaction history from CSV
+    # --- Ensure indices are strings to match candidate CSV ---
+    item_user_rating.index = item_user_rating.index.astype(str)
+    item_user_rating.columns = item_user_rating.columns.astype(str)
+
+    # Load basic user-item interactions
     ratings_df = pd.read_csv(train_ratings_path)[["userId", "itemId"]]
     ratings_df["userId"] = ratings_df["userId"].astype(str)
     ratings_df["itemId"] = ratings_df["itemId"].astype(str)
-    nn_user_ids = list(ratings_df["userId"].astype(str).unique())
-    nn_user_to_idx = {u: i for i, u in enumerate(nn_user_ids)}
 
 
     (
@@ -104,22 +102,20 @@ def run_test_pipeline(
         R_filtered=ratings_df
     )
 
-    ratings_df = ratings_df[
-        ratings_df["userId"].isin(user_ids)
-    ].reset_index(drop=True)
+    # Filter rating matrix and df to only users/items present in candidate list
+    user_ids = [u for u in user_ids if u in item_user_rating.index]
+    candidate_items = [i for i in candidate_items if i in item_user_rating.columns]
 
-    # Add this filter right after loading
     item_user_rating = item_user_rating.loc[user_ids, candidate_items]
-
+    ratings_df = ratings_df[ratings_df["userId"].isin(user_ids)].reset_index(drop=True)
 
     # Safety checks
     assert predicted_ratings_top_n.shape[0] == len(user_ids)
     assert len(candidate_items_per_user) == len(user_ids)
     assert len(user_history_top_n) == len(user_ids)
-    assert len(candidate_items_per_user) == len(nn_user_to_idx)
-
 
     print(f"Candidate items for DPP: {len(candidate_items)}")
+
 
 
     # Build DPP models
