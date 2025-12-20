@@ -188,7 +188,7 @@ def load_and_prepare_matrix(ratings_file_path, item_file_path):
 # and train with best configuration
 # ==========================
 def tune_mf(R_train, R_val, n_epochs=50,
-            hyperparams_grid={ 
+            hyperparams_grid={
                 "alpha": [0.005, 0.01, 0.02],
                 "lambda_": [0.01, 0.05, 0.1],
                 "k": [20, 40, 60],
@@ -216,6 +216,7 @@ def tune_mf(R_train, R_val, n_epochs=50,
 
     print(f"Best MF params: {best_params}, RMSE={best_rmse:.4f}")
     return best_params
+
 
 def train_mf_with_best_params(R_filtered, best_params, R_val=None, n_epochs=50,  random_state= 42):
     mf= MatrixFactorization(

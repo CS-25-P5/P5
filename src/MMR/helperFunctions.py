@@ -35,20 +35,6 @@ def align_matrix_to_user_items(matrix_df, filtered_item_ids, filtered_user_ids):
     return aligned_matrix, aligned_df
 
 
-# Select and return only the rows for specified users from a DataFrame
-def align_matrix_to_user(matrix_df, filtered_user_ids):
-    # Get row indices of filtered users that exist in the DataFrame
-    user_indices = [
-        matrix_df.index.get_loc(u)
-        for u in filtered_user_ids
-        if u in matrix_df.index
-    ]
-
-    # Select only those rows (users) from the DataFrame
-    aligned_df = matrix_df.iloc[user_indices, :]
-
-    return aligned_df.values, aligned_df
-
 #  Aligns training and validation DataFrames to have the same items
 # filters out users with no interactions
 def prepare_train_val_matrices(train_df, val_df):
@@ -88,33 +74,33 @@ def prepare_train_val_matrices(train_df, val_df):
 # ==========================
 # Extract predicted ratings from a trained MF model for specific filtered users
 #==========================
-def get_filtered_predictions(trained_mf_model, filtered_df, train_filtered_user_ids):
-    # Get the filtered user IDs from the DataFrame
-    filtered_user_ids = filtered_df.index.tolist()
+def get_filtered_predictions(trained_mf_model, test_user_ids, train_filtered_user_ids):
+    #  Map user IDs to MF row indice
+    user_id_to_idx = {uid: idx for idx, uid in enumerate(train_filtered_user_ids)}
+    print(f"[DEBUG] Total training users: {len(train_filtered_user_ids)}")
+    print(f"[DEBUG] Sample train_user_to_idx mapping (first 5): {list(user_id_to_idx.items())[:5]}")
 
-    # Extract predicted ratings for only the filtered items
+    # Check that all test users exist in training
+    # missing_users = [uid for uid in test_user_ids if uid not in user_id_to_idx]
+    # if missing_users:
+    #     print(f"[WARNING] Some test users not in MF model: {missing_users}")
+    # else:
+    #     print(f"[DEBUG] All test users exist in MF model ({len(test_user_ids)} users)")
+
+    # Get row indices of valid test users
+    test_user_indices = [user_id_to_idx[uid] for uid in test_user_ids]
+    print(f"[DEBUG] Sample test_user_indices (first 10): {test_user_indices[:10]}")
+
+    # Get full predicted ratings from MF
     predicted_ratings_all = trained_mf_model.full_prediction()
+    print(f"[DEBUG] Shape of full predicted ratings: {predicted_ratings_all.shape}")
 
-    # Map training user IDs to their corresponding indices in the MF model
-    mf_user_to_idx = {}
-    for idx, user_id in enumerate(train_filtered_user_ids):
-        user_str = str(user_id)   # convert user ID to string
-        mf_user_to_idx[user_str] = idx
-
-    # Find indices of test users in the MF predictions
-    test_user_indices = []
-    for user_id in filtered_user_ids:
-        user_str = str(user_id)
-        if user_str in mf_user_to_idx:
-            test_user_indices.append(mf_user_to_idx[user_str])
-        else:
-            #test_user_indices.append(0)  #
-            raise ValueError(f"User {user_id} not in MF model")
-
-    # Extract predicted ratings for the filtered users only
+    # Extract predicted ratings only for test users
     predicted_ratings = predicted_ratings_all[test_user_indices, :]
+    print(f"[DEBUG] Shape of predicted ratings for test users: {predicted_ratings.shape}")
+    print(f"[DEBUG] Sample predicted ratings for first test user:\n{predicted_ratings[0, :10]}")
 
-    return filtered_user_ids, predicted_ratings
+    return predicted_ratings
 
 
 
@@ -207,7 +193,7 @@ def build_mmr_input_from_nn(
         predicted_ratings[
             user_to_row[row["userId"]],
             item_to_col[row["itemId"]],
-        ] = row["predictedRating"]
+        ] = row["rating"]
 
     # build user history mask
     user_history = None
