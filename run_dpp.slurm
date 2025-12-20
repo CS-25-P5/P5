@@ -32,6 +32,6 @@ export PYTHONPATH=$HOME/P5/src:$PYTHONPATH
 
 echo "Starting pipeline..."
 
-python3 src/DPP/DPP_Pipeline_NN.py
+python3 src/DPP/DPP_Pipeline.py
 
 echo "End time: $(date)"
