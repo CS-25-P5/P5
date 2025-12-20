@@ -81,11 +81,11 @@ def run_test_pipeline(
         train_ratings_path, item_path)
 
 
-    # --- Ensure indices are strings to match candidate CSV ---
+    # Ensure indices are strings to match candidate CSV
     item_user_rating.index = item_user_rating.index.astype(str)
     item_user_rating.columns = item_user_rating.columns.astype(str)
 
-    # --- FIX: Convert all values to numeric to avoid TypeError ---
+    # Convert all values to numeric to avoid TypeError
     item_user_rating = item_user_rating.apply(pd.to_numeric, errors='coerce').fillna(0)
 
     # Load basic user-item interactions
@@ -110,7 +110,17 @@ def run_test_pipeline(
     candidate_items = [i for i in candidate_items if i in item_user_rating.columns]
 
     item_user_rating = item_user_rating.loc[user_ids, candidate_items]
-    ratings_df = ratings_df[ratings_df["userId"].isin(user_ids)].reset_index(drop=True)
+    # Build a numeric user-item matrix for DPP (movie_user_rating)
+    movie_user_rating = pd.DataFrame(
+        0,
+        index=user_ids,
+        columns=candidate_items,
+        dtype=float
+    )
+    for _, row in ratings_df.iterrows():
+        u, i, r = str(row["userId"]), str(row["itemId"]), float(row.get("rating", 1.0))
+        if u in user_ids and i in candidate_items:
+            movie_user_rating.at[u, i] = r
 
     # Safety checks
     assert predicted_ratings_top_n.shape[0] == len(user_ids)
@@ -142,12 +152,12 @@ def run_test_pipeline(
 
     # Run DPP recommendations
     cosine_reco = get_recommendations_for_dpp(
-        dpp_cosine, ratings_df, candidate_items, genre_map_test, predicted_ratings_dpp,
+        dpp_cosine, movie_user_rating, candidate_items, genre_map_test, predicted_ratings_dpp,
         top_k, top_n, "cosine", candidate_items_per_user=candidate_items_per_user,   # from build_dpp_input()
         user_history_per_user=user_history_top_n
     )
     jaccard_reco = get_recommendations_for_dpp(
-        dpp_jaccard, ratings_df, candidate_items, genre_map_test, predicted_ratings_dpp,
+        dpp_jaccard, movie_user_rating, candidate_items, genre_map_test, predicted_ratings_dpp,
         top_k, top_n, "jaccard", candidate_items_per_user=candidate_items_per_user,
         user_history_per_user=user_history_top_n
     )
