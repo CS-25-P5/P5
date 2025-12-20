@@ -111,6 +111,9 @@ if __name__ == "__main__":
     movies_100k_cos_lambda = 0.55
     movies_100k_jac_lambda = 0.35
 
+    movies_1M_cos_lambda = 1.0
+    movies_1M_jac_lambda = 1.0
+
     books_100k_cos_lambda = 0.05
     books_100k_jac_lambda = 0.05
     dataset_movie = "movies"
@@ -152,7 +155,7 @@ if __name__ == "__main__":
     #     dataset=dataset_movie,
     #     top_n=TOP_N,
     #     top_k=TOP_K,
-    #     chunksize=CHUNK_SIZE_10K,
+    #     chunksize=CHUNK_SIZE_100K,
     #     best_lambda_cosine = movies_100k_cos_lambda,
     #     best_lambda_jaccard = movies_100k_jac_lambda,
     # )
@@ -194,8 +197,8 @@ if __name__ == "__main__":
         top_n=TOP_N,
         top_k=TOP_K,
         chunksize=CHUNK_SIZE_1M,
-        best_lambda_cosine = movies_100k_cos_lambda,
-        best_lambda_jaccard = movies_100k_jac_lambda,
+        best_lambda_cosine = movies_1M_cos_lambda,
+        best_lambda_jaccard = movies_1M_jac_lambda,
     )
 
 
@@ -244,40 +247,40 @@ if __name__ == "__main__":
     MLPwithBPR_ml1M_1layer_nn_candidate_list_path =  os.path.join(base_dir, "../datasets/mmr_data/MLPwithBPR", "Movies100K_RecommendBPRnn_OneLayer_embed64_lr00003_batch128_ranked_final.csv")
     MLPwithBPR_ml1M_1layer = "ml1M_OneLayer_embed64_lr00003_batch128"
 
-    # run_movie_id = generate_run_id()
-    # run_test_pipeline(
-    #     run_id = run_movie_id,
-    #     nn_candidates_csv = MLPwithBPR_ml1M_1layer_nn_candidate_list_path ,
-    #     train_ratings_path=movies_1M_ratings_train_path,
-    #     item_path=movies_1M_item_file_path,
-    #     output_dir=MLPwithBPR_movies_output_dir,
-    #     dataset=MLPwithBPR_ml1M_1layer,
-    #     top_n=TOP_N,
-    #     top_k=TOP_K,
-    #     chunksize=CHUNK_SIZE_1M,
-    #     best_lambda_cosine = movies_100k_cos_lambda,
-    #     best_lambda_jaccard = movies_100k_jac_lambda,
-    # )
+    run_movie_id = generate_run_id()
+    run_test_pipeline(
+        run_id = run_movie_id,
+        nn_candidates_csv = MLPwithBPR_ml1M_1layer_nn_candidate_list_path ,
+        train_ratings_path=movies_1M_ratings_train_path,
+        item_path=movies_1M_item_file_path,
+        output_dir=MLPwithBPR_movies_output_dir,
+        dataset=MLPwithBPR_ml1M_1layer,
+        top_n=TOP_N,
+        top_k=TOP_K,
+        chunksize=CHUNK_SIZE_1M,
+        best_lambda_cosine = movies_1M_cos_lambda,
+        best_lambda_jaccard = movies_1M_jac_lambda,
+    )
 
 
     
     MLPwithBPR_ml1M_3layer_nn_candidate_list_path =  os.path.join(base_dir, "../datasets/mmr_data/MLPwithBPR", "Movies1M_NNgenres_ThreeLayers_embed64_lr0001_batch64_ranked_final.csv")
     MLPwithBPR_ml1M_3layer = "ml1M_NNgenres_ThreeLayers_embed64_lr0001_batch64"
 
-    # run_movie_id = generate_run_id()
-    # run_test_pipeline(
-    #     run_id = run_movie_id,
-    #     nn_candidates_csv = MLPwithBPR_ml1M_3layer_nn_candidate_list_path ,
-    #     train_ratings_path=movies_1M_ratings_train_path,
-    #     item_path=movies_1M_item_file_path,
-    #     output_dir=MLPwithBPR_movies_output_dir,
-    #     dataset=MLPwithBPR_ml1M_3layer,
-    #     top_n=TOP_N,
-    #     top_k=TOP_K,
-    #     chunksize=CHUNK_SIZE_1M,
-    #     best_lambda_cosine = movies_100k_cos_lambda,
-    #     best_lambda_jaccard = movies_100k_jac_lambda,
-    # )
+    run_movie_id = generate_run_id()
+    run_test_pipeline(
+        run_id = run_movie_id,
+        nn_candidates_csv = MLPwithBPR_ml1M_3layer_nn_candidate_list_path ,
+        train_ratings_path=movies_1M_ratings_train_path,
+        item_path=movies_1M_item_file_path,
+        output_dir=MLPwithBPR_movies_output_dir,
+        dataset=MLPwithBPR_ml1M_3layer,
+        top_n=TOP_N,
+        top_k=TOP_K,
+        chunksize=CHUNK_SIZE_1M,
+        best_lambda_cosine = movies_1M_cos_lambda,
+        best_lambda_jaccard = movies_1M_jac_lambda,
+    )
 
 
     # BOOKS - MLP
