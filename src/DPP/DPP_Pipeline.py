@@ -24,63 +24,66 @@ from DPP import (
     DPP, build_dpp_models, get_recommendations_for_dpp, save_DPP
 )
 
+
 import pandas as pd
 import numpy as np
 import csv
 
-def build_dpp_input_per_user(
+
+def build_dpp_input_from(
         candidate_list_csv,
         R_filtered,
-        filtered_user_ids,
-        filtered_item_ids,
 ):
-    # Load CSV
     df = pd.read_csv(candidate_list_csv)
-    df = df[df["userId"].isin(filtered_user_ids)]
-
-    # Ensure type consistency
+    df["userId"] = df["userId"].astype(str)
     df["itemId"] = df["itemId"].astype(str)
-    filtered_item_ids_str = [str(i) for i in filtered_item_ids]
 
-    # Filter items in filtered_item_ids
-    df = df[df["itemId"].isin(filtered_item_ids_str)]
 
-    #Build candidate items per user
-    candidate_items_per_user = []
-    predicted_ratings_per_user = []
-    user_history_per_user = []
+    user_ids = df["userId"].unique().tolist()
+    candidate_items = df["itemId"].unique().tolist()
 
-    user_to_row = {u: i for i, u in enumerate(filtered_user_ids)}
+    user_to_row = {u: i for i, u in enumerate(user_ids)}
+    item_to_col = {i: j for j, i in enumerate(candidate_items)}
 
-    for user_id in filtered_user_ids:
-        user_df = df[df["userId"] == user_id]
+    predicted_ratings = np.zeros((len(user_ids), len(candidate_items)))
 
-        candidate_items = user_df["itemId"].tolist()
-        num_items = len(candidate_items)
+    for _, row in df.iterrows():
+        predicted_ratings[
+            user_to_row[row["userId"]],
+            item_to_col[row["itemId"]],
+        ] = row["predictedRating"]
 
-        # Build predicted ratings vector for this user
-        predicted_ratings_vec = np.zeros(num_items)
-        for j, item_id in enumerate(candidate_items):
-            rating = user_df[user_df["itemId"] == item_id]["predictedRating"].values[0]
-            predicted_ratings_vec[j] = rating
+    user_history = []
 
-        # Build history mask for this user
-        rated_indices = np.where(R_filtered[user_to_row[user_id]] > 0)[0]
-        rated_item_ids = {str(filtered_item_ids[i]) for i in rated_indices if i < len(filtered_item_ids)}
-        mask = np.array([item in rated_item_ids for item in candidate_items])
+    if R_filtered is not None:
+        R_filtered = R_filtered.copy()
+        R_filtered["userId"] = R_filtered["userId"].astype(str)
+        R_filtered["itemId"] = R_filtered["itemId"].astype(str)
+        # For each user, mark items they've already interacted with
+        for u in user_ids:
+            seen_items = set(
+                R_filtered.loc[R_filtered["userId"] == u, "itemId"]
+            )
 
-        candidate_items_per_user.append(candidate_items)
-        predicted_ratings_per_user.append(predicted_ratings_vec)
-        user_history_per_user.append(mask)
+            mask = np.array(
+                [item in seen_items for item in candidate_items],
+                dtype=bool,
+            )
+            user_history.append(mask)
+    else:
+        user_history = [np.zeros(len(candidate_items), dtype=bool)
+                        for _ in user_ids]
 
-    return predicted_ratings_per_user, user_history_per_user, candidate_items_per_user
+    candidate_items_per_user = [candidate_items for _ in user_ids]
+
+    return predicted_ratings, user_history, user_ids, candidate_items, candidate_items_per_user
 
 
 
 #pipeline start
 def run_dpp_pipeline(
         run_id, ratings_train_path, ratings_val_path, item_path, output_dir, dataset=None, datasize=None,
-        top_n=10, top_k=20, chunksize = 10000 , n_epochs=50, random_state = 42
+        top_n=10, top_k=20, chunksize = 10000 , n_epochs=50, relevance_weight = None, diversity_weight=None, random_state = 42
 ):
     print(f"Starting pipeline for {dataset} train")
 
@@ -192,10 +195,13 @@ def run_dpp_pipeline(
         mf
     )
 
+
+
 # Test pipeline:
 def run_dpp_pipeline_test(
         run_id,
-        ratings_path,
+        ratings_train_path,
+        ratings_test_path,
         ground_truth_path,
         item_path,
         output_dir=None,
@@ -210,50 +216,70 @@ def run_dpp_pipeline_test(
     os.makedirs(output_dir, exist_ok=True)
 
     # Load test data
-    item_user_rating, genre_map, all_genres = load_and_prepare_matrix(ratings_path, item_path)
+    item_user_rating, genre_map, all_genres = load_and_prepare_matrix(ratings_train_path, item_path)
 
     # Align test matrix to training users (to map to MF)
-    R_filtered, filtered_df = align_matrix_to_user(
-        matrix_df=item_user_rating,
-        filtered_user_ids=train_filtered_user_ids
+    #R_filtered, filtered_df = align_matrix_to_user(
+    #    matrix_df=item_user_rating,
+    #    filtered_user_ids=train_filtered_user_ids
+    #)
+
+    # Ensure train_filtered_user_ids are all ints
+    train_filtered_user_ids = [int(uid) for uid in train_filtered_user_ids]
+
+    # Load unseen test data
+    test_df = pd.read_csv(ratings_test_path)
+
+    # Keep only users that exist in the trained MF model
+    existing_test_df = test_df[test_df['userId'].isin(train_filtered_user_ids)].copy()
+    # Make userId the DataFrame index.
+    existing_test_df.set_index('userId', inplace=True)
+    test_user_ids = existing_test_df.index.unique()
+    test_item_ids = existing_test_df['itemId'].unique()
+
+    assert len(test_user_ids) == 1, \
+        f"Expected single test user, got {len(test_user_ids)}"
+
+    test_user_id = test_user_ids[0]
+
+
+    # Extract predicted ratings for filtered users and items from the trained MF model
+    predicted_ratings = get_filtered_predictions(
+        trained_mf_model,
+        test_user_ids,
+        train_filtered_user_ids,
     )
 
-    # Get predicted ratings for test users and items
-    filtered_user_ids, filtered_item_ids, predicted_ratings = get_filtered_predictions(
-        trained_mf_model, filtered_df, train_filtered_user_ids, train_filtered_item_ids
-    )
-
-    # Get top-N MF recommendations
-    mf_top_n_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
-
+    # Generate top-N recommendations for each user from MF predictions
     get_top_n_recommendations_MF(
         predicted_ratings=predicted_ratings,
-        R_filtered=R_filtered,
-        filtered_user_ids=filtered_user_ids,
-        filtered_item_ids=filtered_item_ids,
+        R_filtered=item_user_rating.values,
+        filtered_user_ids=test_user_ids,
+        filtered_item_ids=test_item_ids,
         top_n=top_n,
-        save_path=mf_top_n_path
+        save_path=os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv"))
+
+    # Use the top-N MF recommendations as the candidate list for MMR
+    candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
+
+    ratings_df = pd.read_csv(ratings_train_path)[["userId", "itemId"]]
+
+    predicted_ratings_top_n, user_history_top_n, user_ids, candidate_items, candidate_items_per_user = build_dpp_input_from(
+        candidate_list_csv = candidate_path,
+        interactions_df=ratings_df
     )
 
-    # Build MMR input
-    predicted_ratings_top_n, user_history_top_n, candidate_items = build_dpp_input_per_user(
-        candidate_list_csv=mf_top_n_path,
-        R_filtered=R_filtered,
-        filtered_user_ids=filtered_user_ids,
-        filtered_item_ids=filtered_item_ids
-    )
-    _, _, candidate_items_list = build_mmr_input(
-        candidate_list_csv=mf_top_n_path,
-        R_filtered=R_filtered,
-        filtered_user_ids=filtered_user_ids,
-        filtered_item_ids=filtered_item_ids
-    )
+    assert len(user_ids) == 1
+    assert len(candidate_items_per_user) == 1
+    assert len(user_history_top_n) == 1
+    assert predicted_ratings_top_n.shape[0] == 1
 
-    print(f"Candidate items: {len(candidate_items)}")
+
 
     # Save MF predictions for reference
     dataset_root = os.path.dirname(output_dir)
     mf_predictions_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
+    ground_truth_path = os.path.join(dataset_root, f"{dataset}_ratings_{chunksize}_test.csv")
 
     save_mf_predictions(
         trained_mf_model=trained_mf_model,
@@ -263,34 +289,64 @@ def run_dpp_pipeline_test(
         output_path=mf_predictions_path
     )
 
+    # Filter rating matrix and df to only users/items present in candidate list
+    #user_ids = [u for u in user_ids if u in item_user_rating.index]
+    candidate_items = [i for i in candidate_items if i in item_user_rating.columns]
+
+    item_user_rating.index = item_user_rating.index.astype(str)
+
+    user_ids = [str(test_user_id)]
+    candidate_items = [i for i in candidate_items if i in item_user_rating.columns]
+
+    item_user_rating = item_user_rating.loc[user_ids, candidate_items]
+
+    # Build a numeric user-item matrix for DPP (movie_user_rating)
+    movie_user_rating = pd.DataFrame(
+        0,
+        index=user_ids,
+        columns=candidate_items,
+        dtype=float
+    )
+    ratings_df["userId"] = ratings_df["userId"].astype(str)
+    ratings_df["itemId"] = ratings_df["itemId"].astype(str)
+
+    for _, row in ratings_df.iterrows():
+        u, i, r = str(row["userId"]), str(row["itemId"]), float(row.get("rating", 1.0))
+        if u in user_ids and i in candidate_items:
+            movie_user_rating.at[u, i] = r
+
+
+    print(f"Candidate items for DPP: {len(candidate_items)}")
+
     # Build DPP models
-    genre_map_test = {item: genre_map[item] for item in candidate_items_list if item in genre_map}
+    genre_map_test = {item: genre_map[item] for item in candidate_items if item in genre_map}
     all_genres_test = sorted({g for genres in genre_map_test.values() for g in genres})
 
 
     # SANITY CHECK
     gt_items_test = item_user_rating.columns[item_user_rating.sum(axis=0) > 0]  # all items with any ratings in test
-    num_gt_in_candidates = sum(item in candidate_items_list for item in gt_items_test)
-    print(f"Candidate items for DPP: {len(candidate_items_list)}")
+    num_gt_in_candidates = sum(item in candidate_items for item in gt_items_test)
+    print(f"Candidate items for DPP: {len(candidate_items)}")
     print(f"Number of GT items included in candidates: {num_gt_in_candidates}")
     if num_gt_in_candidates == 0:
         print("Warning: No GT items in DPP candidate pool! GT metrics will be zero.")
 
-    # Use full predicted ratings (not top-N)
-    predicted_ratings_dpp = predicted_ratings
 
-    dpp_cosine = build_dpp_models(filtered_item_ids, genre_map_test, all_genres_test, predicted_ratings_dpp, 'cosine')
-    dpp_jaccard = build_dpp_models(filtered_item_ids, genre_map_test, all_genres_test, predicted_ratings_dpp, 'jaccard')
+    # Use full predicted ratings (not top-N)
+    predicted_ratings_dpp = predicted_ratings_top_n
+
+    dpp_cosine = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings_dpp, 'cosine')
+    dpp_jaccard = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings_dpp, 'jaccard')
 
     # Run DPP recommendations
     cosine_reco = get_recommendations_for_dpp(
-        dpp_cosine, filtered_df, filtered_item_ids, genre_map_test, predicted_ratings_dpp,
-        top_k, top_n, "cosine", candidate_items_per_user=candidate_items,   # from build_dpp_input()
+        dpp_cosine, movie_user_rating, candidate_items, genre_map_test, predicted_ratings_dpp,
+        top_k, top_n, "cosine", candidate_items_per_user=candidate_items_per_user,   # from build_dpp_input()
         user_history_per_user=user_history_top_n
     )
     jaccard_reco = get_recommendations_for_dpp(
-        dpp_jaccard, filtered_df, filtered_item_ids, genre_map_test, predicted_ratings_dpp,
-        top_k, top_n, "jaccard", candidate_items_per_user=candidate_items,
+        dpp_jaccard, movie_user_rating, candidate_items, genre_map_test, predicted_ratings_dpp,
+        top_k, top_n, "jaccard", candidate_items_per_user=candidate_items_per_user,
         user_history_per_user=user_history_top_n
     )
     # Save DPP results
@@ -311,6 +367,7 @@ if __name__ == "__main__":
     # PARAMETER
     TOP_N = 10
     CHUNK_SIZE = 100000
+    CHUNK_SIZE_NAME = "100K"
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1
@@ -321,15 +378,13 @@ if __name__ == "__main__":
     RANDOM_STATE = 42
 
 
-
     #load data
     dataset_books = "books"
     folder_books = "GoodBooks"
     base_dir = os.path.dirname(os.path.abspath(__file__))
     ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_train.csv")
     ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_val.csv")
-    ratings_test_path = os.path.join(base_dir, "../datasets/dpp_data", "ratingsbooks_100K.csv")
-    book_ground_truth = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_test.csv")
+    ratings_test_path = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_test.csv")
     item_file_path = os.path.join(base_dir, f"../datasets/{folder_books}", f"{dataset_books}.csv")
 
     output_dir = os.path.join(base_dir,f"../datasets/dpp_data/{dataset_books}")
@@ -344,11 +399,11 @@ if __name__ == "__main__":
         ratings_val_path= ratings_val_file,
         item_path = item_file_path,
         output_dir = output_dir,
+        dataset=dataset_books,
         top_n = TOP_N,
         top_k = TOP_K,
         chunksize= CHUNK_SIZE,
         n_epochs= N_EPOCHS,
-        dataset=dataset_books,
         random_state=RANDOM_STATE)
 
 
@@ -356,7 +411,6 @@ if __name__ == "__main__":
     run_dpp_pipeline_test(
         run_id = run_book_id,
         ratings_path=ratings_test_path,
-        ground_truth_path = book_ground_truth,
         item_path=item_file_path,
         output_dir= output_dir,
         dataset= dataset_books,
@@ -370,43 +424,40 @@ if __name__ == "__main__":
 
 
 
-    # Now start movies block at correct indentation
+    #load MovieLens data
     dataset_movie = "movies"
     folder_movie = "MovieLens"
-
-    #base_dir = os.path.dirname(os.path.abspath(__file__))
-    ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_train.csv")
-    ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_val.csv")
-    ratings_test_path = os.path.join(base_dir, "../datasets/dpp_data", "ratings_100K_movies.csv")
+    movies_ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_train.csv")
+    movies_ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_val.csv")
+    movies_ratings_test_path = os.path.join(base_dir, "../datasets/dpp_data", "ratings_100K_movies.csv")
     movies_ground_truth = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_movie}_ratings_{CHUNK_SIZE}_test.csv")
-
-    item_file_path = os.path.join(base_dir, f"../datasets/{folder_movie}", f"{dataset_movie}.csv")
-
-    output_dir = os.path.join(base_dir,f"../datasets/dpp_data/{dataset_movie}")
+    movies_item_file_path = os.path.join(base_dir, f"../datasets/{folder_movie}", f"{dataset_movie}.csv")
+    movies_output_dir = os.path.join(base_dir,f"../datasets/dpp_data/{dataset_movie}")
 
     run_movie_id = generate_run_id()
 
     best_params, predicted_ratings, filtered_item_ids, filtered_user_ids, mf = run_dpp_pipeline(
         run_id = run_movie_id,
-        ratings_train_path = ratings_train_file,
-        ratings_val_path= ratings_val_file,
-        item_path = item_file_path,
-        output_dir = output_dir,
+        ratings_train_path = movies_ratings_train_file,
+        ratings_val_path= movies_ratings_val_file,
+        item_path = movies_item_file_path,
+        output_dir = movies_output_dir,
+        dataset=dataset_movie,
         top_n = TOP_N,
         top_k = TOP_K,
-        chunksize= CHUNK_SIZE,
+        chunksize= CHUNK_SIZE_NAME,
         n_epochs= N_EPOCHS,
-        dataset=dataset_movie,
         random_state=RANDOM_STATE)
 
 
     #Run MF pipeline for test dataset
     run_dpp_pipeline_test(
         run_id = run_movie_id,
-        ratings_path=ratings_test_path,
+        ratings_train_path=movies_ratings_train_file,
+        ratings_test_path=movies_ratings_test_path,
         ground_truth_path = movies_ground_truth,
-        item_path=item_file_path,
-        output_dir= output_dir,
+        item_path=movies_item_file_path,
+        output_dir=movies_output_dir,
         dataset= dataset_movie,
         chunksize=CHUNK_SIZE,
         top_n=TOP_N,
