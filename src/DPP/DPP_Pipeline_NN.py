@@ -255,40 +255,40 @@ if __name__ == "__main__":
     MLP_ml100k_1layer_nn = "ml100k_1layers_embed64_lr0.001_batch64"
     MLP_movies_output_dir = os.path.join(base_dir,"../datasets/dpp_data/movies_NN_MLP")
 
-    run_movie_id = generate_run_id()
-    run_test_pipeline(
-         run_id = run_movie_id,
-         nn_candidates_csv = MLP_ml100k_1layer_nn_candidate_list_path ,
-         train_ratings_path=movies_100k_ratings_train_path,
-         item_path=movies_100k_item_file_path,
-         output_dir=MLP_movies_output_dir,
-         dataset=MLP_ml100k_1layer_nn,
-         top_n=TOP_N,
-         top_k=TOP_K,
-         chunksize=CHUNK_SIZE_100K,
-         best_lambda_cosine = movies_100k_cos_lambda,
-         best_lambda_jaccard = movies_100k_jac_lambda,
-    )
+    #run_movie_id = generate_run_id()
+    #run_test_pipeline(
+    #     run_id = run_movie_id,
+    #     nn_candidates_csv = MLP_ml100k_1layer_nn_candidate_list_path ,
+    #     train_ratings_path=movies_100k_ratings_train_path,
+    #     item_path=movies_100k_item_file_path,
+    #     output_dir=MLP_movies_output_dir,
+    #     dataset=MLP_ml100k_1layer_nn,
+    #     top_n=TOP_N,
+    #     top_k=TOP_K,
+    #     chunksize=CHUNK_SIZE_100K,
+    #     best_lambda_cosine = movies_100k_cos_lambda,
+    #     best_lambda_jaccard = movies_100k_jac_lambda,
+    #)
 
 
     MLP_ml1M_1layer_nn_candidate_list_path =  os.path.join(base_dir, "../datasets/dpp_data/MLP/ml1m", "MLP_1layers_embed64_lr0.001_batch64.csv")
     MLP_ml1M_1layer = "ml1M_1layers_embed64_lr0.001_batch64"
 
 
-    #run_movie_id = generate_run_id()
-    #run_test_pipeline(
-    #    run_id = run_movie_id,
-    #    nn_candidates_csv = MLP_ml1M_1layer_nn_candidate_list_path ,
-    #    train_ratings_path=movies_1M_ratings_train_path,
-    #    item_path=movies_1M_item_file_path,
-    #    output_dir=MLP_movies_output_dir,
-    #    dataset=MLP_ml1M_1layer,
-    #    top_n=TOP_N,
-    #    top_k=TOP_K,
-    #    chunksize=CHUNK_SIZE_1M,
-    #    best_lambda_cosine = movies_100k_cos_lambda,
-    #    best_lambda_jaccard = movies_100k_jac_lambda,
-    #)
+    run_movie_id = generate_run_id()
+    run_test_pipeline(
+        run_id = run_movie_id,
+        nn_candidates_csv = MLP_ml1M_1layer_nn_candidate_list_path ,
+        train_ratings_path=movies_1M_ratings_train_path,
+        item_path=movies_1M_item_file_path,
+        output_dir=MLP_movies_output_dir,
+        dataset=MLP_ml1M_1layer,
+        top_n=TOP_N,
+        top_k=TOP_K,
+        chunksize=CHUNK_SIZE_1M,
+        best_lambda_cosine = movies_100k_cos_lambda,
+        best_lambda_jaccard = movies_100k_jac_lambda,
+    )
 
 
 

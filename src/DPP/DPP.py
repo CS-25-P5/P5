@@ -246,6 +246,6 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
 def save_DPP(dpp_recommendations_list, output_dir):
     dpp_df = pd.DataFrame(dpp_recommendations_list)
     dpp_df.to_csv(output_dir, index=False)
-    print(f"MF test predictions saved to: {output_dir}")
+    print(f"Test predictions saved to: {output_dir}")
     print("DONE with DPP :)")
 
