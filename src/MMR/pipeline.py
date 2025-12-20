@@ -400,45 +400,45 @@ if __name__ == "__main__":
     for REL_WEIGHT, DIV_WEIGHT in weight_pairs:
         print(f"\n=== Running pipeline with weights: "f"relevance={REL_WEIGHT}, diversity={DIV_WEIGHT} ===")
 
-    #     # run pipeline for movies
-    #     run_movie_id = generate_run_id()
-    #     (
-    #         movies_best_lambda_cosine, 
-    #         movies_best_lambda_jaccard, 
-    #         movies_mf_trained, 
-    #         movies_train_user_ids, 
-    #         movies_train_item_ids
-    #     ) = run_train_pipeline (
-    #         run_id = run_movie_id,
-    #         ratings_train_path = movies_ratings_train_file,
-    #         ratings_val_path= movies_ratings_val_file,
-    #         item_path = movies_item_file_path,
-    #         output_dir = movies_output_dir,
-    #         top_k = TOP_K,
-    #         chunksize= CHUNK_SIZE_NAME,
-    #         n_epochs= N_EPOCHS,
-    #         relevance_weight=REL_WEIGHT,
-    #         diversity_weight=DIV_WEIGHT,
-    #         dataset=dataset_movie,
-    #         random_state=RANDOM_STATE)
+        # run pipeline for movies
+        run_movie_id = generate_run_id()
+        (
+            movies_best_lambda_cosine, 
+            movies_best_lambda_jaccard, 
+            movies_mf_trained, 
+            movies_train_user_ids, 
+            movies_train_item_ids
+        ) = run_train_pipeline (
+            run_id = run_movie_id,
+            ratings_train_path = movies_ratings_train_file,
+            ratings_val_path= movies_ratings_val_file,
+            item_path = movies_item_file_path,
+            output_dir = movies_output_dir,
+            top_k = TOP_K,
+            chunksize= CHUNK_SIZE_NAME,
+            n_epochs= N_EPOCHS,
+            relevance_weight=REL_WEIGHT,
+            diversity_weight=DIV_WEIGHT,
+            dataset=dataset_movie,
+            random_state=RANDOM_STATE)
 
-    #     run_test_pipeline(
-    #         run_id = run_movie_id,
-    #         ratings_train_path = movies_ratings_train_file,
-    #         ratings_test_path = movies_ratings_test_path ,
-    #         ground_truth_path = movies_ground_truth,
-    #         item_path=movies_item_file_path,
-    #         output_dir=movies_output_dir,
-    #         dataset=dataset_movie,
-    #         top_n=TOP_N,
-    #         top_k=TOP_K,
-    #         chunksize=CHUNK_SIZE_NAME,
-    #         best_lambda_cosine = movies_best_lambda_cosine,
-    #         best_lambda_jaccard = movies_best_lambda_jaccard,
-    #         trained_mf_model = movies_mf_trained,
-    #         train_filtered_user_ids=movies_train_user_ids,
-    #         train_filtered_item_ids=movies_train_item_ids
-    #     )
+        run_test_pipeline(
+            run_id = run_movie_id,
+            ratings_train_path = movies_ratings_train_file,
+            ratings_test_path = movies_ratings_test_path ,
+            ground_truth_path = movies_ground_truth,
+            item_path=movies_item_file_path,
+            output_dir=movies_output_dir,
+            dataset=dataset_movie,
+            top_n=TOP_N,
+            top_k=TOP_K,
+            chunksize=CHUNK_SIZE_NAME,
+            best_lambda_cosine = movies_best_lambda_cosine,
+            best_lambda_jaccard = movies_best_lambda_jaccard,
+            trained_mf_model = movies_mf_trained,
+            train_filtered_user_ids=movies_train_user_ids,
+            train_filtered_item_ids=movies_train_item_ids
+        )
 
 
         #RUN pipeline for books

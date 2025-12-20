@@ -399,7 +399,7 @@ def save_mf_predictions(trained_mf_model, train_user_ids, train_item_ids, ground
             'userId': row['userId'],
             'itemId': row['itemId'],
             'true_rating': row['rating'],
-            'predictedRating': mf_prediction
+            'rating': mf_prediction
         })
 
     # Save predictions
