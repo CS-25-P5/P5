@@ -223,6 +223,64 @@ def build_mmr_input_from_nn(
     return predicted_ratings, user_history, user_ids, candidate_items
 
 
+def build_mmr_input_from(
+    candidate_list_csv,
+    interactions_df=None, 
+):
+
+    # Load candidate list from NN output CSV
+    df = pd.read_csv(candidate_list_csv)
+    df["userId"] = df["userId"].astype(str)
+    df["itemId"] = df["itemId"].astype(str)
+
+    # Extract unique users and candidate items
+    user_ids = df["userId"].unique().tolist()
+    candidate_items = df["itemId"].unique().tolist()
+
+    # Map users/items to row/column indices in the predicted rating matrix
+    user_to_row = {u: i for i, u in enumerate(user_ids)}
+    item_to_col = {i: j for j, i in enumerate(candidate_items)}
+
+    num_users = len(user_ids)
+    num_items = len(candidate_items)
+
+    # Initialize predicted ratings matrix (users x candidate items)
+    predicted_ratings = np.zeros((num_users, num_items))
+
+    # Fill matrix with predicted ratings from NN CSV
+    for _, row in df.iterrows():
+        predicted_ratings[
+            user_to_row[row["userId"]],
+            item_to_col[row["itemId"]],
+        ] = row["predictedRating"]
+
+    # build user history mask
+    user_history = None
+
+    if interactions_df is not None:
+        interactions_df["userId"] = interactions_df["userId"].astype(str)
+        interactions_df["itemId"] = interactions_df["itemId"].astype(str)
+
+        user_history = []
+
+        # For each user, mark items they've already interacted with
+        for u in user_ids:
+            # Select all items interacted with by the current user u
+            seen_items = set(
+                interactions_df.loc[
+                    interactions_df["userId"] == u, "itemId"
+                ]
+            )
+
+            # Create a boolean array marking which candidate items the user has already seen
+            mask = np.array(
+                [item in seen_items for item in candidate_items],
+                dtype=bool,
+            )
+            user_history.append(mask)
+
+    return predicted_ratings, user_history, user_ids, candidate_items
+
 # ==========================
 # LOGGING FUNCTIONS
 # ==========================

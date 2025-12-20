@@ -4,7 +4,7 @@ from MMR import mmr_builder_factory, tune_mmr_lambda, run_mmr, process_save_mmr
 from helperFunctions import (
     generate_run_id, 
     prepare_train_val_matrices, get_filtered_predictions, 
-    log_experiment, log_loss_history, build_mmr_input_from_nn)
+    log_experiment, log_loss_history, build_mmr_input_from)
 import os
 import pandas as pd
 import time
@@ -283,7 +283,7 @@ def run_test_pipeline(
 
     ratings_df = pd.read_csv(ratings_train_path)[["userId", "itemId"]]
 
-    predicted_ratings_top_n, user_history_top_n, user_ids, candidate_items = build_mmr_input_from_nn(
+    predicted_ratings_top_n, user_history_top_n, user_ids, candidate_items = build_mmr_input_from(
     candidate_list_csv = candidate_path,
     interactions_df=ratings_df
     )
