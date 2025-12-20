@@ -237,10 +237,7 @@ def run_dpp_pipeline_test(
     test_user_ids = existing_test_df.index.unique()
     test_item_ids = existing_test_df['itemId'].unique()
 
-    assert len(test_user_ids) == 1, \
-        f"Expected single test user, got {len(test_user_ids)}"
 
-    test_user_id = test_user_ids[0]
 
 
     # Extract predicted ratings for filtered users and items from the trained MF model
@@ -269,10 +266,7 @@ def run_dpp_pipeline_test(
         interactions_df=ratings_df
     )
 
-    assert len(user_ids) == 1
-    assert len(candidate_items_per_user) == 1
-    assert len(user_history_top_n) == 1
-    assert predicted_ratings_top_n.shape[0] == 1
+
 
 
 
@@ -290,12 +284,12 @@ def run_dpp_pipeline_test(
     )
 
     # Filter rating matrix and df to only users/items present in candidate list
-    #user_ids = [u for u in user_ids if u in item_user_rating.index]
+    user_ids = [u for u in user_ids if u in item_user_rating.index]
     candidate_items = [i for i in candidate_items if i in item_user_rating.columns]
 
     item_user_rating.index = item_user_rating.index.astype(str)
 
-    user_ids = [str(test_user_id)]
+    #user_ids = [str(test_user_id)]
     candidate_items = [i for i in candidate_items if i in item_user_rating.columns]
 
     item_user_rating = item_user_rating.loc[user_ids, candidate_items]
@@ -365,14 +359,14 @@ if __name__ == "__main__":
 
 
     # PARAMETER
-    TOP_N = 10
+    TOP_N = 50
     CHUNK_SIZE = 100000
     CHUNK_SIZE_NAME = "100K"
     K = 20
     ALPHA = 0.01
     LAMDA_ = 0.1
     N_EPOCHS = 50
-    TOP_K = 50
+    TOP_K = 20
     LAMBDA_PARAM = 0.7
     #DATASET_NAME = "books"
     RANDOM_STATE = 42
