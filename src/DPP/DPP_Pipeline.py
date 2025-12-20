@@ -229,17 +229,13 @@ def run_dpp_pipeline_test(
 
     # Load unseen test data
     test_df = pd.read_csv(ratings_test_path)
-    test_df["userId"] = test_df["userId"].astype(str)
-    test_df["itemId"] = test_df["itemId"].astype(str)
 
     # Keep only users that exist in the trained MF model
-    test_user_ids = test_df[test_df["userId"].isin(train_filtered_user_ids)]["userId"].unique().tolist()
-    if len(test_user_ids) == 0:
-        raise ValueError("No test users match the trained MF model.")
-
-    test_item_ids = test_df["itemId"].unique().tolist()
-
-
+    existing_test_df = test_df[test_df['userId'].isin(train_filtered_user_ids)].copy()
+    # Make userId the DataFrame index.
+    existing_test_df.set_index('userId', inplace=True)
+    test_user_ids = existing_test_df.index.unique()
+    test_item_ids = existing_test_df['itemId'].unique()
 
 
     # Extract predicted ratings for filtered users and items from the trained MF model
@@ -340,7 +336,7 @@ def run_dpp_pipeline_test(
         print("Warning: No GT items in DPP candidate pool! Metrics will be zero.")
 
 
-# Use full predicted ratings (not top-N)
+    # Use full predicted ratings (not top-N)
     predicted_ratings_dpp = predicted_ratings_top_n
 
     dpp_cosine = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings_dpp, 'cosine')
