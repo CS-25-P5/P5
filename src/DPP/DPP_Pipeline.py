@@ -265,7 +265,7 @@ def run_dpp_pipeline_test(
 
     predicted_ratings_top_n, user_history_top_n, user_ids, candidate_items, candidate_items_per_user = build_dpp_input_from(
         candidate_list_csv = candidate_path,
-        interactions_df=ratings_df
+        R_filtered=ratings_df
     )
 
 
@@ -385,8 +385,8 @@ if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.abspath(__file__))
     #books_ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_train.csv")
     #books_ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_val.csv")
-    #books_ground_truth = os.path.join(base_dir, "../datasets/mmr_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_test.csv")
-    #books_ratings_test_path = os.path.join(base_dir, "../datasets/mmr_data", "ratingsbooks_100K.csv")
+    #books_ground_truth = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_test.csv")
+    #books_ratings_test_path = os.path.join(base_dir, "../datasets/dpp_data", "ratingsbooks_100K.csv")
     #books_item_file_path = os.path.join(base_dir, f"../datasets/{folder_books}", f"{dataset_books}.csv")
 
     #books_output_dir = os.path.join(base_dir,f"../datasets/dpp_data/{dataset_books}")
