@@ -161,11 +161,17 @@ def run_test_pipeline(
         top_k, top_n, "jaccard", candidate_items_per_user=candidate_items_per_user,
         user_history_per_user=user_history_top_n
     )
-    # Save DPP results
-    cosine_path = os.path.join(output_dir, f"{run_id}/dpp_test_{chunksize}_cosine_top_{top_n}.csv")
-    save_DPP(cosine_reco, cosine_path)
 
-    jaccard_path = os.path.join(output_dir, f"{run_id}/dpp_test_{chunksize}_jaccard_top_{top_n}.csv")
+    # Ensure the run-specific directory exists
+    run_output_dir = os.path.join(output_dir, run_id)
+    os.makedirs(run_output_dir, exist_ok=True)
+
+    # Save DPP results
+    cosine_path = os.path.join(run_output_dir, f"dpp_test_{chunksize}_cosine_top_{top_n}.csv")
+
+    jaccard_path = os.path.join(run_output_dir, f"dpp_test_{chunksize}_jaccard_top_{top_n}.csv")
+
+    save_DPP(cosine_reco, cosine_path)
     save_DPP(jaccard_reco, jaccard_path)
 
     print("DPP TEST pipeline completed successfully!")
