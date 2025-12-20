@@ -207,7 +207,7 @@ def run_dpp_pipeline_test(
         output_dir=None,
         dataset=None,
         chunksize = 10000,
-        top_n=10, top_k=20, trained_mf_model=None,
+        top_n=10, top_k=50, trained_mf_model=None,
         train_filtered_user_ids=None,
         train_filtered_item_ids=None
 ):
@@ -229,6 +229,8 @@ def run_dpp_pipeline_test(
 
     # Load unseen test data
     test_df = pd.read_csv(ratings_test_path)
+    test_df["userId"] = test_df["userId"].astype(str)
+    test_df["itemId"] = test_df["itemId"].astype(str)
 
     # Keep only users that exist in the trained MF model
     existing_test_df = test_df[test_df['userId'].isin(train_filtered_user_ids)].copy()
@@ -301,16 +303,19 @@ def run_dpp_pipeline_test(
         columns=candidate_items,
         dtype=float
     )
-    ratings_df["userId"] = ratings_df["userId"].astype(str)
-    ratings_df["itemId"] = ratings_df["itemId"].astype(str)
 
-    for _, row in ratings_df.iterrows():
-        u, i, r = str(row["userId"]), str(row["itemId"]), float(row.get("rating", 1.0))
-        if u in user_ids and i in candidate_items:
-            movie_user_rating.at[u, i] = r
+    test_df_filtered = test_df[test_df["userId"].isin(user_ids) & test_df["itemId"].isin(candidate_items)]
+    for _, row in test_df_filtered.iterrows():
+        movie_user_rating.at[row["userId"], row["itemId"]] = float(row.get("rating", 1.0))
 
 
-    print(f"Candidate items for DPP: {len(candidate_items)}")
+   # for _, row in ratings_df.iterrows():
+    #    u, i, r = str(row["userId"]), str(row["itemId"]), float(row.get("rating", 1.0))
+     #   if u in user_ids and i in candidate_items:
+      #      movie_user_rating.at[u, i] = r
+
+
+    #print(f"Candidate items for DPP: {len(candidate_items)}")
 
     # Build DPP models
     genre_map_test = {item: genre_map[item] for item in candidate_items if item in genre_map}
@@ -318,15 +323,17 @@ def run_dpp_pipeline_test(
 
 
     # SANITY CHECK
-    gt_items_test = item_user_rating.columns[item_user_rating.sum(axis=0) > 0]  # all items with any ratings in test
-    num_gt_in_candidates = sum(item in candidate_items for item in gt_items_test)
     print(f"Candidate items for DPP: {len(candidate_items)}")
-    print(f"Number of GT items included in candidates: {num_gt_in_candidates}")
+    print(f"Number of test users in ground truth matrix: {movie_user_rating.shape[0]}")
+    print(f"Number of GT interactions: {movie_user_rating.values.sum()}")
+    gt_items_test = movie_user_rating.columns[movie_user_rating.sum(axis=0) > 0]
+    num_gt_in_candidates = sum(item in candidate_items for item in gt_items_test)
+    print(f"GT items included in candidate pool: {num_gt_in_candidates}")
     if num_gt_in_candidates == 0:
-        print("Warning: No GT items in DPP candidate pool! GT metrics will be zero.")
+        print("Warning: No GT items in DPP candidate pool! Metrics will be zero.")
 
 
-    # Use full predicted ratings (not top-N)
+# Use full predicted ratings (not top-N)
     predicted_ratings_dpp = predicted_ratings_top_n
 
     dpp_cosine = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings_dpp, 'cosine')
