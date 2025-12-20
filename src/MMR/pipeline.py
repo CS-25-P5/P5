@@ -224,8 +224,8 @@ def run_train_pipeline(
 
 def run_test_pipeline(
     run_id,
-    train_ratings_path,
-    test_ratings_path, 
+    ratings_train_path,
+    ratings_test_path, 
     item_path,
     ground_truth_path,
     output_dir=None,
@@ -247,13 +247,13 @@ def run_test_pipeline(
 
     # Load the user-item rating matrix and item genre metadata
     item_user_rating, genre_map, all_genres= load_and_prepare_matrix(
-        train_ratings_path, item_path)
+        ratings_train_path, item_path)
     
     # Ensure train_filtered_user_ids are all ints
     train_filtered_user_ids = [int(uid) for uid in train_filtered_user_ids]
 
     # Load unseen test data 
-    test_df = pd.read_csv(test_ratings_path)
+    test_df = pd.read_csv(ratings_test_path)
 
     # Keep only users that exist in the trained MF model
     existing_test_df = test_df[test_df['userId'].isin(train_filtered_user_ids)].copy()
@@ -281,7 +281,7 @@ def run_test_pipeline(
     # Use the top-N MF recommendations as the candidate list for MMR
     candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
-    ratings_df = pd.read_csv(train_ratings_path)[["userId", "itemId"]]
+    ratings_df = pd.read_csv(ratings_train_path)[["userId", "itemId"]]
 
     predicted_ratings_top_n, user_history_top_n, user_ids, candidate_items = build_mmr_input_from_nn(
     candidate_list_csv = candidate_path,
@@ -387,9 +387,9 @@ if __name__ == "__main__":
     books_output_dir = os.path.join(base_dir,f"../datasets/mmr_data/{dataset_books}")
 
     weight_pairs = [
-    #(1.0, 0.0),
-    #(0.8, 0.2),
-    (0.6, 0.4),
+    (1.0, 0.0),
+    # (0.8, 0.2),
+    # (0.6, 0.4),
     #(0.5, 0.5),
     #(0.4, 0.6),
     #(0.2, 0.8),
@@ -424,8 +424,8 @@ if __name__ == "__main__":
 
         run_test_pipeline(
             run_id = run_movie_id,
-            train_ratings_path = movies_ratings_train_file,
-            test_ratings_path = movies_ratings_test_path ,
+            ratings_train_path = movies_ratings_train_file,
+            ratings_test_path = movies_ratings_test_path ,
             ground_truth_path = movies_ground_truth,
             item_path=movies_item_file_path,
             output_dir=movies_output_dir,
@@ -466,7 +466,7 @@ if __name__ == "__main__":
         run_test_pipeline(
             run_id = run_book_id,
             ratings_train_path = books_ratings_train_file,
-            test_ratings_path=books_ratings_test_path,
+            ratings_test_path=books_ratings_test_path,
             ground_truth_path = books_ground_truth,
             item_path=books_item_file_path,
             ground_truth_path = books_ground_truth,
