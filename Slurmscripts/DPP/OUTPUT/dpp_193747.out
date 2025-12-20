@@ -1,0 +1,29 @@
+Running on ailab-l4-01
+Start time: Sat Dec 20 16:14:27 CET 2025
+Activating virtual environment...
+Python path: /ceph/home/student.aau.dk/la15yk/p5_env/bin/python3
+Python version: Python 3.10.12
+Running on ailab-l4-01
+Start time: Sat Dec 20 16:14:27 CET 2025
+PYTHONPATH=
+Starting pipeline...
+Start ml100k_OneLayer_embed64_lr00003_batch128 test pipeline 
+Candidate items for DPP: 644
+Candidate items for DPP: 644
+Number of GT items included in candidates: 644
+DPP diagnostics:
+Users with recommendations: 658
+Unique recommended items: 564
+Total recommendations: 13160
+Done DPP for cosine
+DPP diagnostics:
+Users with recommendations: 658
+Unique recommended items: 563
+Total recommendations: 13160
+Done DPP for jaccard
+Test predictions saved to: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/movies_NN_MLPwithBPR/2025-12-20_16-14-28/dpp_test_100K_cosine_top_50.csv
+DONE with DPP :)
+Test predictions saved to: /ceph/home/student.aau.dk/la15yk/P5/src/DPP/../datasets/dpp_data/movies_NN_MLPwithBPR/2025-12-20_16-14-28/dpp_test_100K_jaccard_top_50.csv
+DONE with DPP :)
+DPP TEST pipeline completed successfully!
+End time: Sat Dec 20 16:14:39 CET 2025
