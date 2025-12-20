@@ -118,17 +118,17 @@ class MMR:
         return selected
 
 
-def run_mmr(mmr_model, R_filtered, top_k, user_history = None):
+def run_mmr(mmr_model, user_ids, R_filtered, top_k, user_history = None):
     all_recs = []
-    # Loop over all users in the filtered rating matrix
-    for user_idx in range(R_filtered.shape[0]):
+    # Loop over all user indices corresponding to user_ids
+    for idx, user_id in enumerate(user_ids):
         # Get user's interacted items (from user_history or R_filtered)
         user_histories = np.atleast_1d(
-            user_history[user_idx] if user_history is not None 
-            else (R_filtered[user_idx, :] > 0)
+            user_history[idx] if user_history is not None
+            else (R_filtered[idx, :] > 0)
         )
         # Run the MMR algorithm for this user to get top_k recommendations
-        rec_indices = mmr_model.mmr(user_idx, user_histories, top_k)
+        rec_indices = mmr_model.mmr(idx, user_histories, top_k)
         all_recs.append(rec_indices)
     
     return all_recs
