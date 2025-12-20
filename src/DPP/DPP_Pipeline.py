@@ -247,14 +247,6 @@ def run_dpp_pipeline_test(
 
     predicted_ratings = np.array(predicted_ratings)
 
-    # Align movie_user_rating for test users
-    all_candidate_items = sorted(set(train_filtered_item_ids) | set(test_item_ids))
-    movie_user_rating = pd.DataFrame(0.0, index=test_user_ids, columns=all_candidate_items)
-    # Fill movie_user_rating from test_df
-    for _, row in test_df.iterrows():
-        u, i, r = str(row["userId"]), str(row["itemId"]), float(row.get("rating", 1.0))
-        if u in movie_user_rating.index and i in movie_user_rating.columns:
-            movie_user_rating.at[u, i] = r
 
     # Generate top-N recommendations for each user from MF predictions
     get_top_n_recommendations_MF(
@@ -295,7 +287,21 @@ def run_dpp_pipeline_test(
     # Filter rating matrix and df to only users/items present in candidate list
     #user_ids = [u for u in user_ids if u in item_user_rating.index]
     #candidate_items = [i for i in candidate_items if i in movie_user_rating.columns]
+    train_item_ids_str = [str(i) for i in train_filtered_item_ids]
+    test_item_ids_str = [str(i) for i in test_item_ids]
+    all_candidate_items = sorted(set(train_item_ids_str) | set(test_item_ids_str))
+    movie_user_rating = pd.DataFrame(0.0, index=test_user_ids, columns=all_candidate_items)
+    # Fill movie_user_rating from test_df
+    for _, row in test_df.iterrows():
+        u, i, r = str(row["userId"]), str(row["itemId"]), float(row.get("rating", 1.0))
+        if u in movie_user_rating.index and i in movie_user_rating.columns:
+            movie_user_rating.at[u, i] = r
+
     movie_user_rating = movie_user_rating.loc[test_user_ids, candidate_items]
+    # Ensure all IDs are strings
+
+
+    # Merge candidate items
     candidate_items = all_candidate_items
 
 
@@ -307,6 +313,7 @@ def run_dpp_pipeline_test(
 
     #item_user_rating = item_user_rating.loc[user_ids, candidate_items]
 
+    # Align movie_user_rating for test users
 
 
 
