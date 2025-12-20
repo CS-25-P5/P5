@@ -177,11 +177,20 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
     itemid_to_col = {item_id: idx for idx, item_id in enumerate(item_ids)}
 
     for user_idx, user_id in enumerate(movie_user_rating.index):
-        # --- Get per-user candidates and history ---
+        # --- Get candidate items for this user ---
         if candidate_items_per_user is not None:
-            candidate_items_user = candidate_items_per_user[user_idx]
+            # Check bounds to avoid IndexError
+            if user_idx >= len(candidate_items_per_user):
+                # Fallback: select all unrated items
+                user_history_mask = (movie_user_rating.iloc[user_idx, :] > 0).values
+                candidate_items_user = [
+                    item_id for idx, item_id in enumerate(movie_user_rating.columns)
+                    if not user_history_mask[idx] and item_id in itemid_to_col
+                ]
+            else:
+                candidate_items_user = candidate_items_per_user[user_idx]
         else:
-            # fallback: all unrated items
+            # No candidate list given: select all unrated items
             user_history_mask = (movie_user_rating.iloc[user_idx, :] > 0).values
             candidate_items_user = [
                 item_id for idx, item_id in enumerate(movie_user_rating.columns)

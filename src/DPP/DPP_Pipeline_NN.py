@@ -84,10 +84,13 @@ def run_test_pipeline(
     item_user_rating, genre_map, all_genres = load_and_prepare_matrix(
         train_ratings_path, item_path)
 
-    # Load basic user-item interaction history from CSV
+
+# Load basic user-item interaction history from CSV
     ratings_df = pd.read_csv(train_ratings_path)[["userId", "itemId"]]
     ratings_df["userId"] = ratings_df["userId"].astype(str)
     ratings_df["itemId"] = ratings_df["itemId"].astype(str)
+    nn_user_ids = list(ratings_df["userId"].astype(str).unique())
+    nn_user_to_idx = {u: i for i, u in enumerate(nn_user_ids)}
 
 
     (
@@ -105,10 +108,15 @@ def run_test_pipeline(
         ratings_df["userId"].isin(user_ids)
     ].reset_index(drop=True)
 
+    # Add this filter right after loading
+    item_user_rating = item_user_rating.loc[user_ids, candidate_items]
+
+
     # Safety checks
     assert predicted_ratings_top_n.shape[0] == len(user_ids)
     assert len(candidate_items_per_user) == len(user_ids)
     assert len(user_history_top_n) == len(user_ids)
+    assert len(candidate_items_per_user) == len(nn_user_to_idx)
 
 
     print(f"Candidate items for DPP: {len(candidate_items)}")
