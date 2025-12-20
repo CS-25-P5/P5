@@ -276,20 +276,20 @@ if __name__ == "__main__":
     MLP_ml1M_1layer = "ml1M_1layers_embed64_lr0.001_batch64"
 
 
-    run_movie_id = generate_run_id()
-    run_test_pipeline(
-        run_id = run_movie_id,
-        nn_candidates_csv = MLP_ml1M_1layer_nn_candidate_list_path ,
-        train_ratings_path=movies_1M_ratings_train_path,
-        item_path=movies_1M_item_file_path,
-        output_dir=MLP_movies_output_dir,
-        dataset=MLP_ml1M_1layer,
-        top_n=TOP_N,
-        top_k=TOP_K,
-        chunksize=CHUNK_SIZE_1M,
-        best_lambda_cosine = movies_100k_cos_lambda,
-        best_lambda_jaccard = movies_100k_jac_lambda,
-    )
+    #run_movie_id = generate_run_id()
+    #run_test_pipeline(
+    #    run_id = run_movie_id,
+    #    nn_candidates_csv = MLP_ml1M_1layer_nn_candidate_list_path ,
+    #    train_ratings_path=movies_1M_ratings_train_path,
+    #    item_path=movies_1M_item_file_path,
+    #    output_dir=MLP_movies_output_dir,
+    #    dataset=MLP_ml1M_1layer,
+    #    top_n=TOP_N,
+    #    top_k=TOP_K,
+    #    chunksize=CHUNK_SIZE_1M,
+    #    best_lambda_cosine = movies_100k_cos_lambda,
+    #    best_lambda_jaccard = movies_100k_jac_lambda,
+    #)
 
 
 
@@ -354,7 +354,7 @@ if __name__ == "__main__":
 
 
 
-    MLPwithBPR_ml1M_3layer_nn_candidate_list_path =  os.path.join(base_dir, "../datasets/dpp_data/MLPwithBPR", "Movies1M_NNgenres_ThreeLayers_embed64_lr0001_batch64_ranked_final.csv")
+    MLPwithBPR_ml1M_3layer_nn_candidate_list_path =  os.path.join(base_dir, "../datasets/dpp_data/MLPwithBPR/", "Movies1M_NNgenres_ThreeLayers_embed64_lr0001_batch64_ranked_final.csv")
     MLPwithBPR_ml1M_3layer = "ml1M_NNgenres_ThreeLayers_embed64_lr0001_batch64"
 
     # run_movie_id = generate_run_id()
@@ -378,20 +378,20 @@ if __name__ == "__main__":
     MLP_gb100k_1layer = "gb100k_1layers_embed64_lr0.001_batch64"
     MLP_books_output_dir = os.path.join(base_dir,f"../datasets/dpp_data/books_NN_MLP")
 
-    # run_book_id = generate_run_id()
-    # run_test_pipeline(
-    #     run_id = run_book_id,
-    #     nn_candidates_csv = MLP_gb100k_1layer_nn_candidate_list_path ,
-    #     train_ratings_path=books_ratings_train_path,
-    #     item_path=books_item_file_path,
-    #     output_dir=MLP_books_output_dir,
-    #     dataset=MLP_gb100k_1layer,
-    #     top_n=TOP_N,
-    #     top_k=TOP_K,
-    #     chunksize=CHUNK_SIZE_100K,
-    #     best_lambda_cosine = books_100k_cos_lambda,
-    #     best_lambda_jaccard = books_100k_jac_lambda,
-    # )
+    run_book_id = generate_run_id()
+    run_test_pipeline(
+         run_id = run_book_id,
+         nn_candidates_csv = MLP_gb100k_1layer_nn_candidate_list_path ,
+         train_ratings_path=books_ratings_train_path,
+         item_path=books_item_file_path,
+         output_dir=MLP_books_output_dir,
+         dataset=MLP_gb100k_1layer,
+         top_n=TOP_N,
+         top_k=TOP_K,
+         chunksize=CHUNK_SIZE_100K,
+         best_lambda_cosine = books_100k_cos_lambda,
+         best_lambda_jaccard = books_100k_jac_lambda,
+     )
 
 
 
