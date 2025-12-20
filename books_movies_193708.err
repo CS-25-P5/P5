@@ -1,0 +1,27 @@
+Traceback (most recent call last):
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/venv/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rating'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/pipeline.py", line 425, in <module>
+    run_test_pipeline(
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/pipeline.py", line 286, in run_test_pipeline
+    predicted_ratings_top_n, user_history_top_n, user_ids, candidate_items = build_mmr_input_from_nn(
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/helperFunctions.py", line 196, in build_mmr_input_from_nn
+    ] = row["rating"]
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/venv/lib/python3.10/site-packages/pandas/core/series.py", line 1133, in __getitem__
+    return self._get_value(key)
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/venv/lib/python3.10/site-packages/pandas/core/series.py", line 1249, in _get_value
+    loc = self.index.get_loc(label)
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/venv/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rating'
+/var/spool/slurm/job193708/slurm_script: line 31: unexpected EOF while looking for matching `"'
+/var/spool/slurm/job193708/slurm_script: line 32: syntax error: unexpected end of file

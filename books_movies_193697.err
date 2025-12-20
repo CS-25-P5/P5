@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/ceph/home/student.aau.dk/vo55zp/projects/P5/src/MMR/pipeline.py", line 538, in <module>
+    #     run_test_pipeline(
+TypeError: run_test_pipeline() missing 1 required positional argument: 'item_path'
+/var/spool/slurm/job193697/slurm_script: line 31: unexpected EOF while looking for matching `"'
+/var/spool/slurm/job193697/slurm_script: line 32: syntax error: unexpected end of file
