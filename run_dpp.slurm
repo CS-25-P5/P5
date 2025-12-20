@@ -18,6 +18,7 @@ echo "Activating virtual environment..."
 source /ceph/home/student.aau.dk/la15yk/P5/venv/bin/activate
 
 
+
 # Debug info
 echo "Python path: $(which python3)"
 echo "Python version: $(python3 --version)"
@@ -26,7 +27,11 @@ cd ~/P5
 
 echo "Running on $(hostname)"
 echo "Start time: $(date)"
+echo "PYTHONPATH=$PYTHONPATH"
+export PYTHONPATH=$HOME/P5/src:$PYTHONPATH
+
 echo "Starting pipeline..."
+
 python3 src/DPP/DPP_Pipeline_NN.py
 
 echo "End time: $(date)"

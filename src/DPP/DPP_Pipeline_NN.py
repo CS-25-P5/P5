@@ -1,5 +1,5 @@
 import numpy as np
-from MMR.MF import load_and_prepare_matrix
+from MMR.MF import (load_and_prepare_matrix)
 from DPP import (
      build_dpp_models, get_recommendations_for_dpp, save_DPP
 )
