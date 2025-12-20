@@ -208,7 +208,7 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
         if len(candidate_indices) == 0:
             continue
 
-        top_m = min(100, len(candidate_indices))
+        top_m = min(200, len(candidate_indices))
 
         # --- Run DPP selection ---
         dpp_indices = dpp_model.dpp(
