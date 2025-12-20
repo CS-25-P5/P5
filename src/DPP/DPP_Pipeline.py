@@ -233,11 +233,11 @@ def run_dpp_pipeline_test(
     test_df["itemId"] = test_df["itemId"].astype(str)
 
     # Keep only users that exist in the trained MF model
-    existing_test_df = test_df[test_df['userId'].isin(train_filtered_user_ids)].copy()
-    # Make userId the DataFrame index.
-    existing_test_df.set_index('userId', inplace=True)
-    test_user_ids = existing_test_df.index.unique()
-    test_item_ids = existing_test_df['itemId'].unique()
+    test_user_ids = test_df[test_df["userId"].isin(train_filtered_user_ids)]["userId"].unique().tolist()
+    if len(test_user_ids) == 0:
+        raise ValueError("No test users match the trained MF model.")
+
+    test_item_ids = test_df["itemId"].unique().tolist()
 
 
 
@@ -248,6 +248,21 @@ def run_dpp_pipeline_test(
         test_user_ids,
         train_filtered_user_ids,
     )
+
+    predicted_ratings = np.array(predicted_ratings)
+
+    # Align movie_user_rating for test users
+    movie_user_rating = pd.DataFrame(
+        0.0,
+        index=test_user_ids,
+        columns=train_filtered_item_ids,
+        dtype=float
+    )
+    for _, row in test_df.iterrows():
+        u, i, r = str(row["userId"]), str(row["itemId"]), float(row.get("rating", 1.0))
+        if u in movie_user_rating.index and i in movie_user_rating.columns:
+            movie_user_rating.at[u, i] = r
+
 
     # Generate top-N recommendations for each user from MF predictions
     get_top_n_recommendations_MF(
@@ -286,33 +301,25 @@ def run_dpp_pipeline_test(
     )
 
     # Filter rating matrix and df to only users/items present in candidate list
-    user_ids = [u for u in user_ids if u in item_user_rating.index]
-    candidate_items = [i for i in candidate_items if i in item_user_rating.columns]
+    #user_ids = [u for u in user_ids if u in item_user_rating.index]
+    candidate_items = [i for i in candidate_items if i in movie_user_rating.columns]
+    movie_user_rating = movie_user_rating.loc[test_user_ids, candidate_items]
+
 
     item_user_rating.index = item_user_rating.index.astype(str)
 
     #user_ids = [str(test_user_id)]
-    candidate_items = [i for i in candidate_items if i in item_user_rating.columns]
+    #candidate_items = [i for i in candidate_items if i in item_user_rating.columns]
 
-    item_user_rating = item_user_rating.loc[user_ids, candidate_items]
-
-    # Build a numeric user-item matrix for DPP (movie_user_rating)
-    movie_user_rating = pd.DataFrame(
-        0,
-        index=user_ids,
-        columns=candidate_items,
-        dtype=float
-    )
-
-    test_df_filtered = test_df[test_df["userId"].isin(user_ids) & test_df["itemId"].isin(candidate_items)]
-    for _, row in test_df_filtered.iterrows():
-        movie_user_rating.at[row["userId"], row["itemId"]] = float(row.get("rating", 1.0))
+    #item_user_rating = item_user_rating.loc[user_ids, candidate_items]
 
 
-   # for _, row in ratings_df.iterrows():
-    #    u, i, r = str(row["userId"]), str(row["itemId"]), float(row.get("rating", 1.0))
-     #   if u in user_ids and i in candidate_items:
-      #      movie_user_rating.at[u, i] = r
+
+
+    #for _, row in ratings_df.iterrows():
+     #  u, i, r = str(row["userId"]), str(row["itemId"]), float(row.get("rating", 1.0))
+      # if u in user_ids and i in candidate_items:
+       #    movie_user_rating.at[u, i] = r
 
 
     #print(f"Candidate items for DPP: {len(candidate_items)}")
