@@ -16,7 +16,7 @@ tune_mf, train_mf_with_best_params,
 
 from MMR.helperFunctions import ( generate_run_id, align_matrix_to_user_items, align_matrix_to_user,
                                   prepare_train_val_matrices, get_filtered_predictions,
-                                   log_experiment, build_mmr_input, build_dpp_input_per_user
+                                   log_experiment, build_mmr_input
                                   )
 
 
