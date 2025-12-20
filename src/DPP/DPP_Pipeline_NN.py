@@ -251,8 +251,8 @@ if __name__ == "__main__":
 
 
     #MOVIES - MLP
-    MLP_ml100k_1layer_nn_candidate_list_path =  os.path.join(base_dir, "../datasets/dpp_data/MLP/ml100k", "MLP_1layers_embed64_lr0.001_batch64.csv")
-    MLP_ml100k_1layer_nn = "ml100k_1layers_embed64_lr0.001_batch64"
+    #MLP_ml100k_1layer_nn_candidate_list_path =  os.path.join(base_dir, "../datasets/dpp_data/MLP/ml100k", "MLP_1layers_embed64_lr0.001_batch64.csv")
+    #MLP_ml100k_1layer_nn = "ml100k_1layers_embed64_lr0.001_batch64"
     MLP_movies_output_dir = os.path.join(base_dir,"../datasets/dpp_data/movies_NN_MLP")
 
     #run_movie_id = generate_run_id()
