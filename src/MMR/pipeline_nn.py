@@ -60,7 +60,7 @@ def run_test_pipeline(
     # Run MMR re-ranking for each user (cosine similarity)
     all_recs_cosine = run_mmr(
         mmr_model = mmr_cosine,
-        R_filtered = item_user_rating ,
+        R_filtered = item_user_rating,
         user_history = user_history_top_n,
         top_k = top_k)
     
