@@ -469,7 +469,6 @@ if __name__ == "__main__":
             ratings_test_path=books_ratings_test_path,
             ground_truth_path = books_ground_truth,
             item_path=books_item_file_path,
-            ground_truth_path = books_ground_truth,
             output_dir=books_output_dir,
             dataset=dataset_books,
             top_n=TOP_N,
