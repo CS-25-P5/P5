@@ -539,6 +539,7 @@ for REL_WEIGHT, DIV_WEIGHT in weight_pairs:
         run_id = run_movie_id,
         ratings_train_path = movies_ratings_train_file,
         ratings_test_path = movies_ratings_test_path ,
+        item_path = movies_item_file_path,
         ground_truth_path = movies_ground_truth,
         output_dir=movies_output_dir,
         dataset=dataset_movie,
