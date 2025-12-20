@@ -6,12 +6,12 @@ K = 10
 CALCULATE_ILD = True  # Set to False to skip ILD calculation
 
 #movies
-# ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
-# CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
+CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\MovieLens\movies.csv"
 
 # Books
-CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
-ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+# CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
+# ITEM_FEATURES_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\GoodBooks\books.csv"
 
 #test2
 # CATALOG_PATH = r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\movies_test2.csv"
@@ -70,7 +70,7 @@ CATALOG = CATALOG.rename(columns={"itemId": "item_id"})
 #1m movies
 # GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\GT_val.csv")
 #100k books
-GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\GT_val.csv")
+#GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\GT_val.csv")
 
 
 #########
@@ -78,7 +78,7 @@ GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data fo
 #100 movies
 # GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\GT_test.csv")
 #100k books
-# GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\GT_test.csv")
+#GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\GT_test.csv")
 # #1m movies
 # GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\GT_test.csv")
 ############
@@ -99,8 +99,15 @@ GROUND_TRUTH = (r"E:\Data\data for entire set (fixed for real this time)\data fo
 #diana 10% Test GT
 #GROUND_TRUTH = r"E:\Data\INPUT_TEST\ratings_1M_movies_test.csv"
 # GROUND_TRUTH = r"E:\Data\INPUT_TEST\ratings_100k_movies_test.csv"
-# GROUND_TRUTH = r"E:\Data\INPUT_TEST\ratings_100k_goodbooks_test.csv"
+#GROUND_TRUTH = r"E:\Data\INPUT_TEST\ratings_100k_goodbooks_test.csv"
 
+#johannes test:
+#book
+#GROUND_TRUTH = r"E:\Data\dataaaa\gb100k\predictions\ground_truth"
+#100k movie
+#GROUND_TRUTH = r"E:\Data\dataaaa\ml100k\predictions\ground_truth"
+#1m movie
+GROUND_TRUTH = r"E:\Data\dataaaa\ml1m\predictions\ground_truth"
 
 #1M ground truth
 #GROUND_TRUTH = r"E:\Data\OUTPUT_datasets\NN\Output_Predictions_test_1M_movies(MLPwithGenres)\Cleaned_CSVs\GROUNDTRUTH_alluserandmovies.csv"
@@ -212,6 +219,360 @@ MODELS = [
     # #test2
     # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\test\test2_predictions.csv", "Test2"),
     #
+
+
+
+##### Johannes #######
+
+    # johannes final runs 100k movies 18/12
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # #
+    # # #3 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+
+    # #NN johannes - final run movies ml1M 18/12
+    #1layer
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    #
+    # #3 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+
+    # #NN johannes - 1m ml final run 18/12
+    # #1layer
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch64.csv", "1layer-em32-lr001-b64"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv", "1layer-em32-lr0003-b64"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv", "1layer-em32-lr0003-b128"),
+
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch64.csv", "1layer-em64-lr001-b64"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch128.csv", "1layer-em64-lr001-b128"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv", "1layer-em64-lr0003-b64"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv", "1layer-em64-lr0003-b128"),
+
+    # 2 layers
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch64.csv", "2layer-em32-lr001-b64"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch128.csv", "2layer-em32-lr001-b128"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv", "2layer-em32-lr0003-b64"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv", "2layer-em32-lr0003-b128"),
+
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch64.csv", "2layer-em64-lr001-b64"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch128.csv", "2layer-em64-lr001-b128"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv", "2layer-em64-lr0003-b64"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv", "2layer-em64-lr0003-b128"),
+
+    # 3 layers
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch64.csv", "3layer-em32-lr001-b64"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch128.csv", "3layer-em32-lr001-b128"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv", "3layer-em32-lr0003-b64"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv", "3layer-em32-lr0003-b128"),
+
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch64.csv", "3layer-em64-lr001-b64"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch128.csv", "3layer-em64-lr001-b128"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em64-lr0003-b64"),
+    (r"E:\Data\dataaaa\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv", "3layer-em64-lr0003-b128"),
+
+
+
+    # #NN johannes - 100k ml final run 18/12
+    # #1layer
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv", "1layer-em32-lr001-b64"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv", "1layer-em32-lr0003-b64"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv", "1layer-em32-lr0003-b128"),
+    #
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch64.csv", "1layer-em64-lr001-b64"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch128.csv", "1layer-em64-lr001-b128"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv", "1layer-em64-lr0003-b64"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv", "1layer-em64-lr0003-b128"),
+    #
+    # # 2 layers
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch64.csv", "2layer-em32-lr001-b64"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch128.csv", "2layer-em32-lr001-b128"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv", "2layer-em32-lr0003-b64"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv", "2layer-em32-lr0003-b128"),
+    #
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch64.csv", "2layer-em64-lr001-b64"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch128.csv", "2layer-em64-lr001-b128"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv", "2layer-em64-lr0003-b64"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv", "2layer-em64-lr0003-b128"),
+    #
+    # # 3 layers
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch128.csv", "3layer-em32-lr001-b128"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv", "3layer-em32-lr0003-b64"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv", "3layer-em32-lr0003-b128"),
+    #
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch64.csv", "3layer-em64-lr001-b64"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv", "3layer-em64-lr001-b128"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em64-lr0003-b64"),
+    # (r"E:\Data\dataaaa\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv", "3layer-em64-lr0003-b128"),
+
+    # # # #NN johannes - gb final run 18/12
+    # # # #1layer
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr0003-b64"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr0003-b128"),
+    #
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em64-lr001-b64"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em64-lr001-b128"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em64-lr0003-b64"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em64-lr0003-b128"),
+    #
+    # #2 layers
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr0003-b64"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr0003-b128"),
+    #
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em64-lr001-b64"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em64-lr001-b128"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em64-lr0003-b64"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em64-lr0003-b128"),
+    #
+    #
+    # #3 layers
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr0003-b64"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr0003-b128"),
+    #
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em64-lr001-b64"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em64-lr001-b128"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em64-lr0003-b64"),
+    # (r"E:\Data\dataaaa\gb100k\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em64-lr0003-b128"),
+
+
+
+    #johannes validation runs 100k movies 18/12
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # #
+    # # #3 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+
+    # #NN johannes - gb validation 18/12
+    # #1layer
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    #
+    # #3 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+
+    # #NN johannes - movies ml1M 18/12
+    # #1layer
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    #
+    # #3 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+
+    # # NN johannes - ml1m final 18/12
+    # # 1layer
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    #
+    # #3 layers
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+
+    # NN johannes - movies 1m
+    # # 1layer
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv", "1layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
+    #
+    # #2 layers
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
+    #
+    # #3 layers
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
+    #
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
+    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
+
 
 
 #### Diana #####
@@ -2620,288 +2981,6 @@ MODELS = [
 
 
 
-##### Johannes #######
-
-    # johannes final runs 100k movies 18/12
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # #
-    # # #3 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml100k\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-    # #NN johannes - final run movies ml1M 18/12
-    #1layer
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    #
-    # #3 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-    # #NN johannes - gb final run 18/12
-    # #1layer
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    #
-    # #3 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\predictions (all user-item pairs)\gb100k\predictions\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-
-
-    #johannes validation runs 100k movies 18/12
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # #
-    # # #3 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml100k\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-    # #NN johannes - gb validation 18/12
-    # #1layer
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-
-    #2 layers
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-
-
-    #3 layers
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-    # #NN johannes - movies ml1M 18/12
-    # #1layer
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    #
-    # #3 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\gb100k\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-
-    # # NN johannes - ml1m final 18/12
-    # # 1layer
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed64_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    #
-    # #3 layers
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
-    # (r"E:\Data\data for entire set (fixed for real this time)\data for entire set (fixed for real this time)\validation predictions\ml1m\MLP_3layers_embed64_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-
-
-
-    # NN johannes - movies 1m
-    # # 1layer
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\MLP_1layers_embed32_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed32_lr0.001_batch128.csv", "1layer-em32-lr001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed32_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch64.csv","1layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.001_batch128.csv","1layer-em32-lr001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch64.csv", "1layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_1layers_embed64_lr0.0003_batch128.csv","1layer-em32-lr001-b128"),
-    #
-    # #2 layers
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed32_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.001_batch128.csv","2layer-em32-lr001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch64.csv","2layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_2layers_embed64_lr0.0003_batch128.csv","2layer-em32-lr001-b128"),
-    #
-    # #3 layers
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.001_batch128.csv","3layer-em32-lr001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch64.csv","3layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed32_lr0.0003_batch128.csv","3layer-em32-lr001-b128"),
-    #
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch64.csv",  "3layer-em32-lr001-b64"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed64_lr0.001_batch128.csv",  "3layer-em32-lr001-b128"),
-    # (r"C:\Users\Jacob\Documents\GitHub\P5\src\datasets\datasets_to_analyse\johannes_data_(entire_set)\ml1m\predictions\MLP_3layers_embed64_lr0.0003_batch64.csv", "3layer-em32-lr001-b64"),
 
 ]
 
