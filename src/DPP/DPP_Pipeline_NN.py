@@ -15,8 +15,6 @@ def build_dpp_input_from_nn(
     df["userId"] = df["userId"].astype(str)
     df["itemId"] = df["itemId"].astype(str)
 
-    R_filtered["userId"] = R_filtered["userId"].astype(str)
-    R_filtered["itemId"] = R_filtered["itemId"].astype(str)
 
     user_ids = df["userId"].unique().tolist()
     candidate_items = df["itemId"].unique().tolist()
@@ -35,30 +33,31 @@ def build_dpp_input_from_nn(
     user_history = []
 
     if R_filtered is not None:
+        R_filtered = R_filtered.copy()
         R_filtered["userId"] = R_filtered["userId"].astype(str)
         R_filtered["itemId"] = R_filtered["itemId"].astype(str)
 
-        user_history = []
+    user_history = []
 
+    if R_filtered is not None:
         # For each user, mark items they've already interacted with
         for u in user_ids:
-            # Select all items interacted with by the current user u
-            seen_items = set(
-                R_filtered.loc[
-                    R_filtered["userId"] == u, "itemId"
-                ]
-            )
+                seen_items = set(
+                    R_filtered.loc[R_filtered["userId"] == u, "itemId"]
+                )
 
-            # Create a boolean array marking which candidate items the user has already seen
-            mask = np.array(
-                [item in seen_items for item in candidate_items],
-                dtype=bool,
-            )
-            user_history.append(mask)
+                mask = np.array(
+                    [item in seen_items for item in candidate_items],
+                    dtype=bool,
+                )
+                user_history.append(mask)
+    else:
+        user_history = [np.zeros(len(candidate_items), dtype=bool)
+                        for _ in user_ids]
 
-        candidate_items_per_user = [candidate_items for _ in user_ids]
+    candidate_items_per_user = [candidate_items for _ in user_ids]
 
-        return predicted_ratings, user_history, user_ids, candidate_items, candidate_items_per_user
+    return predicted_ratings, user_history, user_ids, candidate_items, candidate_items_per_user
 
 def run_test_pipeline(
         run_id,
@@ -87,12 +86,30 @@ def run_test_pipeline(
 
     # Load basic user-item interaction history from CSV
     ratings_df = pd.read_csv(train_ratings_path)[["userId", "itemId"]]
+    ratings_df["userId"] = ratings_df["userId"].astype(str)
+    ratings_df["itemId"] = ratings_df["itemId"].astype(str)
 
 
-    predicted_ratings_top_n, user_history_top_n, user_ids, candidate_items, candidate_items_per_user = build_dpp_input_from_nn(
-        candidate_list_csv = nn_candidates_csv,
-        R_filtered = ratings_df
+    (
+        predicted_ratings_top_n,
+        user_history_top_n,
+        user_ids,
+        candidate_items,
+        candidate_items_per_user
+    ) = build_dpp_input_from_nn(
+        candidate_list_csv=nn_candidates_csv,
+        R_filtered=ratings_df
     )
+
+    ratings_df = ratings_df[
+        ratings_df["userId"].isin(user_ids)
+    ].reset_index(drop=True)
+
+    # Safety checks
+    assert predicted_ratings_top_n.shape[0] == len(user_ids)
+    assert len(candidate_items_per_user) == len(user_ids)
+    assert len(user_history_top_n) == len(user_ids)
+
 
     print(f"Candidate items for DPP: {len(candidate_items)}")
 

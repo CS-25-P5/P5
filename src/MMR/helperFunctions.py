@@ -13,7 +13,6 @@ def generate_run_id():
     run_id = f"{timestamp}"
     return run_id
 
-
 # ==========================
 # MATRIX ALIGNMENT FUNCTIONS
 # ==========================
@@ -34,6 +33,20 @@ def align_matrix_to_user_items(matrix_df, filtered_item_ids, filtered_user_ids):
 
     return aligned_matrix, aligned_df
 
+
+# Select and return only the rows for specified users from a DataFrame
+def align_matrix_to_user(matrix_df, filtered_user_ids):
+    # Get row indices of filtered users that exist in the DataFrame
+    user_indices = [
+        matrix_df.index.get_loc(u)
+        for u in filtered_user_ids
+        if u in matrix_df.index
+    ]
+
+    # Select only those rows (users) from the DataFrame
+    aligned_df = matrix_df.iloc[user_indices, :]
+
+    return aligned_df.values, aligned_df
 
 #  Aligns training and validation DataFrames to have the same items
 # filters out users with no interactions
@@ -69,6 +82,41 @@ def prepare_train_val_matrices(train_df, val_df):
         filtered_user_ids,
         filtered_item_ids)
 
+
+
+#  Aligns training and validation DataFrames to have the same items
+# filters out users with no interactions
+def prepare_train_val_matrices(train_df, val_df):
+    # Keep only items that exist in both train and validation sets
+    common_items = train_df.columns.intersection(val_df.columns)
+    train_aligned = train_df[common_items]
+    val_aligned = val_df[common_items]
+
+    # Convert training DataFrame to numpy array and filter out users with no ratings
+    R_train = train_aligned.values
+    user_filter = R_train.sum(axis=1) > 0
+    R_filtered_train = R_train[user_filter, :]
+
+    # Store filtered user and item IDs
+    filtered_user_ids = train_aligned.index[user_filter].tolist()
+    filtered_item_ids = train_aligned.columns.tolist()
+
+    # Align validation matrix to match filtered users and items
+    R_filtered_val, val_data_filtered = align_matrix_to_user_items(
+        val_aligned,
+        filtered_item_ids,
+        filtered_user_ids
+    )
+
+    # Log shapes for debugging
+    print(f"Train matrix: {R_filtered_train.shape}, Val matrix: {R_filtered_val.shape}")
+
+    return (
+        R_filtered_train,
+        R_filtered_val,
+        val_data_filtered,
+        filtered_user_ids,
+        filtered_item_ids)
 
 
 # ==========================
