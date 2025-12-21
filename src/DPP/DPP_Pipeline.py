@@ -43,15 +43,15 @@ def build_dpp_input_from(
     user_ids = df["userId"].unique().tolist()
     candidate_items = df["itemId"].unique().tolist()
 
-    num_users = len(user_ids)
-    num_items = len(candidate_items)
-
-    # Index mappings
+    # Map users/items to row/column indices in the predicted rating matrix
     user_to_row = {u: i for i, u in enumerate(user_ids)}
     item_to_col = {i: j for j, i in enumerate(candidate_items)}
 
-    # Predicted ratings matrix
-    predicted_ratings = np.zeros((num_users, num_items), dtype=float)
+    num_users = len(user_ids)
+    num_items = len(candidate_items)
+
+    # Initialize predicted ratings matrix (users x candidate items)
+    predicted_ratings = np.zeros((num_users, num_items))
 
     for _, row in df.iterrows():
         predicted_ratings[
@@ -60,12 +60,13 @@ def build_dpp_input_from(
         ] = row["predictedRating"]
 
     # Build user history mask
-    user_history = []
+    user_history = None
 
     if interactions_df is not None:
-        interactions_df = interactions_df.copy()
         interactions_df["userId"] = interactions_df["userId"].astype(str)
         interactions_df["itemId"] = interactions_df["itemId"].astype(str)
+
+        user_history = []
 
         for u in user_ids:
             seen_items = set(
