@@ -1,2 +1,0 @@
-/var/spool/slurm/job173627/slurm_script: line 13: module: command not found
-FATAL:   While checking image: could not open image /ceph/container/pytorch/pytorch_3.10.sif: failed to retrieve path for /ceph/container/pytorch/pytorch_3.10.sif: lstat /ceph/container/pytorch/pytorch_3.10.sif: no such file or directory
