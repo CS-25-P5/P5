@@ -314,11 +314,6 @@ def run_dpp_pipeline_test(
         output_path=os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
     )
 
-    # Combine candidate items from top-N MF and all test items
-    candidate_items = sorted(set(candidate_items) | set(map(str, test_item_ids)))
-
-    # Rebuild candidate_items_per_user accordingly
-    candidate_items_per_user = [candidate_items for _ in user_ids]
 
 
     movie_user_rating = pd.DataFrame(
@@ -400,35 +395,35 @@ if __name__ == "__main__":
 
 
     #load data
-    #dataset_books = "books"
-    #folder_books = "GoodBooks"
+    dataset_books = "books"
+    folder_books = "GoodBooks"
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    #books_ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_train.csv")
-    #books_ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_val.csv")
-    #books_ground_truth = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_test.csv")
-    #books_ratings_test_path = os.path.join(base_dir, "../datasets/dpp_data", "ratingsbooks_100K.csv")
-    #books_item_file_path = os.path.join(base_dir, f"../datasets/{folder_books}", f"{dataset_books}.csv")
+    books_ratings_train_file= os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_train.csv")
+    books_ratings_val_file = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_val.csv")
+    books_ground_truth = os.path.join(base_dir, "../datasets/dpp_data", f"{dataset_books}_ratings_{CHUNK_SIZE}_test.csv")
+    books_ratings_test_path = os.path.join(base_dir, "../datasets/dpp_data", "ratingsbooks_100K.csv")
+    books_item_file_path = os.path.join(base_dir, f"../datasets/{folder_books}", f"{dataset_books}.csv")
 
-    #books_output_dir = os.path.join(base_dir,f"../datasets/dpp_data/{dataset_books}")
-
-
+    books_output_dir = os.path.join(base_dir,f"../datasets/dpp_data/{dataset_books}")
 
 
-    #run_book_id = generate_run_id()
 
 
-    #best_params, predicted_ratings, filtered_item_ids, filtered_user_ids, mf = run_dpp_pipeline(
-    #    run_id = run_book_id,
-    #    ratings_train_path = books_ratings_train_file,
-    #    ratings_val_path= books_ratings_val_file,
-    #    item_path = books_item_file_path,
-    #    output_dir = books_output_dir,
-    #    dataset=dataset_books,
-    #    top_n = TOP_N,
-    #    top_k = TOP_K,
-    #    chunksize= CHUNK_SIZE_NAME,
-    #    n_epochs= N_EPOCHS,
-    #    random_state=RANDOM_STATE)
+    run_book_id = generate_run_id()
+
+
+    best_params, predicted_ratings, filtered_item_ids, filtered_user_ids, mf = run_dpp_pipeline(
+        run_id = run_book_id,
+        ratings_train_path = books_ratings_train_file,
+        ratings_val_path= books_ratings_val_file,
+        item_path = books_item_file_path,
+        output_dir = books_output_dir,
+        dataset=dataset_books,
+        top_n = TOP_N,
+        top_k = TOP_K,
+        chunksize= CHUNK_SIZE_NAME,
+        n_epochs= N_EPOCHS,
+        random_state=RANDOM_STATE)
 
 
     #Run MF pipeline for test dataset
@@ -450,6 +445,7 @@ if __name__ == "__main__":
 
 
 
+
     #load MovieLens data
     dataset_movie = "movies"
     folder_movie = "MovieLens"
@@ -460,35 +456,35 @@ if __name__ == "__main__":
     movies_item_file_path = os.path.join(base_dir, f"../datasets/{folder_movie}", f"{dataset_movie}.csv")
     movies_output_dir = os.path.join(base_dir,f"../datasets/dpp_data/{dataset_movie}")
 
-    run_movie_id = generate_run_id()
+    #run_movie_id = generate_run_id()
 
-    best_params, predicted_ratings, filtered_item_ids, filtered_user_ids, mf = run_dpp_pipeline(
-        run_id = run_movie_id,
-        ratings_train_path = movies_ratings_train_file,
-        ratings_val_path= movies_ratings_val_file,
-        item_path = movies_item_file_path,
-        output_dir = movies_output_dir,
-        dataset=dataset_movie,
-        top_n = TOP_N,
-        top_k = TOP_K,
-        chunksize= CHUNK_SIZE_NAME,
-        n_epochs= N_EPOCHS,
-        random_state=RANDOM_STATE)
+    #best_params, predicted_ratings, filtered_item_ids, filtered_user_ids, mf = run_dpp_pipeline(
+    #    run_id = run_movie_id,
+    #    ratings_train_path = movies_ratings_train_file,
+    #    ratings_val_path= movies_ratings_val_file,
+    #    item_path = movies_item_file_path,
+    #    output_dir = movies_output_dir,
+    #    dataset=dataset_movie,
+    #    top_n = TOP_N,
+    #    top_k = TOP_K,
+    #    chunksize= CHUNK_SIZE_NAME,
+    #    n_epochs= N_EPOCHS,
+    #    random_state=RANDOM_STATE)
 
 
     #Run MF pipeline for test dataset
-    run_dpp_pipeline_test(
-        run_id = run_movie_id,
-        ratings_train_path=movies_ratings_train_file,
-        ratings_test_path=movies_ratings_test_path,
-        ground_truth_path = movies_ground_truth,
-        item_path=movies_item_file_path,
-        output_dir=movies_output_dir,
-        dataset= dataset_movie,
-        chunksize=CHUNK_SIZE,
-        top_n=TOP_N,
-        top_k=TOP_K,
-        trained_mf_model = mf,
-        train_filtered_user_ids=filtered_user_ids,
-        train_filtered_item_ids=filtered_item_ids
-    )
+    #run_dpp_pipeline_test(
+    #    run_id = run_movie_id,
+    #    ratings_train_path=movies_ratings_train_file,
+    #    ratings_test_path=movies_ratings_test_path,
+    #    ground_truth_path = movies_ground_truth,
+    #    item_path=movies_item_file_path,
+    #    output_dir=movies_output_dir,
+    #    dataset= dataset_movie,
+    #    chunksize=CHUNK_SIZE,
+    #    top_n=TOP_N,
+    #    top_k=TOP_K,
+    #    trained_mf_model = mf,
+    #    train_filtered_user_ids=filtered_user_ids,
+    #    train_filtered_item_ids=filtered_item_ids
+    #)
