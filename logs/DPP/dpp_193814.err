@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_Pipeline.py", line 472, in <module>
+    run_dpp_pipeline_test(
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_Pipeline.py", line 261, in run_dpp_pipeline_test
+    predicted_ratings = get_filtered_predictions(
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/MMR/helperFunctions.py", line 139, in get_filtered_predictions
+    test_user_indices = [user_id_to_idx[uid] for uid in test_user_ids]
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/MMR/helperFunctions.py", line 139, in <listcomp>
+    test_user_indices = [user_id_to_idx[uid] for uid in test_user_ids]
+KeyError: '1'

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_Pipeline.py", line 461, in <module>
+    run_dpp_pipeline_test(
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_Pipeline.py", line 251, in run_dpp_pipeline_test
+    all_candidate_items = sorted(set(train_filtered_item_ids) | set(test_item_ids))
+numpy.core._exceptions._UFuncNoLoopError: ufunc 'greater' did not contain a loop with signature matching types (<class 'numpy.dtypes.Int64DType'>, <class 'numpy.dtypes.StrDType'>) -> None

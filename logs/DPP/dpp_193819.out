@@ -1,0 +1,59 @@
+Running on ailab-l4-01
+Start time: Sun Dec 21 04:42:11 CET 2025
+Activating virtual environment...
+Python path: /ceph/home/student.aau.dk/la15yk/p5_env/bin/python3
+Python version: Python 3.10.12
+Running on ailab-l4-01
+Start time: Sun Dec 21 04:42:11 CET 2025
+PYTHONPATH=
+Starting pipeline...
+Starting pipeline for books train
+Train matrix: (1797, 2559), Val matrix: (1584, 2559)
+Training complete. Best epoch: 1, Best train RMSE: 0.9815, Best val RMSE: 0.9872
+Training complete. Best epoch: 1, Best train RMSE: 0.9827, Best val RMSE: 0.9889
+Training complete. Best epoch: 1, Best train RMSE: 0.9837, Best val RMSE: 0.9896
+Training complete. Best epoch: 1, Best train RMSE: 0.9817, Best val RMSE: 0.9873
+Training complete. Best epoch: 1, Best train RMSE: 0.9828, Best val RMSE: 0.9889
+Training complete. Best epoch: 1, Best train RMSE: 0.9838, Best val RMSE: 0.9895
+Training complete. Best epoch: 1, Best train RMSE: 0.9818, Best val RMSE: 0.9873
+Training complete. Best epoch: 1, Best train RMSE: 0.9829, Best val RMSE: 0.9888
+Training complete. Best epoch: 1, Best train RMSE: 0.9839, Best val RMSE: 0.9894
+Training complete. Best epoch: 1, Best train RMSE: 0.9638, Best val RMSE: 0.9883
+Training complete. Best epoch: 1, Best train RMSE: 0.9649, Best val RMSE: 0.9900
+Training complete. Best epoch: 1, Best train RMSE: 0.9660, Best val RMSE: 0.9906
+Training complete. Best epoch: 1, Best train RMSE: 0.9640, Best val RMSE: 0.9881
+Training complete. Best epoch: 1, Best train RMSE: 0.9651, Best val RMSE: 0.9897
+Training complete. Best epoch: 1, Best train RMSE: 0.9661, Best val RMSE: 0.9902
+Training complete. Best epoch: 1, Best train RMSE: 0.9643, Best val RMSE: 0.9880
+Training complete. Best epoch: 1, Best train RMSE: 0.9653, Best val RMSE: 0.9894
+Training complete. Best epoch: 1, Best train RMSE: 0.9662, Best val RMSE: 0.9898
+Training complete. Best epoch: 1, Best train RMSE: 0.9449, Best val RMSE: 0.9988
+Training complete. Best epoch: 1, Best train RMSE: 0.9461, Best val RMSE: 1.0005
+Training complete. Best epoch: 1, Best train RMSE: 0.9472, Best val RMSE: 1.0010
+Training complete. Best epoch: 1, Best train RMSE: 0.9452, Best val RMSE: 0.9978
+Training complete. Best epoch: 1, Best train RMSE: 0.9463, Best val RMSE: 0.9993
+Training complete. Best epoch: 1, Best train RMSE: 0.9472, Best val RMSE: 0.9997
+Training complete. Best epoch: 1, Best train RMSE: 0.9456, Best val RMSE: 0.9969
+Training complete. Best epoch: 1, Best train RMSE: 0.9466, Best val RMSE: 0.9981
+Training complete. Best epoch: 1, Best train RMSE: 0.9474, Best val RMSE: 0.9983
+Best MF params: {'alpha': 0.005, 'lambda_': 0.01, 'k': 20}, RMSE=0.9872
+→ Training Matrix Factorization...
+Training complete. Best epoch: 1, Best train RMSE: 0.9815, Best val RMSE: 0.9872
+→ Building DPP models...
+DPP model build time: 0.17 sec
+Matrix alignment time: 0.07 sec
+DPP diagnostics:
+Users with recommendations: 1797
+Unique recommended items: 624
+Total recommendations: 35940
+Done DPP for cosine
+DPP cosine runtime: 2.90 sec
+DPP diagnostics:
+Users with recommendations: 1797
+Unique recommended items: 571
+Total recommendations: 35940
+Done DPP for jaccard
+DPP jaccard runtime: 2.77 sec
+TOTAL DPP pipeline time: 5.91 sec
+DPP TRAIN pipeline completed successfully!
+End time: Sun Dec 21 05:09:33 CET 2025
