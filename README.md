@@ -84,3 +84,5 @@ The following methods will test the validity of the results.
 
 
 # Important commands
+
+All output files can be found on the 'data/OUTPUT_datasets' path. The scripts are in the src/backend paths - the models have run, and to run them again one just needs to run the srcipts in src/backend.

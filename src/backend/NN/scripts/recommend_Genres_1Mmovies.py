@@ -231,7 +231,7 @@ def run_program(optim,
 
             return total_loss / len(dataloader)
 
-    '''
+    
     def predict_ratings(model, dataset, device):
         "We will give rating for every user and its rated movie:  containing userId, movieId, predicted_rating and genres (as a list)"
         
@@ -246,9 +246,10 @@ def run_program(optim,
             genre_tensor = torch.tensor(genre_array, dtype=torch.float).to(device) 
 
             predictions = model(user_tensor, movies_tensor, genre_tensor).cpu().numpy()
-        return  predictions '''
+        return  predictions 
     
     ##Change this function
+    '''
     def predict_ratings_in_batches(model, dataset, device, batch_size=120_000):
     
         model.eval()
@@ -297,7 +298,7 @@ def run_program(optim,
                     torch.cuda.empty_cache()
 
         return scores
-
+    '''
             
 
 
@@ -368,7 +369,7 @@ def run_program(optim,
 
 
         #Get preds in val dataset
-        prediction = predict_ratings_in_batches(model, validation_df, device)
+        prediction = predict_ratings(model, validation_df, device)
 
         #Avr val loss pr batch
         average_val_loss_per_batch = evaluate_loss(model, validation_loader, device)
@@ -407,7 +408,7 @@ def run_program(optim,
     def test(model, testdataloader, device):
         average_test_loss_per_batch = evaluate_loss(model, testdataloader, device)
         #predict stuff using the test_df 
-        test_predict_score = predict_ratings_in_batches(model, test_df, device)
+        test_predict_score = predict_ratings(model, test_df, device)
         
         #Tildel prediction til test datasæt
         prediction_test_dataset = test_df.copy()
@@ -449,7 +450,7 @@ def run_program(optim,
 
     big_df["united_genre_vector"] = big_df.apply(build_genre_vector, axis = 1 )
 
-    big_scores = predict_ratings_in_batches(model, big_df, device)
+    big_scores = predict_ratings(model, big_df, device)
     big_df["recommendation_score"] = big_scores
     big_df = big_df[["userId", "movieId", "rating", "recommendation_score"]]
     big_df.to_csv(big_output, index=False)

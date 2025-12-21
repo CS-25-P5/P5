@@ -298,7 +298,7 @@ def run_program(optim,
 
 
 
-    '''
+    
     def predict_ratings(model, dataset, device):
         "We will comåute the scores for user and movie pairs in train, val, test dataframe"
         model.eval() #stop training, use the fixed wieghts
@@ -321,6 +321,8 @@ def run_program(optim,
             #|pandas needs data on CPU and so does nupmy + convert pytorch tensor to numpy, so that pandas can put it into a dataframe
 
         return scores
+    
+
     '''
 
     def predict_ratings_in_batches(model, dataset, device, batch_size=65_000):
@@ -353,7 +355,7 @@ def run_program(optim,
                 torch.cuda.empty_cache()
 
         return scores
-
+    '''
 
 
     #STEP 10 - Train the model
@@ -419,7 +421,7 @@ def run_program(optim,
     #STEP 11 - Create predictions for validation set
     def validate_bpr():
         #Get preds in val dataset
-        predicted_score = predict_ratings_in_batches(model, validation_df, device)
+        predicted_score = predict_ratings(model, validation_df, device)
         #Avr val loss pr batch
         average_val_loss_per_batch = evaluate_loss(model, validate_bpr_dataloader, device)
         #MEasure how much time this whole thing takes
@@ -455,7 +457,7 @@ def run_program(optim,
     def test_bpr(model, testdataloader, device):
         average_test_loss_per_batch = evaluate_loss (model, testdataloader, device)
         #predict stuff using the test_df 
-        test_predict_score = predict_ratings_in_batches(model, test_df, device)
+        test_predict_score = predict_ratings(model, test_df, device)
         
         #Tildel prediction til test datasæt
         prediction_test_dataset = test_df.copy()
@@ -482,7 +484,7 @@ def run_program(optim,
     if "userId" not in big_df.columns or "movieId" not in big_df.columns:
         raise ValueError("The big input file must contain 'userId' and 'movieId' columns.")
 
-    big_scores = predict_ratings_in_batches(model, big_df, device)
+    big_scores = predict_ratings(model, big_df, device)
 
     big_df["recommendation_score"] = big_scores
     big_df.to_csv(big_output, index=False)
