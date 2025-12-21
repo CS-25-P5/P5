@@ -203,7 +203,85 @@ def get_recommendations_for_dpp(dpp_model, movie_user_rating, item_ids, genre_ma
             user_history = (movie_user_rating.iloc[user_idx, :] > 0).values
 
         # --- Map candidate items to global indices ---
-        candidate_indices = [itemid_to_col[item] for item in candidate_items_user if item in itemid_to_col]
+        # Map candidate items to predicted_ratings columns
+        itemid_to_pred_col = {item: idx for idx, item in enumerate(train_filtered_item_ids)}
+        candidate_indices = [itemid_to_pred_col[i] for i in candidate_items_user if i in itemid_to_pred_col]
+
+
+        if len(candidate_indices) == 0:
+                    continue
+
+        top_m = min(200, len(candidate_indices))
+
+        # --- Run DPP selection ---
+        dpp_indices = dpp_model.dpp(
+            user_id=user_idx,
+            user_history=user_history,
+            candidate_indices=candidate_indices,
+            top_k=top_k,
+            top_m=top_m
+        )
+
+
+        process_dpp(
+            user_id=user_id,
+            user_idx=user_idx,
+            dpp_indices=dpp_indices,
+            item_ids=item_ids,
+            feature_map=genre_map,
+            predicted_ratings=predicted_ratings,
+            dpp_recommendations_list=results,
+            itemid_to_col=itemid_to_col,
+            top_n=top_n
+        )
+
+    print("DPP diagnostics:")
+    print("Users with recommendations:", len(set(r['userId'] for r in results)))
+    print("Unique recommended items:", len(set(r['itemId'] for r in results)))
+    print("Total recommendations:", len(results))
+    print(f"Done DPP for {similarity_type}")
+    return results
+
+
+def get_recommendations_for_dpp_test(dpp_model, movie_user_rating, item_ids, genre_map,
+                                predicted_ratings,
+                                top_k, top_n, similarity_type, candidate_items_per_user=None,
+                                user_history_per_user=None):
+
+    results = []
+    itemid_to_col = {item_id: idx for idx, item_id in enumerate(item_ids)}
+
+    for user_idx, user_id in enumerate(movie_user_rating.index):
+        # --- Get candidate items for this user ---
+        if candidate_items_per_user is not None:
+            # Check bounds to avoid IndexError
+            if user_idx >= len(candidate_items_per_user):
+                # Fallback: select all unrated items
+                user_history_mask = (movie_user_rating.iloc[user_idx, :] > 0).values
+                candidate_items_user = [
+                    item_id for idx, item_id in enumerate(movie_user_rating.columns)
+                    if not user_history_mask[idx] and item_id in itemid_to_col
+                ]
+            else:
+                candidate_items_user = candidate_items_per_user[user_idx]
+        else:
+            # No candidate list given: select all unrated items
+            user_history_mask = (movie_user_rating.iloc[user_idx, :] > 0).values
+            candidate_items_user = [
+                item_id for idx, item_id in enumerate(movie_user_rating.columns)
+                if not user_history_mask[idx] and item_id in itemid_to_col
+            ]
+
+        if user_history_per_user is not None:
+            user_history = user_history_per_user[user_idx]
+        else:
+            user_history = (movie_user_rating.iloc[user_idx, :] > 0).values
+
+        # --- Map candidate items to global indices ---
+        # Map candidate items to predicted_ratings columns
+        itemid_to_pred_col = {item: idx for idx, item in enumerate(train_filtered_item_ids)}
+        candidate_indices = [itemid_to_pred_col[i] for i in candidate_items_user if i in itemid_to_pred_col]
+
 
         if len(candidate_indices) == 0:
             continue

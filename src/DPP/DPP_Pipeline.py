@@ -21,7 +21,7 @@ from MMR.helperFunctions import ( generate_run_id, align_matrix_to_user_items, a
 
 
 from DPP import (
-    DPP, build_dpp_models, get_recommendations_for_dpp, save_DPP
+    DPP, build_dpp_models, get_recommendations_for_dpp, save_DPP, get_recommendations_for_dpp_test
 )
 
 
@@ -32,20 +32,26 @@ import csv
 
 def build_dpp_input_from(
         candidate_list_csv,
-        R_filtered,
+        interactions_df = None,
 ):
+    # Load MF candidate list
     df = pd.read_csv(candidate_list_csv)
     df["userId"] = df["userId"].astype(str)
     df["itemId"] = df["itemId"].astype(str)
 
-
+    # Extract users & items
     user_ids = df["userId"].unique().tolist()
     candidate_items = df["itemId"].unique().tolist()
 
+    num_users = len(user_ids)
+    num_items = len(candidate_items)
+
+    # Index mappings
     user_to_row = {u: i for i, u in enumerate(user_ids)}
     item_to_col = {i: j for j, i in enumerate(candidate_items)}
 
-    predicted_ratings = np.zeros((len(user_ids), len(candidate_items)))
+    # Predicted ratings matrix
+    predicted_ratings = np.zeros((num_users, num_items), dtype=float)
 
     for _, row in df.iterrows():
         predicted_ratings[
@@ -53,16 +59,19 @@ def build_dpp_input_from(
             item_to_col[row["itemId"]],
         ] = row["predictedRating"]
 
+    # Build user history mask
     user_history = []
 
-    if R_filtered is not None:
-        R_filtered = R_filtered.copy()
-        R_filtered["userId"] = R_filtered["userId"].astype(str)
-        R_filtered["itemId"] = R_filtered["itemId"].astype(str)
-        # For each user, mark items they've already interacted with
+    if interactions_df is not None:
+        interactions_df = interactions_df.copy()
+        interactions_df["userId"] = interactions_df["userId"].astype(str)
+        interactions_df["itemId"] = interactions_df["itemId"].astype(str)
+
         for u in user_ids:
             seen_items = set(
-                R_filtered.loc[R_filtered["userId"] == u, "itemId"]
+                interactions_df.loc[
+                    interactions_df["userId"] == u, "itemId"
+                ]
             )
 
             mask = np.array(
@@ -71,12 +80,24 @@ def build_dpp_input_from(
             )
             user_history.append(mask)
     else:
-        user_history = [np.zeros(len(candidate_items), dtype=bool)
-                        for _ in user_ids]
+        # Cold-start safe fallback
+        user_history = [
+            np.zeros(num_items, dtype=bool)
+            for _ in range(num_users)
+        ]
 
-    candidate_items_per_user = [candidate_items for _ in user_ids]
+    # Explicit per-user candidate list (DPP API expects this)
+    candidate_items_per_user = [
+        candidate_items for _ in range(num_users)
+    ]
 
-    return predicted_ratings, user_history, user_ids, candidate_items, candidate_items_per_user
+    return (
+        predicted_ratings,
+        user_history,
+        user_ids,
+        candidate_items,
+        candidate_items_per_user,
+    )
 
 
 
@@ -211,31 +232,29 @@ def run_dpp_pipeline_test(
         train_filtered_user_ids=None,
         train_filtered_item_ids=None
 ):
-    print(f"Start {dataset} test pipeline")
 
+    print(f"Start {dataset} test pipeline ")
+
+    # Ensure the output directory exists for saving results
     os.makedirs(output_dir, exist_ok=True)
 
-    # Load test data
-    item_user_rating, genre_map, all_genres = load_and_prepare_matrix(ratings_train_path, item_path)
-
-    # Align test matrix to training users (to map to MF)
-    #R_filtered, filtered_df = align_matrix_to_user(
-    #    matrix_df=item_user_rating,
-    #    filtered_user_ids=train_filtered_user_ids
-    #)
+    # Load the user-item rating matrix and item genre metadata
+    item_user_rating, genre_map, all_genres= load_and_prepare_matrix(
+        ratings_train_path, item_path)
 
     # Ensure train_filtered_user_ids are all ints
     train_filtered_user_ids = [int(uid) for uid in train_filtered_user_ids]
 
     # Load unseen test data
     test_df = pd.read_csv(ratings_test_path)
+    test_df["userId"] = test_df["userId"].astype(str)
+    test_df["itemId"] = test_df["itemId"].astype(str)
 
-    # Keep only users that exist in the trained MF model
-    existing_test_df = test_df[test_df['userId'].isin(train_filtered_user_ids)].copy()
-    # Make userId the DataFrame index.
-    existing_test_df.set_index('userId', inplace=True)
-    test_user_ids = existing_test_df.index.unique()
-    test_item_ids = existing_test_df['itemId'].unique()
+    # Only keep users seen by MF
+    test_df = test_df[test_df["userId"].isin(map(str, train_filtered_user_ids))]
+
+    test_user_ids = test_df["userId"].unique().tolist()
+    test_item_ids = test_df["itemId"].unique().tolist()
 
 
     # Extract predicted ratings for filtered users and items from the trained MF model
@@ -244,9 +263,6 @@ def run_dpp_pipeline_test(
         test_user_ids,
         train_filtered_user_ids,
     )
-
-    predicted_ratings = np.array(predicted_ratings)
-
 
     # Generate top-N recommendations for each user from MF predictions
     get_top_n_recommendations_MF(
@@ -261,73 +277,61 @@ def run_dpp_pipeline_test(
     candidate_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_top_{top_n}.csv")
 
     ratings_df = pd.read_csv(ratings_train_path)[["userId", "itemId"]]
+    ratings_df["userId"] = ratings_df["userId"].astype(str)
+    ratings_df["itemId"] = ratings_df["itemId"].astype(str)
 
-    predicted_ratings_top_n, user_history_top_n, user_ids, candidate_items, candidate_items_per_user = build_dpp_input_from(
-        candidate_list_csv = candidate_path,
-        R_filtered=ratings_df
+    (
+        predicted_ratings_top_n,
+        user_history_top_n,
+        user_ids,
+        candidate_items,
+        candidate_items_per_user,
+    ) = build_dpp_input_from(
+        candidate_list_csv=candidate_path,
+        interactions_df=ratings_df,
     )
 
+    assert user_ids == list(map(str, test_user_ids))
+    assert predicted_ratings_top_n.shape == (
+        len(user_ids),
+        len(candidate_items),
+    )
+    assert len(user_history_top_n) == len(user_ids)
 
 
 
 
-    # Save MF predictions for reference
-    dataset_root = os.path.dirname(output_dir)
-    mf_predictions_path = os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
-    ground_truth_path = os.path.join(dataset_root, f"{dataset}_ratings_{chunksize}_test.csv")
 
+    # Save the full MF predictions to CSV
     save_mf_predictions(
         trained_mf_model=trained_mf_model,
         train_user_ids=train_filtered_user_ids,
         train_item_ids=train_filtered_item_ids,
         ground_truth_path=ground_truth_path,
-        output_path=mf_predictions_path
+        output_path=os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
     )
 
-    # Filter rating matrix and df to only users/items present in candidate list
-    #user_ids = [u for u in user_ids if u in item_user_rating.index]
-    #candidate_items = [i for i in candidate_items if i in movie_user_rating.columns]
-    train_item_ids_str = [str(i) for i in train_filtered_item_ids]
-    test_item_ids_str = [str(i) for i in test_item_ids]
-    all_candidate_items = sorted(set(train_item_ids_str) | set(test_item_ids_str))
-    movie_user_rating = pd.DataFrame(0.0, index=test_user_ids, columns=all_candidate_items)
-    # Fill movie_user_rating from test_df
+
+
+    movie_user_rating = pd.DataFrame(
+        0.0,
+        index=user_ids,
+        columns=candidate_items,
+    )
+
     for _, row in test_df.iterrows():
-        u, i, r = str(row["userId"]), str(row["itemId"]), float(row.get("rating", 1.0))
+        u, i = row["userId"], row["itemId"]
         if u in movie_user_rating.index and i in movie_user_rating.columns:
-            movie_user_rating.at[u, i] = r
+            movie_user_rating.at[u, i] = 1.0
 
-    movie_user_rating = movie_user_rating.loc[test_user_ids, candidate_items]
-    # Ensure all IDs are strings
-
-
-    # Merge candidate items
-    candidate_items = all_candidate_items
-
-
-
-    item_user_rating.index = item_user_rating.index.astype(str)
-
-    #user_ids = [str(test_user_id)]
-    #candidate_items = [i for i in candidate_items if i in item_user_rating.columns]
-
-    #item_user_rating = item_user_rating.loc[user_ids, candidate_items]
-
-    # Align movie_user_rating for test users
-
-
-
-    #for _, row in ratings_df.iterrows():
-     #  u, i, r = str(row["userId"]), str(row["itemId"]), float(row.get("rating", 1.0))
-      # if u in user_ids and i in candidate_items:
-       #    movie_user_rating.at[u, i] = r
-
-
-    #print(f"Candidate items for DPP: {len(candidate_items)}")
 
     # Build DPP models
     genre_map_test = {item: genre_map[item] for item in candidate_items if item in genre_map}
     all_genres_test = sorted({g for genres in genre_map_test.values() for g in genres})
+
+    print(f"Candidate items: {len(candidate_items)}")
+    print(f"Test users: {len(user_ids)}")
+    print(f"GT interactions: {movie_user_rating.values.sum()}")
 
 
     # SANITY CHECK
@@ -348,12 +352,12 @@ def run_dpp_pipeline_test(
     dpp_jaccard = build_dpp_models(candidate_items, genre_map_test, all_genres_test, predicted_ratings_dpp, 'jaccard')
 
     # Run DPP recommendations
-    cosine_reco = get_recommendations_for_dpp(
+    cosine_reco = get_recommendations_for_dpp_test(
         dpp_cosine, movie_user_rating, candidate_items, genre_map_test, predicted_ratings_dpp,
         top_k, top_n, "cosine", candidate_items_per_user=candidate_items_per_user,   # from build_dpp_input()
         user_history_per_user=user_history_top_n
     )
-    jaccard_reco = get_recommendations_for_dpp(
+    jaccard_reco = get_recommendations_for_dpp_test(
         dpp_jaccard, movie_user_rating, candidate_items, genre_map_test, predicted_ratings_dpp,
         top_k, top_n, "jaccard", candidate_items_per_user=candidate_items_per_user,
         user_history_per_user=user_history_top_n
