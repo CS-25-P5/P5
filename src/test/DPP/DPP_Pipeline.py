@@ -6,7 +6,7 @@ import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from MMR.MF import (
+from src.backend.MMR.MF import (
     MatrixFactorization,
     load_and_prepare_matrix,
     get_top_n_recommendations_MF,
@@ -14,7 +14,7 @@ tune_mf, train_mf_with_best_params,
     save_mf_predictions
 )
 
-from MMR.helperFunctions import ( generate_run_id, align_matrix_to_user_items, align_matrix_to_user,
+from src.backend.MMR.helperFunctions import ( generate_run_id, align_matrix_to_user_items, align_matrix_to_user,
                                   prepare_train_val_matrices, get_filtered_predictions,
                                    log_experiment, build_mmr_input
                                   )

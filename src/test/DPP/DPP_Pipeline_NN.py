@@ -1,9 +1,9 @@
 import numpy as np
-from MMR.MF import (load_and_prepare_matrix)
+from src.backend.MMR.MF import (load_and_prepare_matrix)
 from DPP import (
      build_dpp_models, get_recommendations_for_dpp, save_DPP
 )
-from MMR.helperFunctions import ( generate_run_id)
+from src.backend.MMR.helperFunctions import ( generate_run_id)
 import os
 import pandas as pd
 
