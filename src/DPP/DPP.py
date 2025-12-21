@@ -249,7 +249,10 @@ def get_recommendations_for_dpp_test(dpp_model, movie_user_rating, item_ids, gen
                                 user_history_per_user=None):
 
     results = []
+    # Map candidate item IDs to column indices in predicted_ratings
+    itemid_to_pred_col = {item: idx for idx, item in enumerate(item_ids)}
     itemid_to_col = {item_id: idx for idx, item_id in enumerate(item_ids)}
+
 
     for user_idx, user_id in enumerate(movie_user_rating.index):
         # --- Get candidate items for this user ---
@@ -279,7 +282,6 @@ def get_recommendations_for_dpp_test(dpp_model, movie_user_rating, item_ids, gen
 
         # --- Map candidate items to global indices ---
         # Map candidate items to predicted_ratings columns
-        itemid_to_pred_col = {item: idx for idx, item in enumerate(train_filtered_item_ids)}
         candidate_indices = [itemid_to_pred_col[i] for i in candidate_items_user if i in itemid_to_pred_col]
 
 
