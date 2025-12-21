@@ -247,14 +247,16 @@ def run_dpp_pipeline_test(
 
     # Load unseen test data
     test_df = pd.read_csv(ratings_test_path)
-    test_df["userId"] = test_df["userId"].astype(str)
-    test_df["itemId"] = test_df["itemId"].astype(str)
+    #test_df["userId"] = test_df["userId"].astype(str)
+    #test_df["itemId"] = test_df["itemId"].astype(str)
 
-    # Only keep users seen by MF
-    test_df = test_df[test_df["userId"].isin(map(str, train_filtered_user_ids))]
 
-    test_user_ids = test_df["userId"].unique().tolist()
-    test_item_ids = test_df["itemId"].unique().tolist()
+    # Keep only users that exist in the trained MF model
+    existing_test_df = test_df[test_df['userId'].isin(train_filtered_user_ids)].copy()
+    # Make userId the DataFrame index.
+    existing_test_df.set_index('userId', inplace=True)
+    test_user_ids = existing_test_df.index.unique()
+    test_item_ids = existing_test_df['itemId'].unique()
 
 
     # Extract predicted ratings for filtered users and items from the trained MF model
