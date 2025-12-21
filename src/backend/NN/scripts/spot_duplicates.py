@@ -34,10 +34,9 @@ def remove_trainingandval_from_recommendation(recommendation_dir_path, training_
     #LOOP THRU the FILES
     for myfile in os.listdir(recommendation_dir_path):
 
-        #if myfile.startswith("_") or "_filtered" in myfile:
-            #continue
-        if not myfile.endswith("RecommendBPRnn_TwoLayers_embed64_lr0001_batch64.csv"):
+        if myfile.startswith("_") or "_filtered" in myfile:
             continue
+        
         recommendation_file_path = os.path.join(recommendation_dir_path, myfile)
         recommendations = pandas.read_csv(recommendation_file_path)
 
