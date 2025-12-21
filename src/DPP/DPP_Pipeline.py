@@ -314,6 +314,11 @@ def run_dpp_pipeline_test(
         output_path=os.path.join(output_dir, f"{run_id}/mf_test_{chunksize}_predictions.csv")
     )
 
+    # Combine candidate items from top-N MF and all test items
+    candidate_items = sorted(set(candidate_items) | set(map(str, test_item_ids)))
+
+    # Rebuild candidate_items_per_user accordingly
+    candidate_items_per_user = [candidate_items for _ in user_ids]
 
 
     movie_user_rating = pd.DataFrame(
