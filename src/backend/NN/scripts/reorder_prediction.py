@@ -19,30 +19,31 @@ input4 = "data/OUTPUT_datasets/NN/Recommend_test_100K_movies(MLPwithGenres)"
 input5 = "data/OUTPUT_datasets/NN/Recommend_test_100K_goodbooks(MLPwithGenres)"
 
 
+last = "data/OUTPUT_datasets/NN/LI"
+
 def reorder(input_folder):
 
     for filename in os.listdir(input_folder):
-        if filename.endswith("8.csv") or filename.endswith("4.csv"):
-            input_path = os.path.join(input_folder, filename) #### GEt the the path for each file
+        if filename.endswith(".csv"):
+            continue
+        input_path = os.path.join(input_folder, filename) #### GEt the the path for each file
+        #Load me
+        pred_dataset = pandas.read_csv(input_path, comment = "#") 
 
+        #Sorty by userId first, then descend
 
-            #Load me
-            pred_dataset = pandas.read_csv(input_path, comment = "#") 
+        sort_by_id = pred_dataset.sort_values(
+            by = ["userId", "recommendation_score"],
+            ascending=[True, False]
+        )
 
-            #Sorty by userId first, then descend
+        #Create output filename 
+        base_path, extension = os.path.splitext(filename)
+        output_filename = f"{base_path}_ranked{extension}"
+        output_path = os.path.join(input_folder, output_filename)
 
-            sort_by_id = pred_dataset.sort_values(
-                by = ["user_id", "recommendation_score"],
-                ascending=[True, False]
-            )
-
-            #Create output filename 
-            base_path, extension = os.path.splitext(filename)
-            output_filename = f"{base_path}_ranked{extension}"
-            output_path = os.path.join(input_folder, output_filename)
-
-            #Save
-            sort_by_id.to_csv(output_path, index = False)
+        #Save
+        sort_by_id.to_csv(output_path, index = False)
 
 
 
@@ -50,4 +51,5 @@ def reorder(input_folder):
 #reorder(input2)
 #reorder(input3)
 #reorder(input4)
-reorder(input5)
+#reorder(input5)
+#reorder(last)
