@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_Pipeline.py", line 468, in <module>
+    run_dpp_pipeline_test(
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_Pipeline.py", line 351, in run_dpp_pipeline_test
+    cosine_reco = get_recommendations_for_dpp(
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP.py", line 214, in get_recommendations_for_dpp
+    dpp_indices = dpp_model.dpp(
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP.py", line 114, in dpp
+    relevance = self.predicted_ratings[user_id, candidate_indices]
+IndexError: index 271 is out of bounds for axis 1 with size 250
