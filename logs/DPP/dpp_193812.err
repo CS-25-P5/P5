@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_Pipeline.py", line 457, in <module>
+    best_params, predicted_ratings, filtered_item_ids, filtered_user_ids, mf = run_dpp_pipeline(
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP_Pipeline.py", line 189, in run_dpp_pipeline
+    get_recommendations_for_dpp(
+  File "/ceph/home/student.aau.dk/la15yk/P5/src/DPP/DPP.py", line 207, in get_recommendations_for_dpp
+    itemid_to_pred_col = {item: idx for idx, item in enumerate(train_filtered_item_ids)}
+NameError: name 'train_filtered_item_ids' is not defined
