@@ -75,12 +75,15 @@ Things the authors finetune/change to be able to see the difference in the outpu
 The following methods will test the validity of the results.
 
 - Root Mean Squared Error (RMSE) 
-- Mean Absolute Error (MAE) 
-- Precision@k
-- Recall@k
-- NDCG@k
-- MAP and AUC for matrix factorization algorithms to measure relevance
-- Intra list diversity, coverage and inverse gini to measure diversity
+- Mean Absolute Error (MAE)
+- Mean squared error (MSE)
+- Precision@kK
+- Recall@K
+- NDCG@K
+- Hit rate@K
+- MRR@K
+- Intra list diversity (ILD) and coverage as measures of diversity
+  
 
 
 # Important commands
